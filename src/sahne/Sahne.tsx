@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { Disari } from './Disari';
 import { Dukkan } from './Dukkan';
 import { Hazirlama } from './Hazirlama';
+import { Musteriler } from './Musteriler';
 import { renk } from './renkler';
 
 // Tezgah kamerası: sabit, oyuncu yürümez. Ekran ne kadar geniş ya da dar
@@ -97,6 +98,7 @@ export function Sahne() {
         <Disari />
         <Dukkan />
         <Hazirlama />
+        <Musteriler />
       </Suspense>
     </Canvas>
   );

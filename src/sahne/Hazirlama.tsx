@@ -127,8 +127,14 @@ function AltlikVeToplar() {
       // Servis: müşteriye doğru uzanıp küçülür
       if (servisBasladi.current === null) servisBasladi.current = performance.now();
       const t = Math.min(1, (performance.now() - servisBasladi.current) / 900);
-      g.position.lerpVectors(ALTLIK_KONUM, new THREE.Vector3(0, 1.45, -1.3), t);
-      g.scale.setScalar(1 - t * 0.6);
+      if (durum.servisDogru) {
+        g.position.lerpVectors(ALTLIK_KONUM, new THREE.Vector3(0, 1.45, -1.3), t);
+        g.scale.setScalar(1 - t * 0.6);
+      } else {
+        // Yanlış sipariş: dondurma kenara bırakılır (ceza yok)
+        g.position.lerpVectors(ALTLIK_KONUM, new THREE.Vector3(-1.1, 1.2, 0.1), t);
+        g.scale.setScalar(1 - t);
+      }
     } else {
       servisBasladi.current = null;
       g.position.lerp(ALTLIK_KONUM, 1 - Math.exp(-dt * 12));

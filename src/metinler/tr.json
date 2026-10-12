@@ -1,12 +1,13 @@
 {
-  "iskelet.etiket": "Kepçe denemesi · 2. adım",
+  "iskelet.etiket": "Müşteri sırası · 3. adım",
   "yukleniyor": "Yükleniyor…",
 
   "altlik.kulah": "Külah",
   "altlik.kap": "Kap",
   "servis.dugme": "Servis et",
 
-  "ipucu.altlik": "Önce altlık seç",
+  "ipucu.altlik": "Siparişe bak, altlık seç",
+  "ipucu.musteriYok": "Müşteri bekleniyor…",
   "ipucu.kuvet": "Bir küvete basılı tut, MÜKEMMEL'de bırak",
   "ipucu.yerlestir": "Topu koymak için ekrana dokun",
   "ipucu.dolu": "Altlık doldu, servis et",
@@ -17,5 +18,6 @@
   "sonuc.iyi": "İyi",
   "sonuc.kucuk": "Biraz küçük",
   "sonuc.buyuk": "Biraz büyük",
-  "sonuc.servis": "Servis edildi"
+  "sonuc.yanlis": "Sipariş bu değildi",
+  "memnuniyet": "Memnuniyet"
 }

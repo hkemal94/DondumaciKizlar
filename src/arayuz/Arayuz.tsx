@@ -7,11 +7,16 @@ import {
   IYI_PAYI,
   MUKEMMEL_ALT,
   MUKEMMEL_UST,
+  ondekiMusteri,
+  ortalamaMemnuniyet,
   servisEt,
+  type Siparis,
   topuYerlestir,
   useDurum,
 } from '../oyun/durum';
 import { m, type MetinAnahtari } from '../metinler';
+import { kuvetler } from '../oyun/kuvetler';
+import { balon } from '../sahne/Musteriler';
 
 // Tezgah ekranının düğmeleri, ipucu yazısı, kepçe göstergesi ve sonuç yazısı.
 // Tarz: taslak 1 ve 3 gibi sıcak ahşap paneller.
@@ -65,10 +70,94 @@ function Bildirim() {
     return () => window.clearTimeout(z);
   }, [bildirim]);
   if (!bildirim || !gorunur) return null;
-  const anahtar = `sonuc.${bildirim.sonuc}` as MetinAnahtari;
+  let yazi: string;
+  let sinif: string = bildirim.tur;
+  if (bildirim.tur === 'top') {
+    yazi = m(`sonuc.${bildirim.sonuc}` as MetinAnahtari);
+    sinif = bildirim.sonuc;
+  } else if (bildirim.tur === 'para') yazi = `+${bildirim.miktar}`;
+  else yazi = m('sonuc.yanlis');
   return (
-    <div key={bildirim.zaman} className={`bildirim bildirim-${bildirim.sonuc}`}>
-      {m(anahtar)}
+    <div key={bildirim.zaman} className={`bildirim bildirim-${sinif}`}>
+      {bildirim.tur === 'para' && <span className="para-simge" aria-hidden />}
+      {yazi}
+    </div>
+  );
+}
+
+// Sipariş balonunun içi: altlık ve top renkleri, resimle (yazısız).
+function SiparisResmi({ siparis }: { siparis: Siparis }) {
+  const toplar = siparis.kuvetler.map((k) => kuvetler[k].renk);
+  const kulah = siparis.altlik === 'kulah';
+  // Toplar: külahta üst üste, kapta yan yana (oyundaki gibi)
+  const yerler: [number, number][] = kulah
+    ? toplar.map((_, i) => [30, 40 - i * 15])
+    : toplar.length === 1
+      ? [[30, 44]]
+      : [[21, 46], [39, 46], [30, 33]].slice(0, toplar.length) as [number, number][];
+  return (
+    <svg viewBox="0 0 60 90" className="siparis-resmi" aria-hidden>
+      {toplar.map((r, i) => (
+        <circle key={i} cx={yerler[i][0]} cy={yerler[i][1]} r="11" fill={r} stroke="rgba(0,0,0,0.18)" strokeWidth="1.5" />
+      ))}
+      {kulah ? (
+        <path d="M17 47 L43 47 L30 86 Z" fill="#d9a066" stroke="#a8743f" strokeWidth="2" strokeLinejoin="round" />
+      ) : (
+        <path d="M12 50 L48 50 L43 74 L17 74 Z" fill="#7a3fa8" stroke="#4e2470" strokeWidth="2" strokeLinejoin="round" />
+      )}
+      {!kulah && <rect x="13" y="55" width="34" height="4" fill="#ffc928" />}
+    </svg>
+  );
+}
+
+function SiparisBalonu() {
+  const durum = useDurum();
+  const musteri = ondekiMusteri(durum);
+  return (
+    <div
+      className="balon"
+      ref={(oge) => {
+        balon.oge = oge;
+      }}
+    >
+      {musteri && (
+        <div className="balon-ic">
+          <SiparisResmi siparis={musteri.siparis} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Yildizlar({ puan }: { puan: number | null }) {
+  return (
+    <span className="yildizlar" aria-label={puan === null ? '' : `${puan.toFixed(1)} / 5`}>
+      {[1, 2, 3, 4, 5].map((i) => {
+        const dolu = puan === null ? 0 : Math.max(0, Math.min(1, puan - (i - 1)));
+        return (
+          <span key={i} className="yildiz">
+            <span className="yildiz-dolu" style={{ width: `${dolu * 100}%` }}>
+              ★
+            </span>
+            ★
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
+function UstBilgi() {
+  const durum = useDurum();
+  return (
+    <div className="ust-bilgi">
+      <div className="bilgi-kutusu">
+        <span className="para-simge" aria-hidden />
+        <span className="para-sayi">{durum.para}</span>
+      </div>
+      <div className="bilgi-kutusu" title={m('memnuniyet')}>
+        <Yildizlar puan={ortalamaMemnuniyet(durum)} />
+      </div>
     </div>
   );
 }
@@ -87,20 +176,24 @@ export function Arayuz() {
   }, []);
 
   const topSayisi = durum.toplar.length;
+  const musteri = ondekiMusteri(durum);
   let ipucu: MetinAnahtari | null = null;
-  if (durum.asama === 'altlikSec') ipucu = 'ipucu.altlik';
+  if (!musteri && durum.asama === 'altlikSec') ipucu = 'ipucu.musteriYok';
+  else if (durum.asama === 'altlikSec') ipucu = 'ipucu.altlik';
   else if (durum.asama === 'kepceDolu') ipucu = 'ipucu.yerlestir';
   else if (durum.asama === 'kepceBos')
     ipucu = topSayisi === 0 ? 'ipucu.kuvet' : topSayisi >= EN_COK_TOP ? 'ipucu.dolu' : 'ipucu.servisVeyaTop';
 
   const altlikDegisebilir = (durum.asama === 'altlikSec' || durum.asama === 'kepceBos') && topSayisi === 0;
-  const servisHazir = durum.asama === 'kepceBos' && topSayisi > 0;
+  const servisHazir = durum.asama === 'kepceBos' && topSayisi > 0 && !!musteri;
 
   return (
     <div className="arayuz">
       {/* Kepçede top varken ekranın herhangi bir yerine dokunmak topu yerleştirir */}
       {durum.asama === 'kepceDolu' && <div className="yerlestir-alani" onPointerDown={topuYerlestir} />}
 
+      <SiparisBalonu />
+      <UstBilgi />
       {ipucu && <div className="ipucu">{m(ipucu)}</div>}
       {durum.asama === 'dolduruyor' && <Gosterge />}
       <Bildirim />

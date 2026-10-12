@@ -1,6 +1,9 @@
 import { useSyncExternalStore } from 'react';
 
-// Kepçe mini oyununun durumu (belge bölüm 3: altlık → kepçe → yerleştir → servis).
+import { kuvetler } from './kuvetler';
+
+// Oyunun durumu: kepçe mini oyunu (belge bölüm 3: altlık → kepçe →
+// yerleştir → servis) ve müşteri sırası (iş sırası 3).
 // Oyuncunun yaptığı her şey buradan geçer; ekran ve 3B sahne buradan okur.
 
 export type Altlik = 'kulah' | 'kap';
@@ -13,6 +16,24 @@ export interface Top {
   sonuc: Sonuc;
 }
 
+export interface Siparis {
+  altlik: Altlik;
+  kuvetler: number[]; // hangi küvetlerden kaç top
+}
+
+export interface Musteri {
+  id: number;
+  gorunum: number; // musteriGorunumleri sırası
+  siparis: Siparis;
+  hal: 'sirada' | 'gidiyor';
+  mutlu: boolean;
+}
+
+export type Bildirim =
+  | { tur: 'top'; sonuc: Sonuc; zaman: number }
+  | { tur: 'para'; miktar: number; zaman: number }
+  | { tur: 'yanlis'; zaman: number };
+
 export interface Durum {
   asama: Asama;
   altlik: Altlik | null;
@@ -20,7 +41,12 @@ export interface Durum {
   kepcedeki: Top | null;
   kepceKuvet: number | null; // basılı tutulan küvet
   dolumBasladi: number; // basılı tutma anı (ms)
-  bildirim: { sonuc: Sonuc | 'servis'; zaman: number } | null;
+  bildirim: Bildirim | null;
+  servisDogru: boolean;
+  musteriler: Musteri[];
+  sonrakiGelis: number; // bir sonraki müşterinin geleceği an (ms)
+  para: number;
+  memnuniyetler: number[]; // her müşterinin 1–5 puanı
 }
 
 // Gösterge ayarları
@@ -38,6 +64,11 @@ let durum: Durum = {
   kepceKuvet: null,
   dolumBasladi: 0,
   bildirim: null,
+  servisDogru: false,
+  musteriler: [],
+  sonrakiGelis: 0,
+  para: 0,
+  memnuniyetler: [],
 };
 
 const dinleyiciler = new Set<() => void>();
@@ -93,7 +124,7 @@ export function birak() {
     asama: 'kepceDolu',
     kepcedeki: top,
     kepceKuvet: null,
-    bildirim: { sonuc: top.sonuc, zaman: performance.now() },
+    bildirim: { tur: 'top', sonuc: top.sonuc, zaman: performance.now() },
   });
 }
 
@@ -102,11 +133,97 @@ export function topuYerlestir() {
   guncelle({ asama: 'kepceBos', toplar: [...durum.toplar, durum.kepcedeki], kepcedeki: null });
 }
 
+// ---- Müşteri sırası (iş sırası 3) ----
+// Sayılar geçici: fiyat, gelme aralığı ve sıra uzunluğu denemeyle ayarlanacak.
+export const EN_COK_SIRA = 4;
+export const GELIS_ARALIGI: [number, number] = [5000, 9000]; // ms
+export const TOP_FIYATI = 10;
+export const MUKEMMEL_EKI = 5;
+export const IYI_EKI = 2;
+export const MUSTERI_GORUNUM_SAYISI = 4;
+
+let sonId = 0;
+
+function rastgeleSiparis(): Siparis {
+  const z = Math.random();
+  const sayi = z < 0.5 ? 1 : z < 0.85 ? 2 : 3;
+  return {
+    altlik: Math.random() < 0.5 ? 'kulah' : 'kap',
+    kuvetler: Array.from({ length: sayi }, () => Math.floor(Math.random() * kuvetler.length)),
+  };
+}
+
+export function ondekiMusteri(d: Durum = durum): Musteri | undefined {
+  return d.musteriler.find((m) => m.hal === 'sirada');
+}
+
+// Oyun döngüsü bunu yarım saniyede bir çağırır: sıra boşsa müşteri gelir.
+export function musteriDongusu(simdi: number) {
+  const siradaki = durum.musteriler.filter((m) => m.hal === 'sirada').length;
+  if (siradaki >= EN_COK_SIRA || simdi < durum.sonrakiGelis) return;
+  const [en, enCok] = GELIS_ARALIGI;
+  // Sıra boşken ilk müşteri hemen gelsin
+  const bekle = siradaki === 0 ? 1500 : en + Math.random() * (enCok - en);
+  guncelle({
+    musteriler: [
+      ...durum.musteriler,
+      {
+        id: ++sonId,
+        gorunum: Math.floor(Math.random() * MUSTERI_GORUNUM_SAYISI),
+        siparis: rastgeleSiparis(),
+        hal: 'sirada',
+        mutlu: false,
+      },
+    ],
+    sonrakiGelis: simdi + bekle,
+  });
+}
+
+function siparisTutuyorMu(siparis: Siparis, altlik: Altlik | null, toplar: Top[]) {
+  if (altlik !== siparis.altlik || toplar.length !== siparis.kuvetler.length) return false;
+  const a = toplar.map((t) => t.kuvet).sort();
+  const b = [...siparis.kuvetler].sort();
+  return a.every((k, i) => k === b[i]);
+}
+
+const SONUC_PUANI: Record<Sonuc, number> = { mukemmel: 5, iyi: 4, kucuk: 3, buyuk: 3 };
+
 export function servisEt() {
-  if (durum.asama !== 'kepceBos' || durum.toplar.length === 0) return;
-  guncelle({ asama: 'servis', bildirim: { sonuc: 'servis', zaman: performance.now() } });
-  // Servis hareketi bitince yeni sipariş için baştan
+  const musteri = ondekiMusteri();
+  if (durum.asama !== 'kepceBos' || durum.toplar.length === 0 || !musteri) return;
+  const simdi = performance.now();
+
+  if (!siparisTutuyorMu(musteri.siparis, durum.altlik, durum.toplar)) {
+    // Ceza yok: dondurma kenara konur, müşteri beklemeye devam eder.
+    guncelle({ asama: 'servis', servisDogru: false, bildirim: { tur: 'yanlis', zaman: simdi } });
+  } else {
+    const miktar = durum.toplar.reduce(
+      (t, top) => t + TOP_FIYATI + (top.sonuc === 'mukemmel' ? MUKEMMEL_EKI : top.sonuc === 'iyi' ? IYI_EKI : 0),
+      0,
+    );
+    const puan = durum.toplar.reduce((t, top) => t + SONUC_PUANI[top.sonuc], 0) / durum.toplar.length;
+    const id = musteri.id;
+    guncelle({
+      asama: 'servis',
+      servisDogru: true,
+      bildirim: { tur: 'para', miktar, zaman: simdi },
+      para: durum.para + miktar,
+      memnuniyetler: [...durum.memnuniyetler, puan],
+      musteriler: durum.musteriler.map((m) => (m.id === id ? { ...m, hal: 'gidiyor', mutlu: true } : m)),
+    });
+    // Giden müşteri ekrandan çıkınca listeden silinir
+    window.setTimeout(() => {
+      guncelle({ musteriler: durum.musteriler.filter((m) => m.id !== id) });
+    }, 4000);
+  }
+
+  // Servis hareketi bitince yeni dondurma için baştan
   window.setTimeout(() => {
     guncelle({ asama: 'altlikSec', altlik: null, toplar: [], kepcedeki: null });
   }, 1100);
+}
+
+export function ortalamaMemnuniyet(d: Durum = durum): number | null {
+  if (d.memnuniyetler.length === 0) return null;
+  return d.memnuniyetler.reduce((a, b) => a + b, 0) / d.memnuniyetler.length;
 }

@@ -236,3 +236,103 @@ body,
     animation-fill-mode: none;
   }
 }
+
+/* ---- Müşteri sırası (3. adım) ---- */
+.balon {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+  will-change: transform;
+}
+.balon-ic {
+  position: absolute;
+  left: 0;
+  bottom: 14px;
+  transform: translateX(-30%);
+  background: #fffaf2;
+  border: 3px solid var(--mor-koyu);
+  border-radius: 18px;
+  padding: 6px 10px 4px;
+  box-shadow: 0 4px 0 rgba(78, 36, 112, 0.35);
+}
+.balon-ic::after {
+  content: '';
+  position: absolute;
+  left: 22%;
+  bottom: -11px;
+  width: 16px;
+  height: 16px;
+  background: #fffaf2;
+  border-right: 3px solid var(--mor-koyu);
+  border-bottom: 3px solid var(--mor-koyu);
+  transform: translateX(-50%) rotate(45deg);
+}
+.siparis-resmi {
+  display: block;
+  width: 44px;
+  height: 66px;
+}
+
+.ust-bilgi {
+  position: absolute;
+  top: max(10px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right));
+  display: flex;
+  gap: 8px;
+  pointer-events: none;
+}
+.bilgi-kutusu {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 12px;
+  background: var(--mor-koyu);
+  border: 2px solid var(--mor);
+  color: var(--yazi);
+  font-weight: 800;
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.18);
+}
+.para-simge {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff2a8, var(--sari) 55%, #d99a00);
+  border: 2px solid #b67c00;
+  flex: none;
+}
+.bildirim .para-simge {
+  width: 30px;
+  height: 30px;
+  margin-right: 6px;
+  vertical-align: -4px;
+}
+.yildizlar {
+  display: inline-flex;
+  gap: 1px;
+  font-size: 18px;
+  line-height: 1;
+}
+.yildiz {
+  position: relative;
+  color: rgba(255, 255, 255, 0.25);
+}
+.yildiz-dolu {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  color: var(--sari);
+}
+.bildirim-para {
+  color: var(--sari);
+}
+.bildirim-yanlis {
+  font-size: 26px;
+}
