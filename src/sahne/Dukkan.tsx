@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
 import { renk } from './renkler';
-import { kuvetler } from '../oyun/kuvetler';
+import { kuvetler, VITRIN_GENISLIGI } from '../oyun/kuvetler';
 import { kuveteBas } from '../oyun/durum';
 
 // Dükkânın içi, tezgahın arkasından görünen hâli (birinci şahıs yakın plan).
@@ -148,9 +148,12 @@ function Vitrin() {
   return (
     <group position={[0, 0, -0.62]}>
       {/* Vitrin gövdesi */}
-      <Kutu konum={[0, 0.48, 0]} boyut={[2.9, 0.96, 0.9]} renkAdi={renk.vitrinMetal} puruz={0.5} />
+      <Kutu konum={[0, 0.48, 0]} boyut={[VITRIN_GENISLIGI, 0.96, 0.9]} renkAdi={renk.vitrinMetal} puruz={0.5} />
+      {/* Vitrinin müşteri tarafı: logo renklerinde şerit */}
+      <Kutu konum={[0, 0.62, -0.455]} boyut={[VITRIN_GENISLIGI, 0.5, 0.02]} renkAdi={renk.mor} />
+      <Kutu konum={[0, 0.9, -0.46]} boyut={[VITRIN_GENISLIGI, 0.07, 0.02]} renkAdi={renk.sari} />
       {/* Küvet kasası */}
-      <Kutu konum={[0, 0.98, 0]} boyut={[2.6, 0.06, 0.66]} renkAdi="#8d969e" puruz={0.4} />
+      <Kutu konum={[0, 0.98, 0]} boyut={[VITRIN_GENISLIGI - 0.3, 0.06, 0.66]} renkAdi="#8d969e" puruz={0.4} />
       {kuvetler.map((k, i) => (
         <group key={i} position={[k.x, 1.0, 0]}>
           <Kutu konum={[0, -0.02, 0]} boyut={[0.58, 0.06, 0.5]} renkAdi="#d4d9dd" golgeVer={false} puruz={0.3} />
@@ -170,10 +173,10 @@ function Vitrin() {
       ))}
       {/* Müşteri tarafında alçak cam siper */}
       <mesh position={[0, 1.2, -0.42]} rotation={[-0.12, 0, 0]}>
-        <boxGeometry args={[2.8, 0.42, 0.02]} />
+        <boxGeometry args={[VITRIN_GENISLIGI - 0.1, 0.42, 0.02]} />
         <meshPhysicalMaterial color={renk.cam} transparent opacity={0.18} roughness={0.05} />
       </mesh>
-      <Kutu konum={[0, 1.41, -0.45]} boyut={[2.85, 0.035, 0.06]} renkAdi={renk.vitrinMetal} golgeVer={false} puruz={0.4} />
+      <Kutu konum={[0, 1.41, -0.45]} boyut={[VITRIN_GENISLIGI - 0.05, 0.035, 0.06]} renkAdi={renk.vitrinMetal} golgeVer={false} puruz={0.4} />
     </group>
   );
 }
@@ -199,7 +202,7 @@ function Yiginlar() {
     );
   }
   return (
-    <group position={[1.95, 0.96, -0.5]}>
+    <group position={[VITRIN_GENISLIGI / 2 + 0.5, 0.96, -0.5]}>
       <group position={[0, 0, 0]}>{kulahlar}</group>
       <group position={[0.28, 0, 0.05]}>{kulahlar}</group>
       <group position={[0.55, 0, -0.05]}>{kaplar}</group>
@@ -211,10 +214,12 @@ function Tezgah() {
   return (
     <group>
       {/* Yan tezgahlar (vitrinin iki yanı) */}
-      <Kutu konum={[-2.6, 0.46, -0.62]} boyut={[2.4, 0.92, 0.9]} renkAdi={renk.ahsapOrta} />
-      <Kutu konum={[2.6, 0.46, -0.62]} boyut={[2.4, 0.92, 0.9]} renkAdi={renk.ahsapOrta} />
-      <Kutu konum={[-2.6, 0.94, -0.62]} boyut={[2.5, 0.05, 1.0]} renkAdi={renk.tezgahUst} puruz={0.6} />
-      <Kutu konum={[2.6, 0.94, -0.62]} boyut={[2.5, 0.05, 1.0]} renkAdi={renk.tezgahUst} puruz={0.6} />
+      {[-1, 1].map((yon) => (
+        <group key={yon} position={[yon * (VITRIN_GENISLIGI / 2 + 1.2), 0, -0.62]}>
+          <Kutu konum={[0, 0.46, 0]} boyut={[2.4, 0.92, 0.9]} renkAdi={renk.ahsapOrta} />
+          <Kutu konum={[0, 0.94, 0]} boyut={[2.5, 0.05, 1.0]} renkAdi={renk.tezgahUst} puruz={0.6} />
+        </group>
+      ))}
       <Vitrin />
       <Yiginlar />
     </group>

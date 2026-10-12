@@ -14,14 +14,16 @@ export const renk = {
   ahsapOrta: '#a87650',
   ahsapKoyu: '#7a5236',
   duvar: '#e9d6bd',
-  pencereCerceve: '#3f6a8f',
+  pencereCerceve: '#6b3596',
   tezgahUst: '#d9c3a5',
   vitrinMetal: '#b9c0c6',
   cam: '#dff1f7',
 
-  // Logo renkleri (kanon: mor ve sarı; tonlar taslak)
-  mor: '#9a7bc4',
-  sari: '#f4d35e',
+  // Logo renkleri (kanon: mor ve sarı; tonlar taslak, Kemal 12 Ekim:
+  // "biraz daha Dondurmacı Kızlar renkleri")
+  mor: '#7a3fa8',
+  morAcik: '#9b5fc9',
+  sari: '#ffc928',
 
   tekneGovde: '#f4efe6',
   yelken: '#fbf8f1',

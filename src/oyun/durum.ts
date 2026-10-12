@@ -27,7 +27,7 @@ export interface Durum {
 export const MUKEMMEL_ALT = 0.62;
 export const MUKEMMEL_UST = 0.8;
 export const IYI_PAYI = 0.14;
-export const DOLUM_SURESI = 1500; // boştan tama, ms
+export const DOLUM_SURESI = 1000; // boştan tama, ms (Kemal: 1500 yavaştı)
 export const EN_COK_TOP = 3;
 
 let durum: Durum = {

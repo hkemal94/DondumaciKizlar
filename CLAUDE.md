@@ -29,7 +29,7 @@ işletme oyunu. Oyuncu tezgahın arkasında dondurmayı kendi eliyle hazırlar.
 | Dönem | **2000'lerin başı** — dükkânın açılış yılları |
 | Oyuncu | **İsimsiz.** Oyuncuya ad, yüz, geçmiş verme |
 | Gün | Oyun içinde saat akar; dükkân kapanınca gün biter, gün sonu ekranı gelir |
-| Ekran | **Yatay** (12 Ekim) |
+| Ekran | **Yatay** (12 Ekim). Telefon dik tutulsa da oyun yatay görünür (ekran kilidi); "yan çevir" uyarısı yok |
 | Görsel kalite | Taslak görseller (`docs/gorseller/`) temsilî ama **alt sınır**: en az o kalite. Ölçü taslak 2 |
 | Yazım | **Düzada** (ü ile). "Dūzada", "Duzada" yazılmaz |
 

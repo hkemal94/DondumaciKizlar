@@ -1,5 +1,5 @@
 import { Suspense, useLayoutEffect } from 'react';
-import { Canvas, useThree } from '@react-three/fiber';
+import { Canvas, events, useThree, type RootState } from '@react-three/fiber';
 import * as THREE from 'three';
 import { Disari } from './Disari';
 import { Dukkan } from './Dukkan';
@@ -53,11 +53,34 @@ function Isiklar() {
   );
 }
 
+// Telefon dik tutulunca oyun CSS ile 90° çevrilir (stil.css). Parmağın
+// ekrandaki yerini çevrilmiş oyunun içindeki yere dönüştürür.
+function ekrandanSahneye(x: number, y: number) {
+  if (window.matchMedia('(orientation: portrait)').matches) {
+    return { x: y, y: window.innerWidth - x };
+  }
+  return { x, y };
+}
+
+function dokunmaOlaylari(store: Parameters<typeof events>[0]) {
+  return {
+    ...events(store),
+    compute(olay: { clientX: number; clientY: number }, durum: RootState) {
+      const { x, y } = ekrandanSahneye(olay.clientX, olay.clientY);
+      durum.pointer.set((x / durum.size.width) * 2 - 1, -(y / durum.size.height) * 2 + 1);
+      durum.raycaster.setFromCamera(durum.pointer, durum.camera);
+    },
+  };
+}
+
 export function Sahne() {
   return (
     <Canvas
       shadows="percentage"
       dpr={[1, 2]}
+      // Çevrilmiş hâlde de doğru boyu ölçsün (döndürmeyi hesaba katmadan)
+      resize={{ offsetSize: true }}
+      events={dokunmaOlaylari}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
       camera={{ near: 0.05, far: 900 }}
       onCreated={({ gl }) => {

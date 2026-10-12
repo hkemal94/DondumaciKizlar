@@ -95,6 +95,26 @@ function AltlikStandi() {
   );
 }
 
+function topKonumlari(altlik: 'kulah' | 'kap', toplar: Top[]): [number, number, number][] {
+  const r = toplar.map((t) => topYaricapi(t.boyut));
+  if (altlik === 'kulah') {
+    let y = 0.01;
+    return r.map((ri, i) => {
+      y += i === 0 ? ri * 0.55 : ri * 1.25;
+      return [0, y, 0];
+    });
+  }
+  // Kap: bir top ortada; iki top yan yana; üçüncü ikisinin üstünde
+  if (r.length === 1) return [[0, -0.01 + r[0] * 0.5, 0]];
+  const yan = Math.max(r[0], r[1]) * 0.8;
+  const sonuc: [number, number, number][] = [
+    [-yan, -0.015 + r[0] * 0.45, 0.005],
+    [yan, -0.015 + r[1] * 0.45, -0.005],
+  ];
+  if (r.length >= 3) sonuc.push([0, -0.015 + Math.max(r[0], r[1]) * 0.45 + r[2] * 1.05, 0]);
+  return sonuc;
+}
+
 function AltlikVeToplar() {
   const durum = useDurum();
   const ref = useRef<THREE.Group>(null);
@@ -118,17 +138,14 @@ function AltlikVeToplar() {
 
   if (!durum.altlik) return null;
 
-  // Topları üst üste diz
-  let y = durum.altlik === 'kulah' ? 0.01 : -0.02;
-  const toplar = durum.toplar.map((top, i) => {
-    const r = topYaricapi(top.boyut);
-    y += i === 0 ? r * 0.55 : r * 1.25;
-    return (
-      <group key={i} position={[0, y, 0]}>
-        <DondurmaTopu top={top} tohum={i * 3 + top.kuvet} />
-      </group>
-    );
-  });
+  // Toplar altlığa göre farklı dizilir: külahta üst üste,
+  // kapta yan yana (üçüncüsü ikisinin üstüne).
+  const konumlar = topKonumlari(durum.altlik, durum.toplar);
+  const toplar = durum.toplar.map((top, i) => (
+    <group key={i} position={konumlar[i]}>
+      <DondurmaTopu top={top} tohum={i * 3 + top.kuvet} />
+    </group>
+  ));
 
   return (
     <group ref={ref} position={ALTLIK_KONUM.toArray()}>

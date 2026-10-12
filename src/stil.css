@@ -2,6 +2,10 @@
 :root {
   --ahsap: #6b4630;
   --ahsap-acik: #8a5d40;
+  /* Logo renkleri (tonlar taslak) */
+  --mor: #7a3fa8;
+  --mor-koyu: #4e2470;
+  --sari: #ffc928;
   --krem: #fbf1e3;
   --yazi: #fffaf2;
 }
@@ -38,8 +42,8 @@ body,
   left: max(12px, env(safe-area-inset-left));
   padding: 6px 12px;
   border-radius: 10px;
-  background: var(--ahsap);
-  border: 2px solid var(--ahsap-acik);
+  background: var(--mor-koyu);
+  border: 2px solid var(--mor);
   color: var(--yazi);
   font-size: 13px;
   font-weight: 700;
@@ -48,46 +52,16 @@ body,
   pointer-events: none;
 }
 
-.yon-uyarisi {
-  display: none;
-}
-
+/* Telefon dik tutuluyorsa oyunu 90° çevir: oyun her zaman yatay.
+   Dokunma hesabı Sahne.tsx'teki ekrandanSahneye ile aynı çevirmeyi kullanır. */
 @media (orientation: portrait) {
-  .yon-uyarisi {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 24px;
-    text-align: center;
-    background: var(--krem);
-    color: var(--ahsap);
-  }
-  .yon-simge {
-    font-size: 64px;
-    line-height: 1;
-    animation: don 2.4s ease-in-out infinite;
-  }
-  .yon-baslik {
-    font-size: 22px;
-    font-weight: 800;
-  }
-  .yon-aciklama {
-    font-size: 15px;
-    opacity: 0.8;
-  }
-}
-
-@keyframes don {
-  0%,
-  30% {
-    transform: rotate(0deg);
-  }
-  60%,
-  100% {
+  .oyun {
+    inset: auto;
+    top: 0;
+    left: 100vw;
+    width: 100vh;
+    height: 100vw;
+    transform-origin: top left;
     transform: rotate(90deg);
   }
 }
@@ -114,7 +88,7 @@ body,
   transform: translateX(-50%);
   padding: 7px 16px;
   border-radius: 999px;
-  background: rgba(107, 70, 48, 0.88);
+  background: rgba(78, 36, 112, 0.88);
   color: var(--yazi);
   font-size: 15px;
   font-weight: 700;
@@ -127,26 +101,26 @@ body,
   font-size: 17px;
   font-weight: 800;
   color: var(--yazi);
-  background: var(--ahsap-acik);
-  border: 3px solid var(--ahsap);
+  background: var(--mor);
+  border: 3px solid var(--mor-koyu);
   border-radius: 14px;
   padding: 10px 20px;
-  box-shadow: 0 4px 0 var(--ahsap);
+  box-shadow: 0 4px 0 var(--mor-koyu);
   cursor: pointer;
   touch-action: manipulation;
   transition: transform 0.08s, opacity 0.2s;
 }
 .dugme:active:not(:disabled) {
   transform: translateY(3px);
-  box-shadow: 0 1px 0 var(--ahsap);
+  box-shadow: 0 1px 0 var(--mor-koyu);
 }
 .dugme:disabled {
   opacity: 0.45;
   cursor: default;
 }
 .dugme.secili {
-  background: #f4d35e;
-  color: var(--ahsap);
+  background: var(--sari);
+  color: var(--mor-koyu);
   opacity: 1;
 }
 .dugme:focus-visible {
@@ -163,6 +137,8 @@ body,
 }
 
 .dugme-servis {
+  background: var(--sari);
+  color: var(--mor-koyu);
   position: absolute;
   right: max(14px, env(safe-area-inset-right));
   bottom: max(14px, env(safe-area-inset-bottom));
@@ -191,7 +167,7 @@ body,
   stroke-width: 16;
 }
 .yay-zemin {
-  stroke: #6b4630;
+  stroke: #4e2470;
   stroke-linecap: round;
 }
 .yay-iyi {
@@ -215,7 +191,7 @@ body,
   font-size: 15px;
   color: #fff6c9;
   letter-spacing: 0.06em;
-  text-shadow: 0 2px 0 #6b4630;
+  text-shadow: 0 2px 0 #4e2470;
 }
 
 .bildirim {
@@ -226,13 +202,13 @@ body,
   font-size: 34px;
   font-weight: 900;
   color: #fffaf2;
-  text-shadow: 0 3px 0 #6b4630, 0 0 12px rgba(0, 0, 0, 0.25);
+  text-shadow: 0 3px 0 #4e2470, 0 0 12px rgba(0, 0, 0, 0.25);
   pointer-events: none;
   animation: bildirim 1s ease-out forwards;
   white-space: nowrap;
 }
 .bildirim-mukemmel {
-  color: #f4d35e;
+  color: var(--sari);
   font-size: 42px;
 }
 @keyframes bildirim {
