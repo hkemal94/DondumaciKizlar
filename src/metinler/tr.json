@@ -4,12 +4,13 @@
   "altlik.kulah": "Külah",
   "altlik.kap": "Kap",
   "servis.dugme": "Servis et",
+  "geriAl.dugme": "Geri al",
 
   "ipucu.altlik": "Siparişe bak, altlık seç",
   "ipucu.musteriYok": "Müşteri bekleniyor…",
   "ipucu.kapandi": "Dükkân kapandı, sıradakilere servis et",
   "ipucu.kuvet": "Bir küvete basılı tut, MÜKEMMEL'de bırak",
-  "ipucu.yerlestir": "Topu koymak için ekrana dokun",
+  "ipucu.yerlestir": "Topu koymak için ekrana dokun ya da geri al",
   "ipucu.dolu": "Altlık doldu, servis et",
   "ipucu.servisVeyaTop": "Bir top daha al ya da servis et",
 

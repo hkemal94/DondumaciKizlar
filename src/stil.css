@@ -136,12 +136,28 @@ body,
   gap: 10px;
 }
 
-.dugme-servis {
-  background: var(--sari);
-  color: var(--mor-koyu);
+.sag-dugmeler {
   position: absolute;
   right: max(14px, env(safe-area-inset-right));
   bottom: max(14px, env(safe-area-inset-bottom));
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+.dugme-geri {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  padding: 9px 14px;
+}
+.geri-simge {
+  font-size: 20px;
+  line-height: 1;
+}
+.dugme-servis {
+  background: var(--sari);
+  color: var(--mor-koyu);
   font-size: 20px;
   padding: 12px 26px;
   letter-spacing: 0.03em;

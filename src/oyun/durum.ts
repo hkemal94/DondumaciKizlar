@@ -155,6 +155,21 @@ export function topuYerlestir() {
   guncelle({ asama: 'kepceBos', toplar: [...durum.toplar, durum.kepcedeki], kepcedeki: null });
 }
 
+// Geri al (Kemal, 12 Ekim: "hata yaptığım zaman geri alamıyorum").
+// Sırayla: kepçedeki topu küvete geri koy → son konan topu çıkar →
+// altlığı bırak. Ceza yok, dondurma boşa gitmez.
+export function geriAlinabilir(d: Durum = durum) {
+  if (d.asama === 'kepceDolu') return true;
+  return d.asama === 'kepceBos' && (d.toplar.length > 0 || d.altlik !== null);
+}
+
+export function geriAl() {
+  if (!geriAlinabilir()) return;
+  if (durum.asama === 'kepceDolu') guncelle({ asama: 'kepceBos', kepcedeki: null });
+  else if (durum.toplar.length > 0) guncelle({ toplar: durum.toplar.slice(0, -1) });
+  else guncelle({ asama: 'altlikSec', altlik: null });
+}
+
 // ---- Müşteri sırası (iş sırası 3) ----
 // Sayılar geçici: fiyat, gelme aralığı ve sıra uzunluğu denemeyle ayarlanacak.
 export const EN_COK_SIRA = 4;

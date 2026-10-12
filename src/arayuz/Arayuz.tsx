@@ -4,6 +4,8 @@ import {
   birak,
   dolumHesapla,
   EN_COK_TOP,
+  geriAl,
+  geriAlinabilir,
   IYI_PAYI,
   MUKEMMEL_ALT,
   MUKEMMEL_UST,
@@ -261,9 +263,17 @@ export function Arayuz() {
         ))}
       </div>
 
-      <button className="dugme dugme-servis" disabled={!servisHazir} onClick={servisEt}>
-        {m('servis.dugme')}
-      </button>
+      <div className="sag-dugmeler">
+        <button className="dugme dugme-geri" disabled={!geriAlinabilir(durum)} onClick={geriAl}>
+          <span className="geri-simge" aria-hidden>
+            ↶
+          </span>
+          {m('geriAl.dugme')}
+        </button>
+        <button className="dugme dugme-servis" disabled={!servisHazir} onClick={servisEt}>
+          {m('servis.dugme')}
+        </button>
+      </div>
 
       <GunSonu />
     </div>
