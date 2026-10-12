@@ -40,6 +40,8 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Öncelik | Dondurmacı Kızlar önce; The Imperial (resepsiyon oyunu) bekliyor |
 | Ekran yönü | **Yatay** (Kemal, 12 Ekim: "yatay olabilir") |
 | Görsel kalite | Taslak görseller temsilî, ama **en az o kalite** hedef (Kemal, 12 Ekim). Ölçü: taslak 2 |
+| Tarz | Karışım (Kemal, 12 Ekim): **3B dünya taslak 2 gibi** (temiz low-poly, yumuşak ışık); **arayüz taslak 1 ve 3 gibi** (sıcak, ahşap paneller ve düğmeler) |
+| Deneme telefonu | Elde hangisi varsa; orta seviye bir telefonda akıcı çalışmak hedef |
 
 ---
 
@@ -156,6 +158,7 @@ karar verilince bölüm 0'a taşınır.
 |---|---|---|
 | Bir oyun gününün gerçek süresi | Öneri 5–8 dakika | 6 dakikayla başla, Kemal'in denemesine göre ayarla |
 | İlk sürümde kaç çeşit, kaç müşteri tipi | Açık | 4 çeşit (taslak 2'deki çilek, çikolata, nane, vanilya) + 2 altlık (külah, kap); 3–4 müşteri görünümü |
+| Birinci şahısta eller | Kemal henüz karar vermedi; değişebilir | İlk denemede eller olmadan, yalnız külah ve kepçe; sonra eklenip karşılaştırılır |
 | Para modeli | Açık | İlk sürümde yok; yakın çevre denemesi bitince konuşulur |
 | Oyunun adı | "Dondurmacı Kızlar" dükkânın adı; oyunun adı da bu mu? | — (Kemal'in) |
 | İsimsiz oyuncu + kuruluş hikâyesi | Oyuncu sahip mi, ilk çalışan mı — belli olmak zorunda değil | Belirsiz kalsın; ekranda hep birinci şahıs eller, izometrikte oyuncu görünmez |
