@@ -3,7 +3,9 @@
 **Proje:** Dondurmacı Kızlar (Kems Company)
 **Aşama:** Detaylandırılmış konsept ve oynanış belgesi
 **Son güncelleme:** 12 Ekim 2026 — Kemal'in taslağı + aynı gün verilen
-kararlar (bölüm 0). Taslağın görselleri Drive'daki asıl belgede.
+kararlar (bölüm 0). Taslak görseller `docs/gorseller/` altında (kanon
+değil; neyin alınmayacağı oradaki README'de). KKM oyun dosyasından gelen
+ek maddeler bölüm 7'de.
 
 | | |
 |---|---|
@@ -66,6 +68,8 @@ hazırladığınız, sakinleştirici ve lofi atmosferli bir dükkân işletme oy
 
 ### 2.1 Dükkân geneli ve ana arayüz (izometrik yönetim)
 
+![Taslak 1](gorseller/taslak-1-izometrik-dukkan.jpg)
+
 Oyuncu güne başlar. Ekranın üst kısmında günlük kazanç, itibar göstergesi
 ve günün saati yer alır. Tezgahta mevcut dondurma çeşitleri sergilenir.
 
@@ -76,12 +80,16 @@ istedikleri dondurmayı gösteren konuşma balonları belirir.
 
 ### 2.3 Dondurma hazırlama (birinci şahıs tezgah görünümü)
 
+![Taslak 2](gorseller/taslak-2-tezgah-yakin-plan.jpg)
+
 Müşteri tezgaha geldiğinde kamera yumuşakça tezgahın arkasındaki sabit
 birinci şahıs açıya geçer. Oyuncu altlığı seçer, zamanlama çubuğunu
 kullanarak kepçeyle küvetten dondurmayı alır, külaha yerleştirir ve servis
 eder. (Oyuncu yürümez; kamera sabittir.)
 
 ### 2.4 İlerleme, yetenek ve menü yönetimi
+
+![Taslak 3](gorseller/taslak-3-yetenek-menu.jpg)
 
 Biriktirilen parayla yeni tariflerin kilidi açılır, ürün fiyatları
 ayarlanır, dükkân için yeni masa, bitki ve dekorasyon alınır.
@@ -137,11 +145,42 @@ ayarlanır, dükkân için yeni masa, bitki ve dekorasyon alınır.
 
 ## 7. Açık sorular
 
-| Konu | Durum |
-|---|---|
-| Ekran yönü (telefon dikey mi, yatay mı) | İlk ekrandan önce karar |
-| Bir oyun gününün gerçek süresi | Öneri 5–8 dakika |
-| İlk sürümde kaç çeşit, kaç müşteri tipi | Açık |
-| Para modeli | Açık |
-| Oyunun adı | "Dondurmacı Kızlar" dükkânın adı; oyunun adı da bu mu? |
-| İsimsiz oyuncu + kuruluş hikâyesi | Oyuncu sahip mi, ilk çalışan mı — belli olmak zorunda değil |
+"Öneri" sütunu yapay zekânın önerisidir, **karar değildir**. Karar Kemal'in;
+karar verilince bölüm 0'a taşınır.
+
+### 7.1 Taslaktan gelenler
+
+| Konu | Durum | Öneri |
+|---|---|---|
+| Ekran yönü (telefon dikey mi, yatay mı) | İlk ekrandan önce karar | **Yatay.** Bütün taslak görseller yatay; izometrik dükkân ve tezgah yan yana daha rahat sığar |
+| Bir oyun gününün gerçek süresi | Öneri 5–8 dakika | 6 dakikayla başla, Kemal'in denemesine göre ayarla |
+| İlk sürümde kaç çeşit, kaç müşteri tipi | Açık | 4 çeşit (taslak 2'deki çilek, çikolata, nane, vanilya) + 2 altlık (külah, kap); 3–4 müşteri görünümü |
+| Para modeli | Açık | İlk sürümde yok; yakın çevre denemesi bitince konuşulur |
+| Oyunun adı | "Dondurmacı Kızlar" dükkânın adı; oyunun adı da bu mu? | — (Kemal'in) |
+| İsimsiz oyuncu + kuruluş hikâyesi | Oyuncu sahip mi, ilk çalışan mı — belli olmak zorunda değil | Belirsiz kalsın; ekranda hep birinci şahıs eller, izometrikte oyuncu görünmez |
+
+### 7.2 KKM oyun dosyasından gelenler (12 Ekim)
+
+KKM'deki oyun dosyasında olup bu belgede olmayan maddeler:
+
+| Konu | KKM dosyasında | Öneri |
+|---|---|---|
+| Zaman aralığı | "Onyıllara yayılır" — belgede dönem 2000'lerin başı | Oyun 2000'lerin başında başlar; yıllar sonraki güncellemelerle ilerleyebilir. İlk sürüm tek dönem |
+| Seslendirme | Kısmi | İlk sürümde yok; müşteriler balonla anlatır. Sonra kısa sesler (selam, teşekkür) |
+| Başarımlar | Var | İlk sürümde yok; sonraki sürümlere |
+| Kaynak yönetimi | Ana mekanik | İlk sürümde stok yok; sonra "küvet biter, gün sonu sipariş verilir" gibi hafif bir biçim |
+| Bir oturum | 15–30 dakika | Belgeyle uyumlu: bir oturum 3–4 oyun günü |
+| Platform | PC, mobil | Bölüm 0 geçerli: önce telefon |
+| Hedef oyuncu | Aile / herkes | Belgeyle uyumlu |
+| Oyunun sonu | Açık uçlu | Belgeyle uyumlu |
+| Riskler | Kapsam büyür, motivasyon düşer | İlk oynanabilir sürümü küçük tut (bölüm 0); her adım telefonda denenebilir olsun |
+
+### 7.3 Taslak görsellerden doğan sorular
+
+| Konu | Durum | Öneri |
+|---|---|---|
+| Para birimi | Görsellerde altın (g), yıldız, "Skill Points" karışık | Tek para (dönemin parası mı, oyuna özel mi — Kemal'in) + itibar yıldızları. Tarif ağacı da parayla açılsın; üçüncü birim olmasın |
+| İzometrikte tezgah arkasındaki kız (taslak 1) | Oyuncu mu, sahibi mi, çalışan mı? | Oyuncu görünmez; orada biri olacaksa çalışan ya da sahibi olur, adı ve görünüşü Kemal'in |
+| Logo renkleri | Görsellerde pembe / krem / kahve; kanonda mor ve sarı | Kanon geçerli: mor ve sarı |
+| Dükkânın çevresi | Görsellerde kumlu plaj | Kanon geçerli: iskelenin yakını. Plaj yerine iskele ve tekneler görünsün |
+| Kepçe göstergesi | Taslak 2'de "HIZ" yazıyor | Gösterge "MÜKEMMEL" bölgesini göstersin, yazısı çeviri dosyasından gelsin |
