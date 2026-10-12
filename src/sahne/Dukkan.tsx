@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
 import { renk } from './renkler';
+import { kuvetler } from '../oyun/kuvetler';
+import { kuveteBas } from '../oyun/durum';
 
 // Dükkânın içi, tezgahın arkasından görünen hâli (birinci şahıs yakın plan).
 // Kodla çizilmiş geçici parçalar; asıl modeller sonra gelecek.
@@ -141,20 +143,29 @@ function DondurmaYuzeyi({ renkAdi, tohum }: { renkAdi: string; tohum: number }) 
   );
 }
 
-// Vitrin: dört küvet, üstünde cam siper. Renkler yalnız sahne için;
-// çeşitler henüz kararlaştırılmadı.
+// Vitrin: dört küvet, üstünde cam siper. Küvete basılı tutunca kepçe dalar.
 function Vitrin() {
-  const kuvetRenkleri = ['#f08c8c', '#9b6a4f', '#9fdcae', '#f6ecd6'];
   return (
     <group position={[0, 0, -0.62]}>
       {/* Vitrin gövdesi */}
       <Kutu konum={[0, 0.48, 0]} boyut={[2.9, 0.96, 0.9]} renkAdi={renk.vitrinMetal} puruz={0.5} />
       {/* Küvet kasası */}
       <Kutu konum={[0, 0.98, 0]} boyut={[2.6, 0.06, 0.66]} renkAdi="#8d969e" puruz={0.4} />
-      {kuvetRenkleri.map((r, i) => (
-        <group key={i} position={[-0.93 + i * 0.62, 1.0, 0]}>
+      {kuvetler.map((k, i) => (
+        <group key={i} position={[k.x, 1.0, 0]}>
           <Kutu konum={[0, -0.02, 0]} boyut={[0.58, 0.06, 0.5]} renkAdi="#d4d9dd" golgeVer={false} puruz={0.3} />
-          <DondurmaYuzeyi renkAdi={r} tohum={i + 1} />
+          <DondurmaYuzeyi renkAdi={k.renk} tohum={i + 1} />
+          {/* Dokunma alanı: küvetten biraz büyük, görünmez */}
+          <mesh
+            position={[0, 0.08, 0]}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              kuveteBas(i);
+            }}
+          >
+            <boxGeometry args={[0.6, 0.25, 0.7]} />
+            <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+          </mesh>
         </group>
       ))}
       {/* Müşteri tarafında alçak cam siper */}

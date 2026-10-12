@@ -1,6 +1,23 @@
 {
   "yon.cevir": "Telefonu yan çevir",
   "yon.aciklama": "Oyun yatay oynanır.",
-  "iskelet.etiket": "İskelet · 1. adım",
-  "yukleniyor": "Yükleniyor…"
+  "iskelet.etiket": "Kepçe denemesi · 2. adım",
+  "yukleniyor": "Yükleniyor…",
+
+  "altlik.kulah": "Külah",
+  "altlik.kap": "Kap",
+  "servis.dugme": "Servis et",
+
+  "ipucu.altlik": "Önce altlık seç",
+  "ipucu.kuvet": "Bir küvete basılı tut, MÜKEMMEL'de bırak",
+  "ipucu.yerlestir": "Topu koymak için ekrana dokun",
+  "ipucu.dolu": "Altlık doldu, servis et",
+  "ipucu.servisVeyaTop": "Bir top daha al ya da servis et",
+
+  "gosterge.baslik": "MÜKEMMEL",
+  "sonuc.mukemmel": "MÜKEMMEL!",
+  "sonuc.iyi": "İyi",
+  "sonuc.kucuk": "Biraz küçük",
+  "sonuc.buyuk": "Biraz büyük",
+  "sonuc.servis": "Servis edildi"
 }

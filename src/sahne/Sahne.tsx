@@ -3,6 +3,7 @@ import { Canvas, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { Disari } from './Disari';
 import { Dukkan } from './Dukkan';
+import { Hazirlama } from './Hazirlama';
 import { renk } from './renkler';
 
 // Tezgah kamerası: sabit, oyuncu yürümez. Ekran ne kadar geniş ya da dar
@@ -72,6 +73,7 @@ export function Sahne() {
       <Suspense fallback={null}>
         <Disari />
         <Dukkan />
+        <Hazirlama />
       </Suspense>
     </Canvas>
   );

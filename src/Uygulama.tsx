@@ -1,10 +1,12 @@
 import { Sahne } from './sahne/Sahne';
 import { m } from './metinler';
+import { Arayuz } from './arayuz/Arayuz';
 
 export function Uygulama() {
   return (
     <div className="oyun">
       <Sahne />
+      <Arayuz />
       <div className="iskelet-etiketi">{m('iskelet.etiket')}</div>
       {/* Telefon dik tutulunca çıkar (yalnız CSS ile) */}
       <div className="yon-uyarisi">
