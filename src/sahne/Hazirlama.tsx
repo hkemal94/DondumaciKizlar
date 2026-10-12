@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { dolumHesapla, durumuOku, useDurum, type Top } from '../oyun/durum';
+import { dolumHesapla, durumuOku, useDurum, type Susleme, type Top } from '../oyun/durum';
 import { KUVET_Y, KUVET_Z, kuvetler } from '../oyun/kuvetler';
 import { renk } from './renkler';
 import { TezgahtaGorunur } from './Dukkan';
@@ -43,6 +43,59 @@ function DondurmaTopu({ top, tohum }: { top: Top; tohum: number }) {
     <mesh geometry={geometri} scale={r} castShadow>
       <meshStandardMaterial color={kuvetler[top.kuvet].renk} roughness={0.55} flatShading />
     </mesh>
+  );
+}
+
+// Topun üstüne süsleme ve sos (belge bölüm 3, adım 4)
+const SEKER_RENKLERI = ['#ff6f7d', '#ffc928', '#5fb7e8', '#9b5fc9', '#5fd08a', '#fffaf2'];
+
+function ustYuzeyNoktalari(sayi: number, tohum: number) {
+  // Topun üst yarısına dağılmış noktalar (birim küre üzerinde)
+  const noktalar: THREE.Vector3[] = [];
+  for (let i = 0; i < sayi; i++) {
+    const a = i * 2.399 + tohum;
+    const y = 0.35 + ((i * 0.618 + tohum * 0.37) % 1) * 0.6;
+    const r = Math.sqrt(1 - y * y);
+    noktalar.push(new THREE.Vector3(Math.cos(a) * r, y, Math.sin(a) * r));
+  }
+  return noktalar;
+}
+
+function TopSuslemesi({ tur, yaricap, tohum }: { tur: Susleme; yaricap: number; tohum: number }) {
+  const noktalar = useMemo(() => ustYuzeyNoktalari(tur === 'seker' ? 22 : 9, tohum), [tur, tohum]);
+  if (tur === 'sos') {
+    return (
+      <group scale={yaricap}>
+        {/* Topun tepesini saran çikolata sosu ve damlalar */}
+        <mesh position={[0, 0.12, 0]} scale={[1.06, 0.62, 1.06]}>
+          <sphereGeometry args={[1, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2]} />
+          <meshStandardMaterial color="#5a2e1c" roughness={0.25} flatShading />
+        </mesh>
+        {[0, 2.1, 4.2].map((a) => (
+          <mesh key={a} position={[Math.cos(a) * 0.95, 0.0, Math.sin(a) * 0.95]}>
+            <sphereGeometry args={[0.16, 6, 4]} />
+            <meshStandardMaterial color="#5a2e1c" roughness={0.25} />
+          </mesh>
+        ))}
+      </group>
+    );
+  }
+  return (
+    <group scale={yaricap}>
+      {noktalar.map((n, i) =>
+        tur === 'seker' ? (
+          <mesh key={i} position={n.clone().multiplyScalar(1.02)} rotation={[i, i * 2, 0]}>
+            <boxGeometry args={[0.24, 0.07, 0.07]} />
+            <meshStandardMaterial color={SEKER_RENKLERI[i % SEKER_RENKLERI.length]} roughness={0.6} />
+          </mesh>
+        ) : (
+          <mesh key={i} position={n.clone().multiplyScalar(1.03)} rotation={[i, i * 1.3, 0]}>
+            <icosahedronGeometry args={[0.13, 0]} />
+            <meshStandardMaterial color={i % 2 ? '#c48a4a' : '#a86d36'} roughness={0.9} flatShading />
+          </mesh>
+        ),
+      )}
+    </group>
   );
 }
 
@@ -151,6 +204,9 @@ function AltlikVeToplar() {
   const toplar = durum.toplar.map((top, i) => (
     <group key={i} position={konumlar[i]}>
       <DondurmaTopu top={top} tohum={i * 3 + top.kuvet} />
+      {durum.susleme.map((s) => (
+        <TopSuslemesi key={s} tur={s} yaricap={topYaricapi(top.boyut)} tohum={i + 1} />
+      ))}
     </group>
   ));
 

@@ -214,3 +214,6 @@ KKM'deki oyun dosyasında olup bu belgede olmayan maddeler:
 | Kamera geçişi | Gün dükkânın genel görünümüyle başlar. Öndeki müşteri tezgaha varınca kamera kendiliğinden tezgaha geçer; sıra boşalınca genele döner. Oyuncu düğmeyle de geçer (genelde "Tezgaha geç", tezgahta ev simgesi) | 5. adım |
 | Genel görünüm | Bebek evi gibi: tavan, sağ duvar ve arka duvar kalkar, yalnız dipleri görünür. Oyuncu görünmez | 5. adım |
 | Dükkân içi | Arka tezgah (kavanozlar, kahve makinesi, kasa), yazısız menü panosu, üç saksı; dışarıda taş kaldırım. Hepsi geçici | Taslak 1'e göre; ad ve yazı yok |
+| Süsleme ve sos | Üç tane: çikolata sosu, renkli şeker, fındık (belge 3, adım 4). En az bir top konunca sağdaki sütunda çıkar; her biri bir kez. Süslemeden sonra top eklenmez | Çeşitler ve adları Kemal'in onayına |
+| Süslemeli sipariş | Siparişlerin üçte birinde bir süsleme istenir; balonda en üstteki topun üstünde görünür. Süsleme başına +3 | Geçici oran ve fiyat |
+| Düğme yerleri | Altlık düğmeleri solda, Geri al ve süslemeler sağda dikey sütun, Servis et sağ altta: küvetlerin üstüne binmesinler diye | |

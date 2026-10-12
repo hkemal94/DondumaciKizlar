@@ -15,6 +15,10 @@ import {
   saatYazisi,
   servisEt,
   yeniGun,
+  SUSLEMELER,
+  suslemeEkle,
+  suslemeEklenebilir,
+  type Susleme,
   type Siparis,
   topuYerlestir,
   useDurum,
@@ -105,6 +109,11 @@ function SiparisResmi({ siparis }: { siparis: Siparis }) {
       {toplar.map((r, i) => (
         <circle key={i} cx={yerler[i][0]} cy={yerler[i][1]} r="11" fill={r} stroke="rgba(0,0,0,0.18)" strokeWidth="1.5" />
       ))}
+      {/* İstenen süsleme en üstteki topun üstünde */}
+      {siparis.susleme.map((s) => {
+        const ust = yerler.slice(0, toplar.length).reduce((a, b) => (b[1] < a[1] ? b : a));
+        return <SuslemeIsareti key={s} tur={s} x={ust[0]} y={ust[1]} />;
+      })}
       {kulah ? (
         <path d="M17 47 L43 47 L30 86 Z" fill="#d9a066" stroke="#a8743f" strokeWidth="2" strokeLinejoin="round" />
       ) : (
@@ -112,6 +121,63 @@ function SiparisResmi({ siparis }: { siparis: Siparis }) {
       )}
       {!kulah && <rect x="13" y="55" width="34" height="4" fill="#ffc928" />}
     </svg>
+  );
+}
+
+// Süslemenin küçük resmi: balonda ve düğmede aynı
+function SuslemeIsareti({ tur, x, y }: { tur: Susleme; x: number; y: number }) {
+  if (tur === 'sos')
+    return (
+      <path
+        d={`M${x - 11} ${y - 1} Q${x - 11} ${y - 12} ${x} ${y - 12} Q${x + 11} ${y - 12} ${x + 11} ${y - 1} L${x + 8} ${y + 3} L${x + 5} ${y - 1} L${x + 1} ${y + 5} L${x - 3} ${y - 1} L${x - 7} ${y + 3} Z`}
+        fill="#5a2e1c"
+      />
+    );
+  if (tur === 'seker')
+    return (
+      <g>
+        {[[-6, -7, '#5fb7e8'], [1, -10, '#ffc928'], [6, -5, '#9b5fc9'], [-2, -3, '#fffaf2'], [-8, -1, '#ff6f7d']].map(([dx, dy, r], i) => (
+          <rect key={i} x={x + (dx as number) - 2.5} y={y + (dy as number) - 1} width="5" height="2" rx="1" fill={r as string} transform={`rotate(${i * 40} ${x + (dx as number)} ${y + (dy as number)})`} />
+        ))}
+      </g>
+    );
+  return (
+    <g fill="#a86d36">
+      {[[-5, -7], [3, -9], [6, -3], [-2, -2], [-8, -2]].map(([dx, dy], i) => (
+        <polygon key={i} points={`${x + dx},${y + dy - 2.5} ${x + dx + 2.5},${y + dy + 2} ${x + dx - 2.5},${y + dy + 2}`} />
+      ))}
+    </g>
+  );
+}
+
+// Sağ kenardaki sütun: Geri al ve (top varken) süslemeler
+function SuslemeDugmeleri() {
+  const durum = useDurum();
+  if (durum.kamera !== 'tezgah') return null;
+  return (
+    <div className="susleme-dugmeleri">
+      <button className="dugme dugme-geri" disabled={!geriAlinabilir(durum)} onClick={geriAl}>
+        <span className="geri-simge" aria-hidden>
+          ↶
+        </span>
+        {m('geriAl.dugme')}
+      </button>
+      {durum.toplar.length > 0 && SUSLEMELER.map((s) => (
+        <button
+          key={s}
+          className={`susleme-dugme ${durum.susleme.includes(s) ? 'eklendi' : ''}`}
+          disabled={!suslemeEklenebilir(s, durum)}
+          onClick={() => suslemeEkle(s)}
+          aria-label={m(`susleme.${s}` as MetinAnahtari)}
+        >
+          <svg viewBox="0 0 30 30" aria-hidden>
+            <circle cx="15" cy="17" r="11" fill="#fff0c8" />
+            <SuslemeIsareti tur={s} x={15} y={17} />
+          </svg>
+          <span>{m(`susleme.${s}` as MetinAnahtari)}</span>
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -253,6 +319,7 @@ export function Arayuz() {
       {ipucu && <div className="ipucu">{m(ipucu)}</div>}
       {tezgahta && durum.asama === 'dolduruyor' && <Gosterge />}
       <Bildirim />
+      <SuslemeDugmeleri />
 
       {tezgahta ? (
         <>
@@ -273,12 +340,6 @@ export function Arayuz() {
           </div>
 
           <div className="sag-dugmeler">
-            <button className="dugme dugme-geri" disabled={!geriAlinabilir(durum)} onClick={geriAl}>
-              <span className="geri-simge" aria-hidden>
-                ↶
-              </span>
-              {m('geriAl.dugme')}
-            </button>
             <button className="dugme dugme-servis" disabled={!servisHazir} onClick={servisEt}>
               {m('servis.dugme')}
             </button>

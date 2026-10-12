@@ -5,6 +5,9 @@
   "altlik.kap": "Kap",
   "servis.dugme": "Servis et",
   "geriAl.dugme": "Geri al",
+  "susleme.sos": "Çikolata sosu",
+  "susleme.seker": "Renkli şeker",
+  "susleme.findik": "Fındık",
   "kamera.tezgah": "Tezgaha geç",
   "kamera.dukkan": "Dükkâna bak",
 
@@ -15,7 +18,7 @@
   "ipucu.kuvet": "Bir küvete basılı tut, MÜKEMMEL'de bırak",
   "ipucu.yerlestir": "Topu koymak için ekrana dokun ya da geri al",
   "ipucu.dolu": "Altlık doldu, servis et",
-  "ipucu.servisVeyaTop": "Bir top daha al ya da servis et",
+  "ipucu.servisVeyaTop": "Top al, süsle ya da servis et",
 
   "gosterge.baslik": "MÜKEMMEL",
   "sonuc.mukemmel": "MÜKEMMEL!",

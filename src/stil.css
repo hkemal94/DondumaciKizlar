@@ -129,10 +129,14 @@ body,
 }
 
 .altlik-dugmeleri {
+  /* Sol kenarda dikey sütun: küvetlerin üstüne binmesin */
   position: absolute;
   left: max(14px, env(safe-area-inset-left));
-  bottom: max(14px, env(safe-area-inset-bottom));
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 10px;
 }
 
@@ -509,4 +513,48 @@ body,
   .dugme.dikkat {
     animation: none;
   }
+}
+
+/* ---- Süsleme ve sos ---- */
+.susleme-dugmeleri {
+  position: absolute;
+  right: max(14px, env(safe-area-inset-right));
+  top: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.susleme-dugme {
+  font: inherit;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px 4px 4px;
+  border-radius: 999px;
+  border: 3px solid var(--mor-koyu);
+  background: var(--krem);
+  color: var(--mor-koyu);
+  font-weight: 800;
+  font-size: 14px;
+  box-shadow: 0 3px 0 var(--mor-koyu);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.susleme-dugme svg {
+  width: 30px;
+  height: 30px;
+  flex: none;
+}
+.susleme-dugme:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.susleme-dugme.eklendi {
+  background: var(--sari);
+  opacity: 1;
+}
+.susleme-dugme:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--mor-koyu);
 }

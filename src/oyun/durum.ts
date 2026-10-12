@@ -16,9 +16,15 @@ export interface Top {
   sonuc: Sonuc;
 }
 
+// Süsleme ve sos (belge bölüm 3, adım 4). Adlar yalnız yiyeceğin adı.
+export type Susleme = 'sos' | 'seker' | 'findik';
+export const SUSLEMELER: Susleme[] = ['sos', 'seker', 'findik'];
+export const SUSLEME_FIYATI = 3;
+
 export interface Siparis {
   altlik: Altlik;
   kuvetler: number[]; // hangi küvetlerden kaç top
+  susleme: Susleme[];
 }
 
 export interface Musteri {
@@ -38,6 +44,7 @@ export interface Durum {
   asama: Asama;
   altlik: Altlik | null;
   toplar: Top[];
+  susleme: Susleme[]; // elimizdeki dondurmaya eklenenler (sırasıyla)
   kepcedeki: Top | null;
   kepceKuvet: number | null; // basılı tutulan küvet
   dolumBasladi: number; // basılı tutma anı (ms)
@@ -81,6 +88,7 @@ let durum: Durum = {
   asama: 'altlikSec',
   altlik: null,
   toplar: [],
+  susleme: [],
   kepcedeki: null,
   kepceKuvet: null,
   dolumBasladi: 0,
@@ -140,6 +148,7 @@ export function altlikSec(altlik: Altlik) {
 export function kuveteBas(kuvet: number) {
   if (durum.asama !== 'kepceBos' || durum.kamera !== 'tezgah') return;
   if (durum.toplar.length >= EN_COK_TOP) return;
+  if (durum.susleme.length > 0) return; // süslemenin üstüne top konmaz
   guncelle({ asama: 'dolduruyor', kepceKuvet: kuvet, dolumBasladi: performance.now() });
 }
 
@@ -160,9 +169,19 @@ export function topuYerlestir() {
   guncelle({ asama: 'kepceBos', toplar: [...durum.toplar, durum.kepcedeki], kepcedeki: null });
 }
 
+// Süsleme ya da sos ekle: en az bir top olmalı, her biri bir kez.
+export function suslemeEklenebilir(s: Susleme, d: Durum = durum) {
+  return d.asama === 'kepceBos' && d.toplar.length > 0 && !d.susleme.includes(s);
+}
+
+export function suslemeEkle(s: Susleme) {
+  if (!suslemeEklenebilir(s)) return;
+  guncelle({ susleme: [...durum.susleme, s] });
+}
+
 // Geri al (Kemal, 12 Ekim: "hata yaptığım zaman geri alamıyorum").
-// Sırayla: kepçedeki topu küvete geri koy → son konan topu çıkar →
-// altlığı bırak. Ceza yok, dondurma boşa gitmez.
+// Sırayla: kepçedeki topu küvete geri koy → son süslemeyi kaldır →
+// son konan topu çıkar → altlığı bırak. Ceza yok, dondurma boşa gitmez.
 export function geriAlinabilir(d: Durum = durum) {
   if (d.asama === 'kepceDolu') return true;
   return d.asama === 'kepceBos' && (d.toplar.length > 0 || d.altlik !== null);
@@ -171,6 +190,7 @@ export function geriAlinabilir(d: Durum = durum) {
 export function geriAl() {
   if (!geriAlinabilir()) return;
   if (durum.asama === 'kepceDolu') guncelle({ asama: 'kepceBos', kepcedeki: null });
+  else if (durum.susleme.length > 0) guncelle({ susleme: durum.susleme.slice(0, -1) });
   else if (durum.toplar.length > 0) guncelle({ toplar: durum.toplar.slice(0, -1) });
   else guncelle({ asama: 'altlikSec', altlik: null });
 }
@@ -189,9 +209,12 @@ let sonId = 0;
 function rastgeleSiparis(): Siparis {
   const z = Math.random();
   const sayi = z < 0.5 ? 1 : z < 0.85 ? 2 : 3;
+  // Siparişlerin üçte birinde bir süsleme ya da sos istenir (geçici oran)
+  const susleme: Susleme[] = Math.random() < 0.33 ? [SUSLEMELER[Math.floor(Math.random() * SUSLEMELER.length)]] : [];
   return {
     altlik: Math.random() < 0.5 ? 'kulah' : 'kap',
     kuvetler: Array.from({ length: sayi }, () => Math.floor(Math.random() * kuvetler.length)),
+    susleme,
   };
 }
 
@@ -222,8 +245,9 @@ export function musteriDongusu(simdi: number) {
   });
 }
 
-function siparisTutuyorMu(siparis: Siparis, altlik: Altlik | null, toplar: Top[]) {
+function siparisTutuyorMu(siparis: Siparis, altlik: Altlik | null, toplar: Top[], susleme: Susleme[]) {
   if (altlik !== siparis.altlik || toplar.length !== siparis.kuvetler.length) return false;
+  if (susleme.length !== siparis.susleme.length || !siparis.susleme.every((x) => susleme.includes(x))) return false;
   const a = toplar.map((t) => t.kuvet).sort();
   const b = [...siparis.kuvetler].sort();
   return a.every((k, i) => k === b[i]);
@@ -236,14 +260,16 @@ export function servisEt() {
   if (durum.asama !== 'kepceBos' || durum.toplar.length === 0 || !musteri) return;
   const simdi = performance.now();
 
-  if (!siparisTutuyorMu(musteri.siparis, durum.altlik, durum.toplar)) {
+  if (!siparisTutuyorMu(musteri.siparis, durum.altlik, durum.toplar, durum.susleme)) {
     // Ceza yok: dondurma kenara konur, müşteri beklemeye devam eder.
     guncelle({ asama: 'servis', servisDogru: false, bildirim: { tur: 'yanlis', zaman: simdi } });
   } else {
-    const miktar = durum.toplar.reduce(
-      (t, top) => t + TOP_FIYATI + (top.sonuc === 'mukemmel' ? MUKEMMEL_EKI : top.sonuc === 'iyi' ? IYI_EKI : 0),
-      0,
-    );
+    const miktar =
+      durum.toplar.reduce(
+        (t, top) => t + TOP_FIYATI + (top.sonuc === 'mukemmel' ? MUKEMMEL_EKI : top.sonuc === 'iyi' ? IYI_EKI : 0),
+        0,
+      ) +
+      durum.susleme.length * SUSLEME_FIYATI;
     const puan = durum.toplar.reduce((t, top) => t + SONUC_PUANI[top.sonuc], 0) / durum.toplar.length;
     const id = musteri.id;
     guncelle({
@@ -272,7 +298,7 @@ export function servisEt() {
 
   // Servis hareketi bitince yeni dondurma için baştan
   window.setTimeout(() => {
-    guncelle({ asama: 'altlikSec', altlik: null, toplar: [], kepcedeki: null });
+    guncelle({ asama: 'altlikSec', altlik: null, toplar: [], susleme: [], kepcedeki: null });
   }, 1100);
 }
 
@@ -336,6 +362,7 @@ export function yeniGun() {
     asama: 'altlikSec',
     altlik: null,
     toplar: [],
+    susleme: [],
     kepcedeki: null,
   });
 }
