@@ -1,5 +1,7 @@
 import { Suspense, useLayoutEffect } from 'react';
-import { Canvas, events, useThree, type RootState } from '@react-three/fiber';
+import { Canvas, events, useFrame, useThree, type RootState } from '@react-three/fiber';
+import { useRef } from 'react';
+import { gunIlerleyisi } from '../oyun/durum';
 import * as THREE from 'three';
 import { Disari } from './Disari';
 import { Dukkan } from './Dukkan';
@@ -27,13 +29,28 @@ function TezgahKamerasi() {
   return null;
 }
 
+// Gün ilerledikçe güneş alçalır ve ışık akşamüstü sıcaklığına döner.
+const OGLE = new THREE.Color('#fff4e2');
+const AKSAM = new THREE.Color('#ffb36b');
+
 function Isiklar() {
+  const gunes = useRef<THREE.DirectionalLight>(null);
+  useFrame(() => {
+    const isik = gunes.current;
+    if (!isik) return;
+    const t = gunIlerleyisi();
+    const aksam = THREE.MathUtils.smoothstep(t, 0.55, 1);
+    isik.color.copy(OGLE).lerp(AKSAM, aksam);
+    isik.intensity = 2.6 - aksam * 0.9;
+    isik.position.set(6 - t * 10, 11 - aksam * 6, 5);
+  });
   return (
     <>
       <hemisphereLight args={['#cfe6f7', renk.ahsapOrta, 0.9]} />
       <ambientLight intensity={0.25} color="#fff1df" />
       {/* Güneş: arkadan-sağdan, gölgeler tezgaha düşer */}
       <directionalLight
+        ref={gunes}
         position={[6, 11, 5]}
         intensity={2.6}
         color="#fff4e2"

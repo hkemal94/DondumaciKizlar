@@ -9,7 +9,9 @@ import {
   MUKEMMEL_UST,
   ondekiMusteri,
   ortalamaMemnuniyet,
+  saatYazisi,
   servisEt,
+  yeniGun,
   type Siparis,
   topuYerlestir,
   useDurum,
@@ -147,6 +149,52 @@ function Yildizlar({ puan }: { puan: number | null }) {
   );
 }
 
+function GunSaat() {
+  const durum = useDurum();
+  return (
+    <div className="gun-saat">
+      <div className="bilgi-kutusu">{m('ust.gun', { gun: durum.gun })}</div>
+      <div className={`bilgi-kutusu ${durum.acik ? '' : 'kapali'}`}>
+        <span className="saat-simge" aria-hidden />
+        {saatYazisi(durum)}
+      </div>
+    </div>
+  );
+}
+
+// Gün sonu ekranı (belge: dükkân kapanınca gün biter, gün sonu ekranı gelir).
+function GunSonu() {
+  const durum = useDurum();
+  if (!durum.gunSonu) return null;
+  const g = durum.gunluk;
+  const ortalama = g.puanlar.length ? g.puanlar.reduce((a, b) => a + b, 0) / g.puanlar.length : null;
+  const satirlar: [string, React.ReactNode][] = [
+    [m('gunSonu.musteri'), g.musteri],
+    [m('gunSonu.kazanc'), <><span className="para-simge" aria-hidden /> {g.kazanc}</>],
+    [m('gunSonu.mukemmel'), g.mukemmel],
+    [m('gunSonu.memnuniyet'), <Yildizlar puan={ortalama} />],
+    [m('gunSonu.toplam'), <><span className="para-simge" aria-hidden /> {durum.para}</>],
+  ];
+  return (
+    <div className="gun-sonu-zemin">
+      <div className="gun-sonu" role="dialog" aria-labelledby="gun-sonu-baslik">
+        <h2 id="gun-sonu-baslik">{m('gunSonu.baslik', { gun: durum.gun })}</h2>
+        <dl>
+          {satirlar.map(([ad, deger]) => (
+            <div key={ad} className="gun-sonu-satir">
+              <dt>{ad}</dt>
+              <dd>{deger}</dd>
+            </div>
+          ))}
+        </dl>
+        <button className="dugme dugme-yeni-gun" onClick={yeniGun}>
+          {m('gunSonu.devam')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function UstBilgi() {
   const durum = useDurum();
   return (
@@ -178,7 +226,8 @@ export function Arayuz() {
   const topSayisi = durum.toplar.length;
   const musteri = ondekiMusteri(durum);
   let ipucu: MetinAnahtari | null = null;
-  if (!musteri && durum.asama === 'altlikSec') ipucu = 'ipucu.musteriYok';
+  if (!durum.acik && musteri) ipucu = 'ipucu.kapandi';
+  else if (!musteri && durum.asama === 'altlikSec') ipucu = durum.acik ? 'ipucu.musteriYok' : null;
   else if (durum.asama === 'altlikSec') ipucu = 'ipucu.altlik';
   else if (durum.asama === 'kepceDolu') ipucu = 'ipucu.yerlestir';
   else if (durum.asama === 'kepceBos')
@@ -194,6 +243,7 @@ export function Arayuz() {
 
       <SiparisBalonu />
       <UstBilgi />
+      <GunSaat />
       {ipucu && <div className="ipucu">{m(ipucu)}</div>}
       {durum.asama === 'dolduruyor' && <Gosterge />}
       <Bildirim />
@@ -214,6 +264,8 @@ export function Arayuz() {
       <button className="dugme dugme-servis" disabled={!servisHazir} onClick={servisEt}>
         {m('servis.dugme')}
       </button>
+
+      <GunSonu />
     </div>
   );
 }

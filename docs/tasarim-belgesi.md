@@ -193,7 +193,7 @@ KKM'deki oyun dosyasında olup bu belgede olmayan maddeler:
 | Dükkânın çevresi | Görsellerde kumlu plaj | Kanon geçerli: iskelenin yakını. Plaj yerine iskele ve tekneler görünsün |
 | Kepçe göstergesi | Taslak 2'de "HIZ" yazıyor | Gösterge "MÜKEMMEL" bölgesini göstersin, yazısı çeviri dosyasından gelsin |
 
-### 7.4 3. adımda geçici konan sayılar (Kemal'in onayını bekliyor)
+### 7.4 3. ve 4. adımda geçici konan sayılar (Kemal'in onayını bekliyor)
 
 | Konu | Geçici değer | Not |
 |---|---|---|
@@ -204,3 +204,9 @@ KKM'deki oyun dosyasında olup bu belgede olmayan maddeler:
 | Sıra | En çok 4 kişi; yeni müşteri 5–9 sn'de bir | Gün süresi kararıyla ayarlanır |
 | Sipariş | Altlık rastgele; yarısı 1 top, üçte biri 2 top, kalanı 3 top | |
 | Müşteri görünümü | 4 kodla çizilmiş geçici görünüm; adsız | Model kararı sonra |
+| Gün süresi | Gerçekte 6 dakika (7.1 önerisi) | Adresin sonuna `#hizli` yazılırsa 30 sn (deneme için) |
+| Açılış / kapanış | 10:00 – 20:00 (oyun saati) | Kanon değil; Kemal'in |
+| Kapanış | 20:00'de yeni müşteri gelmez; sıradakilere servis bitince gün sonu ekranı | Ceza yok |
+| Gün sonu ekranı | Servis edilen müşteri, günün kazancı, MÜKEMMEL top, günün memnuniyeti, kasadaki para | |
+| Akşam ışığı | Gün ilerledikçe güneş alçalır, ışık turuncuya döner | Belgede yoktu; beğenilmezse kalkar |
+| Kayıt | Yok: sayfa kapanınca para ve gün sıfırlanır | Sonraki iş olarak önerildi |

@@ -336,3 +336,115 @@ body,
 .bildirim-yanlis {
   font-size: 26px;
 }
+
+/* ---- Gün ve saat (4. adım) ---- */
+.gun-saat {
+  position: absolute;
+  top: max(10px, env(safe-area-inset-top));
+  left: max(12px, env(safe-area-inset-left));
+  display: flex;
+  gap: 8px;
+  pointer-events: none;
+}
+.bilgi-kutusu.kapali {
+  background: #8a3b3b;
+  border-color: #b85a5a;
+}
+.saat-simge {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--yazi);
+  position: relative;
+  flex: none;
+}
+.saat-simge::before,
+.saat-simge::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  width: 2px;
+  background: var(--yazi);
+  transform-origin: bottom center;
+  margin-left: -1px;
+}
+.saat-simge::before {
+  height: 5px;
+}
+.saat-simge::after {
+  height: 4px;
+  transform: rotate(90deg);
+}
+
+.gun-sonu-zemin {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(40, 20, 60, 0.45);
+  padding: 12px;
+  animation: belir 0.35s ease-out;
+}
+.gun-sonu {
+  width: min(420px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  background: var(--krem);
+  border: 4px solid var(--mor-koyu);
+  border-radius: 22px;
+  box-shadow: 0 6px 0 var(--mor-koyu);
+  padding: 14px 20px 18px;
+  color: var(--mor-koyu);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.gun-sonu h2 {
+  margin: 0;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--mor);
+}
+.gun-sonu dl {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.gun-sonu-satir {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 0;
+  border-bottom: 2px dashed rgba(122, 63, 168, 0.25);
+  font-size: 16px;
+}
+.gun-sonu-satir dt {
+  font-weight: 700;
+}
+.gun-sonu-satir dd {
+  margin: 0;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.gun-sonu .yildiz {
+  color: rgba(78, 36, 112, 0.2);
+}
+.dugme-yeni-gun {
+  align-self: center;
+  background: var(--sari);
+  color: var(--mor-koyu);
+  margin-top: 4px;
+}
+@keyframes belir {
+  from {
+    opacity: 0;
+  }
+}

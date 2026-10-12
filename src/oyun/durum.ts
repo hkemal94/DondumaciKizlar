@@ -47,6 +47,23 @@ export interface Durum {
   sonrakiGelis: number; // bir sonraki müşterinin geleceği an (ms)
   para: number;
   memnuniyetler: number[]; // her müşterinin 1–5 puanı
+  // Gün ve saat (iş sırası 4)
+  gun: number;
+  dakika: number; // açılıştan bu yana geçen oyun dakikası
+  acik: boolean;
+  gunSonu: boolean;
+  gunluk: GunlukOzet;
+}
+
+export interface GunlukOzet {
+  musteri: number;
+  kazanc: number;
+  mukemmel: number;
+  puanlar: number[];
+}
+
+function bosOzet(): GunlukOzet {
+  return { musteri: 0, kazanc: 0, mukemmel: 0, puanlar: [] };
 }
 
 // Gösterge ayarları
@@ -69,6 +86,11 @@ let durum: Durum = {
   sonrakiGelis: 0,
   para: 0,
   memnuniyetler: [],
+  gun: 1,
+  dakika: 0,
+  acik: true,
+  gunSonu: false,
+  gunluk: bosOzet(),
 };
 
 const dinleyiciler = new Set<() => void>();
@@ -160,6 +182,7 @@ export function ondekiMusteri(d: Durum = durum): Musteri | undefined {
 // Oyun döngüsü bunu yarım saniyede bir çağırır: sıra boşsa müşteri gelir.
 export function musteriDongusu(simdi: number) {
   const siradaki = durum.musteriler.filter((m) => m.hal === 'sirada').length;
+  if (!durum.acik || durum.gunSonu) return; // kapanınca yeni müşteri gelmez
   if (siradaki >= EN_COK_SIRA || simdi < durum.sonrakiGelis) return;
   const [en, enCok] = GELIS_ARALIGI;
   // Sıra boşken ilk müşteri hemen gelsin
@@ -209,6 +232,12 @@ export function servisEt() {
       bildirim: { tur: 'para', miktar, zaman: simdi },
       para: durum.para + miktar,
       memnuniyetler: [...durum.memnuniyetler, puan],
+      gunluk: {
+        musteri: durum.gunluk.musteri + 1,
+        kazanc: durum.gunluk.kazanc + miktar,
+        mukemmel: durum.gunluk.mukemmel + durum.toplar.filter((t) => t.sonuc === 'mukemmel').length,
+        puanlar: [...durum.gunluk.puanlar, puan],
+      },
       musteriler: durum.musteriler.map((m) => (m.id === id ? { ...m, hal: 'gidiyor', mutlu: true } : m)),
     });
     // Giden müşteri ekrandan çıkınca listeden silinir
@@ -226,4 +255,62 @@ export function servisEt() {
 export function ortalamaMemnuniyet(d: Durum = durum): number | null {
   if (d.memnuniyetler.length === 0) return null;
   return d.memnuniyetler.reduce((a, b) => a + b, 0) / d.memnuniyetler.length;
+}
+
+// ---- Gün ve saat (iş sırası 4) ----
+// Geçici: dükkân 10:00'da açılır, 20:00'de kapanır; bir gün gerçekte
+// 6 dakika (belge 7.1 önerisi). Adresin sonuna #hizli yazılırsa gün
+// 30 saniyede biter (gün sonunu görmek için).
+export const ACILIS = 10 * 60; // dakika
+export const KAPANIS = 20 * 60;
+const GUN_SURESI_MS = typeof location !== 'undefined' && location.hash === '#hizli' ? 30_000 : 6 * 60_000;
+const DAKIKA_MS = GUN_SURESI_MS / (KAPANIS - ACILIS);
+
+let birikenMs = 0;
+
+// Oyun döngüsü her turda geçen süreyi verir.
+export function zamanIlerlet(gecenMs: number) {
+  if (durum.gunSonu) return;
+  if (durum.acik) {
+    birikenMs += Math.min(gecenMs, 1000); // sekme arkadayken gün akıp gitmesin
+    const ekDakika = Math.floor(birikenMs / DAKIKA_MS);
+    if (ekDakika > 0) {
+      birikenMs -= ekDakika * DAKIKA_MS;
+      const dakika = Math.min(KAPANIS - ACILIS, durum.dakika + ekDakika);
+      guncelle({ dakika, acik: dakika < KAPANIS - ACILIS });
+    }
+    return;
+  }
+  // Kapandı: sıradakilere servis bitince gün sonu ekranı
+  const bekleyen = durum.musteriler.some((m) => m.hal === 'sirada');
+  if (!bekleyen && durum.asama === 'altlikSec') guncelle({ gunSonu: true });
+}
+
+export function saatYazisi(d: Durum = durum) {
+  const toplam = ACILIS + d.dakika;
+  const s = Math.floor(toplam / 60);
+  const dk = toplam % 60;
+  return `${String(s).padStart(2, '0')}:${String(dk).padStart(2, '0')}`;
+}
+
+// 0 = açılış, 1 = kapanış (ışık için)
+export function gunIlerleyisi(d: Durum = durum) {
+  return d.dakika / (KAPANIS - ACILIS);
+}
+
+export function yeniGun() {
+  if (!durum.gunSonu) return;
+  birikenMs = 0;
+  guncelle({
+    gun: durum.gun + 1,
+    dakika: 0,
+    acik: true,
+    gunSonu: false,
+    gunluk: bosOzet(),
+    sonrakiGelis: 0,
+    asama: 'altlikSec',
+    altlik: null,
+    toplar: [],
+    kepcedeki: null,
+  });
 }

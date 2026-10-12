@@ -1,5 +1,4 @@
 {
-  "iskelet.etiket": "Müşteri sırası · 3. adım",
   "yukleniyor": "Yükleniyor…",
 
   "altlik.kulah": "Külah",
@@ -8,6 +7,7 @@
 
   "ipucu.altlik": "Siparişe bak, altlık seç",
   "ipucu.musteriYok": "Müşteri bekleniyor…",
+  "ipucu.kapandi": "Dükkân kapandı, sıradakilere servis et",
   "ipucu.kuvet": "Bir küvete basılı tut, MÜKEMMEL'de bırak",
   "ipucu.yerlestir": "Topu koymak için ekrana dokun",
   "ipucu.dolu": "Altlık doldu, servis et",
@@ -19,5 +19,15 @@
   "sonuc.kucuk": "Biraz küçük",
   "sonuc.buyuk": "Biraz büyük",
   "sonuc.yanlis": "Sipariş bu değildi",
-  "memnuniyet": "Memnuniyet"
+  "memnuniyet": "Memnuniyet",
+
+  "ust.gun": "Gün {gun}",
+
+  "gunSonu.baslik": "{gun}. gün bitti",
+  "gunSonu.musteri": "Servis edilen müşteri",
+  "gunSonu.kazanc": "Günün kazancı",
+  "gunSonu.mukemmel": "MÜKEMMEL top",
+  "gunSonu.memnuniyet": "Günün memnuniyeti",
+  "gunSonu.toplam": "Kasadaki para",
+  "gunSonu.devam": "Yeni güne başla"
 }
