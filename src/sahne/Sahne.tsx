@@ -8,6 +8,7 @@ import { kameraKarisimi } from './kameraKarisimi';
 import { Dukkan } from './Dukkan';
 import { Hazirlama } from './Hazirlama';
 import { Musteriler } from './Musteriler';
+import { Dekorlar } from './Dekorlar';
 import { renk } from './renkler';
 
 // İki sabit kamera (belge bölüm 0): dükkânın genel görünümü ve tezgahın
@@ -136,6 +137,7 @@ export function Sahne() {
         <Dukkan />
         <Hazirlama />
         <Musteriler />
+        <Dekorlar />
       </Suspense>
     </Canvas>
   );

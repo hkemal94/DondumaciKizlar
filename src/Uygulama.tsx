@@ -1,7 +1,10 @@
 import { Sahne } from './sahne/Sahne';
 import { useEffect } from 'react';
 import { Arayuz } from './arayuz/Arayuz';
-import { musteriDongusu, zamanIlerlet } from './oyun/durum';
+import { kaydiYukle, musteriDongusu, zamanIlerlet } from './oyun/durum';
+
+// Önceki oyunun kaydı varsa oradan devam edilir.
+kaydiYukle();
 
 // Oyun her zaman yatay görünür. Telefon dik tutuluyorsa (ekran döndürme
 // kilidi açık olabilir) bütün oyun ekranda 90° çevrilir; oyuncu telefonu

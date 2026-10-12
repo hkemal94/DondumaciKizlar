@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { dolumHesapla, durumuOku, useDurum, type Susleme, type Top } from '../oyun/durum';
-import { KUVET_Y, KUVET_Z, kuvetler } from '../oyun/kuvetler';
+import { CESITLER, KUVET_Y, KUVET_Z, kuvetX } from '../oyun/kuvetler';
 import { renk } from './renkler';
 import { TezgahtaGorunur } from './Dukkan';
 
@@ -41,7 +41,7 @@ function DondurmaTopu({ top, tohum }: { top: Top; tohum: number }) {
   const r = topYaricapi(top.boyut);
   return (
     <mesh geometry={geometri} scale={r} castShadow>
-      <meshStandardMaterial color={kuvetler[top.kuvet].renk} roughness={0.55} flatShading />
+      <meshStandardMaterial color={CESITLER[top.kuvet].renk} roughness={0.55} flatShading />
     </mesh>
   );
 }
@@ -231,13 +231,13 @@ function Kepce() {
     if (!g || !top) return;
     const d = durumuOku();
     let topBoyu = 0;
-    let topRengi: string = kuvetler[0].renk;
+    let topRengi: string = CESITLER[0].renk;
     let egim = -0.5;
 
     if (d.asama === 'dolduruyor' && d.kepceKuvet !== null) {
       // Küvete daldır: aşağı inip hafifçe ileri geri sürüklenir
       const dolum = dolumHesapla(performance.now());
-      const k = kuvetler[d.kepceKuvet];
+      const k = { x: kuvetX(d.kepceKuvet, d.acikCesitler), renk: CESITLER[d.kepceKuvet].renk };
       hedef.set(k.x + Math.sin(clock.elapsedTime * 5) * 0.05, KUVET_Y + 0.07, KUVET_Z + 0.08);
       topBoyu = dolum;
       topRengi = k.renk;
@@ -246,7 +246,7 @@ function Kepce() {
       hedef.copy(KEPCE_BEKLEME);
       hedef.y += Math.sin(clock.elapsedTime * 2.4) * 0.01;
       topBoyu = d.kepcedeki.boyut;
-      topRengi = kuvetler[d.kepcedeki.kuvet].renk;
+      topRengi = CESITLER[d.kepcedeki.kuvet].renk;
       egim = -0.35;
     } else {
       hedef.copy(KEPCE_DURUS);
@@ -278,7 +278,7 @@ function Kepce() {
       </mesh>
       {/* Kepçedeki top */}
       <mesh ref={topRef} geometry={topGeo} position={[0, 0.02, 0]} visible={false}>
-        <meshStandardMaterial color={kuvetler[0].renk} roughness={0.55} flatShading />
+        <meshStandardMaterial color={CESITLER[0].renk} roughness={0.55} flatShading />
       </mesh>
     </group>
   );

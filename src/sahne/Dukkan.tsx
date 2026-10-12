@@ -3,8 +3,8 @@ import { useFrame } from '@react-three/fiber';
 import { kameraKarisimi } from './kameraKarisimi';
 import * as THREE from 'three';
 import { renk } from './renkler';
-import { kuvetler, VITRIN_GENISLIGI } from '../oyun/kuvetler';
-import { kuveteBas } from '../oyun/durum';
+import { CESITLER, kuvetAraligi, kuvetX, vitrinGenisligi } from '../oyun/kuvetler';
+import { kuveteBas, useDurum } from '../oyun/durum';
 
 // Dükkânın içi, tezgahın arkasından görünen hâli (birinci şahıs yakın plan).
 // Kodla çizilmiş geçici parçalar; asıl modeller sonra gelecek.
@@ -273,6 +273,9 @@ function DondurmaYuzeyi({ renkAdi, tohum }: { renkAdi: string; tohum: number }) 
 
 // Vitrin: dört küvet, üstünde cam siper. Küvete basılı tutunca kepçe dalar.
 function Vitrin() {
+  const { acikCesitler } = useDurum();
+  const VITRIN_GENISLIGI = vitrinGenisligi(acikCesitler.length);
+  const olcek = kuvetAraligi(acikCesitler.length) / 0.62; // sıklaşınca küvetler daralır
   return (
     <group position={[0, 0, -0.62]}>
       {/* Vitrin gövdesi */}
@@ -282,16 +285,16 @@ function Vitrin() {
       <Kutu konum={[0, 0.9, -0.46]} boyut={[VITRIN_GENISLIGI, 0.07, 0.02]} renkAdi={renk.sari} />
       {/* Küvet kasası */}
       <Kutu konum={[0, 0.98, 0]} boyut={[VITRIN_GENISLIGI - 0.3, 0.06, 0.66]} renkAdi="#8d969e" puruz={0.4} />
-      {kuvetler.map((k, i) => (
-        <group key={i} position={[k.x, 1.0, 0]}>
+      {acikCesitler.map((cesit) => (
+        <group key={cesit} position={[kuvetX(cesit, acikCesitler), 1.0, 0]} scale={[olcek, 1, 1]}>
           <Kutu konum={[0, -0.02, 0]} boyut={[0.58, 0.06, 0.5]} renkAdi="#d4d9dd" golgeVer={false} puruz={0.3} />
-          <DondurmaYuzeyi renkAdi={k.renk} tohum={i + 1} />
+          <DondurmaYuzeyi renkAdi={CESITLER[cesit].renk} tohum={cesit + 1} />
           {/* Dokunma alanı: küvetten biraz büyük, görünmez */}
           <mesh
             position={[0, 0.08, 0]}
             onPointerDown={(e) => {
               e.stopPropagation();
-              kuveteBas(i);
+              kuveteBas(cesit);
             }}
           >
             <boxGeometry args={[0.6, 0.25, 0.7]} />
@@ -310,7 +313,7 @@ function Vitrin() {
 }
 
 // Sağdaki külah ve kap yığınları (geçici).
-function Yiginlar() {
+function Yiginlar({ vitrin }: { vitrin: number }) {
   const kulahlar = [];
   for (let i = 0; i < 5; i++) {
     kulahlar.push(
@@ -330,7 +333,7 @@ function Yiginlar() {
     );
   }
   return (
-    <group position={[VITRIN_GENISLIGI / 2 + 0.5, 0.96, -0.5]}>
+    <group position={[vitrin / 2 + 0.5, 0.96, -0.5]}>
       <group position={[0, 0, 0]}>{kulahlar}</group>
       <group position={[0.28, 0, 0.05]}>{kulahlar}</group>
       <group position={[0.55, 0, -0.05]}>{kaplar}</group>
@@ -339,17 +342,20 @@ function Yiginlar() {
 }
 
 function Tezgah() {
+  const { acikCesitler } = useDurum();
+  const VITRIN_GENISLIGI = vitrinGenisligi(acikCesitler.length);
   return (
     <group>
       {/* Yan tezgahlar (vitrinin iki yanı) */}
       {[-1, 1].map((yon) => (
-        <group key={yon} position={[yon * (VITRIN_GENISLIGI / 2 + 1.2), 0, -0.62]}>
-          <Kutu konum={[0, 0.46, 0]} boyut={[2.4, 0.92, 0.9]} renkAdi={renk.ahsapOrta} />
-          <Kutu konum={[0, 0.94, 0]} boyut={[2.5, 0.05, 1.0]} renkAdi={renk.tezgahUst} puruz={0.6} />
+        // Yan tezgahlar vitrinle duvar arasını doldurur (vitrin genişleyince kısalır)
+        <group key={yon} position={[yon * (VITRIN_GENISLIGI / 2 + (7.8 - VITRIN_GENISLIGI) / 4), 0, -0.62]}>
+          <Kutu konum={[0, 0.46, 0]} boyut={[(7.8 - VITRIN_GENISLIGI) / 2 - 0.1, 0.92, 0.9]} renkAdi={renk.ahsapOrta} />
+          <Kutu konum={[0, 0.94, 0]} boyut={[(7.8 - VITRIN_GENISLIGI) / 2, 0.05, 1.0]} renkAdi={renk.tezgahUst} puruz={0.6} />
         </group>
       ))}
       <Vitrin />
-      <Yiginlar />
+      <Yiginlar vitrin={VITRIN_GENISLIGI} />
     </group>
   );
 }

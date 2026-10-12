@@ -36,5 +36,38 @@
   "gunSonu.mukemmel": "MÜKEMMEL top",
   "gunSonu.memnuniyet": "Günün memnuniyeti",
   "gunSonu.toplam": "Kasadaki para",
-  "gunSonu.devam": "Yeni güne başla"
+  "gunSonu.devam": "Yeni güne başla",
+
+  "gelistir.dugme": "Dükkânı geliştir",
+  "gelistir.baslik": "Dükkânı geliştir",
+  "gelistir.cesitler": "Yeni çeşitler",
+  "gelistir.fiyat": "Fiyat",
+  "gelistir.dekorasyon": "Dekorasyon",
+  "gelistir.al": "Al",
+  "gelistir.acik": "Vitrinde",
+  "gelistir.alindi": "Dükkânda",
+  "gelistir.kapat": "Tamam",
+
+  "cesit.adsiz": "Adı yok",
+  "cesit.mango": "Mango",
+  "cesit.yabanMersini": "Yaban mersini",
+
+  "fiyat.ucuz": "Ucuz",
+  "fiyat.normal": "Normal",
+  "fiyat.pahali": "Pahalı",
+  "fiyat.top": "Top {fiyat}",
+  "fiyat.ucuz.etki": "müşteriler daha sık gelir",
+  "fiyat.normal.etki": "olağan",
+  "fiyat.pahali.etki": "müşteriler daha seyrek gelir, biraz daha az memnun olur",
+
+  "dekor.cicekler": "Çiçek saksıları",
+  "dekor.fenerler": "Fenerler",
+  "dekor.semsiye": "Şemsiye",
+  "dekor.masa": "Masa takımı",
+  "dekor.etki": "Her dekorasyon dükkânı çekici yapar: müşteriler biraz daha sık gelir. Dükkânın genel görünümünde görünür.",
+
+  "bastan.dugme": "Baştan başla",
+  "bastan.soru": "Bütün ilerleme silinsin mi?",
+  "bastan.evet": "Evet, sil",
+  "bastan.hayir": "Vazgeç"
 }

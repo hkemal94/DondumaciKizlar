@@ -24,8 +24,9 @@ import {
   useDurum,
 } from '../oyun/durum';
 import { m, type MetinAnahtari } from '../metinler';
-import { kuvetler } from '../oyun/kuvetler';
+import { CESITLER } from '../oyun/kuvetler';
 import { balon } from '../sahne/Musteriler';
+import { Gelistir } from './Gelistir';
 
 // Tezgah ekranının düğmeleri, ipucu yazısı, kepçe göstergesi ve sonuç yazısı.
 // Tarz: taslak 1 ve 3 gibi sıcak ahşap paneller.
@@ -96,7 +97,7 @@ function Bildirim() {
 
 // Sipariş balonunun içi: altlık ve top renkleri, resimle (yazısız).
 function SiparisResmi({ siparis }: { siparis: Siparis }) {
-  const toplar = siparis.kuvetler.map((k) => kuvetler[k].renk);
+  const toplar = siparis.kuvetler.map((k) => CESITLER[k].renk);
   const kulah = siparis.altlik === 'kulah';
   // Toplar: külahta üst üste, kapta yan yana (oyundaki gibi)
   const yerler: [number, number][] = kulah
@@ -234,7 +235,9 @@ function GunSaat() {
 // Gün sonu ekranı (belge: dükkân kapanınca gün biter, gün sonu ekranı gelir).
 function GunSonu() {
   const durum = useDurum();
+  const [gelistir, setGelistir] = useState(false);
   if (!durum.gunSonu) return null;
+  if (gelistir) return <Gelistir kapat={() => setGelistir(false)} />;
   const g = durum.gunluk;
   const ortalama = g.puanlar.length ? g.puanlar.reduce((a, b) => a + b, 0) / g.puanlar.length : null;
   const satirlar: [string, React.ReactNode][] = [
@@ -256,9 +259,14 @@ function GunSonu() {
             </div>
           ))}
         </dl>
-        <button className="dugme dugme-yeni-gun" onClick={yeniGun}>
-          {m('gunSonu.devam')}
-        </button>
+        <div className="gun-sonu-dugmeler">
+          <button className="dugme" onClick={() => setGelistir(true)}>
+            {m('gelistir.dugme')}
+          </button>
+          <button className="dugme dugme-yeni-gun" onClick={yeniGun}>
+            {m('gunSonu.devam')}
+          </button>
+        </div>
       </div>
     </div>
   );

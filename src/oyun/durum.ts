@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 
-import { kuvetler } from './kuvetler';
+import { BASLANGIC_CESITLERI, CESITLER } from './kuvetler';
 
 // Oyunun durumu: kepçe mini oyunu (belge bölüm 3: altlık → kepçe →
 // yerleştir → servis) ve müşteri sırası (iş sırası 3).
@@ -62,7 +62,14 @@ export interface Durum {
   gunluk: GunlukOzet;
   // Kamera (iş sırası 5): dükkânın genel görünümü ya da tezgah yakın planı
   kamera: Kamera;
+  // İlerleme (belge 2.4 ve 4): kayıtta saklanır
+  acikCesitler: number[];
+  fiyatSeviyesi: FiyatSeviyesi;
+  dekorlar: Dekor[];
 }
+
+export type FiyatSeviyesi = 'ucuz' | 'normal' | 'pahali';
+export type Dekor = 'masa' | 'semsiye' | 'cicekler' | 'fenerler';
 
 export type Kamera = 'dukkan' | 'tezgah';
 
@@ -104,6 +111,9 @@ let durum: Durum = {
   gunSonu: false,
   gunluk: bosOzet(),
   kamera: 'dukkan',
+  acikCesitler: [...BASLANGIC_CESITLERI],
+  fiyatSeviyesi: 'normal',
+  dekorlar: [],
 };
 
 const dinleyiciler = new Set<() => void>();
@@ -213,7 +223,7 @@ function rastgeleSiparis(): Siparis {
   const susleme: Susleme[] = Math.random() < 0.33 ? [SUSLEMELER[Math.floor(Math.random() * SUSLEMELER.length)]] : [];
   return {
     altlik: Math.random() < 0.5 ? 'kulah' : 'kap',
-    kuvetler: Array.from({ length: sayi }, () => Math.floor(Math.random() * kuvetler.length)),
+    kuvetler: Array.from({ length: sayi }, () => durum.acikCesitler[Math.floor(Math.random() * durum.acikCesitler.length)]),
     susleme,
   };
 }
@@ -228,8 +238,9 @@ export function musteriDongusu(simdi: number) {
   if (!durum.acik || durum.gunSonu) return; // kapanınca yeni müşteri gelmez
   if (siradaki >= EN_COK_SIRA || simdi < durum.sonrakiGelis) return;
   const [en, enCok] = GELIS_ARALIGI;
-  // Sıra boşken ilk müşteri hemen gelsin
-  const bekle = siradaki === 0 ? 1500 : en + Math.random() * (enCok - en);
+  // Sıra boşken ilk müşteri hemen gelsin. Fiyat ve dekorasyon müşteri
+  // sıklığını etkiler (belge 4: dükkânın çekiciliği).
+  const bekle = siradaki === 0 ? 1500 : (en + Math.random() * (enCok - en)) * gelisCarpani();
   guncelle({
     musteriler: [
       ...durum.musteriler,
@@ -266,11 +277,12 @@ export function servisEt() {
   } else {
     const miktar =
       durum.toplar.reduce(
-        (t, top) => t + TOP_FIYATI + (top.sonuc === 'mukemmel' ? MUKEMMEL_EKI : top.sonuc === 'iyi' ? IYI_EKI : 0),
+        (t, top) => t + topFiyati() + (top.sonuc === 'mukemmel' ? MUKEMMEL_EKI : top.sonuc === 'iyi' ? IYI_EKI : 0),
         0,
       ) +
       durum.susleme.length * SUSLEME_FIYATI;
-    const puan = durum.toplar.reduce((t, top) => t + SONUC_PUANI[top.sonuc], 0) / durum.toplar.length;
+    const hamPuan = durum.toplar.reduce((t, top) => t + SONUC_PUANI[top.sonuc], 0) / durum.toplar.length;
+    const puan = Math.max(1, hamPuan - FIYAT_ETKISI[durum.fiyatSeviyesi].memnuniyet);
     const id = musteri.id;
     guncelle({
       asama: 'servis',
@@ -365,6 +377,7 @@ export function yeniGun() {
     susleme: [],
     kepcedeki: null,
   });
+  kaydet();
 }
 
 // ---- Kamera (iş sırası 5) ----
@@ -380,4 +393,126 @@ export function musteriTezgahaVardi(id: number) {
   if (id === sonKarsilanan) return;
   sonKarsilanan = id;
   kameraSec('tezgah');
+}
+
+// ---- İlerleme (belge 2.4 ve 4) ----
+// Hepsi geçici sayılar; Kemal'in onayını bekliyor (belge 7.4).
+export const FIYAT_ETKISI: Record<FiyatSeviyesi, { fiyat: number; gelis: number; memnuniyet: number }> = {
+  ucuz: { fiyat: 0.8, gelis: 0.8, memnuniyet: 0 },
+  normal: { fiyat: 1, gelis: 1, memnuniyet: 0 },
+  pahali: { fiyat: 1.3, gelis: 1.3, memnuniyet: 0.5 },
+};
+
+export const DEKORLAR: { id: Dekor; fiyat: number }[] = [
+  { id: 'cicekler', fiyat: 80 },
+  { id: 'fenerler', fiyat: 120 },
+  { id: 'semsiye', fiyat: 160 },
+  { id: 'masa', fiyat: 200 },
+];
+const DEKOR_ETKISI = 0.06; // her dekorasyon müşteri aralığını %6 kısaltır
+
+export function topFiyati(d: Durum = durum) {
+  return Math.round(TOP_FIYATI * FIYAT_ETKISI[d.fiyatSeviyesi].fiyat);
+}
+
+function gelisCarpani() {
+  return FIYAT_ETKISI[durum.fiyatSeviyesi].gelis * (1 - DEKOR_ETKISI * durum.dekorlar.length);
+}
+
+export function cesitAc(cesit: number) {
+  const c = CESITLER[cesit];
+  if (!c || durum.acikCesitler.includes(cesit) || durum.para < c.fiyat) return;
+  guncelle({ para: durum.para - c.fiyat, acikCesitler: [...durum.acikCesitler, cesit] });
+  kaydet();
+}
+
+export function dekorAl(id: Dekor) {
+  const d = DEKORLAR.find((x) => x.id === id);
+  if (!d || durum.dekorlar.includes(id) || durum.para < d.fiyat) return;
+  guncelle({ para: durum.para - d.fiyat, dekorlar: [...durum.dekorlar, id] });
+  kaydet();
+}
+
+export function fiyatSec(f: FiyatSeviyesi) {
+  guncelle({ fiyatSeviyesi: f });
+  kaydet();
+}
+
+// ---- Kayıt ----
+// İlerleme bu tarayıcıda saklanır (para, gün, açılan çeşitler, fiyat,
+// dekorasyon). Tarayıcı izin vermezse oyun kayıtsız çalışır.
+const KAYIT_ANAHTARI = 'dondurmaci-kizlar-kayit-1';
+
+interface Kayit {
+  para: number;
+  gun: number;
+  memnuniyetler: number[];
+  acikCesitler: number[];
+  fiyatSeviyesi: FiyatSeviyesi;
+  dekorlar: Dekor[];
+}
+
+function kaydet() {
+  const k: Kayit = {
+    para: durum.para,
+    gun: durum.gun,
+    memnuniyetler: durum.memnuniyetler.slice(-60),
+    acikCesitler: durum.acikCesitler,
+    fiyatSeviyesi: durum.fiyatSeviyesi,
+    dekorlar: durum.dekorlar,
+  };
+  try {
+    localStorage.setItem(KAYIT_ANAHTARI, JSON.stringify(k));
+  } catch {
+    // Kayıt yapılamadı (gizli pencere vb.); oyun devam eder.
+  }
+}
+
+export function kaydiYukle() {
+  try {
+    const ham = localStorage.getItem(KAYIT_ANAHTARI);
+    if (!ham) return;
+    const k = JSON.parse(ham) as Partial<Kayit>;
+    const acik = Array.isArray(k.acikCesitler) ? k.acikCesitler.filter((i) => CESITLER[i]) : [];
+    guncelle({
+      para: typeof k.para === 'number' ? k.para : 0,
+      gun: typeof k.gun === 'number' ? k.gun : 1,
+      memnuniyetler: Array.isArray(k.memnuniyetler) ? k.memnuniyetler : [],
+      acikCesitler: acik.length ? acik : [...BASLANGIC_CESITLERI],
+      fiyatSeviyesi: k.fiyatSeviyesi && k.fiyatSeviyesi in FIYAT_ETKISI ? k.fiyatSeviyesi : 'normal',
+      dekorlar: Array.isArray(k.dekorlar) ? k.dekorlar.filter((d) => DEKORLAR.some((x) => x.id === d)) : [],
+    });
+  } catch {
+    // Bozuk ya da okunamayan kayıt: baştan başlanır.
+  }
+}
+
+// Baştan başla: kaydı siler, her şeyi ilk güne döndürür.
+export function bastanBasla() {
+  try {
+    localStorage.removeItem(KAYIT_ANAHTARI);
+  } catch {
+    // yok sayılır
+  }
+  birikenMs = 0;
+  guncelle({
+    para: 0,
+    gun: 1,
+    memnuniyetler: [],
+    acikCesitler: [...BASLANGIC_CESITLERI],
+    fiyatSeviyesi: 'normal',
+    dekorlar: [],
+    dakika: 0,
+    acik: true,
+    gunSonu: false,
+    gunluk: bosOzet(),
+    sonrakiGelis: 0,
+    musteriler: [],
+    kamera: 'dukkan',
+    asama: 'altlikSec',
+    altlik: null,
+    toplar: [],
+    susleme: [],
+    kepcedeki: null,
+  });
 }

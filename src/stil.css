@@ -558,3 +558,187 @@ body,
   transform: translateY(2px);
   box-shadow: 0 1px 0 var(--mor-koyu);
 }
+
+/* ---- Dükkânı geliştir (taslak 3) ---- */
+.gun-sonu-dugmeler {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.gun-sonu-dugmeler .dugme-yeni-gun {
+  margin-top: 0;
+}
+.gelistir {
+  width: min(620px, 100%);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--krem);
+  border: 4px solid var(--mor-koyu);
+  border-radius: 22px;
+  box-shadow: 0 6px 0 var(--mor-koyu);
+  padding: 10px 16px 12px;
+  color: var(--mor-koyu);
+}
+.gel-ust {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.gel-ust h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--mor);
+}
+.gel-para {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+.gel-ust .gel-para {
+  font-size: 18px;
+}
+.gel-sekmeler {
+  display: flex;
+  gap: 6px;
+}
+.gel-sekmeler button {
+  font: inherit;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 6px 14px;
+  border-radius: 12px 12px 0 0;
+  border: 3px solid var(--mor-koyu);
+  border-bottom: none;
+  background: #e8dcef;
+  color: var(--mor-koyu);
+  cursor: pointer;
+}
+.gel-sekmeler button.secili {
+  background: var(--sari);
+}
+.gel-icerik {
+  min-height: 0;
+  overflow: auto;
+  border-top: 3px solid var(--mor-koyu);
+  padding-top: 8px;
+}
+.gel-izgara {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 8px;
+}
+.gel-kart {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 14px;
+  background: #fff;
+  border: 2px solid rgba(78, 36, 112, 0.25);
+  min-width: 0;
+}
+.gel-kart.acik {
+  background: #f4ecd9;
+}
+.gel-renk {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  flex: none;
+}
+.gel-ad {
+  font-weight: 800;
+  flex: 1;
+  min-width: 0;
+}
+.gel-durum {
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.7;
+}
+.dugme.gel-al {
+  font-size: 13px;
+  padding: 5px 9px;
+  border-width: 2px;
+  box-shadow: 0 3px 0 var(--mor-koyu);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.gel-al .para-simge {
+  width: 14px;
+  height: 14px;
+}
+.gel-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.gel-secenek {
+  font: inherit;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  border: 2px solid rgba(78, 36, 112, 0.25);
+  background: #fff;
+  color: var(--mor-koyu);
+  cursor: pointer;
+}
+.gel-secenek.secili {
+  background: var(--sari);
+  border-color: var(--mor-koyu);
+}
+.gel-aciklama {
+  font-size: 13px;
+}
+.gel-not {
+  grid-column: 1 / -1;
+  margin: 2px 0 0;
+  font-size: 13px;
+  opacity: 0.8;
+}
+.gel-alt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.gel-bag {
+  font: inherit;
+  font-size: 13px;
+  background: none;
+  border: none;
+  color: var(--mor-koyu);
+  text-decoration: underline;
+  opacity: 0.7;
+  cursor: pointer;
+}
+.gel-sil {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.dugme.gel-kucuk {
+  font-size: 13px;
+  padding: 4px 10px;
+  border-width: 2px;
+}
+.dugme.tehlike {
+  background: #b94a4a;
+  border-color: #7d2b2b;
+  box-shadow: 0 3px 0 #7d2b2b;
+}
