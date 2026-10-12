@@ -29,6 +29,8 @@ işletme oyunu. Oyuncu tezgahın arkasında dondurmayı kendi eliyle hazırlar.
 | Dönem | **2000'lerin başı** — dükkânın açılış yılları |
 | Oyuncu | **İsimsiz.** Oyuncuya ad, yüz, geçmiş verme |
 | Gün | Oyun içinde saat akar; dükkân kapanınca gün biter, gün sonu ekranı gelir |
+| Ekran | **Yatay** (12 Ekim) |
+| Görsel kalite | Taslak görseller (`docs/gorseller/`) temsilî ama **alt sınır**: en az o kalite. Ölçü taslak 2 |
 | Yazım | **Düzada** (ü ile). "Dūzada", "Duzada" yazılmaz |
 
 ### Kanondan bilinenler (Düzada evreni)
@@ -46,8 +48,6 @@ Burada ve belgede yazmayan bir coğrafi, tarihî ya da kurumsal bilgiyi
 
 ## Henüz kararı verilmemiş — sor, seçme
 
-- **Ekran yönü:** telefon dikey mi tutuluyor, yatay mı? İlk ekrandan önce
-  sor. (Bu karar her ekranın düzenini belirler.)
 - Bir oyun gününün gerçek süresi (öneri: 5–8 dakika).
 - İlk sürümde kaç dondurma çeşidi, kaç müşteri tipi.
 - Para modeli.
@@ -100,7 +100,7 @@ Burada ve belgede yazmayan bir coğrafi, tarihî ya da kurumsal bilgiyi
 ## İş sırası
 
 1. **İskelet:** proje kurulumu, boş 3B sahne, telefonda açılan önizleme
-   bağlantısı. (Önce ekran yönünü sor.)
+   bağlantısı.
 2. **Tezgah yakın planı + kepçe mini oyunu:** altlık seç (külah / kap) →
    basılı tut, küvete daldır → "MÜKEMMEL" anında bırak → topu yerleştir →
    servis et. *Çekirdek bu; eğlenceli değilse dur ve Kemal'le konuş.*

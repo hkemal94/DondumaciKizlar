@@ -38,6 +38,8 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Mevsim | Kışın tatlıcı / kafe: menü ve görünüm mevsimle değişir. İlk sürümde değil |
 | Para modeli | Henüz karar yok |
 | Öncelik | Dondurmacı Kızlar önce; The Imperial (resepsiyon oyunu) bekliyor |
+| Ekran yönü | **Yatay** (Kemal, 12 Ekim: "yatay olabilir") |
+| Görsel kalite | Taslak görseller temsilî, ama **en az o kalite** hedef (Kemal, 12 Ekim). Ölçü: taslak 2 |
 
 ---
 
@@ -152,7 +154,6 @@ karar verilince bölüm 0'a taşınır.
 
 | Konu | Durum | Öneri |
 |---|---|---|
-| Ekran yönü (telefon dikey mi, yatay mı) | İlk ekrandan önce karar | **Yatay.** Bütün taslak görseller yatay; izometrik dükkân ve tezgah yan yana daha rahat sığar |
 | Bir oyun gününün gerçek süresi | Öneri 5–8 dakika | 6 dakikayla başla, Kemal'in denemesine göre ayarla |
 | İlk sürümde kaç çeşit, kaç müşteri tipi | Açık | 4 çeşit (taslak 2'deki çilek, çikolata, nane, vanilya) + 2 altlık (külah, kap); 3–4 müşteri görünümü |
 | Para modeli | Açık | İlk sürümde yok; yakın çevre denemesi bitince konuşulur |
