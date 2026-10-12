@@ -6,6 +6,7 @@ import {
   EN_COK_TOP,
   geriAl,
   geriAlinabilir,
+  kameraSec,
   IYI_PAYI,
   MUKEMMEL_ALT,
   MUKEMMEL_UST,
@@ -238,42 +239,58 @@ export function Arayuz() {
   const altlikDegisebilir = (durum.asama === 'altlikSec' || durum.asama === 'kepceBos') && topSayisi === 0;
   const servisHazir = durum.asama === 'kepceBos' && topSayisi > 0 && !!musteri;
 
+  const tezgahta = durum.kamera === 'tezgah';
+  if (!tezgahta) ipucu = musteri ? 'ipucu.siparisVar' : durum.acik ? 'ipucu.musteriYok' : null;
+
   return (
     <div className="arayuz">
       {/* Kepçede top varken ekranın herhangi bir yerine dokunmak topu yerleştirir */}
-      {durum.asama === 'kepceDolu' && <div className="yerlestir-alani" onPointerDown={topuYerlestir} />}
+      {tezgahta && durum.asama === 'kepceDolu' && <div className="yerlestir-alani" onPointerDown={topuYerlestir} />}
 
       <SiparisBalonu />
       <UstBilgi />
       <GunSaat />
       {ipucu && <div className="ipucu">{m(ipucu)}</div>}
-      {durum.asama === 'dolduruyor' && <Gosterge />}
+      {tezgahta && durum.asama === 'dolduruyor' && <Gosterge />}
       <Bildirim />
 
-      <div className="altlik-dugmeleri">
-        {(['kulah', 'kap'] as const).map((a) => (
-          <button
-            key={a}
-            className={`dugme ${durum.altlik === a ? 'secili' : ''}`}
-            disabled={!altlikDegisebilir}
-            onClick={() => altlikSec(a)}
-          >
-            {m(a === 'kulah' ? 'altlik.kulah' : 'altlik.kap')}
-          </button>
-        ))}
-      </div>
+      {tezgahta ? (
+        <>
+          <div className="altlik-dugmeleri">
+            <button className="dugme dugme-simge" aria-label={m('kamera.dukkan')} title={m('kamera.dukkan')} onClick={() => kameraSec('dukkan')}>
+              <span className="dukkan-simge" aria-hidden />
+            </button>
+            {(['kulah', 'kap'] as const).map((a) => (
+              <button
+                key={a}
+                className={`dugme ${durum.altlik === a ? 'secili' : ''}`}
+                disabled={!altlikDegisebilir}
+                onClick={() => altlikSec(a)}
+              >
+                {m(a === 'kulah' ? 'altlik.kulah' : 'altlik.kap')}
+              </button>
+            ))}
+          </div>
 
-      <div className="sag-dugmeler">
-        <button className="dugme dugme-geri" disabled={!geriAlinabilir(durum)} onClick={geriAl}>
-          <span className="geri-simge" aria-hidden>
-            ↶
-          </span>
-          {m('geriAl.dugme')}
-        </button>
-        <button className="dugme dugme-servis" disabled={!servisHazir} onClick={servisEt}>
-          {m('servis.dugme')}
-        </button>
-      </div>
+          <div className="sag-dugmeler">
+            <button className="dugme dugme-geri" disabled={!geriAlinabilir(durum)} onClick={geriAl}>
+              <span className="geri-simge" aria-hidden>
+                ↶
+              </span>
+              {m('geriAl.dugme')}
+            </button>
+            <button className="dugme dugme-servis" disabled={!servisHazir} onClick={servisEt}>
+              {m('servis.dugme')}
+            </button>
+          </div>
+        </>
+      ) : (
+        <div className="sag-dugmeler">
+          <button className={`dugme dugme-servis ${musteri ? 'dikkat' : ''}`} onClick={() => kameraSec('tezgah')}>
+            {m('kamera.tezgah')}
+          </button>
+        </div>
+      )}
 
       <GunSonu />
     </div>

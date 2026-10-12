@@ -1,31 +1,51 @@
-import { Suspense, useLayoutEffect } from 'react';
+import { Suspense } from 'react';
 import { Canvas, events, useFrame, useThree, type RootState } from '@react-three/fiber';
 import { useRef } from 'react';
-import { gunIlerleyisi } from '../oyun/durum';
+import { durumuOku, gunIlerleyisi } from '../oyun/durum';
 import * as THREE from 'three';
 import { Disari } from './Disari';
+import { kameraKarisimi } from './kameraKarisimi';
 import { Dukkan } from './Dukkan';
 import { Hazirlama } from './Hazirlama';
 import { Musteriler } from './Musteriler';
 import { renk } from './renkler';
 
-// Tezgah kamerası: sabit, oyuncu yürümez. Ekran ne kadar geniş ya da dar
-// olursa olsun yatayda aşağı yukarı aynı alanı göstersin diye görüş açısı
-// ekran oranına göre ayarlanır.
-const YATAY_GORUS = 80; // derece
+// İki sabit kamera (belge bölüm 0): dükkânın genel görünümü ve tezgahın
+// arkasından yakın plan. Aralarında yumuşak geçiş; oyuncu yürümez.
+// Ekran ne kadar geniş ya da dar olursa olsun yatayda aşağı yukarı aynı
+// alanı göstersin diye görüş açısı ekran oranına göre ayarlanır.
+const TEZGAH = { konum: new THREE.Vector3(0, 1.85, 1.45), hedef: new THREE.Vector3(0, 1.2, -4), yatay: 80 };
+const DUKKAN = { konum: new THREE.Vector3(10.5, 11.5, 13.5), hedef: new THREE.Vector3(-0.5, 0.4, -0.8), yatay: 44 };
 
-function TezgahKamerasi() {
+
+function dikeyAci(yatayDerece: number, oran: number) {
+  const yatay = THREE.MathUtils.degToRad(yatayDerece);
+  return THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(yatay / 2) / oran));
+}
+
+function KameraYoneticisi() {
   const { camera, size } = useThree();
-  useLayoutEffect(() => {
+  const hedef = useRef(new THREE.Vector3());
+  const konum = useRef(new THREE.Vector3());
+  useFrame((_, dt) => {
     const kamera = camera as THREE.PerspectiveCamera;
+    const istenen = durumuOku().kamera === 'dukkan' ? 1 : 0;
+    // Yaklaşık bir saniyelik yumuşak geçiş
+    const k = kameraKarisimi;
+    k.deger += Math.sign(istenen - k.deger) * Math.min(Math.abs(istenen - k.deger), dt * 1.1);
+    const t = k.deger * k.deger * (3 - 2 * k.deger); // yavaş başla, yavaş bitir
+    // Geçişte kamera kısa bir yay çizer: önce biraz yükselir
+    konum.current.lerpVectors(TEZGAH.konum, DUKKAN.konum, t);
+    konum.current.y += Math.sin(t * Math.PI) * 0.8;
+    hedef.current.lerpVectors(TEZGAH.hedef, DUKKAN.hedef, t);
     const oran = size.width / size.height;
-    const yatay = THREE.MathUtils.degToRad(YATAY_GORUS);
-    const dikey = 2 * Math.atan(Math.tan(yatay / 2) / oran);
-    kamera.fov = THREE.MathUtils.clamp(THREE.MathUtils.radToDeg(dikey), 38, 64);
-    kamera.position.set(0, 1.85, 1.45);
-    kamera.lookAt(0, 1.2, -4);
+    const fovTezgah = THREE.MathUtils.clamp(dikeyAci(TEZGAH.yatay, oran), 38, 64);
+    const fovDukkan = THREE.MathUtils.clamp(dikeyAci(DUKKAN.yatay, oran), 22, 48);
+    kamera.fov = THREE.MathUtils.lerp(fovTezgah, fovDukkan, t);
+    kamera.position.copy(konum.current);
+    kamera.lookAt(hedef.current);
     kamera.updateProjectionMatrix();
-  }, [camera, size]);
+  });
   return null;
 }
 
@@ -109,7 +129,7 @@ export function Sahne() {
     >
       <color attach="background" args={[renk.gokUfuk]} />
       <fog attach="fog" args={[renk.gokUfuk, 90, 320]} />
-      <TezgahKamerasi />
+      <KameraYoneticisi />
       <Isiklar />
       <Suspense fallback={null}>
         <Disari />

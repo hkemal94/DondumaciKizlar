@@ -5,9 +5,12 @@
   "altlik.kap": "Kap",
   "servis.dugme": "Servis et",
   "geriAl.dugme": "Geri al",
+  "kamera.tezgah": "Tezgaha geç",
+  "kamera.dukkan": "Dükkâna bak",
 
   "ipucu.altlik": "Siparişe bak, altlık seç",
   "ipucu.musteriYok": "Müşteri bekleniyor…",
+  "ipucu.siparisVar": "Sipariş var, tezgaha geç",
   "ipucu.kapandi": "Dükkân kapandı, sıradakilere servis et",
   "ipucu.kuvet": "Bir küvete basılı tut, MÜKEMMEL'de bırak",
   "ipucu.yerlestir": "Topu koymak için ekrana dokun ya da geri al",

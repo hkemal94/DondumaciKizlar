@@ -1,4 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, type ReactNode } from 'react';
+import { useFrame } from '@react-three/fiber';
+import { kameraKarisimi } from './kameraKarisimi';
 import * as THREE from 'three';
 import { renk } from './renkler';
 import { kuvetler, VITRIN_GENISLIGI } from '../oyun/kuvetler';
@@ -84,19 +86,145 @@ function Tente() {
   );
 }
 
+// Dükkânın genel görünümünde (yukarıdan) tavan ve öndeki duvar kalkar;
+// bebek evi gibi içi görünür. Tezgah görünümünde yerlerine gelir.
+export function TezgahtaGorunur({ children }: { children: ReactNode }) {
+  const ref = useRef<THREE.Group>(null);
+  useFrame(() => {
+    if (ref.current) ref.current.visible = kameraKarisimi.deger < 0.5;
+  });
+  return <group ref={ref}>{children}</group>;
+}
+
 function Odalar() {
   return (
     <group>
       {/* Zemin */}
       <Kutu konum={[0, -0.05, -0.3]} boyut={[8, 0.1, 4.6]} renkAdi={renk.ahsapKoyu} golgeVer={false} />
-      {/* Tavan */}
-      <Kutu konum={[0, TAVAN, -0.3]} boyut={[8, 0.1, 4.6]} renkAdi={renk.ahsapAcik} golgeVer={false} golgeAl={false} />
-      {/* Yan duvarlar */}
+      {/* Sol duvar */}
       <Kutu konum={[-4, 1.6, -0.3]} boyut={[0.1, 3.3, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
-      <Kutu konum={[4, 1.6, -0.3]} boyut={[0.1, 3.3, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
-      {/* Tavan kirişleri */}
-      {[-1.6, 0.2].map((z) => (
-        <Kutu key={z} konum={[0, TAVAN - 0.12, z]} boyut={[8, 0.16, 0.2]} renkAdi={renk.ahsapOrta} golgeVer={false} />
+      <TezgahtaGorunur>
+        {/* Tavan */}
+        <Kutu konum={[0, TAVAN, -0.3]} boyut={[8, 0.1, 4.6]} renkAdi={renk.ahsapAcik} golgeVer={false} golgeAl={false} />
+        {/* Sağ duvar ve arka duvar (oyuncunun arkası) */}
+        <Kutu konum={[4, 1.6, -0.3]} boyut={[0.1, 3.3, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
+        <Kutu konum={[0, 1.6, 2.05]} boyut={[8.1, 3.3, 0.1]} renkAdi={renk.duvar} golgeVer={false} />
+        {/* Tavan kirişleri */}
+        {[-1.6, 0.2].map((z) => (
+          <Kutu key={z} konum={[0, TAVAN - 0.12, z]} boyut={[8, 0.16, 0.2]} renkAdi={renk.ahsapOrta} golgeVer={false} />
+        ))}
+      </TezgahtaGorunur>
+      {/* Genel görünümde kesik duvar dipleri: bebek evi gibi */}
+      <Kutu konum={[4, 0.18, -0.3]} boyut={[0.14, 0.36, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
+      <Kutu konum={[0, 0.18, 2.05]} boyut={[8.14, 0.36, 0.14]} renkAdi={renk.duvar} golgeVer={false} />
+      {/* Dükkânın etrafındaki taş kaldırım */}
+      <mesh position={[0, -0.12, 4]} receiveShadow>
+        <boxGeometry args={[40, 0.1, 13]} />
+        <meshStandardMaterial color="#d9c9ad" roughness={1} />
+      </mesh>
+      {[-12, -6, 6, 12].map((x) => (
+        <mesh key={x} position={[x, -0.065, 4]}>
+          <boxGeometry args={[0.06, 0.01, 13]} />
+          <meshStandardMaterial color="#c4b293" />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+// Oyuncunun arkasındaki tezgah: dolap, kavanozlar, kahve makinesi, kasa.
+// Tezgah görünümünde kameranın arkasında kalır; genel görünümde görünür.
+function ArkaTezgah() {
+  const kavanozRenkleri = ['#ff6f7d', '#ffc928', '#5fd08a', '#9b5fc9', '#8a4b2e'];
+  return (
+    <group position={[0, 0, 1.68]}>
+      <Kutu konum={[0, 0.45, 0]} boyut={[6.6, 0.9, 0.55]} renkAdi={renk.ahsapOrta} />
+      <Kutu konum={[0, 0.92, 0]} boyut={[6.7, 0.05, 0.62]} renkAdi={renk.tezgahUst} puruz={0.6} />
+      {/* Dolap kapakları */}
+      {[-2.6, -1.3, 0, 1.3, 2.6].map((x) => (
+        <Kutu key={x} konum={[x, 0.45, -0.28]} boyut={[1.15, 0.72, 0.02]} renkAdi={renk.ahsapAcik} golgeVer={false} />
+      ))}
+      {/* Kavanozlar */}
+      {kavanozRenkleri.map((r, i) => (
+        <group key={i} position={[-2.9 + i * 0.32, 0.95, 0.05]}>
+          <mesh position={[0, 0.12, 0]} castShadow>
+            <cylinderGeometry args={[0.1, 0.1, 0.24, 8]} />
+            <meshStandardMaterial color={renk.cam} transparent opacity={0.55} roughness={0.1} />
+          </mesh>
+          <mesh position={[0, 0.08, 0]}>
+            <cylinderGeometry args={[0.085, 0.085, 0.15, 8]} />
+            <meshStandardMaterial color={r} roughness={0.8} flatShading />
+          </mesh>
+          <mesh position={[0, 0.25, 0]}>
+            <cylinderGeometry args={[0.105, 0.105, 0.03, 8]} />
+            <meshStandardMaterial color={renk.mor} />
+          </mesh>
+        </group>
+      ))}
+      {/* Kahve makinesi (kışın kafe olacak dükkân için) */}
+      <group position={[0.6, 0.95, 0.02]}>
+        <Kutu konum={[0, 0.22, 0]} boyut={[0.55, 0.44, 0.4]} renkAdi="#c9d0d6" puruz={0.35} />
+        <Kutu konum={[0, 0.46, 0]} boyut={[0.6, 0.05, 0.44]} renkAdi="#8d969e" puruz={0.35} />
+        <Kutu konum={[0, 0.1, -0.22]} boyut={[0.3, 0.04, 0.12]} renkAdi="#5b6268" />
+      </group>
+      {/* Kasa */}
+      <group position={[2.4, 0.95, 0]}>
+        <Kutu konum={[0, 0.12, 0]} boyut={[0.5, 0.24, 0.4]} renkAdi={renk.mor} />
+        <mesh position={[0, 0.3, -0.05]} rotation={[-0.5, 0, 0]}>
+          <boxGeometry args={[0.42, 0.04, 0.22]} />
+          <meshStandardMaterial color="#4e2470" />
+        </mesh>
+      </group>
+      {/* Kap yığınları */}
+      {[1.5, 1.7].map((x, i) => (
+        <mesh key={x} position={[x, 1.08, 0.05]} castShadow>
+          <cylinderGeometry args={[0.08, 0.06, 0.26, 10]} />
+          <meshStandardMaterial color={i ? renk.sari : renk.mor} roughness={0.7} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function Saksi({ konum, olcek = 1 }: { konum: [number, number, number]; olcek?: number }) {
+  const yapraklar = [0, 1, 2, 3, 4, 5].map((i) => {
+    const a = (i / 6) * Math.PI * 2;
+    return (
+      <mesh key={i} position={[Math.cos(a) * 0.12, 0.62, Math.sin(a) * 0.12]} rotation={[Math.sin(a) * 0.7, a, Math.cos(a) * 0.7]} castShadow>
+        <coneGeometry args={[0.1, 0.55, 4]} />
+        <meshStandardMaterial color={i % 2 ? '#5f9a4c' : '#78b45a'} roughness={0.9} flatShading />
+      </mesh>
+    );
+  });
+  return (
+    <group position={konum} scale={olcek}>
+      <mesh position={[0, 0.17, 0]} castShadow>
+        <cylinderGeometry args={[0.2, 0.15, 0.34, 8]} />
+        <meshStandardMaterial color="#d9825b" roughness={0.9} flatShading />
+      </mesh>
+      {yapraklar}
+    </group>
+  );
+}
+
+// Sol duvardaki menü panosu: yazısız, resimli (yazılar Kemal'in).
+function MenuPanosu() {
+  const resimler = ['#ff6f7d', '#8a4b2e', '#5fd08a', '#fff0c8'];
+  return (
+    <group position={[-3.93, 1.9, -0.3]} rotation={[0, Math.PI / 2, 0]}>
+      <Kutu konum={[0, 0, 0]} boyut={[1.7, 1.05, 0.05]} renkAdi={renk.ahsapKoyu} golgeVer={false} />
+      <Kutu konum={[0, 0, 0.03]} boyut={[1.55, 0.9, 0.02]} renkAdi="#2f3b35" golgeVer={false} />
+      {resimler.map((r, i) => (
+        <mesh key={i} position={[-0.55 + i * 0.37, 0.12, 0.05]}>
+          <circleGeometry args={[0.11, 10]} />
+          <meshBasicMaterial color={r} />
+        </mesh>
+      ))}
+      {[0, 1, 2].map((i) => (
+        <mesh key={i} position={[0, -0.18 - i * 0.12, 0.05]}>
+          <planeGeometry args={[1.15 - i * 0.2, 0.03]} />
+          <meshBasicMaterial color="#e9e4d8" transparent opacity={0.6} />
+        </mesh>
       ))}
     </group>
   );
@@ -234,6 +362,11 @@ export function Dukkan() {
       <Tente />
       <Ampuller />
       <Tezgah />
+      <ArkaTezgah />
+      <MenuPanosu />
+      <Saksi konum={[-3.6, 0, 1.0]} />
+      <Saksi konum={[3.55, 0, -2.0]} olcek={1.1} />
+      <Saksi konum={[3.6, 0, 1.05]} olcek={0.9} />
     </group>
   );
 }

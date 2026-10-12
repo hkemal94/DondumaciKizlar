@@ -53,7 +53,11 @@ export interface Durum {
   acik: boolean;
   gunSonu: boolean;
   gunluk: GunlukOzet;
+  // Kamera (iş sırası 5): dükkânın genel görünümü ya da tezgah yakın planı
+  kamera: Kamera;
 }
+
+export type Kamera = 'dukkan' | 'tezgah';
 
 export interface GunlukOzet {
   musteri: number;
@@ -91,6 +95,7 @@ let durum: Durum = {
   acik: true,
   gunSonu: false,
   gunluk: bosOzet(),
+  kamera: 'dukkan',
 };
 
 const dinleyiciler = new Set<() => void>();
@@ -133,7 +138,7 @@ export function altlikSec(altlik: Altlik) {
 }
 
 export function kuveteBas(kuvet: number) {
-  if (durum.asama !== 'kepceBos') return;
+  if (durum.asama !== 'kepceBos' || durum.kamera !== 'tezgah') return;
   if (durum.toplar.length >= EN_COK_TOP) return;
   guncelle({ asama: 'dolduruyor', kepceKuvet: kuvet, dolumBasladi: performance.now() });
 }
@@ -259,6 +264,10 @@ export function servisEt() {
     window.setTimeout(() => {
       guncelle({ musteriler: durum.musteriler.filter((m) => m.id !== id) });
     }, 4000);
+    // Sırada kimse kalmadıysa kamera dükkânın genel görünümüne döner
+    window.setTimeout(() => {
+      if (!ondekiMusteri()) kameraSec('dukkan');
+    }, 1600);
   }
 
   // Servis hareketi bitince yeni dondurma için baştan
@@ -323,9 +332,25 @@ export function yeniGun() {
     gunSonu: false,
     gunluk: bosOzet(),
     sonrakiGelis: 0,
+    kamera: 'dukkan',
     asama: 'altlikSec',
     altlik: null,
     toplar: [],
     kepcedeki: null,
   });
+}
+
+// ---- Kamera (iş sırası 5) ----
+// Sipariş gelince (öndeki müşteri tezgaha varınca) kamera tezgaha geçer;
+// sıra boşalınca dükkânın genel görünümüne döner. Oyuncu düğmeyle de geçer.
+export function kameraSec(kamera: Kamera) {
+  if (durum.kamera !== kamera) guncelle({ kamera });
+}
+
+let sonKarsilanan = 0;
+// Öndeki müşteri tezgaha vardığında sahne bunu çağırır (her müşteri için bir kez).
+export function musteriTezgahaVardi(id: number) {
+  if (id === sonKarsilanan) return;
+  sonKarsilanan = id;
+  kameraSec('tezgah');
 }

@@ -464,3 +464,49 @@ body,
     opacity: 0;
   }
 }
+
+/* ---- Dükkân görünümü (5. adım) ---- */
+.dugme-simge {
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Küçük ev simgesi: dükkânın genel görünümü */
+.dukkan-simge {
+  position: relative;
+  width: 22px;
+  height: 20px;
+}
+.dukkan-simge::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  bottom: 0;
+  height: 11px;
+  background: var(--yazi);
+  border-radius: 2px;
+}
+.dukkan-simge::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-left: 11px solid transparent;
+  border-right: 11px solid transparent;
+  border-bottom: 10px solid var(--sari);
+}
+.dugme.dikkat {
+  animation: dikkat 1.2s ease-in-out infinite;
+}
+@keyframes dikkat {
+  50% {
+    transform: scale(1.07);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dugme.dikkat {
+    animation: none;
+  }
+}

@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { durumuOku, ondekiMusteri, useDurum, type Musteri } from '../oyun/durum';
+import { durumuOku, musteriTezgahaVardi, ondekiMusteri, useDurum, type Musteri } from '../oyun/durum';
 import { renk } from './renkler';
 
 // Tezgah önünde sıraya giren müşteriler (iş sırası 3).
@@ -164,6 +164,7 @@ function BalonTakibi() {
     nesne.getWorldPosition(v);
     // Yalnız yerine varınca göster
     const vardi = v.distanceTo(ON_YER) < 0.15;
+    if (vardi) musteriTezgahaVardi(m.id);
     // Başın sağ üstü (taslak 2'deki gibi)
     v.x += 0.42;
     v.y += 1.68 * musteriGorunumleri[m.gorunum % musteriGorunumleri.length].boy;

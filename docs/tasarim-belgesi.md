@@ -211,3 +211,6 @@ KKM'deki oyun dosyasında olup bu belgede olmayan maddeler:
 | Gün sonu ekranı | Servis edilen müşteri, günün kazancı, MÜKEMMEL top, günün memnuniyeti, kasadaki para | |
 | Akşam ışığı | Gün ilerledikçe güneş alçalır, ışık turuncuya döner | Belgede yoktu; beğenilmezse kalkar |
 | Kayıt | Yok: sayfa kapanınca para ve gün sıfırlanır | Sonraki iş olarak önerildi |
+| Kamera geçişi | Gün dükkânın genel görünümüyle başlar. Öndeki müşteri tezgaha varınca kamera kendiliğinden tezgaha geçer; sıra boşalınca genele döner. Oyuncu düğmeyle de geçer (genelde "Tezgaha geç", tezgahta ev simgesi) | 5. adım |
+| Genel görünüm | Bebek evi gibi: tavan, sağ duvar ve arka duvar kalkar, yalnız dipleri görünür. Oyuncu görünmez | 5. adım |
+| Dükkân içi | Arka tezgah (kavanozlar, kahve makinesi, kasa), yazısız menü panosu, üç saksı; dışarıda taş kaldırım. Hepsi geçici | Taslak 1'e göre; ad ve yazı yok |

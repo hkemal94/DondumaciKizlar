@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { dolumHesapla, durumuOku, useDurum, type Top } from '../oyun/durum';
 import { KUVET_Y, KUVET_Z, kuvetler } from '../oyun/kuvetler';
 import { renk } from './renkler';
+import { TezgahtaGorunur } from './Dukkan';
 
 // Tezgah yakın planındaki hareketli parçalar: altlık (külah / kap),
 // kepçe ve dondurma topları. Eller yok (belge 7.1: önce elsiz denenir).
@@ -228,11 +229,12 @@ function Kepce() {
 }
 
 export function Hazirlama() {
+  // Kepçe ve altlık yalnız tezgah görünümünde (oyuncunun eli yerinde)
   return (
-    <group>
+    <TezgahtaGorunur>
       <AltlikStandi />
       <AltlikVeToplar />
       <Kepce />
-    </group>
+    </TezgahtaGorunur>
   );
 }
