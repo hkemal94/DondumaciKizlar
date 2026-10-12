@@ -742,3 +742,6 @@ body,
   border-color: #7d2b2b;
   box-shadow: 0 3px 0 #7d2b2b;
 }
+.gel-kup {
+  background: linear-gradient(#dff1f7 55%, #7a3fa8 55%);
+}

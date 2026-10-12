@@ -6,7 +6,10 @@ import { BASLANGIC_CESITLERI, CESITLER } from './kuvetler';
 // yerleştir → servis) ve müşteri sırası (iş sırası 3).
 // Oyuncunun yaptığı her şey buradan geçer; ekran ve 3B sahne buradan okur.
 
-export type Altlik = 'kulah' | 'kap';
+export type Altlik = 'kulah' | 'kap' | 'kup';
+// Kup parayla açılır (belge 3: "külah, kap ya da kup"; belge 4: tarif ağacı)
+export const KUP_FIYATI = 200;
+export const KUP_EKI = 5; // kuplu siparişe ek para
 export type Asama = 'altlikSec' | 'kepceBos' | 'dolduruyor' | 'kepceDolu' | 'servis';
 export type Sonuc = 'mukemmel' | 'iyi' | 'kucuk' | 'buyuk';
 
@@ -64,6 +67,7 @@ export interface Durum {
   kamera: Kamera;
   // İlerleme (belge 2.4 ve 4): kayıtta saklanır
   acikCesitler: number[];
+  acikAltliklar: Altlik[];
   fiyatSeviyesi: FiyatSeviyesi;
   dekorlar: Dekor[];
 }
@@ -112,6 +116,7 @@ let durum: Durum = {
   gunluk: bosOzet(),
   kamera: 'dukkan',
   acikCesitler: [...BASLANGIC_CESITLERI],
+  acikAltliklar: ['kulah', 'kap'],
   fiyatSeviyesi: 'normal',
   dekorlar: [],
 };
@@ -152,6 +157,7 @@ function sonucBul(dolum: number): Sonuc {
 
 export function altlikSec(altlik: Altlik) {
   if (durum.toplar.length > 0 || durum.kepcedeki) return; // ilk toptan sonra değişmez
+  if (!durum.acikAltliklar.includes(altlik)) return;
   guncelle({ altlik, asama: 'kepceBos' });
 }
 
@@ -222,7 +228,7 @@ function rastgeleSiparis(): Siparis {
   // Siparişlerin üçte birinde bir süsleme ya da sos istenir (geçici oran)
   const susleme: Susleme[] = Math.random() < 0.33 ? [SUSLEMELER[Math.floor(Math.random() * SUSLEMELER.length)]] : [];
   return {
-    altlik: Math.random() < 0.5 ? 'kulah' : 'kap',
+    altlik: durum.acikAltliklar[Math.floor(Math.random() * durum.acikAltliklar.length)],
     kuvetler: Array.from({ length: sayi }, () => durum.acikCesitler[Math.floor(Math.random() * durum.acikCesitler.length)]),
     susleme,
   };
@@ -280,7 +286,8 @@ export function servisEt() {
         (t, top) => t + topFiyati() + (top.sonuc === 'mukemmel' ? MUKEMMEL_EKI : top.sonuc === 'iyi' ? IYI_EKI : 0),
         0,
       ) +
-      durum.susleme.length * SUSLEME_FIYATI;
+      durum.susleme.length * SUSLEME_FIYATI +
+      (durum.altlik === 'kup' ? KUP_EKI : 0);
     const hamPuan = durum.toplar.reduce((t, top) => t + SONUC_PUANI[top.sonuc], 0) / durum.toplar.length;
     const puan = Math.max(1, hamPuan - FIYAT_ETKISI[durum.fiyatSeviyesi].memnuniyet);
     const id = musteri.id;
@@ -426,6 +433,12 @@ export function cesitAc(cesit: number) {
   kaydet();
 }
 
+export function kupAc() {
+  if (durum.acikAltliklar.includes('kup') || durum.para < KUP_FIYATI) return;
+  guncelle({ para: durum.para - KUP_FIYATI, acikAltliklar: [...durum.acikAltliklar, 'kup'] });
+  kaydet();
+}
+
 export function dekorAl(id: Dekor) {
   const d = DEKORLAR.find((x) => x.id === id);
   if (!d || durum.dekorlar.includes(id) || durum.para < d.fiyat) return;
@@ -448,6 +461,7 @@ interface Kayit {
   gun: number;
   memnuniyetler: number[];
   acikCesitler: number[];
+  acikAltliklar: Altlik[];
   fiyatSeviyesi: FiyatSeviyesi;
   dekorlar: Dekor[];
 }
@@ -458,6 +472,7 @@ function kaydet() {
     gun: durum.gun,
     memnuniyetler: durum.memnuniyetler.slice(-60),
     acikCesitler: durum.acikCesitler,
+    acikAltliklar: durum.acikAltliklar,
     fiyatSeviyesi: durum.fiyatSeviyesi,
     dekorlar: durum.dekorlar,
   };
@@ -479,6 +494,7 @@ export function kaydiYukle() {
       gun: typeof k.gun === 'number' ? k.gun : 1,
       memnuniyetler: Array.isArray(k.memnuniyetler) ? k.memnuniyetler : [],
       acikCesitler: acik.length ? acik : [...BASLANGIC_CESITLERI],
+      acikAltliklar: Array.isArray(k.acikAltliklar) && k.acikAltliklar.includes('kup') ? ['kulah', 'kap', 'kup'] : ['kulah', 'kap'],
       fiyatSeviyesi: k.fiyatSeviyesi && k.fiyatSeviyesi in FIYAT_ETKISI ? k.fiyatSeviyesi : 'normal',
       dekorlar: Array.isArray(k.dekorlar) ? k.dekorlar.filter((d) => DEKORLAR.some((x) => x.id === d)) : [],
     });
@@ -500,6 +516,7 @@ export function bastanBasla() {
     gun: 1,
     memnuniyetler: [],
     acikCesitler: [...BASLANGIC_CESITLERI],
+    acikAltliklar: ['kulah', 'kap'],
     fiyatSeviyesi: 'normal',
     dekorlar: [],
     dakika: 0,

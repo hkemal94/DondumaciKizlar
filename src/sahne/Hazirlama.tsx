@@ -114,6 +114,26 @@ function Kulah() {
   );
 }
 
+// Kup: ayaklı cam kâse (geçici model)
+function Kup() {
+  return (
+    <group position={[0, -0.04, 0]}>
+      <mesh position={[0, 0.02, 0]}>
+        <sphereGeometry args={[0.095, 14, 7, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2]} />
+        <meshPhysicalMaterial color={renk.cam} transparent opacity={0.45} roughness={0.05} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh position={[0, -0.12, 0]}>
+        <cylinderGeometry args={[0.014, 0.014, 0.12, 8]} />
+        <meshPhysicalMaterial color={renk.cam} transparent opacity={0.6} roughness={0.05} />
+      </mesh>
+      <mesh position={[0, -0.18, 0]}>
+        <cylinderGeometry args={[0.06, 0.07, 0.015, 14]} />
+        <meshStandardMaterial color={renk.mor} />
+      </mesh>
+    </group>
+  );
+}
+
 function Kap() {
   return (
     <group>
@@ -149,13 +169,21 @@ function AltlikStandi() {
   );
 }
 
-function topKonumlari(altlik: 'kulah' | 'kap', toplar: Top[]): [number, number, number][] {
+function topKonumlari(altlik: 'kulah' | 'kap' | 'kup', toplar: Top[]): [number, number, number][] {
   const r = toplar.map((t) => topYaricapi(t.boyut));
   if (altlik === 'kulah') {
     let y = 0.01;
     return r.map((ri, i) => {
       y += i === 0 ? ri * 0.55 : ri * 1.25;
       return [0, y, 0];
+    });
+  }
+  // Kup: toplar kâsenin içine iner, üst üste ama biraz kaydırılmış
+  if (altlik === 'kup') {
+    let y = -0.03;
+    return r.map((ri, i) => {
+      y += i === 0 ? ri * 0.5 : ri * 1.05;
+      return [i === 1 ? -ri * 0.35 : i === 2 ? ri * 0.35 : 0, y, 0];
     });
   }
   // Kap: bir top ortada; iki top yan yana; üçüncü ikisinin üstünde
@@ -212,7 +240,7 @@ function AltlikVeToplar() {
 
   return (
     <group ref={ref} position={ALTLIK_KONUM.toArray()}>
-      {durum.altlik === 'kulah' ? <Kulah /> : <Kap />}
+      {durum.altlik === 'kulah' ? <Kulah /> : durum.altlik === 'kup' ? <Kup /> : <Kap />}
       {toplar}
     </group>
   );

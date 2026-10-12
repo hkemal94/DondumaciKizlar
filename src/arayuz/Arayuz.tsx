@@ -99,9 +99,12 @@ function Bildirim() {
 function SiparisResmi({ siparis }: { siparis: Siparis }) {
   const toplar = siparis.kuvetler.map((k) => CESITLER[k].renk);
   const kulah = siparis.altlik === 'kulah';
+  const kup = siparis.altlik === 'kup';
   // Toplar: külahta üst üste, kapta yan yana (oyundaki gibi)
   const yerler: [number, number][] = kulah
     ? toplar.map((_, i) => [30, 40 - i * 15])
+    : kup
+      ? toplar.map((_, i) => [i === 1 ? 24 : i === 2 ? 36 : 30, 44 - i * 11] as [number, number])
     : toplar.length === 1
       ? [[30, 44]]
       : [[21, 46], [39, 46], [30, 33]].slice(0, toplar.length) as [number, number][];
@@ -117,10 +120,16 @@ function SiparisResmi({ siparis }: { siparis: Siparis }) {
       })}
       {kulah ? (
         <path d="M17 47 L43 47 L30 86 Z" fill="#d9a066" stroke="#a8743f" strokeWidth="2" strokeLinejoin="round" />
+      ) : kup ? (
+        <g data-kup="1">
+          <path d="M11 48 Q30 72 49 48 Z" fill="#dff1f7" stroke="#7ba7b8" strokeWidth="2" strokeLinejoin="round" />
+          <rect x="28" y="62" width="4" height="16" fill="#9cc4d2" />
+          <rect x="19" y="77" width="22" height="5" rx="2" fill="#7a3fa8" />
+        </g>
       ) : (
         <path d="M12 50 L48 50 L43 74 L17 74 Z" fill="#7a3fa8" stroke="#4e2470" strokeWidth="2" strokeLinejoin="round" />
       )}
-      {!kulah && <rect x="13" y="55" width="34" height="4" fill="#ffc928" />}
+      {!kulah && !kup && <rect x="13" y="55" width="34" height="4" fill="#ffc928" />}
     </svg>
   );
 }
@@ -335,14 +344,14 @@ export function Arayuz() {
             <button className="dugme dugme-simge" aria-label={m('kamera.dukkan')} title={m('kamera.dukkan')} onClick={() => kameraSec('dukkan')}>
               <span className="dukkan-simge" aria-hidden />
             </button>
-            {(['kulah', 'kap'] as const).map((a) => (
+            {durum.acikAltliklar.map((a) => (
               <button
                 key={a}
                 className={`dugme ${durum.altlik === a ? 'secili' : ''}`}
                 disabled={!altlikDegisebilir}
                 onClick={() => altlikSec(a)}
               >
-                {m(a === 'kulah' ? 'altlik.kulah' : 'altlik.kap')}
+                {m(`altlik.${a}` as MetinAnahtari)}
               </button>
             ))}
           </div>

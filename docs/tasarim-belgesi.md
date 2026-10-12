@@ -221,3 +221,26 @@ KKM'deki oyun dosyasında olup bu belgede olmayan maddeler:
 | Fiyat | Ucuz (top 8, müşteri daha sık), Normal (10), Pahalı (13, daha seyrek, memnuniyet −0,5) | Geçici |
 | Dekorasyon | Çiçek saksıları 80, fenerler 120, şemsiye 160, masa takımı 200. Her biri müşteri aralığını %6 kısaltır; dükkânın önünde görünür | Geçici |
 | Kayıt | Para, gün, açılan çeşitler, fiyat ve dekorasyon bu tarayıcıda saklanır (gün başında ve alışverişte). "Baştan başla" onay ister | Belgede yoktu; ilerlemenin anlamı olsun diye eklendi |
+| Kup | Üçüncü altlık (belge 3: "külah, kap ya da kup"): Dükkânı geliştir → Yeni çeşitler'den 200'e açılır. Açılınca müşteriler kup da ister; kuplu sipariş +5 | Geçici fiyat; ayaklı cam kâse, kodla çizilmiş |
+
+---
+
+## 8. Yapım durumu (12 Ekim gece)
+
+Uygulamada **olan**:
+
+| İş sırası | Durum |
+|---|---|
+| 1. İskelet | Bitti |
+| 2. Tezgah + kepçe mini oyunu | Bitti (geri al dahil) |
+| 3. Müşteri sırası | Bitti |
+| 4. Gün ve saat | Bitti |
+| 5. İzometrik görünüm + kamera geçişi | Bitti |
+| 6. Süsleme ve sos | Bitti (3 süsleme) |
+| 6. Yeni çeşitler ve tarif ağacı | Kısmen: mango, yaban mersini, kup açılır. Waffle ve limonata yok (yeni hazırlama biçimi ister; Kemal'le konuşulacak) |
+| 6. Fiyatlar | Bitti (3 seviye) |
+| 6. Dekorasyon | Bitti (4 parça) |
+| 6. Mevsim (kış: tatlıcı / kafe) | Yok (ilk sürümde değil) |
+| 6. Hikâye kırıntıları | Yok (metinler Kemal'in) |
+
+Uygulamada **olmayan** ama belgede geçenler: ses ve müzik (bölüm 6), eller, gerçek 3B modeller (hepsi kodla çizilmiş geçici parçalar), İngilizce.

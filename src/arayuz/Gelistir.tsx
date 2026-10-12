@@ -6,6 +6,8 @@ import {
   dekorAl,
   FIYAT_ETKISI,
   fiyatSec,
+  KUP_FIYATI,
+  kupAc,
   TOP_FIYATI,
   useDurum,
   type FiyatSeviyesi,
@@ -66,6 +68,18 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
                   </div>
                 );
               })}
+              {/* Kup: üçüncü altlık */}
+              <div className={`gel-kart ${durum.acikAltliklar.includes('kup') ? 'acik' : ''}`}>
+                <span className="gel-renk gel-kup" aria-hidden />
+                <span className="gel-ad">{m('altlik.kup')}</span>
+                {durum.acikAltliklar.includes('kup') ? (
+                  <span className="gel-durum">{m('gelistir.alindi')}</span>
+                ) : (
+                  <button className="dugme gel-al" disabled={durum.para < KUP_FIYATI} onClick={kupAc}>
+                    {m('gelistir.al')} <Para miktar={KUP_FIYATI} />
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
