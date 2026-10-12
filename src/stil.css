@@ -1,0 +1,92 @@
+/* Arayüz tarzı: taslak 1 ve 3 gibi sıcak, ahşap tonlar. */
+:root {
+  --ahsap: #6b4630;
+  --ahsap-acik: #8a5d40;
+  --krem: #fbf1e3;
+  --yazi: #fffaf2;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#kok {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #f7e4cf;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
+.oyun {
+  position: fixed;
+  inset: 0;
+}
+
+.iskelet-etiketi {
+  position: absolute;
+  top: max(10px, env(safe-area-inset-top));
+  left: max(12px, env(safe-area-inset-left));
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: var(--ahsap);
+  border: 2px solid var(--ahsap-acik);
+  color: var(--yazi);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+}
+
+.yon-uyarisi {
+  display: none;
+}
+
+@media (orientation: portrait) {
+  .yon-uyarisi {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 24px;
+    text-align: center;
+    background: var(--krem);
+    color: var(--ahsap);
+  }
+  .yon-simge {
+    font-size: 64px;
+    line-height: 1;
+    animation: don 2.4s ease-in-out infinite;
+  }
+  .yon-baslik {
+    font-size: 22px;
+    font-weight: 800;
+  }
+  .yon-aciklama {
+    font-size: 15px;
+    opacity: 0.8;
+  }
+}
+
+@keyframes don {
+  0%,
+  30% {
+    transform: rotate(0deg);
+  }
+  60%,
+  100% {
+    transform: rotate(90deg);
+  }
+}
