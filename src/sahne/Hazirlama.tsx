@@ -9,7 +9,8 @@ import { TezgahtaGorunur } from './Dukkan';
 // Tezgah yakın planındaki hareketli parçalar: altlık (külah / kap),
 // kepçe ve dondurma topları. Eller yok (belge 7.1: önce elsiz denenir).
 
-const ALTLIK_KONUM = new THREE.Vector3(-0.36, 1.36, 0.12);
+// Küvetlerin üstünde, solda: küvetleri kapatmasın (Kemal, 13 Ekim)
+const ALTLIK_KONUM = new THREE.Vector3(-0.52, 1.74, 0.3);
 const KEPCE_DURUS = new THREE.Vector3(0.6, 1.46, 0.1);
 const KEPCE_BEKLEME = new THREE.Vector3(0.05, 1.38, 0.05);
 
@@ -154,13 +155,10 @@ function Kap() {
 }
 
 // Altlığın tutulduğu yer: ileride eller gelince kalkacak.
+// Altlığın tutulduğu halka (ileride eller gelince kalkacak)
 function AltlikStandi() {
   return (
     <group position={ALTLIK_KONUM.toArray()}>
-      <mesh position={[0, -0.3, 0]}>
-        <cylinderGeometry args={[0.012, 0.012, 0.4, 6]} />
-        <meshStandardMaterial color={renk.vitrinMetal} roughness={0.4} metalness={0.6} />
-      </mesh>
       <mesh position={[0, -0.1, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[0.05, 0.007, 6, 16]} />
         <meshStandardMaterial color={renk.vitrinMetal} roughness={0.4} metalness={0.6} />

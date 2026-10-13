@@ -35,7 +35,7 @@ import { m, type MetinAnahtari } from '../metinler';
 import { CESITLER } from '../oyun/kuvetler';
 import { balon } from '../sahne/Musteriler';
 import { Gelistir } from './Gelistir';
-import { dukkanDonusu, yakinlikDegistir } from '../sahne/kameraKarisimi';
+import { dukkanDonusu, ekrandaKaydir, ortala, yakinlikDegistir } from '../sahne/kameraKarisimi';
 import { DuraklatDugmesi, DuraklatMenusu, GezmeEkrani } from './Duraklat';
 import { ESYALAR } from '../oyun/dekorasyon';
 
@@ -354,6 +354,7 @@ function useYakinlastirma(etkin: boolean, gezme: boolean) {
   useEffect(() => {
     if (!etkin) return;
     let oncekiX: number | null = null;
+    let oncekiY: number | null = null;
     const parmaklar = new Map<number, { x: number; y: number }>();
     let oncekiAralik = 0;
     const aralik = () => {
@@ -362,17 +363,26 @@ function useYakinlastirma(etkin: boolean, gezme: boolean) {
     };
     const bas = (e: PointerEvent) => {
       parmaklar.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      if (parmaklar.size === 2) oncekiAralik = aralik();
+      if (parmaklar.size === 2) {
+        oncekiAralik = aralik();
+        oncekiX = null;
+        oncekiY = null;
+      }
     };
     const oynat = (e: PointerEvent) => {
       if (!parmaklar.has(e.pointerId)) return;
       parmaklar.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      // Gezerken tek parmakla kaydırınca dükkânın çevresinde dön
-      if (gezme && parmaklar.size === 1) {
+      // Tek parmak: gezerken dükkânın çevresinde döner, yoksa görüntüyü kaydırır
+      if (parmaklar.size === 1) {
         const dik = window.matchMedia('(orientation: portrait)').matches; // oyun çevrilmiş
         const x = dik ? e.clientY : e.clientX;
-        if (oncekiX !== null) dukkanDonusu.deger -= (x - oncekiX) * 0.008;
+        const y = dik ? window.innerWidth - e.clientX : e.clientY;
+        if (oncekiX !== null && oncekiY !== null) {
+          if (gezme) dukkanDonusu.deger -= (x - oncekiX) * 0.008;
+          else ekrandaKaydir(x - oncekiX, y - oncekiY, dik ? window.innerWidth : window.innerHeight);
+        }
         oncekiX = x;
+        oncekiY = y;
       }
       if (parmaklar.size === 2 && oncekiAralik > 0) {
         const yeni = aralik();
@@ -384,6 +394,7 @@ function useYakinlastirma(etkin: boolean, gezme: boolean) {
       parmaklar.delete(e.pointerId);
       oncekiAralik = 0;
       oncekiX = null;
+      oncekiY = null;
     };
     const tekerlek = (e: WheelEvent) => {
       e.preventDefault();
@@ -486,6 +497,9 @@ export function Arayuz() {
           </button>
           <button className="dugme dugme-simge" aria-label={m('kamera.uzaklas')} onClick={() => yakinlikDegistir(1.25)}>
             −
+          </button>
+          <button className="dugme dugme-simge" aria-label={m('kamera.ortala')} onClick={ortala}>
+            <span className="ortala-simge" aria-hidden />
           </button>
         </div>
       )}

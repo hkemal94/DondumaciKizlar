@@ -765,8 +765,8 @@ body,
   gap: 8px;
 }
 .yakinlik-dugmeleri .dugme {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   font-size: 26px;
   line-height: 1;
   padding: 0;
@@ -930,4 +930,21 @@ a.dugme {
   flex-wrap: wrap;
   justify-content: flex-end;
   max-width: calc(100% - 100px);
+}
+
+/* Ortala: hedef simgesi */
+.ortala-simge {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 3px solid var(--yazi);
+  border-radius: 50%;
+  position: relative;
+}
+.ortala-simge::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: var(--sari);
 }

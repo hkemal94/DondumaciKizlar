@@ -5,7 +5,7 @@ import { durumuOku, saatDakikasi } from '../oyun/durum';
 import { gokRenkleri } from './gokRenkleri';
 import * as THREE from 'three';
 import { Disari } from './Disari';
-import { dukkanDonusu, dukkanYakinligi, fotograf, kameraKarisimi } from './kameraKarisimi';
+import { dukkanDonusu, dukkanKaydirma, dukkanYakinligi, fotograf, kameraKarisimi } from './kameraKarisimi';
 import { Dukkan } from './Dukkan';
 import { Hazirlama } from './Hazirlama';
 import { Musteriler } from './Musteriler';
@@ -16,7 +16,7 @@ import { renk } from './renkler';
 // arkasından yakın plan. Aralarında yumuşak geçiş; oyuncu yürümez.
 // Ekran ne kadar geniş ya da dar olursa olsun yatayda aşağı yukarı aynı
 // alanı göstersin diye görüş açısı ekran oranına göre ayarlanır.
-const TEZGAH = { konum: new THREE.Vector3(0, 1.85, 1.45), hedef: new THREE.Vector3(0, 1.2, -4), yatay: 80 };
+const TEZGAH = { konum: new THREE.Vector3(0, 1.95, 1.5), hedef: new THREE.Vector3(0, 0.9, -4), yatay: 80 };
 // Genel görünüm dükkânın önünden (deniz / müşteri tarafı) çeker (Kemal, 13 Ekim)
 const DUKKAN = { konum: new THREE.Vector3(-13.5, 15.5, -20), hedef: new THREE.Vector3(-0.4, 0.2, -1.6), yatay: 50 };
 
@@ -48,6 +48,8 @@ function KameraYoneticisi() {
   const dukkanKonumu = useRef(new THREE.Vector3());
   const yakinlik = useRef(dukkanYakinligi.deger);
   const donus = useRef(0);
+  const kayma = useRef(new THREE.Vector3());
+  const dukkanHedefi = useRef(new THREE.Vector3());
   useFrame((_, dt) => {
     const kamera = camera as THREE.PerspectiveCamera;
     const istenen = durumuOku().kamera === 'dukkan' ? 1 : 0;
@@ -68,9 +70,14 @@ function KameraYoneticisi() {
       .multiplyScalar(yakinlik.current)
       .applyAxisAngle(new THREE.Vector3(0, 1, 0), donus.current)
       .add(DUKKAN.hedef);
+    // Kaydırma: bakılan nokta ve kamera birlikte kayar, açı değişmez
+    kayma.current.x = THREE.MathUtils.damp(kayma.current.x, dukkanKaydirma.x, 12, dt);
+    kayma.current.z = THREE.MathUtils.damp(kayma.current.z, dukkanKaydirma.z, 12, dt);
+    dukkanKonumu.current.add(kayma.current);
+    dukkanHedefi.current.copy(DUKKAN.hedef).add(kayma.current);
     konum.current.lerpVectors(TEZGAH.konum, dukkanKonumu.current, t);
     konum.current.y += Math.sin(t * Math.PI) * 0.8;
-    hedef.current.lerpVectors(TEZGAH.hedef, DUKKAN.hedef, t);
+    hedef.current.lerpVectors(TEZGAH.hedef, dukkanHedefi.current, t);
     const oran = size.width / size.height;
     const fovTezgah = THREE.MathUtils.clamp(dikeyAci(TEZGAH.yatay, oran), 38, 64);
     const fovDukkan = THREE.MathUtils.clamp(dikeyAci(DUKKAN.yatay, oran), 22, 48);

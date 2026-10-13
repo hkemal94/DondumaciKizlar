@@ -203,7 +203,7 @@ function BalonTakibi() {
     if (vardi) musteriTezgahaVardi(m.id);
     // Başın sağ üstü (taslak 2'deki gibi)
     v.x += 0.42;
-    v.y += 1.68 * musteriGorunumleri[m.gorunum % musteriGorunumleri.length].boy;
+    v.y += 1.5 * musteriGorunumleri[m.gorunum % musteriGorunumleri.length].boy;
     v.project(camera);
     const x = ((v.x + 1) / 2) * size.width;
     const y = ((1 - v.y) / 2) * size.height;

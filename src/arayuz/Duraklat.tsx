@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { devamEt, duraklat, duraklatilabilir, gezmeyeBasla, gezmeyiBitir, useDurum } from '../oyun/durum';
 import { m } from '../metinler';
-import { fotograf, yakinlikDegistir } from '../sahne/kameraKarisimi';
+import { fotograf, ortala, yakinlikDegistir } from '../sahne/kameraKarisimi';
 
 // Duraklatma menüsü (Kemal, 13 Ekim): devam et, dükkânı gez, fotoğraf çek,
 // ses ayarı. Saat, müşteriler ve sabır durur.
@@ -101,6 +101,9 @@ export function GezmeEkrani() {
         </button>
         <button className="dugme dugme-simge" aria-label={m('kamera.uzaklas')} onClick={() => yakinlikDegistir(1.25)}>
           −
+        </button>
+        <button className="dugme dugme-simge" aria-label={m('kamera.ortala')} onClick={ortala}>
+          <span className="ortala-simge" aria-hidden />
         </button>
       </div>
       <div className="sag-dugmeler">
