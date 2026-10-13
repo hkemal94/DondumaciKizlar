@@ -12,6 +12,7 @@ import {
   MUKEMMEL_UST,
   ondekiMusteri,
   ortalamaMemnuniyet,
+  sabirOrani,
   haftaGunu,
   saatYazisi,
   servisEt,
@@ -96,7 +97,8 @@ function Bildirim() {
     yazi = bildirim.eksik.length
       ? m('sonuc.suslemeEksik', { ad: bildirim.eksik.map(ad).join(', ') })
       : m('sonuc.suslemeFazla', { ad: bildirim.fazla.map(ad).join(', ') });
-  } else yazi = m('sonuc.yanlis');
+  } else if (bildirim.tur === 'sikildi') yazi = m('sonuc.sikildi');
+  else yazi = m('sonuc.yanlis');
   return (
     <div key={bildirim.zaman} className={`bildirim bildirim-${sinif}`}>
       {bildirim.tur === 'para' && <span className="para-simge" aria-hidden />}
@@ -229,6 +231,18 @@ function SiparisBalonu() {
       {musteri && (
         <div className={`balon-ic ${durum.bildirim?.tur === 'susleme' ? 'hatirlat' : ''}`}>
           <SiparisResmi siparis={musteri.siparis} />
+          {/* Sabır çubuğu: işlem yapılınca dolar, beklerken azalır */}
+          {sabirOrani(durum) !== null && (
+            <div className="sabir" aria-hidden>
+              <div
+                className="sabir-dolu"
+                style={{
+                  width: `${(sabirOrani(durum) ?? 0) * 100}%`,
+                  background: (sabirOrani(durum) ?? 0) > 0.5 ? '#5fc06a' : (sabirOrani(durum) ?? 0) > 0.25 ? '#ffc928' : '#e8574f',
+                }}
+              />
+            </div>
+          )}
           {/* İstenen süsleme ayrıca rozet olarak: gözden kaçmasın */}
           {musteri.siparis.susleme.length > 0 && (
             <div className="balon-rozetler">

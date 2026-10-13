@@ -1,7 +1,8 @@
 import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { durumuOku, musteriTezgahaVardi, ondekiMusteri, useDurum, type Musteri } from '../oyun/durum';
+import { durumuOku, musteriTezgahaVardi, musteriyiKaldir, ondekiMusteri, useDurum, type Musteri } from '../oyun/durum';
+import { KAPI_X } from './Dukkan';
 import { renk } from './renkler';
 
 // Tezgah önünde sıraya giren müşteriler (iş sırası 3).
@@ -27,8 +28,13 @@ export const musteriGorunumleri: Gorunum[] = [
 
 // Sıradaki yerler: öndeki tezgahın ortasında, diğerleri sola doğru dizilir.
 const ON_YER = new THREE.Vector3(0, 0, -1.62);
-const GIRIS = new THREE.Vector3(-4.3, 0, -1.95);
-const CIKIS = new THREE.Vector3(4.3, 0, -1.75);
+// Müşteri yolu (Kemal, 13 Ekim): iskelenin iki ucundan birinden, kameranın
+// dışından yürüyerek gelir; kapıdan girer, sıraya geçer. Giderken kapıdan
+// çıkıp yine iki uçtan birine yürür ve ekrandan çıkınca silinir.
+const ISKELE_Z = -4.1; // terastaki yürüme yolu
+const ISKELE_UCU = 17; // kameranın dışı
+const KAPI_DIS = new THREE.Vector3(KAPI_X, 0, -3.1);
+const KAPI_IC = new THREE.Vector3(KAPI_X, 0, -2.05);
 
 function siraYeri(sira: number, hedef: THREE.Vector3) {
   if (sira === 0) return hedef.copy(ON_YER);
@@ -105,6 +111,14 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
   const ref = useRef<THREE.Group>(null);
   const icRef = useRef<THREE.Group>(null);
   const hedef = useMemo(() => new THREE.Vector3(), []);
+  const baslangic = useMemo(
+    () => new THREE.Vector3(musteri.gelisTarafi * ISKELE_UCU, 0, ISKELE_Z + ((musteri.id * 37) % 7) * 0.08 - 0.25),
+    [musteri.gelisTarafi, musteri.id],
+  );
+  // Sıradaki yol noktaları: önce kapının dışı, sonra içi; sonra sıradaki yeri
+  const yol = useRef<THREE.Vector3[]>([KAPI_DIS, KAPI_IC]);
+  const cikiyor = useRef(false);
+  const kaldirildi = useRef(false);
   const g = musteriGorunumleri[musteri.gorunum % musteriGorunumleri.length];
 
   useFrame(({ clock }, dt) => {
@@ -115,30 +129,52 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
     const m = d.musteriler.find((x) => x.id === musteri.id);
     if (!m) return;
 
-    if (m.hal === 'gidiyor') hedef.copy(CIKIS);
-    else {
+    if (m.hal === 'gidiyor' && !cikiyor.current) {
+      cikiyor.current = true;
+      yol.current = [
+        new THREE.Vector3(grup.position.x, 0, -2.12),
+        KAPI_IC,
+        KAPI_DIS,
+        new THREE.Vector3(m.gidisTarafi * ISKELE_UCU, 0, ISKELE_Z),
+      ];
+    }
+
+    if (yol.current.length > 0) {
+      hedef.copy(yol.current[0]);
+      if (grup.position.distanceTo(hedef) < 0.06) {
+        yol.current = yol.current.slice(1);
+        if (yol.current.length === 0 && cikiyor.current && !kaldirildi.current) {
+          kaldirildi.current = true;
+          musteriyiKaldir(m.id);
+          return;
+        }
+      }
+    } else {
       const sira = d.musteriler.filter((x) => x.hal === 'sirada').findIndex((x) => x.id === m.id);
       siraYeri(sira, hedef);
     }
 
-    // Yürüyüş: hedefe sabit hızla, yürürken hafifçe zıplar ve döner
+    // Yürüyüş: dışarıda biraz daha hızlı, içeride yavaş; gittiği yöne döner
     const fark = hedef.clone().sub(grup.position);
     const mesafe = fark.length();
-    const hiz = 1.3;
+    const disarida = grup.position.z < -2.6 || Math.abs(grup.position.x) > 4.2;
+    const hiz = disarida ? 2.6 : 1.3;
     const yuruyor = mesafe > 0.02;
-    if (yuruyor) grup.position.add(fark.multiplyScalar(Math.min(1, (hiz * dt) / mesafe)));
-    const bakis = yuruyor && Math.abs(hedef.x - grup.position.x) > 0.05 ? Math.sign(hedef.x - grup.position.x) * (Math.PI / 2) : 0;
-    grup.rotation.y = THREE.MathUtils.damp(grup.rotation.y, bakis, 8, dt);
+    if (yuruyor) grup.position.add(fark.clone().multiplyScalar(Math.min(1, (hiz * dt) / mesafe)));
+    const bakis = yuruyor && mesafe > 0.05 ? Math.atan2(fark.x, fark.z) : 0; // durunca tezgaha bakar
+    let aci = bakis - grup.rotation.y;
+    aci = Math.atan2(Math.sin(aci), Math.cos(aci)); // en kısa yoldan dön
+    grup.rotation.y += aci * Math.min(1, dt * 8);
 
     const t = clock.elapsedTime + musteri.id;
     const ziplama = yuruyor ? Math.abs(Math.sin(t * 9)) * 0.04 : Math.sin(t * 1.6) * 0.006;
-    // Mutlu giden müşteri bir kez sevinçle zıplar
-    const sevinc = m.mutlu && m.hal === 'gidiyor' && grup.position.x < 0.6 ? Math.abs(Math.sin(t * 7)) * 0.08 : 0;
+    // Mutlu giden müşteri çıkarken sevinçle zıplar
+    const sevinc = m.mutlu && cikiyor.current && yol.current.length >= 3 ? Math.abs(Math.sin(t * 7)) * 0.08 : 0;
     ic.position.y = ziplama + sevinc;
   });
 
   return (
-    <group ref={ref} name={`musteri-${musteri.id}`} position={GIRIS.toArray()}>
+    <group ref={ref} name={`musteri-${musteri.id}`} position={baslangic.toArray()}>
       <group ref={icRef}>
         <Govde g={g} />
       </group>

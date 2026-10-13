@@ -798,3 +798,21 @@ body,
     animation: none;
   }
 }
+
+/* Sabır çubuğu (balonun altında) */
+.sabir {
+  height: 7px;
+  margin-top: 4px;
+  border-radius: 4px;
+  background: rgba(78, 36, 112, 0.18);
+  overflow: hidden;
+}
+.sabir-dolu {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.9s linear, background 0.3s;
+}
+.bildirim-sikildi {
+  font-size: 26px;
+  color: #ffb3ae;
+}

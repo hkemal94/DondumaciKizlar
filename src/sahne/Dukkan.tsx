@@ -37,31 +37,49 @@ function Kutu({
   );
 }
 
+// Kapı: pencere duvarının sol ucunda, terasa açılır (Kemal, 13 Ekim:
+// "müşterilerin girişi için bir kapı lazım"). Müşteriler buradan girip çıkar.
+export const KAPI_X = -3.4;
+const KAPI_SOL = -3.95;
+const KAPI_SAG = -2.85;
+const KAPI_UST = 2.15;
+
 function PencereDuvari() {
   const kalinlik = 0.18;
   const z = PENCERE_Z;
   return (
     <group>
-      {/* Eşiğin altı: dikey ahşap tahtalar */}
-      {Array.from({ length: 20 }, (_, i) => (
-        <Kutu
-          key={i}
-          konum={[-3.8 + i * 0.4, ESIK / 2, z + (i % 2) * 0.01]}
-          boyut={[0.39, ESIK, kalinlik]}
-          renkAdi={i % 2 ? renk.ahsapAcik : '#b98a5f'}
-        />
-      ))}
+      {/* Eşiğin altı: dikey ahşap tahtalar (kapının olduğu yerde yok) */}
+      {Array.from({ length: 20 }, (_, i) => -3.8 + i * 0.4)
+        .filter((x) => x - 0.2 >= KAPI_SAG - 0.01)
+        .map((x, i) => (
+          <Kutu key={x} konum={[x, ESIK / 2, z + (i % 2) * 0.01]} boyut={[0.39, ESIK, kalinlik]} renkAdi={i % 2 ? renk.ahsapAcik : '#b98a5f'} />
+        ))}
       {/* Pencerenin üstü */}
       <Kutu konum={[0, (PENCERE_UST + TAVAN) / 2, z]} boyut={[8, TAVAN - PENCERE_UST, kalinlik]} renkAdi={renk.duvar} golgeVer={false} />
-      {/* Yan duvar parçaları */}
-      <Kutu konum={[-3.65, 1.6, z]} boyut={[0.7, 3.2, kalinlik]} renkAdi={renk.duvar} golgeVer={false} />
+      {/* Sağ yan duvar parçası */}
       <Kutu konum={[3.65, 1.6, z]} boyut={[0.7, 3.2, kalinlik]} renkAdi={renk.duvar} golgeVer={false} />
-      {/* Mavi pencere çerçevesi ve kayıtları */}
-      {[-3.25, -1.1, 1.1, 3.25].map((x) => (
+      {/* Kapının üstü */}
+      <Kutu konum={[(KAPI_SOL + KAPI_SAG) / 2, (KAPI_UST + PENCERE_UST) / 2, z]} boyut={[KAPI_SAG - KAPI_SOL + 0.1, PENCERE_UST - KAPI_UST, kalinlik]} renkAdi={renk.duvar} golgeVer={false} />
+      {/* Kapı kasası (mor) ve açık duran kapı kanadı */}
+      {[KAPI_SOL, KAPI_SAG].map((x) => (
+        <Kutu key={x} konum={[x, KAPI_UST / 2, z]} boyut={[0.1, KAPI_UST, 0.24]} renkAdi={renk.pencereCerceve} golgeVer={false} />
+      ))}
+      <Kutu konum={[(KAPI_SOL + KAPI_SAG) / 2, KAPI_UST, z]} boyut={[KAPI_SAG - KAPI_SOL + 0.1, 0.1, 0.24]} renkAdi={renk.pencereCerceve} golgeVer={false} />
+      <group position={[KAPI_SOL + 0.05, 0, z + 0.05]} rotation={[0, -1.35, 0]}>
+        <Kutu konum={[0.45, KAPI_UST / 2 - 0.03, 0]} boyut={[0.9, KAPI_UST - 0.08, 0.05]} renkAdi={renk.mor} golgeVer={false} />
+        <mesh position={[0.45, 1.25, 0.03]}>
+          <boxGeometry args={[0.6, 0.8, 0.02]} />
+          <meshPhysicalMaterial color={renk.cam} transparent opacity={0.4} roughness={0.05} />
+        </mesh>
+        <Kutu konum={[0.78, 1.0, 0.05]} boyut={[0.04, 0.2, 0.04]} renkAdi={renk.sari} golgeVer={false} />
+      </group>
+      {/* Pencere çerçevesi ve kayıtları */}
+      {[KAPI_SAG + 0.1, -1.1, 1.1, 3.25].map((x) => (
         <Kutu key={x} konum={[x, (ESIK + PENCERE_UST) / 2, z + 0.02]} boyut={[0.14, PENCERE_UST - ESIK, 0.22]} renkAdi={renk.pencereCerceve} golgeVer={false} />
       ))}
-      <Kutu konum={[0, ESIK, z + 0.08]} boyut={[7.6, 0.08, 0.5]} renkAdi={renk.ahsapOrta} golgeVer={false} />
-      <Kutu konum={[0, PENCERE_UST, z + 0.02]} boyut={[6.7, 0.14, 0.22]} renkAdi={renk.pencereCerceve} golgeVer={false} />
+      <Kutu konum={[(KAPI_SAG + 3.8) / 2, ESIK, z + 0.08]} boyut={[3.8 - KAPI_SAG, 0.08, 0.5]} renkAdi={renk.ahsapOrta} golgeVer={false} />
+      <Kutu konum={[(KAPI_SAG + 3.35) / 2, PENCERE_UST, z + 0.02]} boyut={[3.35 - KAPI_SAG, 0.14, 0.22]} renkAdi={renk.pencereCerceve} golgeVer={false} />
     </group>
   );
 }
@@ -116,7 +134,9 @@ function Odalar() {
       </TezgahtaGorunur>
       {/* Genel görünümde kesik duvar dipleri (sol duvar ve pencere duvarı): bebek evi gibi */}
       <Kutu konum={[-4, 0.18, -0.3]} boyut={[0.14, 0.36, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
-      <Kutu konum={[0, 0.18, PENCERE_Z]} boyut={[8.14, 0.36, 0.2]} renkAdi={renk.ahsapAcik} golgeVer={false} />
+      <Kutu konum={[(KAPI_SAG + 4.07) / 2, 0.18, PENCERE_Z]} boyut={[4.07 - KAPI_SAG, 0.36, 0.2]} renkAdi={renk.ahsapAcik} golgeVer={false} />
+      {/* Genel görünümde kapının yeri: zeminde mor eşik */}
+      <Kutu konum={[(KAPI_SOL + KAPI_SAG) / 2, 0.02, PENCERE_Z]} boyut={[KAPI_SAG - KAPI_SOL, 0.04, 0.3]} renkAdi={renk.mor} golgeVer={false} />
       {/* Dükkânın etrafındaki taş kaldırım */}
       <mesh position={[0, -0.12, 4]} receiveShadow>
         <boxGeometry args={[40, 0.1, 13]} />

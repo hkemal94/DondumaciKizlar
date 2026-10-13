@@ -36,12 +36,15 @@ export interface Musteri {
   siparis: Siparis;
   hal: 'sirada' | 'gidiyor';
   mutlu: boolean;
+  gelisTarafi: 1 | -1; // iskelenin hangi ucundan geldi (1 = sağ, -1 = sol)
+  gidisTarafi: 1 | -1;
 }
 
 export type Bildirim =
   | { tur: 'top'; sonuc: Sonuc; zaman: number }
   | { tur: 'para'; miktar: number; zaman: number }
   | { tur: 'yanlis'; zaman: number }
+  | { tur: 'sikildi'; zaman: number }
   | { tur: 'susleme'; eksik: Susleme[]; fazla: Susleme[]; zaman: number };
 
 export interface Durum {
@@ -65,6 +68,9 @@ export interface Durum {
   gunSonu: boolean;
   // Gün başlamadan önce: oyuncu dükkânına bakar, alışveriş yapar; müşteri gelmez, saat durur
   hazirlik: boolean;
+  // Sabır (Kemal, 13 Ekim): yalnız öndeki müşteri; son işlemden bu yana geçen oyun dakikası
+  sabirMusteri: number | null; // tezgaha varmış öndeki müşteri
+  sabirBasi: number; // sabrın başladığı / sıfırlandığı oyun dakikası
   gunluk: GunlukOzet;
   // Kamera (iş sırası 5): dükkânın genel görünümü ya da tezgah yakın planı
   kamera: Kamera;
@@ -117,6 +123,8 @@ let durum: Durum = {
   acik: true,
   gunSonu: false,
   hazirlik: true,
+  sabirMusteri: null,
+  sabirBasi: 0,
   gunluk: bosOzet(),
   kamera: 'dukkan',
   acikCesitler: [...BASLANGIC_CESITLERI],
@@ -129,6 +137,11 @@ const dinleyiciler = new Set<() => void>();
 function guncelle(yeni: Partial<Durum>) {
   durum = { ...durum, ...yeni };
   dinleyiciler.forEach((d) => d());
+}
+
+// Oyuncunun yaptığı her işlem (yanlış bile olsa) öndeki müşterinin sabrını sıfırlar.
+function islemYapildi() {
+  if (durum.sabirMusteri !== null) durum = { ...durum, sabirBasi: durum.dakika };
 }
 
 export function durumuOku() {
@@ -167,6 +180,7 @@ export function altlikDegisebilir(d: Durum = durum) {
 
 export function altlikSec(altlik: Altlik) {
   if (!altlikDegisebilir() || !durum.acikAltliklar.includes(altlik)) return;
+  islemYapildi();
   guncelle({ altlik, asama: durum.asama === 'altlikSec' ? 'kepceBos' : durum.asama });
 }
 
@@ -179,6 +193,7 @@ export function kuveteBas(kuvet: number) {
 
 export function birak() {
   if (durum.asama !== 'dolduruyor' || durum.kepceKuvet === null) return;
+  islemYapildi();
   const dolum = dolumHesapla(performance.now());
   const top: Top = { kuvet: durum.kepceKuvet, boyut: dolum, sonuc: sonucBul(dolum) };
   guncelle({
@@ -191,6 +206,7 @@ export function birak() {
 
 export function topuYerlestir() {
   if (durum.asama !== 'kepceDolu' || !durum.kepcedeki) return;
+  islemYapildi();
   guncelle({ asama: 'kepceBos', toplar: [...durum.toplar, durum.kepcedeki], kepcedeki: null });
 }
 
@@ -203,6 +219,7 @@ export function suslemeBasilabilir(d: Durum = durum) {
 
 export function suslemeDegistir(s: Susleme) {
   if (!suslemeBasilabilir()) return;
+  islemYapildi();
   guncelle({ susleme: durum.susleme.includes(s) ? durum.susleme.filter((x) => x !== s) : [...durum.susleme, s] });
 }
 
@@ -215,6 +232,7 @@ export function geriAlinabilir(d: Durum = durum) {
 
 export function geriAl() {
   if (!geriAlinabilir()) return;
+  islemYapildi();
   if (durum.asama === 'kepceDolu') guncelle({ asama: 'kepceBos', kepcedeki: null });
   else {
     const toplar = durum.toplar.slice(0, -1);
@@ -246,6 +264,11 @@ function rastgeleSiparis(): Siparis {
   };
 }
 
+// Giden müşteri iskelenin ucuna varıp ekrandan çıkınca sahne bunu çağırır.
+export function musteriyiKaldir(id: number) {
+  guncelle({ musteriler: durum.musteriler.filter((m) => m.id !== id) });
+}
+
 export function ondekiMusteri(d: Durum = durum): Musteri | undefined {
   return d.musteriler.find((m) => m.hal === 'sirada');
 }
@@ -268,6 +291,8 @@ export function musteriDongusu(simdi: number) {
         siparis: rastgeleSiparis(),
         hal: 'sirada',
         mutlu: false,
+        gelisTarafi: Math.random() < 0.5 ? 1 : -1,
+        gidisTarafi: Math.random() < 0.5 ? 1 : -1,
       },
     ],
     sonrakiGelis: simdi + bekle,
@@ -287,6 +312,7 @@ const SONUC_PUANI: Record<Sonuc, number> = { mukemmel: 5, iyi: 4, kucuk: 3, buyu
 export function servisEt() {
   const musteri = ondekiMusteri();
   if (durum.asama !== 'kepceBos' || durum.toplar.length === 0 || !musteri) return;
+  islemYapildi();
   const simdi = performance.now();
 
   const eksik = musteri.siparis.susleme.filter((x) => !durum.susleme.includes(x));
@@ -328,10 +354,6 @@ export function servisEt() {
       },
       musteriler: durum.musteriler.map((m) => (m.id === id ? { ...m, hal: 'gidiyor', mutlu: true } : m)),
     });
-    // Giden müşteri ekrandan çıkınca listeden silinir
-    window.setTimeout(() => {
-      guncelle({ musteriler: durum.musteriler.filter((m) => m.id !== id) });
-    }, 4000);
     // Sırada kimse kalmadıysa kamera dükkânın genel görünümüne döner
     window.setTimeout(() => {
       if (!ondekiMusteri()) kameraSec('dukkan');
@@ -394,8 +416,10 @@ export function zamanIlerlet(gecenMs: number) {
       const dakika = Math.min(uzunluk, durum.dakika + adim * ADIM);
       guncelle({ dakika, acik: dakika < uzunluk });
     }
+    sabirKontrol();
     return;
   }
+  // Kapandıktan sonra saat durur; sıradakilerin sabrı da azalmaz
   // Kapandı: sıradakilere servis bitince gün sonu ekranı
   const bekleyen = durum.musteriler.some((m) => m.hal === 'sirada');
   if (!bekleyen && durum.asama === 'altlikSec') guncelle({ gunSonu: true });
@@ -454,7 +478,34 @@ let sonKarsilanan = 0;
 export function musteriTezgahaVardi(id: number) {
   if (id === sonKarsilanan) return;
   sonKarsilanan = id;
+  guncelle({ sabirMusteri: id, sabirBasi: durum.dakika });
   kameraSec('tezgah');
+}
+
+// ---- Sabır (Kemal, 13 Ekim) ----
+// Hiç işlem yapılmadan oyun saatiyle yarım saat geçerse öndeki müşteri
+// sıkılıp gider ve memnuniyete sıfır yıldız verir. Para kaybı yok.
+export const SABIR_DAKIKA = 30;
+
+export function sabirOrani(d: Durum = durum) {
+  if (d.sabirMusteri === null || ondekiMusteri(d)?.id !== d.sabirMusteri) return null;
+  return Math.max(0, 1 - (d.dakika - d.sabirBasi) / SABIR_DAKIKA);
+}
+
+function sabirKontrol() {
+  const oran = sabirOrani();
+  if (oran === null || oran > 0 || durum.asama === 'servis') return;
+  const id = durum.sabirMusteri;
+  guncelle({
+    sabirMusteri: null,
+    memnuniyetler: [...durum.memnuniyetler, 0],
+    gunluk: { ...durum.gunluk, puanlar: [...durum.gunluk.puanlar, 0] },
+    musteriler: durum.musteriler.map((m) => (m.id === id ? { ...m, hal: 'gidiyor', mutlu: false } : m)),
+    bildirim: { tur: 'sikildi', zaman: performance.now() },
+  });
+  window.setTimeout(() => {
+    if (!ondekiMusteri()) kameraSec('dukkan');
+  }, 1600);
 }
 
 // ---- İlerleme (belge 2.4 ve 4) ----
@@ -477,8 +528,12 @@ export function topFiyati(d: Durum = durum) {
   return Math.round(TOP_FIYATI * FIYAT_ETKISI[d.fiyatSeviyesi].fiyat);
 }
 
+// Hafta sonu daha kalabalık (Kemal, 13 Ekim): müşteriler daha sık gelir
+const HAFTA_SONU_CARPANI = 0.65;
+
 function gelisCarpani() {
-  return FIYAT_ETKISI[durum.fiyatSeviyesi].gelis * (1 - DEKOR_ETKISI * durum.dekorlar.length);
+  const haftaSonu = haftaSonuMu() ? HAFTA_SONU_CARPANI : 1;
+  return FIYAT_ETKISI[durum.fiyatSeviyesi].gelis * (1 - DEKOR_ETKISI * durum.dekorlar.length) * haftaSonu;
 }
 
 export function cesitAc(cesit: number) {

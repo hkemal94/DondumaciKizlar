@@ -9,7 +9,7 @@ function Cicekler() {
   const renkler = ['#ff6f7d', '#ffc928', '#9b5fc9', '#fffaf2'];
   return (
     <group>
-      {[-2.6, 0, 2.6].map((x, k) => (
+      {[-1.4, 1.0, 3.0].map((x, k) => (
         <group key={x} position={[x, 0.06, -2.78]}>
           <mesh position={[0, 0.18, 0]} castShadow>
             <boxGeometry args={[1.4, 0.36, 0.4]} />

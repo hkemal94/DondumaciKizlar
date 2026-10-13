@@ -1,18 +1,18 @@
 // Dondurma çeşitleri ve vitrindeki küvetler.
-// İlk dört çeşidin adı yok (renkler yalnız sahne için; ad Kemal'in).
+// İlk dört çeşit: Çilek, Çikolata, Fıstık, Kaymak (Kemal, 13 Ekim).
 // Mango ve yaban mersini belgede geçiyor (bölüm 4): parayla açılır.
 // Fiyatlar geçici.
 export interface Cesit {
   renk: string;
-  ad: 'mango' | 'yabanMersini' | null;
+  ad: 'cilek' | 'cikolata' | 'fistik' | 'kaymak' | 'mango' | 'yabanMersini';
   fiyat: number; // açmak için gereken para (0 = baştan açık)
 }
 
 export const CESITLER: Cesit[] = [
-  { renk: '#ff6f7d', ad: null, fiyat: 0 },
-  { renk: '#8a4b2e', ad: null, fiyat: 0 },
-  { renk: '#5fd08a', ad: null, fiyat: 0 },
-  { renk: '#fff0c8', ad: null, fiyat: 0 },
+  { renk: '#ff6f7d', ad: 'cilek', fiyat: 0 },
+  { renk: '#8a4b2e', ad: 'cikolata', fiyat: 0 },
+  { renk: '#5fd08a', ad: 'fistik', fiyat: 0 },
+  { renk: '#fff0c8', ad: 'kaymak', fiyat: 0 },
   { renk: '#ffa83a', ad: 'mango', fiyat: 150 },
   { renk: '#5b5fc7', ad: 'yabanMersini', fiyat: 250 },
 ];

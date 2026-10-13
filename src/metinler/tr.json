@@ -32,6 +32,7 @@
   "sonuc.kucuk": "Biraz küçük",
   "sonuc.buyuk": "Biraz büyük",
   "sonuc.yanlis": "Sipariş bu değildi",
+  "sonuc.sikildi": "Müşteri sıkılıp gitti",
   "sonuc.suslemeEksik": "{ad} unutuldu!",
   "sonuc.suslemeFazla": "{ad} istenmedi",
   "memnuniyet": "Memnuniyet",
@@ -64,7 +65,10 @@
   "gelistir.alindi": "Dükkânda",
   "gelistir.kapat": "Tamam",
 
-  "cesit.adsiz": "Adı yok",
+  "cesit.cilek": "Çilek",
+  "cesit.cikolata": "Çikolata",
+  "cesit.fistik": "Fıstık",
+  "cesit.kaymak": "Kaymak",
   "cesit.mango": "Mango",
   "cesit.yabanMersini": "Yaban mersini",
 

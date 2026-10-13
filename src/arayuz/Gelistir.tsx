@@ -57,7 +57,7 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
                 return (
                   <div key={i} className={`gel-kart ${acik ? 'acik' : ''}`}>
                     <span className="gel-renk" style={{ background: c.renk }} aria-hidden />
-                    <span className="gel-ad">{c.ad ? m(`cesit.${c.ad}` as MetinAnahtari) : m('cesit.adsiz')}</span>
+                    <span className="gel-ad">{m(`cesit.${c.ad}` as MetinAnahtari)}</span>
                     {acik ? (
                       <span className="gel-durum">{m('gelistir.acik')}</span>
                     ) : (
