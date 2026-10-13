@@ -484,8 +484,8 @@ export function ortalamaMemnuniyet(d: Durum = durum): number | null {
 
 // ---- Gün ve saat (iş sırası 4) ----
 // Yaz dönemi saatleri (Kemal, 13 Ekim): hafta içi 11:00–00:00, hafta sonu
-// 10:00–02:00. Her gerçek saniye saate 5 dakika ekler; saat beşer dakika
-// ilerler. 1. gün pazartesi (Kemal, 13 Ekim). Adresin sonuna #hizli
+// 10:00–02:00. Saat beşer dakika ilerler; hafta içi bir gün yaklaşık
+// 2 dakika sürsün diye (Kemal, 13 Ekim) her adım 0,77 saniye. 1. gün pazartesi (Kemal, 13 Ekim). Adresin sonuna #hizli
 // yazılırsa gün 30 saniyede biter (gün sonunu görmek için).
 const ADIM = 5; // saat kaçar dakika ilerler
 const HIZLI = typeof location !== 'undefined' && location.hash === '#hizli';
@@ -508,9 +508,11 @@ function gunUzunlugu(d: Durum = durum) {
   return kapanis - acilis;
 }
 
-// Bir adımın (5 oyun dakikası) gerçek süresi: 1 saniye
+// Bir adımın (5 oyun dakikası) gerçek süresi: hafta içi 156 adım × 0,77 sn ≈ 2 dk,
+// hafta sonu 192 adım ≈ 2,5 dk
+const ADIM_MS = 770;
 function adimMs() {
-  return HIZLI ? (30_000 / gunUzunlugu()) * ADIM : 1000;
+  return HIZLI ? (30_000 / gunUzunlugu()) * ADIM : ADIM_MS;
 }
 
 let birikenMs = 0;
@@ -598,7 +600,7 @@ export function musteriTezgahaVardi(id: number) {
 // ---- Sabır (Kemal, 13 Ekim) ----
 // Hiç işlem yapılmadan oyun saatiyle bir saat geçerse öndeki müşteri
 // sıkılıp gider ve memnuniyete sıfır yıldız verir. Para kaybı yok.
-export const SABIR_DAKIKA = 60; // Kemal, 13 Ekim: yarım saat (6 sn) kısaydı, bir saat (12 sn)
+export const SABIR_DAKIKA = 60; // Kemal, 13 Ekim: yarım saat kısaydı, bir saat (≈ 9 sn)
 
 export function sabirOrani(d: Durum = durum) {
   if (d.sabirMusteri === null || ondekiMusteri(d)?.id !== d.sabirMusteri) return null;
