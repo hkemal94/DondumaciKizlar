@@ -18,7 +18,8 @@
   "ipucu.musteriYok": "Müşteri bekleniyor…",
   "ipucu.siparisVar": "Sipariş var, tezgaha geç",
   "ipucu.suslemeEkle": "{ad} ekle, sonra servis et",
-  "ipucu.suslemeKaldir": "{ad} istenmedi: Geri al ile kaldır",
+  "ipucu.suslemeKaldir": "{ad} istenmedi: kaldırmak için yeniden bas",
+  "ipucu.hazirlik": "Dükkânına bak; hazır olunca güne başla",
   "ipucu.kapandi": "Dükkân kapandı, sıradakilere servis et",
   "ipucu.kuvet": "Bir küvete basılı tut, MÜKEMMEL'de bırak",
   "ipucu.yerlestir": "Topu koymak için ekrana dokun ya da geri al",
@@ -32,7 +33,7 @@
   "sonuc.buyuk": "Biraz büyük",
   "sonuc.yanlis": "Sipariş bu değildi",
   "sonuc.suslemeEksik": "{ad} unutuldu!",
-  "sonuc.suslemeFazla": "{ad} istenmedi, geri al",
+  "sonuc.suslemeFazla": "{ad} istenmedi",
   "memnuniyet": "Memnuniyet",
 
   "ust.gun": "Gün {gun}",
@@ -50,7 +51,8 @@
   "gunSonu.mukemmel": "MÜKEMMEL top",
   "gunSonu.memnuniyet": "Günün memnuniyeti",
   "gunSonu.toplam": "Kasadaki para",
-  "gunSonu.devam": "Yeni güne başla",
+  "gunSonu.tamam": "Tamam",
+  "gunBasi.basla": "Güne başla",
 
   "gelistir.dugme": "Dükkânı geliştir",
   "gelistir.baslik": "Dükkânı geliştir",

@@ -63,6 +63,8 @@ export interface Durum {
   dakika: number; // açılıştan bu yana geçen oyun dakikası
   acik: boolean;
   gunSonu: boolean;
+  // Gün başlamadan önce: oyuncu dükkânına bakar, alışveriş yapar; müşteri gelmez, saat durur
+  hazirlik: boolean;
   gunluk: GunlukOzet;
   // Kamera (iş sırası 5): dükkânın genel görünümü ya da tezgah yakın planı
   kamera: Kamera;
@@ -114,6 +116,7 @@ let durum: Durum = {
   dakika: 0,
   acik: true,
   gunSonu: false,
+  hazirlik: true,
   gunluk: bosOzet(),
   kamera: 'dukkan',
   acikCesitler: [...BASLANGIC_CESITLERI],
@@ -156,10 +159,15 @@ function sonucBul(dolum: number): Sonuc {
   return dolum < MUKEMMEL_ALT ? 'kucuk' : 'buyuk';
 }
 
+// Altlıklar arasında her an doğrudan geçilir; konmuş toplar ve süslemeler
+// yeni altlığa geçer (Kemal, 13 Ekim). Kepçe dalarken ve servis anında olmaz.
+export function altlikDegisebilir(d: Durum = durum) {
+  return d.asama !== 'dolduruyor' && d.asama !== 'servis' && d.kamera === 'tezgah';
+}
+
 export function altlikSec(altlik: Altlik) {
-  if (durum.toplar.length > 0 || durum.kepcedeki) return; // ilk toptan sonra değişmez
-  if (!durum.acikAltliklar.includes(altlik)) return;
-  guncelle({ altlik, asama: 'kepceBos' });
+  if (!altlikDegisebilir() || !durum.acikAltliklar.includes(altlik)) return;
+  guncelle({ altlik, asama: durum.asama === 'altlikSec' ? 'kepceBos' : durum.asama });
 }
 
 export function kuveteBas(kuvet: number) {
@@ -187,29 +195,32 @@ export function topuYerlestir() {
 }
 
 // Süsleme ya da sos ekle: en az bir top olmalı, her biri bir kez.
-export function suslemeEklenebilir(s: Susleme, d: Durum = durum) {
-  return d.asama === 'kepceBos' && d.toplar.length > 0 && !d.susleme.includes(s);
+// Süsleme düğmesi aç / kapa: basınca eklenir, yeniden basınca kalkar
+// (Kemal, 13 Ekim). En az bir top olmalı; birden çok süsleme olabilir.
+export function suslemeBasilabilir(d: Durum = durum) {
+  return d.asama === 'kepceBos' && d.toplar.length > 0;
 }
 
-export function suslemeEkle(s: Susleme) {
-  if (!suslemeEklenebilir(s)) return;
-  guncelle({ susleme: [...durum.susleme, s] });
+export function suslemeDegistir(s: Susleme) {
+  if (!suslemeBasilabilir()) return;
+  guncelle({ susleme: durum.susleme.includes(s) ? durum.susleme.filter((x) => x !== s) : [...durum.susleme, s] });
 }
 
-// Geri al (Kemal, 12 Ekim: "hata yaptığım zaman geri alamıyorum").
-// Sırayla: kepçedeki topu küvete geri koy → son süslemeyi kaldır →
-// son konan topu çıkar → altlığı bırak. Ceza yok, dondurma boşa gitmez.
+// Geri al: yalnız kepçedeki ve konmuş toplar için (13 Ekim). Sırayla:
+// kepçedeki topu küvete geri koy → son konan topu çıkar. Ceza yok.
 export function geriAlinabilir(d: Durum = durum) {
   if (d.asama === 'kepceDolu') return true;
-  return d.asama === 'kepceBos' && (d.toplar.length > 0 || d.altlik !== null);
+  return d.asama === 'kepceBos' && d.toplar.length > 0;
 }
 
 export function geriAl() {
   if (!geriAlinabilir()) return;
   if (durum.asama === 'kepceDolu') guncelle({ asama: 'kepceBos', kepcedeki: null });
-  else if (durum.susleme.length > 0) guncelle({ susleme: durum.susleme.slice(0, -1) });
-  else if (durum.toplar.length > 0) guncelle({ toplar: durum.toplar.slice(0, -1) });
-  else guncelle({ asama: 'altlikSec', altlik: null });
+  else {
+    const toplar = durum.toplar.slice(0, -1);
+    // Top kalmadıysa süsleme de kalkar
+    guncelle({ toplar, susleme: toplar.length ? durum.susleme : [] });
+  }
 }
 
 // ---- Müşteri sırası (iş sırası 3) ----
@@ -242,7 +253,7 @@ export function ondekiMusteri(d: Durum = durum): Musteri | undefined {
 // Oyun döngüsü bunu yarım saniyede bir çağırır: sıra boşsa müşteri gelir.
 export function musteriDongusu(simdi: number) {
   const siradaki = durum.musteriler.filter((m) => m.hal === 'sirada').length;
-  if (!durum.acik || durum.gunSonu) return; // kapanınca yeni müşteri gelmez
+  if (!durum.acik || durum.gunSonu || durum.hazirlik) return; // kapanınca ve gün başlamadan müşteri gelmez
   if (siradaki >= EN_COK_SIRA || simdi < durum.sonrakiGelis) return;
   const [en, enCok] = GELIS_ARALIGI;
   // Sıra boşken ilk müşteri hemen gelsin. Fiyat ve dekorasyon müşteri
@@ -373,7 +384,7 @@ let birikenMs = 0;
 
 // Oyun döngüsü her turda geçen süreyi verir.
 export function zamanIlerlet(gecenMs: number) {
-  if (durum.gunSonu) return;
+  if (durum.gunSonu || durum.hazirlik) return;
   if (durum.acik) {
     birikenMs += Math.min(gecenMs, 1000); // sekme arkadayken gün akıp gitmesin
     const adim = Math.floor(birikenMs / adimMs());
@@ -402,7 +413,9 @@ export function saatYazisi(d: Durum = durum) {
   return `${String(s).padStart(2, '0')}:${String(dk).padStart(2, '0')}`;
 }
 
-export function yeniGun() {
+// Gün sonu ekranında Tamam: ertesi günün başına, dükkânın genel görünümüne
+// geçilir. Gün, oyuncu "Güne başla" deyince başlar (Kemal, 13 Ekim).
+export function gunSonunuKapat() {
   if (!durum.gunSonu) return;
   birikenMs = 0;
   guncelle({
@@ -410,6 +423,7 @@ export function yeniGun() {
     dakika: 0,
     acik: true,
     gunSonu: false,
+    hazirlik: true,
     gunluk: bosOzet(),
     sonrakiGelis: 0,
     kamera: 'dukkan',
@@ -420,6 +434,12 @@ export function yeniGun() {
     kepcedeki: null,
   });
   kaydet();
+}
+
+export function guneBasla() {
+  if (!durum.hazirlik) return;
+  birikenMs = 0;
+  guncelle({ hazirlik: false, sonrakiGelis: 0 });
 }
 
 // ---- Kamera (iş sırası 5) ----
@@ -557,6 +577,7 @@ export function bastanBasla() {
     dakika: 0,
     acik: true,
     gunSonu: false,
+    hazirlik: true,
     gunluk: bosOzet(),
     sonrakiGelis: 0,
     musteriler: [],

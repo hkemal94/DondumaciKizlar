@@ -15,10 +15,12 @@ import {
   haftaGunu,
   saatYazisi,
   servisEt,
-  yeniGun,
+  gunSonunuKapat,
+  guneBasla,
+  altlikDegisebilir,
   SUSLEMELER,
-  suslemeEkle,
-  suslemeEklenebilir,
+  suslemeDegistir,
+  suslemeBasilabilir,
   type Susleme,
   type Siparis,
   topuYerlestir,
@@ -198,8 +200,9 @@ function SuslemeDugmeleri() {
           className={`susleme-dugme ${durum.susleme.includes(s) ? 'eklendi' : ''} ${
             durum.bildirim?.tur === 'susleme' && durum.bildirim.eksik.includes(s) && !durum.susleme.includes(s) ? 'dikkat' : ''
           }`}
-          disabled={!suslemeEklenebilir(s, durum)}
-          onClick={() => suslemeEkle(s)}
+          disabled={!suslemeBasilabilir(durum)}
+          aria-pressed={durum.susleme.includes(s)}
+          onClick={() => suslemeDegistir(s)}
           aria-label={m(`susleme.${s}` as MetinAnahtari)}
         >
           <svg viewBox="0 0 30 30" aria-hidden>
@@ -279,9 +282,7 @@ function GunSaat() {
 // Gün sonu ekranı (belge: dükkân kapanınca gün biter, gün sonu ekranı gelir).
 function GunSonu() {
   const durum = useDurum();
-  const [gelistir, setGelistir] = useState(false);
   if (!durum.gunSonu) return null;
-  if (gelistir) return <Gelistir kapat={() => setGelistir(false)} />;
   const g = durum.gunluk;
   const ortalama = g.puanlar.length ? g.puanlar.reduce((a, b) => a + b, 0) / g.puanlar.length : null;
   const satirlar: [string, React.ReactNode][] = [
@@ -303,14 +304,10 @@ function GunSonu() {
             </div>
           ))}
         </dl>
-        <div className="gun-sonu-dugmeler">
-          <button className="dugme" onClick={() => setGelistir(true)}>
-            {m('gelistir.dugme')}
-          </button>
-          <button className="dugme dugme-yeni-gun" onClick={yeniGun}>
-            {m('gunSonu.devam')}
-          </button>
-        </div>
+        {/* Yalnız Tamam: yeni gün ve alışveriş dükkânın genel görünümünde (13 Ekim) */}
+        <button className="dugme dugme-yeni-gun" onClick={gunSonunuKapat}>
+          {m('gunSonu.tamam')}
+        </button>
       </div>
     </div>
   );
@@ -379,6 +376,7 @@ function useYakinlastirma(etkin: boolean) {
 
 export function Arayuz() {
   const durum = useDurum();
+  const [gelistirAcik, setGelistirAcik] = useState(false);
   useYakinlastirma(durum.kamera === 'dukkan');
 
   // Parmak ekranın neresinde kalkarsa kalksın kepçe bırakılır.
@@ -401,11 +399,10 @@ export function Arayuz() {
   else if (durum.asama === 'kepceBos')
     ipucu = topSayisi === 0 ? 'ipucu.kuvet' : topSayisi >= EN_COK_TOP ? 'ipucu.dolu' : 'ipucu.servisVeyaTop';
 
-  const altlikDegisebilir = (durum.asama === 'altlikSec' || durum.asama === 'kepceBos') && topSayisi === 0;
   const servisHazir = durum.asama === 'kepceBos' && topSayisi > 0 && !!musteri;
 
   const tezgahta = durum.kamera === 'tezgah';
-  if (!tezgahta) ipucu = musteri ? 'ipucu.siparisVar' : durum.acik ? 'ipucu.musteriYok' : null;
+  if (!tezgahta) ipucu = durum.hazirlik ? 'ipucu.hazirlik' : musteri ? 'ipucu.siparisVar' : durum.acik ? 'ipucu.musteriYok' : null;
 
   return (
     <div className="arayuz">
@@ -430,7 +427,7 @@ export function Arayuz() {
               <button
                 key={a}
                 className={`dugme ${durum.altlik === a ? 'secili' : ''}`}
-                disabled={!altlikDegisebilir}
+                disabled={!altlikDegisebilir(durum)}
                 onClick={() => altlikSec(a)}
               >
                 {m(`altlik.${a}` as MetinAnahtari)}
@@ -454,13 +451,26 @@ export function Arayuz() {
           </button>
         </div>
       )}
-      {!tezgahta && (
+      {!tezgahta && !durum.gunSonu && (
         <div className="sag-dugmeler">
-          <button className={`dugme dugme-servis ${musteri ? 'dikkat' : ''}`} onClick={() => kameraSec('tezgah')}>
-            {m('kamera.tezgah')}
-          </button>
+          {durum.hazirlik ? (
+            // Gün başlamadan: dükkâna bak, alışveriş yap, hazır olunca başla
+            <>
+              <button className="dugme" onClick={() => setGelistirAcik(true)}>
+                {m('gelistir.dugme')}
+              </button>
+              <button className="dugme dugme-servis" onClick={guneBasla}>
+                {m('gunBasi.basla')}
+              </button>
+            </>
+          ) : (
+            <button className={`dugme dugme-servis ${musteri ? 'dikkat' : ''}`} onClick={() => kameraSec('tezgah')}>
+              {m('kamera.tezgah')}
+            </button>
+          )}
         </div>
       )}
+      {gelistirAcik && durum.hazirlik && <Gelistir kapat={() => setGelistirAcik(false)} />}
 
       <GunSonu />
     </div>

@@ -45,7 +45,7 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Kepçe göstergesi | İbre 1,5 sn'de yavaştı; 1 sn'ye indi (Kemal, 12 Ekim) |
 | Topların dizilişi | Külahta üst üste, kapta yan yana (üçüncü üste). Başka dizilişler de denenebilir (Kemal, 12 Ekim) |
 | Çeşit sayısı | Sonradan artabilir: küvet listesine bir satır eklenince vitrin genişler. Bu açıdan rahat sığan 6; fazlası için ikinci sıra ya da kaydırma gerekir |
-| Geri al | "Hata yaptığım zaman geri alamıyorum" (Kemal, 12 Ekim). **Geri al** düğmesi sırayla: kepçedeki topu küvete geri koyar → son konan topu çıkarır → altlığı bırakır. Ceza yok |
+| Geri al | "Hata yaptığım zaman geri alamıyorum" (Kemal, 12 Ekim). **Geri al** düğmesi sırayla: kepçedeki topu küvete geri koyar → son konan topu çıkarır. 13 Ekim'den beri altlık ve süsleme için kullanılmaz (doğrudan değiştirilir). Ceza yok |
 | Saatin akışı | Her gerçek saniye oyun saatine **5 dakika** ekler; saat beşer dakika ilerler (Kemal, 13 Ekim: "beş dakikalar saniye gibi aksın"). Hafta içi bir gün ≈ 2,5 dk, hafta sonu ≈ 3 dk sürer |
 | Çalışma saatleri (yaz dönemi) | **Hafta içi 11:00–00:00, hafta sonu 10:00–02:00** (Kemal, 13 Ekim). Mevsimler gelince kış saatleri ayrıca konuşulacak |
 | Genel görünüm açısı | Dükkânın **önünden** (deniz / müşteri tarafından) çekilir; önceki açı 180° ters idi (Kemal, 13 Ekim) |
@@ -63,9 +63,9 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Ses | Şimdilik kodla üretilen sesler (dışarıdan dosya yok, lisans gerekmez). Müziği Kemal sonra hazırlar (Suno vb.). *Uygulamada henüz yok* |
 | Gerçek 3B modeller | Sonra; her parça ayrı değiştirilebilir, bugünkü geçici parçalar sonradan kolayca değişir |
 | Eller | Sonra bakılacak |
-| Gün sonu ve gün başı | Gün sonu ekranı kalır, altında yalnız **Tamam**. Tamam'dan sonra dükkânın genel görünümüne dönülür; **Yeni güne başla** ve **dekorasyon / geliştirme** orada. Gün oyuncu başlatınca başlar: günün başında oyuncu dükkânına bakıp vakit geçirebilir, menülere sıkışmaz (Kemal, 13 Ekim). *Uygulamada henüz yok* |
-| Altlık değiştirme | Külah / kap / kup arasında her an doğrudan geçilir, Geri al gerekmez; konmuş toplar ve süslemeler yeni altlığa geçer (Kemal, 13 Ekim). *Uygulamada henüz yok* |
-| Süsleme kaldırma | Aynı süslemeye yeniden basınca o süsleme kalkar; süsleme için Geri al gerekmez (Geri al yalnız kepçedeki ve konmuş toplar için kalır). Bir dondurmaya birden çok süsleme gelebilir (Kemal, 13 Ekim). *Uygulamada henüz yok* |
+| Gün sonu ve gün başı | Gün sonu ekranı kalır, altında yalnız **Tamam**. Tamam'dan sonra dükkânın genel görünümüne dönülür; **Yeni güne başla** ve **dekorasyon / geliştirme** orada. Gün oyuncu başlatınca başlar: günün başında oyuncu dükkânına bakıp vakit geçirebilir, menülere sıkışmaz (Kemal, 13 Ekim). |
+| Altlık değiştirme | Külah / kap / kup arasında her an doğrudan geçilir, Geri al gerekmez; konmuş toplar ve süslemeler yeni altlığa geçer (Kemal, 13 Ekim). |
+| Süsleme kaldırma | Aynı süslemeye yeniden basınca o süsleme kalkar; süsleme için Geri al gerekmez (Geri al yalnız kepçedeki ve konmuş toplar için kalır). Bir dondurmaya birden çok süsleme gelebilir (Kemal, 13 Ekim). |
 | Dekorasyon türleri | İki tür (Kemal, 13 Ekim): **genel** (ör. ışıklandırma; tek tip, daha pahalı üst seviyeleri olabilir) ve **taşınabilir** (ör. masa takımı: alınır, yerini oyuncu elle seçer; kareli yerleştirme düzeni önerildi). Taşınabilir eşyalar **dükkânın içine de önüne (terasa) de** konabilir (Kemal, 13 Ekim). Dekorasyon uzun soluklu bir alan. *Uygulamada henüz yok* |
 | Topların sırası | Kural değil: yalnız altlık, çeşitler ve top sayısı tutmalı (13 Ekim) |
 | Deneme telefonu | Elde hangisi varsa; orta seviye bir telefonda akıcı çalışmak hedef |
@@ -237,7 +237,7 @@ KKM'deki oyun dosyasında olup bu belgede olmayan maddeler:
 | Süsleme ve sos | Üç tane: çikolata sosu, renkli şeker, fındık (belge 3, adım 4). En az bir top konunca sağdaki sütunda çıkar; her biri bir kez. Süslemeden sonra top eklenmez | Çeşitler ve adları Kemal'in onayına |
 | Süslemeli sipariş | Siparişlerin üçte birinde bir süsleme istenir; balonda topun üstünde ve ayrıca balonun altında rozet olarak görünür. Süsleme başına +3 | Geçici oran ve fiyat |
 | Düğme yerleri | Altlık düğmeleri solda, Geri al ve süslemeler sağda dikey sütun, Servis et sağ altta: küvetlerin üstüne binmesinler diye | |
-| Dükkânı geliştir | Gün sonu ekranındaki düğmeyle açılır; üç sekme (taslak 3 gibi): Yeni çeşitler, Fiyat, Dekorasyon | Belge 2.4 ve 4 |
+| Dükkânı geliştir | Gün başlamadan, dükkânın genel görünümündeki düğmeyle açılır (13 Ekim'den önce gün sonu ekranındaydı); üç sekme (taslak 3 gibi): Yeni çeşitler, Fiyat, Dekorasyon | Belge 2.4 ve 4 |
 | Yeni çeşitler | Mango 150, yaban mersini 250 (belge 4'teki adlar). Açılınca vitrine küvet eklenir, müşteriler de istemeye başlar. İlk dört çeşidin adı yok | Fiyatlar geçici |
 | Fiyat | Ucuz (top 8, müşteri daha sık), Normal (10), Pahalı (13, daha seyrek, memnuniyet −0,5) | Geçici |
 | Dekorasyon | Çiçek saksıları 80, fenerler 120, şemsiye 160, masa takımı 200. Her biri müşteri aralığını %6 kısaltır; dükkânın önünde görünür | Geçici |
