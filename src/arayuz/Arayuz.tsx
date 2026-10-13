@@ -7,6 +7,10 @@ import {
   geriAl,
   geriAlinabilir,
   kameraSec,
+  depodaki,
+  esyaSec,
+  yerlestirmeyiAc,
+  yerlestirmeyiKapat,
   IYI_PAYI,
   MUKEMMEL_ALT,
   MUKEMMEL_UST,
@@ -31,7 +35,9 @@ import { m, type MetinAnahtari } from '../metinler';
 import { CESITLER } from '../oyun/kuvetler';
 import { balon } from '../sahne/Musteriler';
 import { Gelistir } from './Gelistir';
-import { yakinlikDegistir } from '../sahne/kameraKarisimi';
+import { dukkanDonusu, yakinlikDegistir } from '../sahne/kameraKarisimi';
+import { DuraklatDugmesi, DuraklatMenusu, GezmeEkrani } from './Duraklat';
+import { ESYALAR } from '../oyun/dekorasyon';
 
 // Tezgah ekranının düğmeleri, ipucu yazısı, kepçe göstergesi ve sonuç yazısı.
 // Tarz: taslak 1 ve 3 gibi sıcak ahşap paneller.
@@ -282,6 +288,7 @@ function GunSaat() {
   const durum = useDurum();
   return (
     <div className="gun-saat">
+      <DuraklatDugmesi />
       <div className="bilgi-kutusu">
         {m('ust.gun', { gun: durum.gun })} · {m(`haftaGunu.${haftaGunu(durum)}` as MetinAnahtari)}
       </div>
@@ -343,9 +350,10 @@ function UstBilgi() {
 }
 
 // Genel görünümde iki parmakla sıkıştır / aç ve fare tekerleği: yakınlaştırma.
-function useYakinlastirma(etkin: boolean) {
+function useYakinlastirma(etkin: boolean, gezme: boolean) {
   useEffect(() => {
     if (!etkin) return;
+    let oncekiX: number | null = null;
     const parmaklar = new Map<number, { x: number; y: number }>();
     let oncekiAralik = 0;
     const aralik = () => {
@@ -359,6 +367,13 @@ function useYakinlastirma(etkin: boolean) {
     const oynat = (e: PointerEvent) => {
       if (!parmaklar.has(e.pointerId)) return;
       parmaklar.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      // Gezerken tek parmakla kaydırınca dükkânın çevresinde dön
+      if (gezme && parmaklar.size === 1) {
+        const dik = window.matchMedia('(orientation: portrait)').matches; // oyun çevrilmiş
+        const x = dik ? e.clientY : e.clientX;
+        if (oncekiX !== null) dukkanDonusu.deger -= (x - oncekiX) * 0.008;
+        oncekiX = x;
+      }
       if (parmaklar.size === 2 && oncekiAralik > 0) {
         const yeni = aralik();
         yakinlikDegistir(oncekiAralik / yeni); // parmaklar açılınca yaklaşır
@@ -368,6 +383,7 @@ function useYakinlastirma(etkin: boolean) {
     const kaldir = (e: PointerEvent) => {
       parmaklar.delete(e.pointerId);
       oncekiAralik = 0;
+      oncekiX = null;
     };
     const tekerlek = (e: WheelEvent) => {
       e.preventDefault();
@@ -385,13 +401,13 @@ function useYakinlastirma(etkin: boolean) {
       window.removeEventListener('pointercancel', kaldir);
       window.removeEventListener('wheel', tekerlek);
     };
-  }, [etkin]);
+  }, [etkin, gezme]);
 }
 
 export function Arayuz() {
   const durum = useDurum();
   const [gelistirAcik, setGelistirAcik] = useState(false);
-  useYakinlastirma(durum.kamera === 'dukkan');
+  useYakinlastirma(durum.kamera === 'dukkan', durum.gezme);
 
   // Parmak ekranın neresinde kalkarsa kalksın kepçe bırakılır.
   useEffect(() => {
@@ -415,8 +431,16 @@ export function Arayuz() {
 
   const servisHazir = durum.asama === 'kepceBos' && topSayisi > 0 && !!musteri;
 
+  if (durum.gezme)
+    return (
+      <div className="arayuz">
+        <GezmeEkrani />
+      </div>
+    );
+
   const tezgahta = durum.kamera === 'tezgah';
-  if (!tezgahta) ipucu = durum.hazirlik ? 'ipucu.hazirlik' : musteri ? 'ipucu.siparisVar' : durum.acik ? 'ipucu.musteriYok' : null;
+  if (!tezgahta && durum.yerlestirme) ipucu = ESYALAR.some((e) => depodaki(e.id, durum) > 0) || durum.seciliEsya ? 'yerlestir.ipucu' : 'yerlestir.bos';
+  else if (!tezgahta) ipucu = durum.hazirlik ? 'ipucu.hazirlik' : musteri ? 'ipucu.siparisVar' : durum.acik ? 'ipucu.musteriYok' : null;
 
   return (
     <div className="arayuz">
@@ -467,11 +491,30 @@ export function Arayuz() {
       )}
       {!tezgahta && !durum.gunSonu && (
         <div className="sag-dugmeler">
-          {durum.hazirlik ? (
-            // Gün başlamadan: dükkâna bak, alışveriş yap, hazır olunca başla
+          {durum.yerlestirme ? (
+            // Yerleştirme: depodaki eşyalar, seçili olan vurgulu
+            <>
+              {ESYALAR.filter((e) => depodaki(e.id, durum) > 0 || durum.seciliEsya === e.id).map((e) => (
+                <button
+                  key={e.id}
+                  className={`dugme esya-cip ${durum.seciliEsya === e.id ? 'secili' : ''}`}
+                  onClick={() => esyaSec(e.id)}
+                >
+                  {m(`esya.${e.id}` as MetinAnahtari)} <span className="esya-sayi">{depodaki(e.id, durum)}</span>
+                </button>
+              ))}
+              <button className="dugme dugme-servis" onClick={yerlestirmeyiKapat}>
+                {m('yerlestir.bitti')}
+              </button>
+            </>
+          ) : durum.hazirlik ? (
+            // Gün başlamadan: dükkâna bak, alışveriş yap, yerleştir, hazır olunca başla
             <>
               <button className="dugme" onClick={() => setGelistirAcik(true)}>
                 {m('gelistir.dugme')}
+              </button>
+              <button className="dugme" onClick={yerlestirmeyiAc}>
+                {m('yerlestir.dugme')}
               </button>
               <button className="dugme dugme-servis" onClick={guneBasla}>
                 {m('gunBasi.basla')}
@@ -485,6 +528,7 @@ export function Arayuz() {
         </div>
       )}
       {gelistirAcik && durum.hazirlik && <Gelistir kapat={() => setGelistirAcik(false)} />}
+      <DuraklatMenusu />
 
       <GunSonu />
     </div>

@@ -1,37 +1,10 @@
-import { useDurum } from '../oyun/durum';
+import { hucreDolu, hucreyeKoy, useDurum, yerlesimiKaldir } from '../oyun/durum';
+import { HUCRELER, KARE_BOYU, type Esya } from '../oyun/dekorasyon';
 import { renk } from './renkler';
 
-// Satın alınan dekorasyon (belge bölüm 4: masa, şemsiye, bitki, ışık).
-// Dükkânın önündeki ahşap terasa konur; genel görünümde görünür.
+// Dekorasyon (belge bölüm 4; 13 Ekim): ışıklandırma seviyeleri ve
+// oyuncunun kareli zemine yerleştirdiği taşınabilir eşyalar.
 // Kodla çizilmiş geçici parçalar.
-
-function Cicekler() {
-  const renkler = ['#ff6f7d', '#ffc928', '#9b5fc9', '#fffaf2'];
-  return (
-    <group>
-      {[-1.4, 1.0, 3.0].map((x, k) => (
-        <group key={x} position={[x, 0.06, -2.78]}>
-          <mesh position={[0, 0.18, 0]} castShadow>
-            <boxGeometry args={[1.4, 0.36, 0.4]} />
-            <meshStandardMaterial color={renk.ahsapOrta} roughness={0.9} />
-          </mesh>
-          {Array.from({ length: 7 }, (_, i) => (
-            <group key={i} position={[-0.55 + i * 0.18, 0.42, (i % 2) * 0.1 - 0.05]}>
-              <mesh>
-                <icosahedronGeometry args={[0.11, 0]} />
-                <meshStandardMaterial color="#6aa84f" roughness={0.9} flatShading />
-              </mesh>
-              <mesh position={[0, 0.1, 0]}>
-                <icosahedronGeometry args={[0.065, 0]} />
-                <meshStandardMaterial color={renkler[(i + k) % renkler.length]} roughness={0.7} flatShading />
-              </mesh>
-            </group>
-          ))}
-        </group>
-      ))}
-    </group>
-  );
-}
 
 function Fener({ konum }: { konum: [number, number, number] }) {
   return (
@@ -52,9 +25,9 @@ function Fener({ konum }: { konum: [number, number, number] }) {
   );
 }
 
-function Masa() {
+function Masa({ olcek = 1 }: { olcek?: number }) {
   return (
-    <group position={[-6.2, 0.06, -5.2]}>
+    <group scale={olcek}>
       <mesh position={[0, 0.72, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[0.45, 0.45, 0.05, 12]} />
         <meshStandardMaterial color={renk.ahsapAcik} roughness={0.8} />
@@ -63,7 +36,7 @@ function Masa() {
         <cylinderGeometry args={[0.05, 0.08, 0.72, 6]} />
         <meshStandardMaterial color={renk.ahsapKoyu} />
       </mesh>
-      {[-0.75, 0.75].map((x) => (
+      {[-0.62, 0.62].map((x) => (
         <group key={x} position={[x, 0, 0]} rotation={[0, x > 0 ? -Math.PI / 2 : Math.PI / 2, 0]}>
           <mesh position={[0, 0.45, 0]} castShadow>
             <boxGeometry args={[0.42, 0.05, 0.42]} />
@@ -90,7 +63,7 @@ function Masa() {
 function Semsiye() {
   const dilimler = 8;
   return (
-    <group position={[-6.2, 0.06, -5.2]}>
+    <group>
       <mesh position={[0, 1.25, 0]}>
         <cylinderGeometry args={[0.03, 0.03, 2.5, 6]} />
         <meshStandardMaterial color="#efe6d6" />
@@ -105,19 +78,171 @@ function Semsiye() {
   );
 }
 
-export function Dekorlar() {
-  const { dekorlar } = useDurum();
+// Tek çiçek saksısı (taşınabilir)
+function TekSaksi() {
+  const renkler = ['#ff6f7d', '#ffc928', '#9b5fc9', '#fffaf2'];
   return (
     <group>
-      {dekorlar.includes('cicekler') && <Cicekler />}
-      {dekorlar.includes('fenerler') && (
+      <mesh position={[0, 0.22, 0]} castShadow>
+        <cylinderGeometry args={[0.3, 0.22, 0.44, 8]} />
+        <meshStandardMaterial color="#d9825b" roughness={0.9} flatShading />
+      </mesh>
+      {Array.from({ length: 8 }, (_, i) => {
+        const a = (i / 8) * Math.PI * 2;
+        return (
+          <group key={i} position={[Math.cos(a) * 0.16, 0.5 + (i % 3) * 0.06, Math.sin(a) * 0.16]}>
+            <mesh>
+              <icosahedronGeometry args={[0.12, 0]} />
+              <meshStandardMaterial color="#6aa84f" roughness={0.9} flatShading />
+            </mesh>
+            <mesh position={[0, 0.11, 0]}>
+              <icosahedronGeometry args={[0.07, 0]} />
+              <meshStandardMaterial color={renkler[i % renkler.length]} roughness={0.7} flatShading />
+            </mesh>
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
+function EsyaModeli({ esya }: { esya: Esya }) {
+  if (esya === 'saksi') return <TekSaksi />;
+  if (esya === 'masa') return <Masa olcek={0.85} />;
+  return (
+    <group>
+      <Masa olcek={0.85} />
+      <Semsiye />
+    </group>
+  );
+}
+
+// Işıklandırma 2: terasın üstünde iki direk arasında asma ampuller
+function AsmaAmpuller() {
+  const direkler = [-9, -3, 3, 9];
+  const ampuller = [];
+  for (let k = 0; k < direkler.length - 1; k++) {
+    for (let i = 1; i < 12; i++) {
+      const t = i / 12;
+      const x = direkler[k] + (direkler[k + 1] - direkler[k]) * t;
+      const y = 2.9 - Math.sin(t * Math.PI) * 0.5;
+      ampuller.push(
+        <mesh key={`${k}-${i}`} position={[x, y, -6.9]}>
+          <sphereGeometry args={[0.07, 6, 4]} />
+          <meshStandardMaterial color="#fff3c4" emissive={i % 2 ? '#ffd98a' : '#ffb3e0'} emissiveIntensity={1.6} />
+        </mesh>,
+      );
+    }
+  }
+  return (
+    <group>
+      {direkler.map((x) => (
+        <mesh key={x} position={[x, 1.5, -6.9]} castShadow>
+          <cylinderGeometry args={[0.05, 0.06, 3, 6]} />
+          <meshStandardMaterial color={renk.ahsapKoyu} />
+        </mesh>
+      ))}
+      {ampuller}
+    </group>
+  );
+}
+
+// Işıklandırma 3: dükkânın önünde ışıklı mor-sarı şerit
+function IsikliSerit() {
+  return (
+    <group position={[0, 0, -2.55]}>
+      {Array.from({ length: 16 }, (_, i) => (
+        <mesh key={i} position={[-3.75 + i * 0.5, 3.0, 0]}>
+          <boxGeometry args={[0.46, 0.08, 0.06]} />
+          <meshStandardMaterial color={i % 2 ? '#ffc928' : '#9b5fc9'} emissive={i % 2 ? '#ffc928' : '#9b5fc9'} emissiveIntensity={1.4} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+// Yerleştirme kareleri: boş kareler yeşil görünür. Dokunma tek bir görünmez
+// zeminden alınır ve en yakın boş kareye konur (kareye tam isabet gerekmez).
+function Kareler() {
+  const durum = useDurum();
+  return (
+    <group>
+      {HUCRELER.map((h, i) =>
+        hucreDolu(i, durum) || !durum.seciliEsya ? null : (
+          <mesh key={i} position={[h.x, h.ic ? 0.02 : 0.08, h.z]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[KARE_BOYU * 0.9, KARE_BOYU * 0.9]} />
+            <meshBasicMaterial color="#8fe36b" transparent opacity={0.35} depthWrite={false} />
+          </mesh>
+        ),
+      )}
+      <mesh
+        position={[0, 0.1, -3.2]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        onClick={(e) => {
+          if (e.delta > 12) return; // sürükleme / yakınlaştırma değil
+          e.stopPropagation();
+          // En yakın kare doluysa oradaki eşya kalkar (taşımak için), boşsa seçili eşya konur
+          let enYakin = -1;
+          let enKisa = KARE_BOYU * 0.85;
+          HUCRELER.forEach((h, i) => {
+            const d = Math.hypot(h.x - e.point.x, h.z - e.point.z);
+            if (d < enKisa) {
+              enKisa = d;
+              enYakin = i;
+            }
+          });
+          if (enYakin < 0) return;
+          if (hucreDolu(enYakin)) yerlesimiKaldir(enYakin);
+          else hucreyeKoy(enYakin);
+        }}
+      >
+        <planeGeometry args={[26, 10]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
+    </group>
+  );
+}
+
+export function Dekorlar() {
+  const durum = useDurum();
+  const { isikSeviyesi, yerlesim, yerlestirme } = durum;
+  return (
+    <group>
+      {isikSeviyesi >= 1 && (
         <>
           <Fener konum={[-4.6, 0.06, -7.6]} />
           <Fener konum={[4.6, 0.06, -7.6]} />
         </>
       )}
-      {dekorlar.includes('masa') && <Masa />}
-      {dekorlar.includes('semsiye') && <Semsiye />}
+      {isikSeviyesi >= 2 && <AsmaAmpuller />}
+      {isikSeviyesi >= 3 && <IsikliSerit />}
+
+      {/* Yere konmuş eşyalar; yerleştirirken dokunulursa kalkar (taşımak için) */}
+      {yerlesim.map((y) => {
+        const h = HUCRELER[y.hucre];
+        return (
+          <group
+            key={y.hucre}
+            position={[h.x, h.ic ? 0 : 0.06, h.z]}
+            onClick={(e) => {
+              if (!yerlestirme || e.delta > 12) return;
+              e.stopPropagation();
+              yerlesimiKaldir(y.hucre);
+            }}
+          >
+            <EsyaModeli esya={y.esya} />
+            {/* Yerleştirirken eşyayı kolay tutmak için görünmez kutu */}
+            {yerlestirme && (
+              <mesh position={[0, 0.7, 0]}>
+                <boxGeometry args={[KARE_BOYU * 0.9, 1.4, KARE_BOYU * 0.9]} />
+                <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+              </mesh>
+            )}
+          </group>
+        );
+      })}
+
+      {yerlestirme && <Kareler />}
     </group>
   );
 }

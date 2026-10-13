@@ -13,3 +13,10 @@ export const dukkanYakinligi = { deger: 1 };
 export function yakinlikDegistir(carpan: number) {
   dukkanYakinligi.deger = Math.min(YAKINLIK_EN_COK, Math.max(YAKINLIK_EN_AZ, dukkanYakinligi.deger * carpan));
 }
+
+// Duraklatıp gezerken dükkânın çevresinde dönme açısı (radyan); gezme
+// bitince yumuşakça önden görünüme döner.
+export const dukkanDonusu = { deger: 0 };
+
+// Fotoğraf: sahne kendini buraya bağlar; çağrılınca o anki görüntüyü verir.
+export const fotograf: { cek: null | (() => string) } = { cek: null };

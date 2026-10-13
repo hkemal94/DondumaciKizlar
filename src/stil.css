@@ -82,17 +82,22 @@ body,
 }
 
 .ipucu {
+  /* Üst sıranın altında, ortada (Kemal, 13 Ekim: üst üste biniyordu) */
   position: absolute;
-  top: max(10px, env(safe-area-inset-top));
+  top: calc(max(10px, env(safe-area-inset-top)) + 50px);
   left: 50%;
   transform: translateX(-50%);
-  padding: 7px 16px;
-  border-radius: 999px;
-  background: rgba(78, 36, 112, 0.88);
-  color: var(--yazi);
-  font-size: 15px;
+  max-width: min(62%, 460px);
+  padding: 6px 16px;
+  border-radius: 16px;
+  background: rgba(255, 250, 242, 0.92);
+  border: 2px solid var(--mor);
+  color: var(--mor-koyu);
+  font-size: 14px;
   font-weight: 700;
-  white-space: nowrap;
+  text-align: center;
+  text-wrap: balance;
+  box-shadow: 0 3px 0 rgba(78, 36, 112, 0.25);
   pointer-events: none;
 }
 
@@ -815,4 +820,114 @@ body,
 .bildirim-sikildi {
   font-size: 26px;
   color: #ffb3ae;
+}
+.gel-baslik {
+  font-weight: 900;
+  font-size: 14px;
+  color: var(--mor);
+  margin-top: 4px;
+}
+
+/* ---- Duraklatma, gezme, fotoğraf ---- */
+.gun-saat .duraklat-dugme {
+  pointer-events: auto;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+}
+.duraklat-simge {
+  display: inline-block;
+  width: 14px;
+  height: 16px;
+  border-left: 5px solid var(--yazi);
+  border-right: 5px solid var(--yazi);
+}
+.duraklat-menu {
+  align-items: stretch;
+}
+.duraklat-menu .dugme {
+  align-self: stretch;
+  text-align: center;
+}
+.ses-ayari {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ses-satir {
+  display: grid;
+  grid-template-columns: 70px 1fr 34px;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+}
+.ses-satir input {
+  accent-color: var(--mor);
+  width: 100%;
+}
+.ses-deger {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.gezme-geri {
+  position: absolute;
+  top: max(10px, env(safe-area-inset-top));
+  left: max(12px, env(safe-area-inset-left));
+}
+.foto-simge {
+  display: inline-block;
+  width: 18px;
+  height: 13px;
+  border: 3px solid currentColor;
+  border-radius: 4px;
+  position: relative;
+  vertical-align: -1px;
+}
+.foto-simge::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+}
+.foto-kart {
+  width: min(560px, 100%);
+}
+.foto-resim {
+  width: 100%;
+  border-radius: 12px;
+  border: 3px solid var(--mor-koyu);
+  -webkit-touch-callout: default;
+  user-select: auto;
+}
+a.dugme {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+.esya-cip {
+  font-size: 14px;
+  padding: 8px 12px;
+}
+.esya-cip.secili {
+  background: var(--sari);
+  color: var(--mor-koyu);
+}
+.esya-sayi {
+  display: inline-block;
+  min-width: 20px;
+  padding: 0 5px;
+  margin-left: 4px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.18);
+  font-variant-numeric: tabular-nums;
+}
+.sag-dugmeler {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: calc(100% - 100px);
 }

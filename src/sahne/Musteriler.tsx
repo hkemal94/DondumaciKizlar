@@ -127,7 +127,7 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
     if (!grup || !ic) return;
     const d = durumuOku();
     const m = d.musteriler.find((x) => x.id === musteri.id);
-    if (!m) return;
+    if (!m || d.duraklatildi) return; // duraklatınca herkes yerinde durur
 
     if (m.hal === 'gidiyor' && !cikiyor.current) {
       cikiyor.current = true;

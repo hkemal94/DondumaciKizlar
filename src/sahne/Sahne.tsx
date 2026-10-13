@@ -1,11 +1,11 @@
-import { Suspense } from 'react';
+import { Suspense, useLayoutEffect } from 'react';
 import { Canvas, events, useFrame, useThree, type RootState } from '@react-three/fiber';
 import { useRef } from 'react';
 import { durumuOku, saatDakikasi } from '../oyun/durum';
 import { gokRenkleri } from './gokRenkleri';
 import * as THREE from 'three';
 import { Disari } from './Disari';
-import { dukkanYakinligi, kameraKarisimi } from './kameraKarisimi';
+import { dukkanDonusu, dukkanYakinligi, fotograf, kameraKarisimi } from './kameraKarisimi';
 import { Dukkan } from './Dukkan';
 import { Hazirlama } from './Hazirlama';
 import { Musteriler } from './Musteriler';
@@ -26,12 +26,28 @@ function dikeyAci(yatayDerece: number, oran: number) {
   return THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(yatay / 2) / oran));
 }
 
+// Fotoğraf çekmek için o anki görüntüyü verir
+function FotografMakinesi() {
+  const { gl, scene, camera } = useThree();
+  useLayoutEffect(() => {
+    fotograf.cek = () => {
+      gl.render(scene, camera);
+      return gl.domElement.toDataURL('image/jpeg', 0.9);
+    };
+    return () => {
+      fotograf.cek = null;
+    };
+  }, [gl, scene, camera]);
+  return null;
+}
+
 function KameraYoneticisi() {
   const { camera, size } = useThree();
   const hedef = useRef(new THREE.Vector3());
   const konum = useRef(new THREE.Vector3());
   const dukkanKonumu = useRef(new THREE.Vector3());
   const yakinlik = useRef(dukkanYakinligi.deger);
+  const donus = useRef(0);
   useFrame((_, dt) => {
     const kamera = camera as THREE.PerspectiveCamera;
     const istenen = durumuOku().kamera === 'dukkan' ? 1 : 0;
@@ -42,7 +58,16 @@ function KameraYoneticisi() {
     // Geçişte kamera kısa bir yay çizer: önce biraz yükselir
     // Yakınlaştırma: hedefe doğru yaklaşıp uzaklaşır, yumuşakça
     yakinlik.current = THREE.MathUtils.damp(yakinlik.current, dukkanYakinligi.deger, 10, dt);
-    dukkanKonumu.current.copy(DUKKAN.konum).sub(DUKKAN.hedef).multiplyScalar(yakinlik.current).add(DUKKAN.hedef);
+    // Gezerken oyuncu dükkânın çevresinde döner; gezme bitince önden görünüme döner
+    const d = durumuOku();
+    if (!d.gezme) dukkanDonusu.deger = 0;
+    donus.current = THREE.MathUtils.damp(donus.current, dukkanDonusu.deger, 8, dt);
+    dukkanKonumu.current
+      .copy(DUKKAN.konum)
+      .sub(DUKKAN.hedef)
+      .multiplyScalar(yakinlik.current)
+      .applyAxisAngle(new THREE.Vector3(0, 1, 0), donus.current)
+      .add(DUKKAN.hedef);
     konum.current.lerpVectors(TEZGAH.konum, dukkanKonumu.current, t);
     konum.current.y += Math.sin(t * Math.PI) * 0.8;
     hedef.current.lerpVectors(TEZGAH.hedef, DUKKAN.hedef, t);
@@ -157,6 +182,7 @@ export function Sahne() {
       <color attach="background" args={[renk.gokUfuk]} />
       <fog attach="fog" args={[renk.gokUfuk, 90, 320]} />
       <KameraYoneticisi />
+      <FotografMakinesi />
       <Isiklar />
       <Suspense fallback={null}>
         <Disari />

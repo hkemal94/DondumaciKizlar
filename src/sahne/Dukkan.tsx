@@ -114,25 +114,52 @@ export function TezgahtaGorunur({ children }: { children: ReactNode }) {
   return <group ref={ref}>{children}</group>;
 }
 
+// Bebek evi kesiti: genel görünümde kameraya dönük duvarlar kalkar, ötekiler
+// kalır. Dükkân gezilirken (döndürünce) hangi duvarın kalkacağı değişir.
+// Tezgah görünümünde bütün duvarlar yerinde.
+const DUKKAN_ORTASI = new THREE.Vector3(0, 0, -0.3);
+function KesikDuvar({ yon, children }: { yon: [number, number]; children: ReactNode }) {
+  const ref = useRef<THREE.Group>(null);
+  const kameraYonu = useMemo(() => new THREE.Vector3(), []);
+  useFrame(({ camera }) => {
+    if (!ref.current) return;
+    if (kameraKarisimi.deger < 0.12) {
+      ref.current.visible = true;
+      return;
+    }
+    kameraYonu.copy(camera.position).sub(DUKKAN_ORTASI);
+    ref.current.visible = yon[0] * kameraYonu.x + yon[1] * kameraYonu.z <= 0;
+  });
+  return <group ref={ref}>{children}</group>;
+}
+
 function Odalar() {
   return (
     <group>
       {/* Zemin */}
       <Kutu konum={[0, -0.05, -0.3]} boyut={[8, 0.1, 4.6]} renkAdi={renk.ahsapKoyu} golgeVer={false} />
-      {/* Sağ duvar ve arka duvar (oyuncunun arkası): genel görünümde arkada kalır */}
-      <Kutu konum={[4, 1.6, -0.3]} boyut={[0.1, 3.3, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
-      <Kutu konum={[0, 1.6, 2.05]} boyut={[8.1, 3.3, 0.1]} renkAdi={renk.duvar} golgeVer={false} />
+      {/* Duvarlar: genel görünümde kameraya dönük olanlar kalkar */}
+      <KesikDuvar yon={[1, 0]}>
+        <Kutu konum={[4, 1.6, -0.3]} boyut={[0.1, 3.3, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
+      </KesikDuvar>
+      <KesikDuvar yon={[0, 1]}>
+        <Kutu konum={[0, 1.6, 2.05]} boyut={[8.1, 3.3, 0.1]} renkAdi={renk.duvar} golgeVer={false} />
+        <MenuPanosu />
+      </KesikDuvar>
+      <KesikDuvar yon={[-1, 0]}>
+        <Kutu konum={[-4, 1.6, -0.3]} boyut={[0.1, 3.3, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
+      </KesikDuvar>
       <TezgahtaGorunur>
         {/* Tavan */}
         <Kutu konum={[0, TAVAN, -0.3]} boyut={[8, 0.1, 4.6]} renkAdi={renk.ahsapAcik} golgeVer={false} golgeAl={false} />
-        {/* Sol duvar: genel görünümde kameraya en yakın, kalkar */}
-        <Kutu konum={[-4, 1.6, -0.3]} boyut={[0.1, 3.3, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
         {/* Tavan kirişleri */}
         {[-1.6, 0.2].map((z) => (
           <Kutu key={z} konum={[0, TAVAN - 0.12, z]} boyut={[8, 0.16, 0.2]} renkAdi={renk.ahsapOrta} golgeVer={false} />
         ))}
       </TezgahtaGorunur>
-      {/* Genel görünümde kesik duvar dipleri (sol duvar ve pencere duvarı): bebek evi gibi */}
+      {/* Kesik duvar dipleri: duvar kalkınca yerinde alçak bir dip kalır */}
+      <Kutu konum={[4, 0.18, -0.3]} boyut={[0.14, 0.36, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
+      <Kutu konum={[0, 0.18, 2.05]} boyut={[8.14, 0.36, 0.14]} renkAdi={renk.duvar} golgeVer={false} />
       <Kutu konum={[-4, 0.18, -0.3]} boyut={[0.14, 0.36, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
       <Kutu konum={[(KAPI_SAG + 4.07) / 2, 0.18, PENCERE_Z]} boyut={[4.07 - KAPI_SAG, 0.36, 0.2]} renkAdi={renk.ahsapAcik} golgeVer={false} />
       {/* Genel görünümde kapının yeri: zeminde mor eşik */}
@@ -385,14 +412,13 @@ export function Dukkan() {
     <group>
       <Odalar />
       {/* Dükkânın önü (pencere duvarı): genel görünümde kamera önden baktığı için kalkar */}
-      <TezgahtaGorunur>
+      <KesikDuvar yon={[0, -1]}>
         <PencereDuvari />
         <Tente />
         <Ampuller />
-      </TezgahtaGorunur>
+      </KesikDuvar>
       <Tezgah />
       <ArkaTezgah />
-      <MenuPanosu />
       <Saksi konum={[-3.6, 0, 1.0]} />
       <Saksi konum={[3.55, 0, -2.0]} olcek={1.1} />
       <Saksi konum={[3.6, 0, 1.05]} olcek={0.9} />

@@ -2,8 +2,9 @@ import { useState } from 'react';
 import {
   bastanBasla,
   cesitAc,
-  DEKORLAR,
-  dekorAl,
+  depodaki,
+  esyaAl,
+  isikAl,
   FIYAT_ETKISI,
   fiyatSec,
   KUP_FIYATI,
@@ -13,6 +14,7 @@ import {
   type FiyatSeviyesi,
 } from '../oyun/durum';
 import { CESITLER } from '../oyun/kuvetler';
+import { EN_YUKSEK_ISIK, ESYALAR, ISIK_SEVIYELERI } from '../oyun/dekorasyon';
 import { m, type MetinAnahtari } from '../metinler';
 
 // Dükkânı geliştir (belge 2.4 ve 4; taslak 3): yeni çeşitler, fiyat,
@@ -98,22 +100,41 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
           )}
 
           {sekme === 'dekorasyon' && (
-            <div className="gel-izgara">
-              {DEKORLAR.map((d) => {
-                const alindi = durum.dekorlar.includes(d.id);
-                return (
-                  <div key={d.id} className={`gel-kart ${alindi ? 'acik' : ''}`}>
-                    <span className="gel-ad">{m(`dekor.${d.id}` as MetinAnahtari)}</span>
-                    {alindi ? (
-                      <span className="gel-durum">{m('gelistir.alindi')}</span>
-                    ) : (
-                      <button className="dugme gel-al" disabled={durum.para < d.fiyat} onClick={() => dekorAl(d.id)}>
-                        {m('gelistir.al')} <Para miktar={d.fiyat} />
-                      </button>
-                    )}
+            <div className="gel-liste">
+              {/* Genel: ışıklandırma seviyeleri */}
+              <div className="gel-baslik">{m('dekor.genel')}</div>
+              <div className="gel-kart acik">
+                <span className="gel-ad">
+                  {m('dekor.isik')}
+                  <span className="gel-aciklama">
+                    {' '}
+                    · {durum.isikSeviyesi === 0 ? m('dekor.isikYok') : m(`dekor.isik.${durum.isikSeviyesi}` as MetinAnahtari)}
+                  </span>
+                </span>
+                {durum.isikSeviyesi < EN_YUKSEK_ISIK ? (
+                  <button className="dugme gel-al" disabled={durum.para < ISIK_SEVIYELERI[durum.isikSeviyesi].fiyat} onClick={isikAl}>
+                    {m(`dekor.isik.${durum.isikSeviyesi + 1}` as MetinAnahtari)} <Para miktar={ISIK_SEVIYELERI[durum.isikSeviyesi].fiyat} />
+                  </button>
+                ) : (
+                  <span className="gel-durum">{m('dekor.enIyi')}</span>
+                )}
+              </div>
+
+              {/* Taşınabilir eşyalar: alınır, depoya gider */}
+              <div className="gel-baslik">{m('dekor.tasinabilir')}</div>
+              <div className="gel-izgara">
+                {ESYALAR.map((e) => (
+                  <div key={e.id} className="gel-kart">
+                    <span className="gel-ad">
+                      {m(`esya.${e.id}` as MetinAnahtari)}
+                      <span className="gel-aciklama"> · {m('dekor.depoda', { sayi: depodaki(e.id, durum) })}</span>
+                    </span>
+                    <button className="dugme gel-al" disabled={durum.para < e.fiyat} onClick={() => esyaAl(e.id)}>
+                      {m('gelistir.al')} <Para miktar={e.fiyat} />
+                    </button>
                   </div>
-                );
-              })}
+                ))}
+              </div>
               <p className="gel-not">{m('dekor.etki')}</p>
             </div>
           )}
