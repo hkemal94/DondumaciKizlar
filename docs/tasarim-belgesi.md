@@ -32,7 +32,7 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | İlk oynanabilir sürüm | Kepçe mini oyunu + müşteri sırası |
 | Gün | Oyun içinde saat akar, dükkân kapanınca gün biter |
 | Karakterler | Küçük hikâye kırıntıları: müşteri konuşmalarından adadaki olaylar sızar |
-| Oyuncu | İsimsiz — oyuncu kendini koyar |
+| Oyuncu | ~~İsimsiz — oyuncu kendini koyar~~ → 13 Ekim: kişiselleştirilebilir çalışan (aşağıda) |
 | Kanon | Liman Mahallesi, iskelenin yakını. Oyun dükkânın **kuruluş hikâyesi** |
 | Dönem | 2000'lerin başı |
 | Mevsim | Kışın tatlıcı / kafe: menü ve görünüm mevsimle değişir. İlk sürümde değil |
@@ -52,6 +52,17 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Genel görünümde yakınlaştırma | Açı sabit, ama oyuncu **yakınlaştırıp uzaklaştırabilir** (iki parmak, fare tekerleği, + / − düğmeleri); başlangıçta uzaktan (Kemal, 13 Ekim: "insanlar dükkânlarını görebilsinler"). Tezgah görünümü sabit kalır |
 | Eksik / fazla süsleme | Altlık ve toplar doğruysa ama süsleme tutmuyorsa dondurma çöpe gitmez: oyun hangi süslemenin eksik ya da fazla olduğunu hatırlatır (Kemal, 13 Ekim) |
 | Haftanın günü | 1. gün pazartesi (Kemal, 13 Ekim) |
+| Oyunun adı | **Dondurmacı Kızlar** (dükkânla aynı; Kemal, 13 Ekim) |
+| İlk dört çeşit | **Çilek, Çikolata, Fıstık, Kaymak** (Kemal, 13 Ekim) |
+| Para | Adsız jeton (Kemal, 13 Ekim) |
+| Oyuncu ve dükkândakiler | **Karar değişti** (13 Ekim): tezgahın arkasında oyuncunun **kişiselleştirebileceği bir çalışan** olur; dükkânın sahibi (kanondaki kadın, adı yok) **ara sıra dükkânda gezer**. Eski "oyuncuya ad, yüz verme" kuralının yerine geçer; çalışana ad verilip verilmeyeceği açık. *Uygulamada henüz yok* |
+| Müşteri sabrı | **Karar değişti** (13 Ekim): çok bekleyen müşteri gider ve memnuniyete **sıfır yıldız** verir. Para kaybı yok. *Uygulamada henüz yok* |
+| Hafta sonu | Hafta sonu daha kalabalık (Kemal, 13 Ekim). *Uygulamada henüz yok* |
+| Siparişlerin büyümesi | İlerleyen haftalarda bazen **iki dondurma**, bazen **birden çok süsleme** (Kemal, 13 Ekim). *Uygulamada henüz yok* |
+| Waffle ve limonata | Şimdilik yok. Gelince **kendi mini oyunları** olur; makineleri **parayla alınıp dükkâna konur**; geliri ve memnuniyeti etkileyen bir yapı düşünülebilir (Kemal, 13 Ekim) |
+| Ses | Şimdilik kodla üretilen sesler (dışarıdan dosya yok, lisans gerekmez). Müziği Kemal sonra hazırlar (Suno vb.). *Uygulamada henüz yok* |
+| Gerçek 3B modeller | Sonra; her parça ayrı değiştirilebilir, bugünkü geçici parçalar sonradan kolayca değişir |
+| Eller | Sonra bakılacak |
 | Topların sırası | Kural değil: yalnız altlık, çeşitler ve top sayısı tutmalı (13 Ekim) |
 | Deneme telefonu | Elde hangisi varsa; orta seviye bir telefonda akıcı çalışmak hedef |
 
