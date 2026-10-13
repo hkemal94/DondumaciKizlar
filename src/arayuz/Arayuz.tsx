@@ -38,6 +38,7 @@ import { m, type MetinAnahtari } from '../metinler';
 import { CESITLER } from '../oyun/kuvetler';
 import { balon } from '../sahne/Musteriler';
 import { Gelistir } from './Gelistir';
+import { CalisanAdi, CalisanEkrani } from './CalisanEkrani';
 import { dukkanDonusu, ekrandaKaydir, ortala, yakinlikDegistir } from '../sahne/kameraKarisimi';
 import { DuraklatDugmesi, DuraklatMenusu, GezmeEkrani } from './Duraklat';
 import { ESYALAR } from '../oyun/dekorasyon';
@@ -388,6 +389,8 @@ function useYakinlastirma(etkin: boolean, gezme: boolean) {
       return Math.hypot(a.x - b.x, a.y - b.y);
     };
     const bas = (e: PointerEvent) => {
+      // Panel, düğme ya da yazı kutusunun üstünde başlayan kaydırma görüntüyü oynatmaz
+      if ((e.target as HTMLElement | null)?.closest('button, input, .calisan-panel, .gelistir, .gun-sonu')) return;
       parmaklar.set(e.pointerId, { x: e.clientX, y: e.clientY });
       if (parmaklar.size === 2) {
         oncekiAralik = aralik();
@@ -444,6 +447,7 @@ function useYakinlastirma(etkin: boolean, gezme: boolean) {
 export function Arayuz() {
   const durum = useDurum();
   const [gelistirAcik, setGelistirAcik] = useState(false);
+  const [calisanAcik, setCalisanAcik] = useState(false);
   useYakinlastirma(durum.kamera === 'dukkan', durum.gezme);
 
   // Parmak ekranın neresinde kalkarsa kalksın kepçe bırakılır.
@@ -490,9 +494,10 @@ export function Arayuz() {
       {tezgahta && durum.asama === 'kepceDolu' && <div className="yerlestir-alani" onPointerDown={topuYerlestir} />}
 
       <SiparisBalonu />
+      <CalisanAdi />
       <UstBilgi />
       <GunSaat />
-      {ipucu && <div className="ipucu">{suslemeHatirlatmasi(durum) ?? m(ipucu)}</div>}
+      {ipucu && !calisanAcik && <div className="ipucu">{suslemeHatirlatmasi(durum) ?? m(ipucu)}</div>}
       {tezgahta && durum.asama === 'dolduruyor' && <Gosterge />}
       <Bildirim />
       <SuslemeDugmeleri />
@@ -540,7 +545,7 @@ export function Arayuz() {
           </button>
         </div>
       )}
-      {!tezgahta && !durum.gunSonu && (
+      {!tezgahta && !durum.gunSonu && !calisanAcik && (
         <div className="sag-dugmeler">
           {durum.yerlestirme ? (
             // Yerleştirme: depodaki eşyalar, seçili olan vurgulu
@@ -567,6 +572,9 @@ export function Arayuz() {
               <button className="dugme" onClick={yerlestirmeyiAc}>
                 {m('yerlestir.dugme')}
               </button>
+              <button className="dugme" onClick={() => setCalisanAcik(true)}>
+                {m('calisan.dugme')}
+              </button>
               <button className="dugme dugme-servis" onClick={guneBasla}>
                 {m('gunBasi.basla')}
               </button>
@@ -579,6 +587,7 @@ export function Arayuz() {
         </div>
       )}
       {gelistirAcik && durum.hazirlik && <Gelistir kapat={() => setGelistirAcik(false)} />}
+      {calisanAcik && durum.hazirlik && <CalisanEkrani kapat={() => setCalisanAcik(false)} />}
       <DuraklatMenusu />
 
       <GunSonu />

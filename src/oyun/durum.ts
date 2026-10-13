@@ -2,6 +2,17 @@ import { useSyncExternalStore } from 'react';
 
 import { BASLANGIC_CESITLERI, CESITLER } from './kuvetler';
 import { EN_YUKSEK_ISIK, ESYALAR, HUCRELER, ISIK_SEVIYELERI, type Esya } from './dekorasyon';
+import {
+  AD_EN_UZUN,
+  AKSESUARLAR,
+  ONLUKLER,
+  SAC_MODELLERI,
+  SAC_RENKLERI,
+  TENLER,
+  VARSAYILAN_CALISAN,
+  type Aksesuar,
+  type CalisanGorunumu,
+} from './calisan';
 
 // Oyunun durumu: kepçe mini oyunu (belge bölüm 3: altlık → kepçe →
 // yerleştir → servis) ve müşteri sırası (iş sırası 3).
@@ -99,6 +110,10 @@ export interface Durum {
   // Yerleştirme ekranı (kaydedilmez)
   yerlestirme: boolean;
   seciliEsya: Esya | null;
+  // Çalışan (Kemal, 13 Ekim): oyuncunun kişiselleştirdiği
+  calisan: CalisanGorunumu;
+  acikOnlukler: string[];
+  acikAksesuarlar: Aksesuar[];
   // Duraklatma menüsü (Kemal, 13 Ekim): saat ve müşteriler durur
   duraklatildi: boolean;
   gezme: boolean; // duraklatıp dükkânı gezme (döndürme, yakınlaştırma, fotoğraf)
@@ -164,6 +179,9 @@ let durum: Durum = {
   yerlesim: [],
   yerlestirme: false,
   seciliEsya: null,
+  calisan: { ...VARSAYILAN_CALISAN },
+  acikOnlukler: ONLUKLER.filter((o) => o.fiyat === 0).map((o) => o.id),
+  acikAksesuarlar: [],
   duraklatildi: false,
   gezme: false,
 };
@@ -724,6 +742,9 @@ interface Kayit {
   depo: Partial<Record<Esya, number>>;
   yerlesim: Yerlesim[];
   dekorlar?: string[]; // eski kayıt (13 Ekim öncesi)
+  calisan: CalisanGorunumu;
+  acikOnlukler: string[];
+  acikAksesuarlar: Aksesuar[];
 }
 
 function kaydet() {
@@ -738,6 +759,9 @@ function kaydet() {
     isikSeviyesi: durum.isikSeviyesi,
     depo: durum.depo,
     yerlesim: durum.yerlesim,
+    calisan: durum.calisan,
+    acikOnlukler: durum.acikOnlukler,
+    acikAksesuarlar: durum.acikAksesuarlar,
   };
   try {
     localStorage.setItem(KAYIT_ANAHTARI, JSON.stringify(k));
@@ -761,6 +785,7 @@ export function kaydiYukle() {
       acikAltliklar: Array.isArray(k.acikAltliklar) && k.acikAltliklar.includes('kup') ? ['kulah', 'kap', 'kup'] : ['kulah', 'kap'],
       fiyatSeviyesi: k.fiyatSeviyesi && k.fiyatSeviyesi in FIYAT_ETKISI ? k.fiyatSeviyesi : 'normal',
       ...dekorasyonuOku(k),
+      ...calisaniOku(k),
     });
   } catch {
     // Bozuk ya da okunamayan kayıt: baştan başlanır.
@@ -808,6 +833,9 @@ export function bastanBasla() {
     yerlesim: [],
     yerlestirme: false,
     seciliEsya: null,
+    calisan: { ...VARSAYILAN_CALISAN },
+    acikOnlukler: ONLUKLER.filter((o) => o.fiyat === 0).map((o) => o.id),
+    acikAksesuarlar: [],
     dakika: 0,
     acik: true,
     gunSonu: false,
@@ -860,4 +888,64 @@ export function denemeParasi() {
   if (!DENEME) return;
   guncelle({ para: durum.para + 5000 });
   kaydet();
+}
+
+// ---- Çalışan (Kemal, 13 Ekim) ----
+export function calisaniDegistir(yeni: Partial<CalisanGorunumu>) {
+  const c = { ...durum.calisan, ...yeni };
+  if (yeni.ad !== undefined) c.ad = yeni.ad.slice(0, AD_EN_UZUN);
+  if (yeni.onluk && !durum.acikOnlukler.includes(yeni.onluk)) return;
+  guncelle({ calisan: c });
+  kaydet();
+}
+
+export function onlukAl(id: string) {
+  const o = ONLUKLER.find((x) => x.id === id);
+  if (!o || durum.acikOnlukler.includes(id) || durum.para < o.fiyat) return;
+  guncelle({ para: durum.para - o.fiyat, acikOnlukler: [...durum.acikOnlukler, id], calisan: { ...durum.calisan, onluk: id } });
+  kaydet();
+}
+
+export function aksesuarAl(id: Aksesuar) {
+  const a = AKSESUARLAR.find((x) => x.id === id);
+  if (!a || durum.acikAksesuarlar.includes(id) || durum.para < a.fiyat) return;
+  guncelle({ para: durum.para - a.fiyat, acikAksesuarlar: [...durum.acikAksesuarlar, id] });
+  aksesuarDegistir(id);
+}
+
+// Tak / çıkar. Başa yalnız bir şey takılır (bandana ya da kasket).
+export function aksesuarDegistir(id: Aksesuar) {
+  if (!durum.acikAksesuarlar.includes(id)) return;
+  const takili = durum.calisan.aksesuarlar;
+  let yeni: Aksesuar[];
+  if (takili.includes(id)) yeni = takili.filter((x) => x !== id);
+  else {
+    const basaMi = AKSESUARLAR.find((x) => x.id === id)?.bas;
+    yeni = [...takili.filter((x) => !(basaMi && AKSESUARLAR.find((y) => y.id === x)?.bas)), id];
+  }
+  guncelle({ calisan: { ...durum.calisan, aksesuarlar: yeni } });
+  kaydet();
+}
+
+function calisaniOku(k: Partial<Kayit>): Pick<Durum, 'calisan' | 'acikOnlukler' | 'acikAksesuarlar'> {
+  const c = (k.calisan ?? {}) as Partial<CalisanGorunumu>;
+  const acikOnlukler = [
+    ...new Set([
+      ...ONLUKLER.filter((o) => o.fiyat === 0).map((o) => o.id),
+      ...(Array.isArray(k.acikOnlukler) ? k.acikOnlukler.filter((x) => ONLUKLER.some((o) => o.id === x)) : []),
+    ]),
+  ];
+  const acikAksesuarlar = Array.isArray(k.acikAksesuarlar) ? k.acikAksesuarlar.filter((x) => AKSESUARLAR.some((a) => a.id === x)) : [];
+  return {
+    acikOnlukler,
+    acikAksesuarlar,
+    calisan: {
+      ad: typeof c.ad === 'string' ? c.ad.slice(0, AD_EN_UZUN) : '',
+      ten: typeof c.ten === 'number' && TENLER[c.ten] ? c.ten : VARSAYILAN_CALISAN.ten,
+      sac: SAC_MODELLERI.includes(c.sac as never) ? (c.sac as CalisanGorunumu['sac']) : VARSAYILAN_CALISAN.sac,
+      sacRengi: typeof c.sacRengi === 'number' && SAC_RENKLERI[c.sacRengi] ? c.sacRengi : VARSAYILAN_CALISAN.sacRengi,
+      onluk: typeof c.onluk === 'string' && acikOnlukler.includes(c.onluk) ? c.onluk : VARSAYILAN_CALISAN.onluk,
+      aksesuarlar: Array.isArray(c.aksesuarlar) ? c.aksesuarlar.filter((x) => acikAksesuarlar.includes(x)) : [],
+    },
+  };
 }

@@ -5,7 +5,8 @@ import { durumuOku, saatDakikasi } from '../oyun/durum';
 import { gezmeSaati, gokRenkleri } from './gokRenkleri';
 import * as THREE from 'three';
 import { Disari } from './Disari';
-import { dukkanDonusu, dukkanKaydirma, dukkanYakinligi, fotograf, kameraKarisimi } from './kameraKarisimi';
+import { dukkanDonusu, dukkanKaydirma, dukkanYakinligi, fotograf, kameraKarisimi, odak } from './kameraKarisimi';
+import { Calisan } from './Calisan';
 import { Dukkan } from './Dukkan';
 import { Hazirlama } from './Hazirlama';
 import { Musteriler } from './Musteriler';
@@ -18,6 +19,9 @@ import { renk } from './renkler';
 // alanı göstersin diye görüş açısı ekran oranına göre ayarlanır.
 const TEZGAH = { konum: new THREE.Vector3(0, 1.95, 1.5), hedef: new THREE.Vector3(0, 0.9, -4), yatay: 80 };
 // Genel görünüm dükkânın önünden (deniz / müşteri tarafı) çeker (Kemal, 13 Ekim)
+// Çalışanı kişiselleştirirken: müşteri tarafından ona yakından bakış (sağda panel olduğu için çalışan solda)
+const CALISAN_ODAGI = { konum: new THREE.Vector3(-0.6, 1.65, -2.15), hedef: new THREE.Vector3(-0.68, 1.05, 0.75) };
+
 const DUKKAN = { konum: new THREE.Vector3(-13.5, 15.5, -20), hedef: new THREE.Vector3(-0.4, 0.2, -1.6), yatay: 50 };
 
 
@@ -48,6 +52,7 @@ function KameraYoneticisi() {
   const dukkanKonumu = useRef(new THREE.Vector3());
   const yakinlik = useRef(dukkanYakinligi.deger);
   const donus = useRef(0);
+  const odakKarisimi = useRef(0);
   const kayma = useRef(new THREE.Vector3());
   const dukkanHedefi = useRef(new THREE.Vector3());
   useFrame((_, dt) => {
@@ -82,6 +87,14 @@ function KameraYoneticisi() {
     const fovTezgah = THREE.MathUtils.clamp(dikeyAci(TEZGAH.yatay, oran), 38, 64);
     const fovDukkan = THREE.MathUtils.clamp(dikeyAci(DUKKAN.yatay, oran), 22, 48);
     kamera.fov = THREE.MathUtils.lerp(fovTezgah, fovDukkan, t);
+    // Çalışan ekranı açıksa kamera çalışana yaklaşır
+    odakKarisimi.current = THREE.MathUtils.damp(odakKarisimi.current, odak.calisan ? 1 : 0, 5, dt);
+    const o = odakKarisimi.current;
+    if (o > 0.001) {
+      konum.current.lerp(CALISAN_ODAGI.konum, o);
+      hedef.current.lerp(CALISAN_ODAGI.hedef, o);
+      kamera.fov = THREE.MathUtils.lerp(kamera.fov, 40, o);
+    }
     kamera.position.copy(konum.current);
     kamera.lookAt(hedef.current);
     kamera.updateProjectionMatrix();
@@ -200,6 +213,7 @@ export function Sahne() {
         <Hazirlama />
         <Musteriler />
         <Dekorlar />
+        <Calisan />
       </Suspense>
     </Canvas>
   );

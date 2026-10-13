@@ -976,3 +976,123 @@ a.dugme {
   width: 26px;
   height: 39px;
 }
+
+/* ---- Çalışan ---- */
+.calisan-panel {
+  position: absolute;
+  top: max(8px, env(safe-area-inset-top));
+  bottom: max(8px, env(safe-area-inset-bottom));
+  right: max(10px, env(safe-area-inset-right));
+  width: min(360px, 52%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px 12px;
+  background: var(--krem);
+  border: 4px solid var(--mor-koyu);
+  border-radius: 20px;
+  box-shadow: 0 6px 0 var(--mor-koyu);
+  color: var(--mor-koyu);
+}
+.calisan-panel h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--mor);
+}
+.calisan-icerik {
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.calisan-satir {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.calisan-ad {
+  font: inherit;
+  font-weight: 800;
+  font-size: 16px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 2px solid var(--mor);
+  background: #fff;
+  color: var(--mor-koyu);
+  user-select: text;
+  -webkit-user-select: text;
+}
+.renk-secimi,
+.secenek-cipleri {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.renk-dugme {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 3px solid rgba(78, 36, 112, 0.25);
+  cursor: pointer;
+}
+.renk-dugme.secili {
+  border-color: var(--mor-koyu);
+  box-shadow: 0 0 0 2px var(--sari);
+}
+.cip {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 2px solid rgba(78, 36, 112, 0.3);
+  background: #fff;
+  color: var(--mor-koyu);
+  cursor: pointer;
+}
+.cip.secili {
+  background: var(--sari);
+  border-color: var(--mor-koyu);
+}
+.cip.kilitli {
+  background: #ece3f2;
+}
+.cip:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.cip .para-simge {
+  width: 13px;
+  height: 13px;
+}
+.onluk-ornek {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+.calisan-etiketi {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+.calisan-etiketi span {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  white-space: nowrap;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--sari);
+  color: var(--mor-koyu);
+  font-weight: 900;
+  font-size: 13px;
+  border: 2px solid var(--mor-koyu);
+}

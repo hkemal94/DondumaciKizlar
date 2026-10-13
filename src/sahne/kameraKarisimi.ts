@@ -61,3 +61,6 @@ export function duvarModunuDegistir(): DuvarModu {
   duvarlar.mod = duvarlar.mod === 'kesit' ? 'duvarsiz' : duvarlar.mod === 'duvarsiz' ? 'kapali' : 'kesit';
   return duvarlar.mod;
 }
+
+// Çalışanı kişiselleştirirken kamera ona yakından bakar
+export const odak = { calisan: false };
