@@ -55,10 +55,10 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Oyunun adı | **Dondurmacı Kızlar** (dükkânla aynı; Kemal, 13 Ekim) |
 | İlk dört çeşit | **Çilek, Çikolata, Fıstık, Kaymak** (Kemal, 13 Ekim) |
 | Para | Adsız jeton (Kemal, 13 Ekim) |
-| Oyuncu ve dükkândakiler | **Karar değişti** (13 Ekim): tezgahın arkasında oyuncunun **kişiselleştirebileceği bir çalışan** olur; dükkânın sahibi (kanondaki kadın, adı yok) **ara sıra dükkânda gezer**. Eski "oyuncuya ad, yüz verme" kuralının yerine geçer; çalışana ad verilip verilmeyeceği açık. *Uygulamada henüz yok* |
-| Müşteri sabrı | **Karar değişti** (13 Ekim): çok bekleyen müşteri gider ve memnuniyete **sıfır yıldız** verir. Para kaybı yok. *Uygulamada henüz yok* |
+| Oyuncu ve dükkândakiler | **Karar değişti** (13 Ekim): tezgahın arkasında oyuncunun **kişiselleştirebileceği bir çalışan** olur: ten rengi, saç, kıyafet ve önlük, **ad** (oyuncu yazar); parayla yeni kıyafet açılır; vakti gelince şapka, küpe, gözlük gibi aksesuarlar. Dükkânın sahibi (kanondaki kadın, adı yok) **ara sıra gelip dükkânda dolaşır**, şimdilik başka bir şey yapmaz. Eski "oyuncuya ad, yüz verme" kuralının yerine geçer. *Uygulamada henüz yok* |
+| Müşteri sabrı | **Karar değişti** (13 Ekim): yalnız **öndeki** (sırası gelen) müşteri sabırsızlanır. Hiç işlem yapılmadan **oyun saatiyle yarım saat** (gerçekte ~6 sn) geçerse sıkılıp gider ve memnuniyete **sıfır yıldız** verir. Herhangi bir işlem (yanlış bile olsa) sabrı sıfırlar. Para kaybı yok. *Uygulamada henüz yok* |
 | Hafta sonu | Hafta sonu daha kalabalık (Kemal, 13 Ekim). *Uygulamada henüz yok* |
-| Siparişlerin büyümesi | İlerleyen haftalarda bazen **iki dondurma**, bazen **birden çok süsleme** (Kemal, 13 Ekim). *Uygulamada henüz yok* |
+| Siparişlerin büyümesi | Bazen **iki dondurma**, bazen **birden çok süsleme**; bir şey **açılınca** başlar (Kemal, 13 Ekim). Ne açılacağı açık (öneri: Dükkânı geliştir'den bir tepsi ya da ikinci çalışma yeri). *Uygulamada henüz yok* |
 | Waffle ve limonata | Şimdilik yok. Gelince **kendi mini oyunları** olur; makineleri **parayla alınıp dükkâna konur**; geliri ve memnuniyeti etkileyen bir yapı düşünülebilir (Kemal, 13 Ekim) |
 | Ses | Şimdilik kodla üretilen sesler (dışarıdan dosya yok, lisans gerekmez). Müziği Kemal sonra hazırlar (Suno vb.). *Uygulamada henüz yok* |
 | Gerçek 3B modeller | Sonra; her parça ayrı değiştirilebilir, bugünkü geçici parçalar sonradan kolayca değişir |
