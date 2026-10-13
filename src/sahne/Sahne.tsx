@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import { Disari } from './Disari';
 import { dukkanDonusu, dukkanKaydirma, dukkanYakinligi, fotograf, kameraKarisimi, odak } from './kameraKarisimi';
 import { Calisan } from './Calisan';
+import { Sahip } from './Sahip';
 import { Dukkan } from './Dukkan';
 import { Hazirlama } from './Hazirlama';
 import { Musteriler } from './Musteriler';
@@ -214,6 +215,7 @@ export function Sahne() {
         <Musteriler />
         <Dekorlar />
         <Calisan />
+        <Sahip />
       </Suspense>
     </Canvas>
   );
