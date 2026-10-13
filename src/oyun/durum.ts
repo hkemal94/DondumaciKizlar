@@ -341,7 +341,7 @@ export function ortalamaMemnuniyet(d: Durum = durum): number | null {
 // ---- Gün ve saat (iş sırası 4) ----
 // Yaz dönemi saatleri (Kemal, 13 Ekim): hafta içi 11:00–00:00, hafta sonu
 // 10:00–02:00. Her gerçek saniye saate 5 dakika ekler; saat beşer dakika
-// ilerler. 1. gün pazartesi sayıldı (geçici). Adresin sonuna #hizli
+// ilerler. 1. gün pazartesi (Kemal, 13 Ekim). Adresin sonuna #hizli
 // yazılırsa gün 30 saniyede biter (gün sonunu görmek için).
 const ADIM = 5; // saat kaçar dakika ilerler
 const HIZLI = typeof location !== 'undefined' && location.hash === '#hizli';
