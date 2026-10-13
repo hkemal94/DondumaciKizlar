@@ -201,8 +201,8 @@ function BalonTakibi() {
     // Yalnız yerine varınca göster
     const vardi = v.distanceTo(ON_YER) < 0.15;
     if (vardi) musteriTezgahaVardi(m.id);
-    // Başın sağ üstü (taslak 2'deki gibi)
-    v.x += 0.42;
+    // Başın sağı: balon buradan aşağı doğru açılır (üstteki ipucu yazısıyla çakışmasın)
+    v.x += 0.3;
     v.y += 1.5 * musteriGorunumleri[m.gorunum % musteriGorunumleri.length].boy;
     v.project(camera);
     const x = ((v.x + 1) / 2) * size.width;

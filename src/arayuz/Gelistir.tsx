@@ -11,6 +11,8 @@ import {
   fiyatSec,
   KUP_FIYATI,
   kupAc,
+  TEPSI_FIYATI,
+  tepsiAc,
   TOP_FIYATI,
   useDurum,
   type FiyatSeviyesi,
@@ -72,6 +74,20 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
                   </div>
                 );
               })}
+              {/* Tepsi: iki dondurmalı ve iki süslemeli siparişler başlar */}
+              <div className={`gel-kart ${durum.tepsiAcik ? 'acik' : ''}`}>
+                <span className="gel-ad">
+                  {m('tepsi.ad')}
+                  <span className="gel-aciklama"> · {m('tepsi.aciklama')}</span>
+                </span>
+                {durum.tepsiAcik ? (
+                  <span className="gel-durum">{m('gelistir.alindi')}</span>
+                ) : (
+                  <button className="dugme gel-al" disabled={durum.para < TEPSI_FIYATI} onClick={tepsiAc}>
+                    {m('gelistir.al')} <Para miktar={TEPSI_FIYATI} />
+                  </button>
+                )}
+              </div>
               {/* Kup: üçüncü altlık */}
               <div className={`gel-kart ${durum.acikAltliklar.includes('kup') ? 'acik' : ''}`}>
                 <span className="gel-renk gel-kup" aria-hidden />

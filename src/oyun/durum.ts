@@ -29,7 +29,17 @@ export interface Siparis {
   altlik: Altlik;
   kuvetler: number[]; // hangi küvetlerden kaç top
   susleme: Susleme[];
+  ikinci?: Omit<Siparis, 'ikinci'>; // tepsi açılınca: ikinci dondurma
 }
+
+// Hazırlanmış bir dondurma (tepside bekleyen ya da elde olan)
+export interface Urun {
+  altlik: Altlik;
+  toplar: Top[];
+  susleme: Susleme[];
+}
+
+export const TEPSI_FIYATI = 400;
 
 export interface Musteri {
   id: number;
@@ -46,6 +56,7 @@ export type Bildirim =
   | { tur: 'para'; miktar: number; zaman: number }
   | { tur: 'yanlis'; zaman: number }
   | { tur: 'sikildi'; zaman: number }
+  | { tur: 'ikiDondurma'; zaman: number }
   | { tur: 'susleme'; eksik: Susleme[]; fazla: Susleme[]; zaman: number };
 
 export interface Durum {
@@ -53,6 +64,7 @@ export interface Durum {
   altlik: Altlik | null;
   toplar: Top[];
   susleme: Susleme[]; // elimizdeki dondurmaya eklenenler (sırasıyla)
+  tepsi: Urun[]; // iki dondurmalı siparişte hazırlanıp bekleyen
   kepcedeki: Top | null;
   kepceKuvet: number | null; // basılı tutulan küvet
   dolumBasladi: number; // basılı tutma anı (ms)
@@ -78,6 +90,7 @@ export interface Durum {
   // İlerleme (belge 2.4 ve 4): kayıtta saklanır
   acikCesitler: number[];
   acikAltliklar: Altlik[];
+  tepsiAcik: boolean;
   fiyatSeviyesi: FiyatSeviyesi;
   // Dekorasyon: ışık seviyesi, depodaki eşyalar, yere konmuş eşyalar
   isikSeviyesi: number;
@@ -123,6 +136,7 @@ let durum: Durum = {
   altlik: null,
   toplar: [],
   susleme: [],
+  tepsi: [],
   kepcedeki: null,
   kepceKuvet: null,
   dolumBasladi: 0,
@@ -143,6 +157,7 @@ let durum: Durum = {
   kamera: 'dukkan',
   acikCesitler: [...BASLANGIC_CESITLERI],
   acikAltliklar: ['kulah', 'kap'],
+  tepsiAcik: false,
   fiyatSeviyesi: 'normal',
   isikSeviyesi: 0,
   depo: {},
@@ -247,6 +262,7 @@ export function suslemeDegistir(s: Susleme) {
 // kepçedeki topu küvete geri koy → son konan topu çıkar. Ceza yok.
 export function geriAlinabilir(d: Durum = durum) {
   if (d.asama === 'kepceDolu') return true;
+  if (d.toplar.length === 0 && d.tepsi.length > 0 && (d.asama === 'altlikSec' || d.asama === 'kepceBos')) return true;
   return d.asama === 'kepceBos' && d.toplar.length > 0;
 }
 
@@ -254,7 +270,11 @@ export function geriAl() {
   if (!geriAlinabilir()) return;
   islemYapildi();
   if (durum.asama === 'kepceDolu') guncelle({ asama: 'kepceBos', kepcedeki: null });
-  else {
+  else if (durum.toplar.length === 0 && durum.tepsi.length > 0) {
+    // Tepsideki dondurma ele geri gelir
+    const u = durum.tepsi[durum.tepsi.length - 1];
+    guncelle({ tepsi: durum.tepsi.slice(0, -1), altlik: u.altlik, toplar: u.toplar, susleme: u.susleme, asama: 'kepceBos' });
+  } else {
     const toplar = durum.toplar.slice(0, -1);
     // Top kalmadıysa süsleme de kalkar
     guncelle({ toplar, susleme: toplar.length ? durum.susleme : [] });
@@ -272,16 +292,29 @@ export const MUSTERI_GORUNUM_SAYISI = 4;
 
 let sonId = 0;
 
-function rastgeleSiparis(): Siparis {
+function rastgeleDondurma(enCokTop: number, ikiSuslemeOlabilir: boolean): Omit<Siparis, 'ikinci'> {
   const z = Math.random();
-  const sayi = z < 0.5 ? 1 : z < 0.85 ? 2 : 3;
-  // Siparişlerin üçte birinde bir süsleme ya da sos istenir (geçici oran)
-  const susleme: Susleme[] = Math.random() < 0.33 ? [SUSLEMELER[Math.floor(Math.random() * SUSLEMELER.length)]] : [];
+  const sayi = Math.min(enCokTop, z < 0.5 ? 1 : z < 0.85 ? 2 : 3);
+  // Siparişlerin üçte birinde süsleme istenir; tepsi açıksa bazen iki süsleme (geçici oranlar)
+  const susleme: Susleme[] = [];
+  if (Math.random() < 0.33) {
+    const karisik = [...SUSLEMELER].sort(() => Math.random() - 0.5);
+    susleme.push(karisik[0]);
+    if (ikiSuslemeOlabilir && Math.random() < 0.35) susleme.push(karisik[1]);
+  }
   return {
     altlik: durum.acikAltliklar[Math.floor(Math.random() * durum.acikAltliklar.length)],
     kuvetler: Array.from({ length: sayi }, () => durum.acikCesitler[Math.floor(Math.random() * durum.acikCesitler.length)]),
     susleme,
   };
+}
+
+function rastgeleSiparis(): Siparis {
+  // Tepsi açılınca siparişlerin dörtte biri iki dondurma (her biri en çok 2 top)
+  if (durum.tepsiAcik && Math.random() < 0.25) {
+    return { ...rastgeleDondurma(2, true), ikinci: rastgeleDondurma(2, true) };
+  }
+  return rastgeleDondurma(3, durum.tepsiAcik);
 }
 
 // Giden müşteri iskelenin ucuna varıp ekrandan çıkınca sahne bunu çağırır.
@@ -329,47 +362,81 @@ function dondurmaTutuyorMu(siparis: Siparis, altlik: Altlik | null, toplar: Top[
 
 const SONUC_PUANI: Record<Sonuc, number> = { mukemmel: 5, iyi: 4, kucuk: 3, buyuk: 3 };
 
+// İki dondurmalı siparişte ilk dondurma tepsiye konur, ikincisi hazırlanır
+export function tepsiyeKoyabilir(d: Durum = durum) {
+  const m = ondekiMusteri(d);
+  return !!m?.siparis.ikinci && d.asama === 'kepceBos' && d.toplar.length > 0 && d.altlik !== null && d.tepsi.length === 0;
+}
+
+export function tepsiyeKoy() {
+  if (!tepsiyeKoyabilir()) return;
+  islemYapildi();
+  guncelle({
+    tepsi: [{ altlik: durum.altlik!, toplar: durum.toplar, susleme: durum.susleme }],
+    asama: 'altlikSec',
+    altlik: null,
+    toplar: [],
+    susleme: [],
+  });
+}
+
+function urunFiyati(u: Urun) {
+  return (
+    u.toplar.reduce((t, top) => t + topFiyati() + (top.sonuc === 'mukemmel' ? MUKEMMEL_EKI : top.sonuc === 'iyi' ? IYI_EKI : 0), 0) +
+    u.susleme.length * SUSLEME_FIYATI +
+    (u.altlik === 'kup' ? KUP_EKI : 0)
+  );
+}
+
 export function servisEt() {
   const musteri = ondekiMusteri();
-  if (durum.asama !== 'kepceBos' || durum.toplar.length === 0 || !musteri) return;
+  if (durum.asama !== 'kepceBos' || durum.toplar.length === 0 || !musteri || !durum.altlik) return;
   islemYapildi();
   const simdi = performance.now();
 
-  const eksik = musteri.siparis.susleme.filter((x) => !durum.susleme.includes(x));
-  const fazla = durum.susleme.filter((x) => !musteri.siparis.susleme.includes(x));
-  const dondurmaDogru = dondurmaTutuyorMu(musteri.siparis, durum.altlik, durum.toplar);
+  const istenen = [musteri.siparis, ...(musteri.siparis.ikinci ? [musteri.siparis.ikinci] : [])];
+  const verilen: Urun[] = [...durum.tepsi, { altlik: durum.altlik, toplar: durum.toplar, susleme: durum.susleme }];
 
-  if (dondurmaDogru && (eksik.length > 0 || fazla.length > 0)) {
-    // Yalnız süsleme tutmuyor: dondurma çöpe gitmez, hatırlatılır (Kemal, 13 Ekim).
-    // Eksik süsleme eklenir, fazlası Geri al ile kaldırılır.
-    guncelle({ bildirim: { tur: 'susleme', eksik, fazla, zaman: simdi } });
+  // İki dondurma istenmiş ama biri hazır: hatırlat, bir şey çöpe gitmez
+  if (verilen.length < istenen.length) {
+    guncelle({ bildirim: { tur: 'ikiDondurma', zaman: simdi } });
     return;
   }
 
-  if (!dondurmaDogru) {
+  // Dondurmaları siparişlerle eşleştir (sıra kural değil)
+  const eslesmeler = istenen.length === 1 ? [[0]] : [[0, 1], [1, 0]];
+  const eslesme = eslesmeler.find((e) => e.every((v, i) => dondurmaTutuyorMu(istenen[i], verilen[v].altlik, verilen[v].toplar)));
+
+  if (eslesme) {
+    const eksik = istenen.flatMap((s, i) => s.susleme.filter((x) => !verilen[eslesme[i]].susleme.includes(x)));
+    const fazla = istenen.flatMap((s, i) => verilen[eslesme[i]].susleme.filter((x) => !s.susleme.includes(x)));
+    if (eksik.length > 0 || fazla.length > 0) {
+      // Yalnız süsleme tutmuyor: dondurma çöpe gitmez, hatırlatılır (Kemal, 13 Ekim)
+      guncelle({ bildirim: { tur: 'susleme', eksik, fazla, zaman: simdi } });
+      return;
+    }
+  }
+
+  if (!eslesme) {
     // Ceza yok: dondurma kenara konur, müşteri beklemeye devam eder.
-    guncelle({ asama: 'servis', servisDogru: false, bildirim: { tur: 'yanlis', zaman: simdi } });
+    guncelle({ asama: 'servis', servisDogru: false, tepsi: [], bildirim: { tur: 'yanlis', zaman: simdi } });
   } else {
-    const miktar =
-      durum.toplar.reduce(
-        (t, top) => t + topFiyati() + (top.sonuc === 'mukemmel' ? MUKEMMEL_EKI : top.sonuc === 'iyi' ? IYI_EKI : 0),
-        0,
-      ) +
-      durum.susleme.length * SUSLEME_FIYATI +
-      (durum.altlik === 'kup' ? KUP_EKI : 0);
-    const hamPuan = durum.toplar.reduce((t, top) => t + SONUC_PUANI[top.sonuc], 0) / durum.toplar.length;
+    const miktar = verilen.reduce((t, u) => t + urunFiyati(u), 0);
+    const butunToplar = verilen.flatMap((u) => u.toplar);
+    const hamPuan = butunToplar.reduce((t, top) => t + SONUC_PUANI[top.sonuc], 0) / butunToplar.length;
     const puan = Math.max(1, hamPuan - FIYAT_ETKISI[durum.fiyatSeviyesi].memnuniyet);
     const id = musteri.id;
     guncelle({
       asama: 'servis',
       servisDogru: true,
+      tepsi: [],
       bildirim: { tur: 'para', miktar, zaman: simdi },
       para: durum.para + miktar,
       memnuniyetler: [...durum.memnuniyetler, puan],
       gunluk: {
         musteri: durum.gunluk.musteri + 1,
         kazanc: durum.gunluk.kazanc + miktar,
-        mukemmel: durum.gunluk.mukemmel + durum.toplar.filter((t) => t.sonuc === 'mukemmel').length,
+        mukemmel: durum.gunluk.mukemmel + butunToplar.filter((t) => t.sonuc === 'mukemmel').length,
         puanlar: [...durum.gunluk.puanlar, puan],
       },
       musteriler: durum.musteriler.map((m) => (m.id === id ? { ...m, hal: 'gidiyor', mutlu: true } : m)),
@@ -384,6 +451,12 @@ export function servisEt() {
   window.setTimeout(() => {
     guncelle({ asama: 'altlikSec', altlik: null, toplar: [], susleme: [], kepcedeki: null });
   }, 1100);
+}
+
+export function tepsiAc() {
+  if (durum.tepsiAcik || durum.para < TEPSI_FIYATI) return;
+  guncelle({ para: durum.para - TEPSI_FIYATI, tepsiAcik: true });
+  kaydet();
 }
 
 export function ortalamaMemnuniyet(d: Durum = durum): number | null {
@@ -475,6 +548,7 @@ export function gunSonunuKapat() {
     altlik: null,
     toplar: [],
     susleme: [],
+    tepsi: [],
     kepcedeki: null,
   });
   kaydet();
@@ -644,6 +718,7 @@ interface Kayit {
   memnuniyetler: number[];
   acikCesitler: number[];
   acikAltliklar: Altlik[];
+  tepsiAcik: boolean;
   fiyatSeviyesi: FiyatSeviyesi;
   isikSeviyesi: number;
   depo: Partial<Record<Esya, number>>;
@@ -658,6 +733,7 @@ function kaydet() {
     memnuniyetler: durum.memnuniyetler.slice(-60),
     acikCesitler: durum.acikCesitler,
     acikAltliklar: durum.acikAltliklar,
+    tepsiAcik: durum.tepsiAcik,
     fiyatSeviyesi: durum.fiyatSeviyesi,
     isikSeviyesi: durum.isikSeviyesi,
     depo: durum.depo,
@@ -681,6 +757,7 @@ export function kaydiYukle() {
       gun: typeof k.gun === 'number' ? k.gun : 1,
       memnuniyetler: Array.isArray(k.memnuniyetler) ? k.memnuniyetler : [],
       acikCesitler: acik.length ? acik : [...BASLANGIC_CESITLERI],
+      tepsiAcik: k.tepsiAcik === true,
       acikAltliklar: Array.isArray(k.acikAltliklar) && k.acikAltliklar.includes('kup') ? ['kulah', 'kap', 'kup'] : ['kulah', 'kap'],
       fiyatSeviyesi: k.fiyatSeviyesi && k.fiyatSeviyesi in FIYAT_ETKISI ? k.fiyatSeviyesi : 'normal',
       ...dekorasyonuOku(k),
@@ -723,6 +800,8 @@ export function bastanBasla() {
     memnuniyetler: [],
     acikCesitler: [...BASLANGIC_CESITLERI],
     acikAltliklar: ['kulah', 'kap'],
+    tepsiAcik: false,
+    tepsi: [],
     fiyatSeviyesi: 'normal',
     isikSeviyesi: 0,
     depo: {},

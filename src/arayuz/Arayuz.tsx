@@ -28,6 +28,9 @@ import {
   suslemeBasilabilir,
   type Susleme,
   type Siparis,
+  type Urun,
+  tepsiyeKoy,
+  tepsiyeKoyabilir,
   topuYerlestir,
   useDurum,
 } from '../oyun/durum';
@@ -104,6 +107,7 @@ function Bildirim() {
       ? m('sonuc.suslemeEksik', { ad: bildirim.eksik.map(ad).join(', ') })
       : m('sonuc.suslemeFazla', { ad: bildirim.fazla.map(ad).join(', ') });
   } else if (bildirim.tur === 'sikildi') yazi = m('sonuc.sikildi');
+  else if (bildirim.tur === 'ikiDondurma') yazi = m('sonuc.ikiDondurma');
   else yazi = m('sonuc.yanlis');
   return (
     <div key={bildirim.zaman} className={`bildirim bildirim-${sinif}`}>
@@ -114,7 +118,7 @@ function Bildirim() {
 }
 
 // Sipariş balonunun içi: altlık ve top renkleri, resimle (yazısız).
-function SiparisResmi({ siparis }: { siparis: Siparis }) {
+function SiparisResmi({ siparis }: { siparis: Omit<Siparis, 'ikinci'> }) {
   const toplar = siparis.kuvetler.map((k) => CESITLER[k].renk);
   const kulah = siparis.altlik === 'kulah';
   const kup = siparis.altlik === 'kup';
@@ -224,6 +228,24 @@ function SuslemeDugmeleri() {
   );
 }
 
+// Tepside bekleyen dondurmanın küçük resmi
+function urunuSipariseCevir(u: Urun): Omit<Siparis, 'ikinci'> {
+  return { altlik: u.altlik, kuvetler: u.toplar.map((t) => t.kuvet), susleme: u.susleme };
+}
+
+function TepsiGostergesi() {
+  const durum = useDurum();
+  if (durum.kamera !== 'tezgah' || durum.tepsi.length === 0) return null;
+  return (
+    <div className="tepsi-gostergesi">
+      <span>{m('tepsi.ustunde')}</span>
+      {durum.tepsi.map((u, i) => (
+        <SiparisResmi key={i} siparis={urunuSipariseCevir(u)} />
+      ))}
+    </div>
+  );
+}
+
 function SiparisBalonu() {
   const durum = useDurum();
   const musteri = ondekiMusteri(durum);
@@ -236,7 +258,11 @@ function SiparisBalonu() {
     >
       {musteri && (
         <div className={`balon-ic ${durum.bildirim?.tur === 'susleme' ? 'hatirlat' : ''}`}>
-          <SiparisResmi siparis={musteri.siparis} />
+          {/* Bir ya da iki dondurma (tepsi), yan yana */}
+          <div className="balon-dondurmalar">
+            <SiparisResmi siparis={musteri.siparis} />
+            {musteri.siparis.ikinci && <SiparisResmi siparis={musteri.siparis.ikinci} />}
+          </div>
           {/* Sabır çubuğu: işlem yapılınca dolar, beklerken azalır */}
           {sabirOrani(durum) !== null && (
             <div className="sabir" aria-hidden>
@@ -250,10 +276,10 @@ function SiparisBalonu() {
             </div>
           )}
           {/* İstenen süsleme ayrıca rozet olarak: gözden kaçmasın */}
-          {musteri.siparis.susleme.length > 0 && (
+          {musteri.siparis.susleme.length + (musteri.siparis.ikinci?.susleme.length ?? 0) > 0 && (
             <div className="balon-rozetler">
-              {musteri.siparis.susleme.map((s) => (
-                <svg key={s} viewBox="0 0 30 30" className="balon-rozet" aria-label={m(`susleme.${s}` as MetinAnahtari)}>
+              {[...musteri.siparis.susleme, ...(musteri.siparis.ikinci?.susleme ?? [])].map((s, i) => (
+                <svg key={i} viewBox="0 0 30 30" className="balon-rozet" aria-label={m(`susleme.${s}` as MetinAnahtari)}>
                   <circle cx="15" cy="17" r="11" fill="#fff0c8" />
                   <SuslemeIsareti tur={s} x={15} y={17} />
                 </svg>
@@ -439,6 +465,11 @@ export function Arayuz() {
   else if (durum.asama === 'kepceDolu') ipucu = 'ipucu.yerlestir';
   else if (durum.asama === 'kepceBos')
     ipucu = topSayisi === 0 ? 'ipucu.kuvet' : topSayisi >= EN_COK_TOP ? 'ipucu.dolu' : 'ipucu.servisVeyaTop';
+  // İki dondurmalı sipariş: tepsiye yönlendir
+  if (musteri?.siparis.ikinci && (durum.asama === 'kepceBos' || durum.asama === 'altlikSec')) {
+    if (durum.tepsi.length === 0 && topSayisi > 0) ipucu = 'ipucu.tepsiyeKoy';
+    else if (durum.tepsi.length > 0 && topSayisi === 0) ipucu = 'ipucu.ikinci';
+  }
 
   const servisHazir = durum.asama === 'kepceBos' && topSayisi > 0 && !!musteri;
 
@@ -465,6 +496,7 @@ export function Arayuz() {
       {tezgahta && durum.asama === 'dolduruyor' && <Gosterge />}
       <Bildirim />
       <SuslemeDugmeleri />
+      <TepsiGostergesi />
 
       {tezgahta ? (
         <>
@@ -485,6 +517,11 @@ export function Arayuz() {
           </div>
 
           <div className="sag-dugmeler">
+            {tepsiyeKoyabilir(durum) && (
+              <button className="dugme dikkat" onClick={tepsiyeKoy}>
+                {m('tepsi.koy')}
+              </button>
+            )}
             <button className="dugme dugme-servis" disabled={!servisHazir} onClick={servisEt}>
               {m('servis.dugme')}
             </button>

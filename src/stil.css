@@ -273,10 +273,10 @@ body,
   will-change: transform;
 }
 .balon-ic {
+  /* Başın sağında, aşağı doğru açılır; kuyruğu sol üstte başa bakar */
   position: absolute;
-  left: 0;
-  bottom: 14px;
-  transform: translateX(-30%);
+  left: 14px;
+  top: -18px;
   background: #fffaf2;
   border: 3px solid var(--mor-koyu);
   border-radius: 18px;
@@ -286,14 +286,14 @@ body,
 .balon-ic::after {
   content: '';
   position: absolute;
-  left: 22%;
-  bottom: -11px;
+  left: -11px;
+  top: 18px;
   width: 16px;
   height: 16px;
   background: #fffaf2;
-  border-right: 3px solid var(--mor-koyu);
+  border-left: 3px solid var(--mor-koyu);
   border-bottom: 3px solid var(--mor-koyu);
-  transform: translateX(-50%) rotate(45deg);
+  transform: rotate(45deg);
 }
 .siparis-resmi {
   display: block;
@@ -791,7 +791,7 @@ body,
 }
 @keyframes hatirlat {
   50% {
-    transform: translateX(-30%) scale(1.15);
+    transform: scale(1.12);
   }
 }
 .bildirim-susleme {
@@ -947,4 +947,32 @@ a.dugme {
   inset: 4px;
   border-radius: 50%;
   background: var(--sari);
+}
+
+/* ---- Tepsi ---- */
+.balon-dondurmalar {
+  display: flex;
+  gap: 2px;
+  justify-content: center;
+}
+.tepsi-gostergesi {
+  position: absolute;
+  left: 50%;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px 4px 10px;
+  border-radius: 14px;
+  background: rgba(255, 250, 242, 0.92);
+  border: 2px solid var(--mor);
+  color: var(--mor-koyu);
+  font-weight: 800;
+  font-size: 13px;
+  pointer-events: none;
+}
+.tepsi-gostergesi .siparis-resmi {
+  width: 26px;
+  height: 39px;
 }
