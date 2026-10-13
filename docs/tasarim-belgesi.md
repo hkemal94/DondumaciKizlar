@@ -60,7 +60,7 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Hafta sonu | Hafta sonu daha kalabalık (Kemal, 13 Ekim): müşteri aralığı ×0,65 (geçici). |
 | Siparişlerin büyümesi | Bazen **iki dondurma**, bazen **birden çok süsleme**; bir şey **açılınca** başlar (Kemal, 13 Ekim). Ne açılacağı açık (öneri: Dükkânı geliştir'den bir tepsi ya da ikinci çalışma yeri). *Uygulamada henüz yok* |
 | Waffle ve limonata | Şimdilik yok. Gelince **kendi mini oyunları** olur; makineleri **parayla alınıp dükkâna konur**; geliri ve memnuniyeti etkileyen bir yapı düşünülebilir (Kemal, 13 Ekim) |
-| Ses | Şimdilik kodla üretilen sesler (dışarıdan dosya yok, lisans gerekmez). Müziği Kemal sonra hazırlar (Suno vb.). *Uygulamada henüz yok* |
+| Ses | Kodla üretilir, dışarıdan dosya yok (Kemal, 13 Ekim): **deniz ve rüzgâr** (arkada sürekli, gece daha sessiz); **tezgah** (kepçe dalışı, top yerleşmesi, MÜKEMMEL çınlaması, süsleme serpme); **para ve müşteri** (jeton, müşteri tezgaha gelince zil, sıkılıp gidince alçak ses); **düğme tıkları**. **Müzik:** şimdilik kodla basit, sakin bir ezgi; Kemal'in müziği (Suno vb.) gelince yerini alır. Sesler **ilk dokunuşta** açılır (telefonlar dokunmadan ses çaldırmaz). Mola menüsünde müzik ve ses ayarı |
 | Gerçek 3B modeller | Sonra; her parça ayrı değiştirilebilir, bugünkü geçici parçalar sonradan kolayca değişir |
 | Eller | Sonra bakılacak |
 | Gün sonu ve gün başı | Gün sonu ekranı kalır, altında yalnız **Tamam**. Tamam'dan sonra dükkânın genel görünümüne dönülür; **Yeni güne başla** ve **dekorasyon / geliştirme** orada. Gün oyuncu başlatınca başlar: günün başında oyuncu dükkânına bakıp vakit geçirebilir, menülere sıkışmaz (Kemal, 13 Ekim). |
@@ -73,7 +73,8 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Tezgah düzeni | Dar telefon ekranında külah çikolata küvetini kapatıyordu (Kemal, 13 Ekim). Kamera biraz aşağı eğildi, küvetler ekranda yukarı çıktı; külah küvetlerin üstüne, sola alındı |
 | Duraklatma menüsü | Sol üstte duraklat düğmesi (Kemal, 13 Ekim). Saat, müşteriler ve sabır durur. Menüde: **Devam et**, **Dükkânı gez**, **ses ayarı** (müzik ve sesler; ses henüz yok, ayar saklanır) |
 | Dükkânı gezme | Duraklatınca dükkânın çevresinde **parmakla döndürülür**, yakınlaştırılır; bakılan yöne dönük duvarlar kalkar. Serbest kameranın tek istisnası budur; oyun sırasında açılar sabit |
-| Duvarları gizle | Gezerken bir düğmeyle bütün duvarlar kalkar, yeniden basınca gelir (Kemal, 13 Ekim) |
+| Gezerken duvarlar | Tek düğme sırayla değiştirir (Kemal, 13 Ekim): **Kesit** (bakılan yöne dönük duvarlar kalkar) → **Duvarsız** (hepsi kalkar) → **Kapalı** (bütün duvarlar ve tavan yerinde; dükkâna tümden dışarıdan bakılır) |
+| Gezerken gece / gündüz | Dükkânı gezerken bir düğme ışığı sırayla değiştirir: şimdiki saat → gündüz → akşam → gece (Kemal, 13 Ekim). Yalnız görünüş; oyunun saati değişmez |
 | Deneme parası | Yalnız adresin sonuna `#deneme` yazılınca, Dükkânı geliştir'de "Deneme parası +5000" düğmesi çıkar; dekorasyonu denemek için (Kemal, 13 Ekim). Oyunun kendisinde yok |
 | Fotoğraf | Gezerken **Fotoğraf çek**: o anki görüntü gösterilir; telefonda resme basılı tutarak kaydedilir (Claude önizlemesinde İndir düğmesi çalışmaz, yayın bağlantısında çalışır) |
 | İpucu yazısı | Üst sıranın altında, ortada; dili sıcak (Kemal, 13 Ekim: "üst üste gelmiş, çok soğuk") |
@@ -274,4 +275,4 @@ Uygulamada **olan**:
 | 6. Mevsim (kış: tatlıcı / kafe) | Yok (ilk sürümde değil) |
 | 6. Hikâye kırıntıları | Yok (metinler Kemal'in) |
 
-Uygulamada **olmayan** ama belgede geçenler: ses ve müzik (bölüm 6), eller, gerçek 3B modeller (hepsi kodla çizilmiş geçici parçalar), İngilizce.
+Uygulamada **olmayan** ama belgede geçenler: Kemal'in müziği (şimdilik kodla geçici ezgi), eller, gerçek 3B modeller (hepsi kodla çizilmiş geçici parçalar), İngilizce.

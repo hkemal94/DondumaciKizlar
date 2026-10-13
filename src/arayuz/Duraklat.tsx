@@ -1,34 +1,12 @@
 import { useState } from 'react';
 import { devamEt, duraklat, duraklatilabilir, gezmeyeBasla, gezmeyiBitir, useDurum } from '../oyun/durum';
-import { m } from '../metinler';
-import { duvarlar, fotograf, ortala, yakinlikDegistir } from '../sahne/kameraKarisimi';
+import { m, type MetinAnahtari } from '../metinler';
+import { sesAyariniOku, sesAyariniYaz, type SesAyari } from '../ses/ses';
+import { gezmeIsigi, gezmeIsiginiDegistir } from '../sahne/gokRenkleri';
+import { duvarlar, duvarModunuDegistir, fotograf, ortala, yakinlikDegistir } from '../sahne/kameraKarisimi';
 
 // Duraklatma menüsü (Kemal, 13 Ekim): devam et, dükkânı gez, fotoğraf çek,
 // ses ayarı. Saat, müşteriler ve sabır durur.
-
-const SES_ANAHTARI = 'dondurmaci-kizlar-ses';
-
-interface SesAyari {
-  muzik: number;
-  efekt: number;
-}
-
-function sesiOku(): SesAyari {
-  try {
-    const k = JSON.parse(localStorage.getItem(SES_ANAHTARI) ?? '{}') as Partial<SesAyari>;
-    return { muzik: k.muzik ?? 70, efekt: k.efekt ?? 80 };
-  } catch {
-    return { muzik: 70, efekt: 80 };
-  }
-}
-
-function sesiYaz(a: SesAyari) {
-  try {
-    localStorage.setItem(SES_ANAHTARI, JSON.stringify(a));
-  } catch {
-    // tarayıcı izin vermezse ayar yalnız bu açılışta geçerli
-  }
-}
 
 export function DuraklatDugmesi() {
   const durum = useDurum();
@@ -42,11 +20,11 @@ export function DuraklatDugmesi() {
 
 export function DuraklatMenusu() {
   const durum = useDurum();
-  const [ses, setSes] = useState(sesiOku);
+  const [ses, setSes] = useState(sesAyariniOku);
   if (!durum.duraklatildi || durum.gezme) return null;
   const degistir = (yeni: SesAyari) => {
     setSes(yeni);
-    sesiYaz(yeni);
+    sesAyariniYaz(yeni);
   };
   return (
     <div className="gun-sonu-zemin">
@@ -84,12 +62,10 @@ export function DuraklatMenusu() {
 export function GezmeEkrani() {
   const durum = useDurum();
   const [resim, setResim] = useState<string | null>(null);
-  const [duvarsiz, setDuvarsiz] = useState(duvarlar.gizli);
+  const [duvarModu, setDuvarModu] = useState(duvarlar.mod);
+  const [isik, setIsik] = useState(gezmeIsigi.mod);
   if (!durum.gezme) return null;
-  const duvarDegistir = () => {
-    duvarlar.gizli = !duvarlar.gizli;
-    setDuvarsiz(duvarlar.gizli);
-  };
+  const duvarDegistir = () => setDuvarModu(duvarModunuDegistir());
   const cek = () => {
     const r = fotograf.cek?.();
     if (r) setResim(r);
@@ -112,8 +88,11 @@ export function GezmeEkrani() {
         </button>
       </div>
       <div className="sag-dugmeler">
-        <button className={`dugme ${duvarsiz ? 'secili' : ''}`} aria-pressed={duvarsiz} onClick={duvarDegistir}>
-          {m(duvarsiz ? 'gezme.duvarGoster' : 'gezme.duvarGizle')}
+        <button className="dugme" onClick={() => setIsik(gezmeIsiginiDegistir())}>
+          {m(`gezme.isik.${isik}` as MetinAnahtari)}
+        </button>
+        <button className="dugme" onClick={duvarDegistir}>
+          {m('gezme.duvarlar')}: {m(`gezme.duvar.${duvarModu}` as MetinAnahtari)}
         </button>
         <button className="dugme dugme-servis" onClick={cek}>
           <span className="foto-simge" aria-hidden /> {m('gezme.foto')}

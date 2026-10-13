@@ -53,5 +53,11 @@ export function ekrandaKaydir(dxPiksel: number, dyPiksel: number, ekranYukseklig
   kaydir((-sx * dxPiksel + ix * dyPiksel) * olcek, (-sz * dxPiksel + iz * dyPiksel) * olcek);
 }
 
-// Gezerken bütün duvarları gizle (Kemal, 13 Ekim: "bakmak için iyi olabilir")
-export const duvarlar = { gizli: false };
+// Gezerken duvarlar (Kemal, 13 Ekim): kesit (bakılan yöne dönükler kalkar),
+// duvarsız (hepsi kalkar), kapalı (hepsi ve tavan yerinde, dışarıdan bakılır)
+export type DuvarModu = 'kesit' | 'duvarsiz' | 'kapali';
+export const duvarlar: { mod: DuvarModu } = { mod: 'kesit' };
+export function duvarModunuDegistir(): DuvarModu {
+  duvarlar.mod = duvarlar.mod === 'kesit' ? 'duvarsiz' : duvarlar.mod === 'duvarsiz' ? 'kapali' : 'kesit';
+  return duvarlar.mod;
+}

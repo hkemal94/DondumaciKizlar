@@ -2,7 +2,7 @@ import { Suspense, useLayoutEffect } from 'react';
 import { Canvas, events, useFrame, useThree, type RootState } from '@react-three/fiber';
 import { useRef } from 'react';
 import { durumuOku, saatDakikasi } from '../oyun/durum';
-import { gokRenkleri } from './gokRenkleri';
+import { gezmeSaati, gokRenkleri } from './gokRenkleri';
 import * as THREE from 'three';
 import { Disari } from './Disari';
 import { dukkanDonusu, dukkanKaydirma, dukkanYakinligi, fotograf, kameraKarisimi } from './kameraKarisimi';
@@ -107,7 +107,10 @@ function Isiklar() {
   useFrame(() => {
     const isik = gunes.current;
     if (!isik) return;
-    const saat = saatDakikasi(durumuOku()) / 60;
+    const d = durumuOku();
+    // Gezerken gece / gündüz düğmesi ışığın saatini seçebilir
+    const secilen = d.gezme ? gezmeSaati() : null;
+    const saat = secilen ?? saatDakikasi(d) / 60;
     const aksam = THREE.MathUtils.smoothstep(saat, 16.5, 20); // güneş alçalır, turuncuya döner
     const gece = THREE.MathUtils.smoothstep(saat, 20, 21.5); // gök kararır
     const batim = aksam * (1 - gece);

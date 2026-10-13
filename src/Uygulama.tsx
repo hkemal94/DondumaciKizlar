@@ -1,6 +1,7 @@
 import { Sahne } from './sahne/Sahne';
 import { useEffect } from 'react';
 import { Arayuz } from './arayuz/Arayuz';
+import { SesOlaylari } from './ses/SesOlaylari';
 import { kaydiYukle, musteriDongusu, zamanIlerlet } from './oyun/durum';
 
 // Önceki oyunun kaydı varsa oradan devam edilir.
@@ -26,6 +27,7 @@ export function Uygulama() {
     <div className="oyun">
       <Sahne />
       <Arayuz />
+      <SesOlaylari />
     </div>
   );
 }

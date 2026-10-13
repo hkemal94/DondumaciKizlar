@@ -127,13 +127,24 @@ function KesikDuvar({ yon, children }: { yon: [number, number]; children: ReactN
       ref.current.visible = true;
       return;
     }
-    // Gezerken "Duvarları gizle" açıksa hepsi kalkar
-    if (duvarlar.gizli && durumuOku().gezme) {
-      ref.current.visible = false;
+    // Gezerken duvar seçeneği: duvarsızda hepsi kalkar, kapalıda hepsi yerinde
+    if (durumuOku().gezme && duvarlar.mod !== 'kesit') {
+      ref.current.visible = duvarlar.mod === 'kapali';
       return;
     }
     kameraYonu.copy(camera.position).sub(DUKKAN_ORTASI);
     ref.current.visible = yon[0] * kameraYonu.x + yon[1] * kameraYonu.z <= 0;
+  });
+  return <group ref={ref}>{children}</group>;
+}
+
+// Tavan: tezgah görünümünde ve gezerken "kapalı" seçilince görünür
+function Tavan({ children }: { children: ReactNode }) {
+  const ref = useRef<THREE.Group>(null);
+  useFrame(() => {
+    if (!ref.current) return;
+    const kapali = durumuOku().gezme && duvarlar.mod === 'kapali';
+    ref.current.visible = kameraKarisimi.deger < 0.12 || kapali;
   });
   return <group ref={ref}>{children}</group>;
 }
@@ -154,14 +165,17 @@ function Odalar() {
       <KesikDuvar yon={[-1, 0]}>
         <Kutu konum={[-4, 1.6, -0.3]} boyut={[0.1, 3.3, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
       </KesikDuvar>
-      <TezgahtaGorunur>
+      <Tavan>
         {/* Tavan */}
         <Kutu konum={[0, TAVAN, -0.3]} boyut={[8, 0.1, 4.6]} renkAdi={renk.ahsapAcik} golgeVer={false} golgeAl={false} />
         {/* Tavan kirişleri */}
         {[-1.6, 0.2].map((z) => (
           <Kutu key={z} konum={[0, TAVAN - 0.12, z]} boyut={[8, 0.16, 0.2]} renkAdi={renk.ahsapOrta} golgeVer={false} />
         ))}
-      </TezgahtaGorunur>
+        {/* Damın dış yüzü ve saçak: dışarıdan bakınca görünür */}
+        <Kutu konum={[0, TAVAN + 0.1, -0.3]} boyut={[8.5, 0.12, 5.1]} renkAdi={renk.mor} golgeVer={false} golgeAl={false} />
+        <Kutu konum={[0, TAVAN + 0.2, -0.3]} boyut={[8.2, 0.08, 4.8]} renkAdi="#e9d6bd" golgeVer={false} golgeAl={false} />
+      </Tavan>
       {/* Kesik duvar dipleri: duvar kalkınca yerinde alçak bir dip kalır */}
       <Kutu konum={[4, 0.18, -0.3]} boyut={[0.14, 0.36, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
       <Kutu konum={[0, 0.18, 2.05]} boyut={[8.14, 0.36, 0.14]} renkAdi={renk.duvar} golgeVer={false} />
