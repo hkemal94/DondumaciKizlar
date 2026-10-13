@@ -91,7 +91,7 @@ function Tente() {
 export function TezgahtaGorunur({ children }: { children: ReactNode }) {
   const ref = useRef<THREE.Group>(null);
   useFrame(() => {
-    if (ref.current) ref.current.visible = kameraKarisimi.deger < 0.5;
+    if (ref.current) ref.current.visible = kameraKarisimi.deger < 0.12;
   });
   return <group ref={ref}>{children}</group>;
 }
@@ -101,22 +101,22 @@ function Odalar() {
     <group>
       {/* Zemin */}
       <Kutu konum={[0, -0.05, -0.3]} boyut={[8, 0.1, 4.6]} renkAdi={renk.ahsapKoyu} golgeVer={false} />
-      {/* Sol duvar */}
-      <Kutu konum={[-4, 1.6, -0.3]} boyut={[0.1, 3.3, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
+      {/* Sağ duvar ve arka duvar (oyuncunun arkası): genel görünümde arkada kalır */}
+      <Kutu konum={[4, 1.6, -0.3]} boyut={[0.1, 3.3, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
+      <Kutu konum={[0, 1.6, 2.05]} boyut={[8.1, 3.3, 0.1]} renkAdi={renk.duvar} golgeVer={false} />
       <TezgahtaGorunur>
         {/* Tavan */}
         <Kutu konum={[0, TAVAN, -0.3]} boyut={[8, 0.1, 4.6]} renkAdi={renk.ahsapAcik} golgeVer={false} golgeAl={false} />
-        {/* Sağ duvar ve arka duvar (oyuncunun arkası) */}
-        <Kutu konum={[4, 1.6, -0.3]} boyut={[0.1, 3.3, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
-        <Kutu konum={[0, 1.6, 2.05]} boyut={[8.1, 3.3, 0.1]} renkAdi={renk.duvar} golgeVer={false} />
+        {/* Sol duvar: genel görünümde kameraya en yakın, kalkar */}
+        <Kutu konum={[-4, 1.6, -0.3]} boyut={[0.1, 3.3, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
         {/* Tavan kirişleri */}
         {[-1.6, 0.2].map((z) => (
           <Kutu key={z} konum={[0, TAVAN - 0.12, z]} boyut={[8, 0.16, 0.2]} renkAdi={renk.ahsapOrta} golgeVer={false} />
         ))}
       </TezgahtaGorunur>
-      {/* Genel görünümde kesik duvar dipleri: bebek evi gibi */}
-      <Kutu konum={[4, 0.18, -0.3]} boyut={[0.14, 0.36, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
-      <Kutu konum={[0, 0.18, 2.05]} boyut={[8.14, 0.36, 0.14]} renkAdi={renk.duvar} golgeVer={false} />
+      {/* Genel görünümde kesik duvar dipleri (sol duvar ve pencere duvarı): bebek evi gibi */}
+      <Kutu konum={[-4, 0.18, -0.3]} boyut={[0.14, 0.36, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
+      <Kutu konum={[0, 0.18, PENCERE_Z]} boyut={[8.14, 0.36, 0.2]} renkAdi={renk.ahsapAcik} golgeVer={false} />
       {/* Dükkânın etrafındaki taş kaldırım */}
       <mesh position={[0, -0.12, 4]} receiveShadow>
         <boxGeometry args={[40, 0.1, 13]} />
@@ -207,11 +207,11 @@ function Saksi({ konum, olcek = 1 }: { konum: [number, number, number]; olcek?: 
   );
 }
 
-// Sol duvardaki menü panosu: yazısız, resimli (yazılar Kemal'in).
+// Arka duvardaki menü panosu (taslak 1 gibi): yazısız, resimli (yazılar Kemal'in).
 function MenuPanosu() {
   const resimler = ['#ff6f7d', '#8a4b2e', '#5fd08a', '#fff0c8'];
   return (
-    <group position={[-3.93, 1.9, -0.3]} rotation={[0, Math.PI / 2, 0]}>
+    <group position={[-1.6, 2.05, 1.98]} rotation={[0, Math.PI, 0]}>
       <Kutu konum={[0, 0, 0]} boyut={[1.7, 1.05, 0.05]} renkAdi={renk.ahsapKoyu} golgeVer={false} />
       <Kutu konum={[0, 0, 0.03]} boyut={[1.55, 0.9, 0.02]} renkAdi="#2f3b35" golgeVer={false} />
       {resimler.map((r, i) => (
@@ -364,9 +364,12 @@ export function Dukkan() {
   return (
     <group>
       <Odalar />
-      <PencereDuvari />
-      <Tente />
-      <Ampuller />
+      {/* Dükkânın önü (pencere duvarı): genel görünümde kamera önden baktığı için kalkar */}
+      <TezgahtaGorunur>
+        <PencereDuvari />
+        <Tente />
+        <Ampuller />
+      </TezgahtaGorunur>
       <Tezgah />
       <ArkaTezgah />
       <MenuPanosu />

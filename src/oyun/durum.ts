@@ -41,7 +41,8 @@ export interface Musteri {
 export type Bildirim =
   | { tur: 'top'; sonuc: Sonuc; zaman: number }
   | { tur: 'para'; miktar: number; zaman: number }
-  | { tur: 'yanlis'; zaman: number };
+  | { tur: 'yanlis'; zaman: number }
+  | { tur: 'susleme'; eksik: Susleme[]; fazla: Susleme[]; zaman: number };
 
 export interface Durum {
   asama: Asama;
@@ -262,9 +263,9 @@ export function musteriDongusu(simdi: number) {
   });
 }
 
-function siparisTutuyorMu(siparis: Siparis, altlik: Altlik | null, toplar: Top[], susleme: Susleme[]) {
+// Altlık ve toplar tutuyor mu (sıra kural değil; Kemal, 13 Ekim)
+function dondurmaTutuyorMu(siparis: Siparis, altlik: Altlik | null, toplar: Top[]) {
   if (altlik !== siparis.altlik || toplar.length !== siparis.kuvetler.length) return false;
-  if (susleme.length !== siparis.susleme.length || !siparis.susleme.every((x) => susleme.includes(x))) return false;
   const a = toplar.map((t) => t.kuvet).sort();
   const b = [...siparis.kuvetler].sort();
   return a.every((k, i) => k === b[i]);
@@ -277,7 +278,18 @@ export function servisEt() {
   if (durum.asama !== 'kepceBos' || durum.toplar.length === 0 || !musteri) return;
   const simdi = performance.now();
 
-  if (!siparisTutuyorMu(musteri.siparis, durum.altlik, durum.toplar, durum.susleme)) {
+  const eksik = musteri.siparis.susleme.filter((x) => !durum.susleme.includes(x));
+  const fazla = durum.susleme.filter((x) => !musteri.siparis.susleme.includes(x));
+  const dondurmaDogru = dondurmaTutuyorMu(musteri.siparis, durum.altlik, durum.toplar);
+
+  if (dondurmaDogru && (eksik.length > 0 || fazla.length > 0)) {
+    // Yalnız süsleme tutmuyor: dondurma çöpe gitmez, hatırlatılır (Kemal, 13 Ekim).
+    // Eksik süsleme eklenir, fazlası Geri al ile kaldırılır.
+    guncelle({ bildirim: { tur: 'susleme', eksik, fazla, zaman: simdi } });
+    return;
+  }
+
+  if (!dondurmaDogru) {
     // Ceza yok: dondurma kenara konur, müşteri beklemeye devam eder.
     guncelle({ asama: 'servis', servisDogru: false, bildirim: { tur: 'yanlis', zaman: simdi } });
   } else {
@@ -327,13 +339,35 @@ export function ortalamaMemnuniyet(d: Durum = durum): number | null {
 }
 
 // ---- Gün ve saat (iş sırası 4) ----
-// Geçici: dükkân 10:00'da açılır, 20:00'de kapanır; bir gün gerçekte
-// 6 dakika (belge 7.1 önerisi). Adresin sonuna #hizli yazılırsa gün
-// 30 saniyede biter (gün sonunu görmek için).
-export const ACILIS = 10 * 60; // dakika
-export const KAPANIS = 20 * 60;
-const GUN_SURESI_MS = typeof location !== 'undefined' && location.hash === '#hizli' ? 30_000 : 6 * 60_000;
-const DAKIKA_MS = GUN_SURESI_MS / (KAPANIS - ACILIS);
+// Yaz dönemi saatleri (Kemal, 13 Ekim): hafta içi 11:00–00:00, hafta sonu
+// 10:00–02:00. Her gerçek saniye saate 5 dakika ekler; saat beşer dakika
+// ilerler. 1. gün pazartesi sayıldı (geçici). Adresin sonuna #hizli
+// yazılırsa gün 30 saniyede biter (gün sonunu görmek için).
+const ADIM = 5; // saat kaçar dakika ilerler
+const HIZLI = typeof location !== 'undefined' && location.hash === '#hizli';
+
+export function haftaGunu(d: Durum = durum) {
+  return (d.gun - 1) % 7; // 0 = pazartesi … 6 = pazar
+}
+
+export function haftaSonuMu(d: Durum = durum) {
+  return haftaGunu(d) >= 5;
+}
+
+// O günün açılış ve kapanışı (gece yarısından sonrası 24+ olarak)
+export function calismaSaatleri(d: Durum = durum) {
+  return haftaSonuMu(d) ? { acilis: 10 * 60, kapanis: 26 * 60 } : { acilis: 11 * 60, kapanis: 24 * 60 };
+}
+
+function gunUzunlugu(d: Durum = durum) {
+  const { acilis, kapanis } = calismaSaatleri(d);
+  return kapanis - acilis;
+}
+
+// Bir adımın (5 oyun dakikası) gerçek süresi: 1 saniye
+function adimMs() {
+  return HIZLI ? (30_000 / gunUzunlugu()) * ADIM : 1000;
+}
 
 let birikenMs = 0;
 
@@ -342,11 +376,12 @@ export function zamanIlerlet(gecenMs: number) {
   if (durum.gunSonu) return;
   if (durum.acik) {
     birikenMs += Math.min(gecenMs, 1000); // sekme arkadayken gün akıp gitmesin
-    const ekDakika = Math.floor(birikenMs / DAKIKA_MS);
-    if (ekDakika > 0) {
-      birikenMs -= ekDakika * DAKIKA_MS;
-      const dakika = Math.min(KAPANIS - ACILIS, durum.dakika + ekDakika);
-      guncelle({ dakika, acik: dakika < KAPANIS - ACILIS });
+    const adim = Math.floor(birikenMs / adimMs());
+    if (adim > 0) {
+      birikenMs -= adim * adimMs();
+      const uzunluk = gunUzunlugu();
+      const dakika = Math.min(uzunluk, durum.dakika + adim * ADIM);
+      guncelle({ dakika, acik: dakika < uzunluk });
     }
     return;
   }
@@ -355,16 +390,16 @@ export function zamanIlerlet(gecenMs: number) {
   if (!bekleyen && durum.asama === 'altlikSec') guncelle({ gunSonu: true });
 }
 
+// Günün saati, dakika olarak (gece yarısından sonra 24*60'ı geçer)
+export function saatDakikasi(d: Durum = durum) {
+  return calismaSaatleri(d).acilis + d.dakika;
+}
+
 export function saatYazisi(d: Durum = durum) {
-  const toplam = ACILIS + d.dakika;
+  const toplam = saatDakikasi(d) % (24 * 60);
   const s = Math.floor(toplam / 60);
   const dk = toplam % 60;
   return `${String(s).padStart(2, '0')}:${String(dk).padStart(2, '0')}`;
-}
-
-// 0 = açılış, 1 = kapanış (ışık için)
-export function gunIlerleyisi(d: Durum = durum) {
-  return d.dakika / (KAPANIS - ACILIS);
 }
 
 export function yeniGun() {

@@ -2,7 +2,7 @@ import { useDurum } from '../oyun/durum';
 import { renk } from './renkler';
 
 // Satın alınan dekorasyon (belge bölüm 4: masa, şemsiye, bitki, ışık).
-// Dükkânın önündeki kaldırıma konur; genel görünümde görünür.
+// Dükkânın önündeki ahşap terasa konur; genel görünümde görünür.
 // Kodla çizilmiş geçici parçalar.
 
 function Cicekler() {
@@ -10,7 +10,7 @@ function Cicekler() {
   return (
     <group>
       {[-2.6, 0, 2.6].map((x, k) => (
-        <group key={x} position={[x, 0, 2.45]}>
+        <group key={x} position={[x, 0.06, -2.78]}>
           <mesh position={[0, 0.18, 0]} castShadow>
             <boxGeometry args={[1.4, 0.36, 0.4]} />
             <meshStandardMaterial color={renk.ahsapOrta} roughness={0.9} />
@@ -54,7 +54,7 @@ function Fener({ konum }: { konum: [number, number, number] }) {
 
 function Masa() {
   return (
-    <group position={[-6.3, 0, 0.6]}>
+    <group position={[-6.2, 0.06, -5.2]}>
       <mesh position={[0, 0.72, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[0.45, 0.45, 0.05, 12]} />
         <meshStandardMaterial color={renk.ahsapAcik} roughness={0.8} />
@@ -90,7 +90,7 @@ function Masa() {
 function Semsiye() {
   const dilimler = 8;
   return (
-    <group position={[-6.3, 0, 0.6]}>
+    <group position={[-6.2, 0.06, -5.2]}>
       <mesh position={[0, 1.25, 0]}>
         <cylinderGeometry args={[0.03, 0.03, 2.5, 6]} />
         <meshStandardMaterial color="#efe6d6" />
@@ -112,8 +112,8 @@ export function Dekorlar() {
       {dekorlar.includes('cicekler') && <Cicekler />}
       {dekorlar.includes('fenerler') && (
         <>
-          <Fener konum={[-4.7, 0, 2.7]} />
-          <Fener konum={[4.7, 0, 2.7]} />
+          <Fener konum={[-4.6, 0.06, -7.6]} />
+          <Fener konum={[4.6, 0.06, -7.6]} />
         </>
       )}
       {dekorlar.includes('masa') && <Masa />}

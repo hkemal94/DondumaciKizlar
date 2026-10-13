@@ -1,10 +1,11 @@
 import { Suspense } from 'react';
 import { Canvas, events, useFrame, useThree, type RootState } from '@react-three/fiber';
 import { useRef } from 'react';
-import { durumuOku, gunIlerleyisi } from '../oyun/durum';
+import { durumuOku, saatDakikasi } from '../oyun/durum';
+import { gokRenkleri } from './gokRenkleri';
 import * as THREE from 'three';
 import { Disari } from './Disari';
-import { kameraKarisimi } from './kameraKarisimi';
+import { dukkanYakinligi, kameraKarisimi } from './kameraKarisimi';
 import { Dukkan } from './Dukkan';
 import { Hazirlama } from './Hazirlama';
 import { Musteriler } from './Musteriler';
@@ -16,7 +17,8 @@ import { renk } from './renkler';
 // Ekran ne kadar geniş ya da dar olursa olsun yatayda aşağı yukarı aynı
 // alanı göstersin diye görüş açısı ekran oranına göre ayarlanır.
 const TEZGAH = { konum: new THREE.Vector3(0, 1.85, 1.45), hedef: new THREE.Vector3(0, 1.2, -4), yatay: 80 };
-const DUKKAN = { konum: new THREE.Vector3(10.5, 11.5, 13.5), hedef: new THREE.Vector3(-0.5, 0.4, -0.8), yatay: 44 };
+// Genel görünüm dükkânın önünden (deniz / müşteri tarafı) çeker (Kemal, 13 Ekim)
+const DUKKAN = { konum: new THREE.Vector3(-13.5, 15.5, -20), hedef: new THREE.Vector3(-0.4, 0.2, -1.6), yatay: 50 };
 
 
 function dikeyAci(yatayDerece: number, oran: number) {
@@ -28,6 +30,8 @@ function KameraYoneticisi() {
   const { camera, size } = useThree();
   const hedef = useRef(new THREE.Vector3());
   const konum = useRef(new THREE.Vector3());
+  const dukkanKonumu = useRef(new THREE.Vector3());
+  const yakinlik = useRef(dukkanYakinligi.deger);
   useFrame((_, dt) => {
     const kamera = camera as THREE.PerspectiveCamera;
     const istenen = durumuOku().kamera === 'dukkan' ? 1 : 0;
@@ -36,7 +40,10 @@ function KameraYoneticisi() {
     k.deger += Math.sign(istenen - k.deger) * Math.min(Math.abs(istenen - k.deger), dt * 1.1);
     const t = k.deger * k.deger * (3 - 2 * k.deger); // yavaş başla, yavaş bitir
     // Geçişte kamera kısa bir yay çizer: önce biraz yükselir
-    konum.current.lerpVectors(TEZGAH.konum, DUKKAN.konum, t);
+    // Yakınlaştırma: hedefe doğru yaklaşıp uzaklaşır, yumuşakça
+    yakinlik.current = THREE.MathUtils.damp(yakinlik.current, dukkanYakinligi.deger, 10, dt);
+    dukkanKonumu.current.copy(DUKKAN.konum).sub(DUKKAN.hedef).multiplyScalar(yakinlik.current).add(DUKKAN.hedef);
+    konum.current.lerpVectors(TEZGAH.konum, dukkanKonumu.current, t);
     konum.current.y += Math.sin(t * Math.PI) * 0.8;
     hedef.current.lerpVectors(TEZGAH.hedef, DUKKAN.hedef, t);
     const oran = size.width / size.height;
@@ -50,24 +57,43 @@ function KameraYoneticisi() {
   return null;
 }
 
-// Gün ilerledikçe güneş alçalır ve ışık akşamüstü sıcaklığına döner.
+// Işık saate göre (yaz akşamı, Ege): öğleden sonra güneş alçalır,
+// 19:30–20:30 gün batımı, sonra gece. Gece dükkânın içi ve ampuller öne çıkar.
 const OGLE = new THREE.Color('#fff4e2');
-const AKSAM = new THREE.Color('#ffb36b');
+const AKSAM = new THREE.Color('#ff9a5a');
+const GOK_UST_GUNDUZ = new THREE.Color(renk.gokUst);
+const GOK_UFUK_GUNDUZ = new THREE.Color(renk.gokUfuk);
+const GOK_UFUK_BATIM = new THREE.Color('#ffb07a');
+const GOK_UST_GECE = new THREE.Color('#0f1a3d');
+const GOK_UFUK_GECE = new THREE.Color('#2c3566');
 
 function Isiklar() {
   const gunes = useRef<THREE.DirectionalLight>(null);
+  const yarimKure = useRef<THREE.HemisphereLight>(null);
+  const icIsik = useRef<THREE.PointLight>(null);
+  const { scene } = useThree();
   useFrame(() => {
     const isik = gunes.current;
     if (!isik) return;
-    const t = gunIlerleyisi();
-    const aksam = THREE.MathUtils.smoothstep(t, 0.55, 1);
+    const saat = saatDakikasi(durumuOku()) / 60;
+    const aksam = THREE.MathUtils.smoothstep(saat, 16.5, 20); // güneş alçalır, turuncuya döner
+    const gece = THREE.MathUtils.smoothstep(saat, 20, 21.5); // gök kararır
+    const batim = aksam * (1 - gece);
+
     isik.color.copy(OGLE).lerp(AKSAM, aksam);
-    isik.intensity = 2.6 - aksam * 0.9;
-    isik.position.set(6 - t * 10, 11 - aksam * 6, 5);
+    isik.intensity = (2.6 - aksam * 1.2) * (1 - gece) + gece * 0.25;
+    isik.position.set(6 - aksam * 12, 11 - aksam * 7 + gece * 6, 5);
+    if (yarimKure.current) yarimKure.current.intensity = 0.9 - gece * 0.55;
+    if (icIsik.current) icIsik.current.intensity = 2.5 + gece * 3;
+
+    gokRenkleri.ust.copy(GOK_UST_GUNDUZ).lerp(GOK_UST_GECE, gece);
+    gokRenkleri.ufuk.copy(GOK_UFUK_GUNDUZ).lerp(GOK_UFUK_BATIM, batim).lerp(GOK_UFUK_GECE, gece);
+    if (scene.background instanceof THREE.Color) scene.background.copy(gokRenkleri.ufuk);
+    if (scene.fog) scene.fog.color.copy(gokRenkleri.ufuk);
   });
   return (
     <>
-      <hemisphereLight args={['#cfe6f7', renk.ahsapOrta, 0.9]} />
+      <hemisphereLight ref={yarimKure} args={['#cfe6f7', renk.ahsapOrta, 0.9]} />
       <ambientLight intensity={0.25} color="#fff1df" />
       {/* Güneş: arkadan-sağdan, gölgeler tezgaha düşer */}
       <directionalLight
@@ -87,7 +113,7 @@ function Isiklar() {
         shadow-camera-far={30}
       />
       {/* Dükkân içine sıcak dolgu ışığı */}
-      <pointLight position={[0, 2.8, 0.2]} intensity={2.5} distance={7} color="#ffd9a8" />
+      <pointLight ref={icIsik} position={[0, 2.8, 0.2]} intensity={2.5} distance={7} color="#ffd9a8" />
     </>
   );
 }

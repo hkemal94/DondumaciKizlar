@@ -501,8 +501,12 @@ body,
   border-right: 11px solid transparent;
   border-bottom: 10px solid var(--sari);
 }
-.dugme.dikkat {
+.dugme.dikkat,
+.susleme-dugme.dikkat {
   animation: dikkat 1.2s ease-in-out infinite;
+}
+.susleme-dugme.dikkat {
+  border-color: var(--sari);
 }
 @keyframes dikkat {
   50% {
@@ -744,4 +748,53 @@ body,
 }
 .gel-kup {
   background: linear-gradient(#dff1f7 55%, #7a3fa8 55%);
+}
+
+/* Genel görünümde yakınlaştırma düğmeleri */
+.yakinlik-dugmeleri {
+  position: absolute;
+  left: max(14px, env(safe-area-inset-left));
+  bottom: max(14px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.yakinlik-dugmeleri .dugme {
+  width: 48px;
+  height: 48px;
+  font-size: 26px;
+  line-height: 1;
+  padding: 0;
+}
+
+/* Balonda süsleme rozeti ve hatırlatma */
+.balon-rozetler {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  margin-top: 2px;
+  padding-top: 3px;
+  border-top: 2px dashed rgba(78, 36, 112, 0.3);
+}
+.balon-rozet {
+  width: 26px;
+  height: 26px;
+}
+.balon-ic.hatirlat {
+  animation: hatirlat 0.45s ease-in-out 4;
+  border-color: var(--sari);
+}
+@keyframes hatirlat {
+  50% {
+    transform: translateX(-30%) scale(1.15);
+  }
+}
+.bildirim-susleme {
+  font-size: 26px;
+  color: var(--sari);
+}
+@media (prefers-reduced-motion: reduce) {
+  .balon-ic.hatirlat {
+    animation: none;
+  }
 }

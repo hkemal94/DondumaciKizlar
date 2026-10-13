@@ -46,6 +46,12 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Topların dizilişi | Külahta üst üste, kapta yan yana (üçüncü üste). Başka dizilişler de denenebilir (Kemal, 12 Ekim) |
 | Çeşit sayısı | Sonradan artabilir: küvet listesine bir satır eklenince vitrin genişler. Bu açıdan rahat sığan 6; fazlası için ikinci sıra ya da kaydırma gerekir |
 | Geri al | "Hata yaptığım zaman geri alamıyorum" (Kemal, 12 Ekim). **Geri al** düğmesi sırayla: kepçedeki topu küvete geri koyar → son konan topu çıkarır → altlığı bırakır. Ceza yok |
+| Saatin akışı | Her gerçek saniye oyun saatine **5 dakika** ekler; saat beşer dakika ilerler (Kemal, 13 Ekim: "beş dakikalar saniye gibi aksın"). Hafta içi bir gün ≈ 2,5 dk, hafta sonu ≈ 3 dk sürer |
+| Çalışma saatleri (yaz dönemi) | **Hafta içi 11:00–00:00, hafta sonu 10:00–02:00** (Kemal, 13 Ekim). Mevsimler gelince kış saatleri ayrıca konuşulacak |
+| Genel görünüm açısı | Dükkânın **önünden** (deniz / müşteri tarafından) çekilir; önceki açı 180° ters idi (Kemal, 13 Ekim) |
+| Genel görünümde yakınlaştırma | Açı sabit, ama oyuncu **yakınlaştırıp uzaklaştırabilir** (iki parmak, fare tekerleği, + / − düğmeleri); başlangıçta uzaktan (Kemal, 13 Ekim: "insanlar dükkânlarını görebilsinler"). Tezgah görünümü sabit kalır |
+| Eksik / fazla süsleme | Altlık ve toplar doğruysa ama süsleme tutmuyorsa dondurma çöpe gitmez: oyun hangi süslemenin eksik ya da fazla olduğunu hatırlatır (Kemal, 13 Ekim) |
+| Topların sırası | Kural değil: yalnız altlık, çeşitler ve top sayısı tutmalı (13 Ekim) |
 | Deneme telefonu | Elde hangisi varsa; orta seviye bir telefonda akıcı çalışmak hedef |
 
 ---
@@ -205,16 +211,16 @@ KKM'deki oyun dosyasında olup bu belgede olmayan maddeler:
 | Sıra | En çok 4 kişi; yeni müşteri 5–9 sn'de bir | Gün süresi kararıyla ayarlanır |
 | Sipariş | Altlık rastgele; yarısı 1 top, üçte biri 2 top, kalanı 3 top | |
 | Müşteri görünümü | 4 kodla çizilmiş geçici görünüm; adsız | Model kararı sonra |
-| Gün süresi | Gerçekte 6 dakika (7.1 önerisi) | Adresin sonuna `#hizli` yazılırsa 30 sn (deneme için) |
-| Açılış / kapanış | 10:00 – 20:00 (oyun saati) | Kanon değil; Kemal'in |
+| Gün süresi | Saniyede 5 oyun dakikası (bölüm 0) | Adresin sonuna `#hizli` yazılırsa gün 30 sn (deneme için) |
+| Haftanın günü | 1. gün pazartesi sayıldı | Geçici; Kemal'e soruldu |
 | Kapanış | 20:00'de yeni müşteri gelmez; sıradakilere servis bitince gün sonu ekranı | Ceza yok |
 | Gün sonu ekranı | Servis edilen müşteri, günün kazancı, MÜKEMMEL top, günün memnuniyeti, kasadaki para | |
-| Akşam ışığı | Gün ilerledikçe güneş alçalır, ışık turuncuya döner | Belgede yoktu; beğenilmezse kalkar |
+| Akşam ve gece ışığı | Saate göre: öğleden sonra güneş alçalır, 20:00 sularında gün batımı, sonra gece (gök kararır, ampuller ve fenerler yanar) | Belgede yoktu; beğenilmezse kalkar |
 | Kamera geçişi | Gün dükkânın genel görünümüyle başlar. Öndeki müşteri tezgaha varınca kamera kendiliğinden tezgaha geçer; sıra boşalınca genele döner. Oyuncu düğmeyle de geçer (genelde "Tezgaha geç", tezgahta ev simgesi) | 5. adım |
-| Genel görünüm | Bebek evi gibi: tavan, sağ duvar ve arka duvar kalkar, yalnız dipleri görünür. Oyuncu görünmez | 5. adım |
+| Genel görünüm | Önden, bebek evi gibi: tavan, pencere duvarı ve sol duvar kalkar, yalnız dipleri görünür; menü panosu arka duvarda. Oyuncu görünmez | 5. adım, 13 Ekim'de 180° çevrildi |
 | Dükkân içi | Arka tezgah (kavanozlar, kahve makinesi, kasa), yazısız menü panosu, üç saksı; dışarıda taş kaldırım. Hepsi geçici | Taslak 1'e göre; ad ve yazı yok |
 | Süsleme ve sos | Üç tane: çikolata sosu, renkli şeker, fındık (belge 3, adım 4). En az bir top konunca sağdaki sütunda çıkar; her biri bir kez. Süslemeden sonra top eklenmez | Çeşitler ve adları Kemal'in onayına |
-| Süslemeli sipariş | Siparişlerin üçte birinde bir süsleme istenir; balonda en üstteki topun üstünde görünür. Süsleme başına +3 | Geçici oran ve fiyat |
+| Süslemeli sipariş | Siparişlerin üçte birinde bir süsleme istenir; balonda topun üstünde ve ayrıca balonun altında rozet olarak görünür. Süsleme başına +3 | Geçici oran ve fiyat |
 | Düğme yerleri | Altlık düğmeleri solda, Geri al ve süslemeler sağda dikey sütun, Servis et sağ altta: küvetlerin üstüne binmesinler diye | |
 | Dükkânı geliştir | Gün sonu ekranındaki düğmeyle açılır; üç sekme (taslak 3 gibi): Yeni çeşitler, Fiyat, Dekorasyon | Belge 2.4 ve 4 |
 | Yeni çeşitler | Mango 150, yaban mersini 250 (belge 4'teki adlar). Açılınca vitrine küvet eklenir, müşteriler de istemeye başlar. İlk dört çeşidin adı yok | Fiyatlar geçici |

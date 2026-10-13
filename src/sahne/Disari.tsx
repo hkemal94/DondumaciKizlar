@@ -2,6 +2,7 @@ import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { renk } from './renkler';
+import { gokRenkleri } from './gokRenkleri';
 
 // Dükkânın penceresinden görünen dış dünya: gök, deniz, tepeler,
 // iskele, tekneler, önündeki ahşap teras. Hepsi kodla çizilmiş
@@ -24,8 +25,8 @@ function Gok() {
         depthWrite: false,
         fog: false,
         uniforms: {
-          ust: { value: new THREE.Color(renk.gokUst) },
-          ufuk: { value: new THREE.Color(renk.gokUfuk) },
+          ust: { value: gokRenkleri.ust },
+          ufuk: { value: gokRenkleri.ufuk },
         },
         vertexShader: /* glsl */ `
           varying vec3 vYon;

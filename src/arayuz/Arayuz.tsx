@@ -12,6 +12,7 @@ import {
   MUKEMMEL_UST,
   ondekiMusteri,
   ortalamaMemnuniyet,
+  haftaGunu,
   saatYazisi,
   servisEt,
   yeniGun,
@@ -27,6 +28,7 @@ import { m, type MetinAnahtari } from '../metinler';
 import { CESITLER } from '../oyun/kuvetler';
 import { balon } from '../sahne/Musteriler';
 import { Gelistir } from './Gelistir';
+import { yakinlikDegistir } from '../sahne/kameraKarisimi';
 
 // Tezgah ekranının düğmeleri, ipucu yazısı, kepçe göstergesi ve sonuç yazısı.
 // Tarz: taslak 1 ve 3 gibi sıcak ahşap paneller.
@@ -76,7 +78,7 @@ function Bildirim() {
   useEffect(() => {
     if (!bildirim) return;
     setGorunur(true);
-    const z = window.setTimeout(() => setGorunur(false), 1000);
+    const z = window.setTimeout(() => setGorunur(false), bildirim.tur === 'susleme' ? 2200 : 1000);
     return () => window.clearTimeout(z);
   }, [bildirim]);
   if (!bildirim || !gorunur) return null;
@@ -86,7 +88,13 @@ function Bildirim() {
     yazi = m(`sonuc.${bildirim.sonuc}` as MetinAnahtari);
     sinif = bildirim.sonuc;
   } else if (bildirim.tur === 'para') yazi = `+${bildirim.miktar}`;
-  else yazi = m('sonuc.yanlis');
+  else if (bildirim.tur === 'susleme') {
+    // Hangi süsleme eksik ya da fazla: adıyla söylenir
+    const ad = (x: Susleme) => m(`susleme.${x}` as MetinAnahtari);
+    yazi = bildirim.eksik.length
+      ? m('sonuc.suslemeEksik', { ad: bildirim.eksik.map(ad).join(', ') })
+      : m('sonuc.suslemeFazla', { ad: bildirim.fazla.map(ad).join(', ') });
+  } else yazi = m('sonuc.yanlis');
   return (
     <div key={bildirim.zaman} className={`bildirim bildirim-${sinif}`}>
       {bildirim.tur === 'para' && <span className="para-simge" aria-hidden />}
@@ -160,6 +168,18 @@ function SuslemeIsareti({ tur, x, y }: { tur: Susleme; x: number; y: number }) {
   );
 }
 
+// Süsleme unutulduysa ipucu satırı bunu söyler (yeni servis ya da Geri al'a kadar)
+function suslemeHatirlatmasi(durum: ReturnType<typeof useDurum>): string | null {
+  const b = durum.bildirim;
+  if (!b || b.tur !== 'susleme' || durum.asama !== 'kepceBos' || durum.kamera !== 'tezgah') return null;
+  const ad = (x: Susleme) => m(`susleme.${x}` as MetinAnahtari);
+  const eksik = b.eksik.filter((x) => !durum.susleme.includes(x));
+  const fazla = b.fazla.filter((x) => durum.susleme.includes(x));
+  if (eksik.length) return m('ipucu.suslemeEkle', { ad: eksik.map(ad).join(', ') });
+  if (fazla.length) return m('ipucu.suslemeKaldir', { ad: fazla.map(ad).join(', ') });
+  return null;
+}
+
 // Sağ kenardaki sütun: Geri al ve (top varken) süslemeler
 function SuslemeDugmeleri() {
   const durum = useDurum();
@@ -175,7 +195,9 @@ function SuslemeDugmeleri() {
       {durum.toplar.length > 0 && SUSLEMELER.map((s) => (
         <button
           key={s}
-          className={`susleme-dugme ${durum.susleme.includes(s) ? 'eklendi' : ''}`}
+          className={`susleme-dugme ${durum.susleme.includes(s) ? 'eklendi' : ''} ${
+            durum.bildirim?.tur === 'susleme' && durum.bildirim.eksik.includes(s) && !durum.susleme.includes(s) ? 'dikkat' : ''
+          }`}
           disabled={!suslemeEklenebilir(s, durum)}
           onClick={() => suslemeEkle(s)}
           aria-label={m(`susleme.${s}` as MetinAnahtari)}
@@ -202,8 +224,19 @@ function SiparisBalonu() {
       }}
     >
       {musteri && (
-        <div className="balon-ic">
+        <div className={`balon-ic ${durum.bildirim?.tur === 'susleme' ? 'hatirlat' : ''}`}>
           <SiparisResmi siparis={musteri.siparis} />
+          {/* İstenen süsleme ayrıca rozet olarak: gözden kaçmasın */}
+          {musteri.siparis.susleme.length > 0 && (
+            <div className="balon-rozetler">
+              {musteri.siparis.susleme.map((s) => (
+                <svg key={s} viewBox="0 0 30 30" className="balon-rozet" aria-label={m(`susleme.${s}` as MetinAnahtari)}>
+                  <circle cx="15" cy="17" r="11" fill="#fff0c8" />
+                  <SuslemeIsareti tur={s} x={15} y={17} />
+                </svg>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -232,7 +265,9 @@ function GunSaat() {
   const durum = useDurum();
   return (
     <div className="gun-saat">
-      <div className="bilgi-kutusu">{m('ust.gun', { gun: durum.gun })}</div>
+      <div className="bilgi-kutusu">
+        {m('ust.gun', { gun: durum.gun })} · {m(`haftaGunu.${haftaGunu(durum)}` as MetinAnahtari)}
+      </div>
       <div className={`bilgi-kutusu ${durum.acik ? '' : 'kapali'}`}>
         <span className="saat-simge" aria-hidden />
         {saatYazisi(durum)}
@@ -296,8 +331,55 @@ function UstBilgi() {
   );
 }
 
+// Genel görünümde iki parmakla sıkıştır / aç ve fare tekerleği: yakınlaştırma.
+function useYakinlastirma(etkin: boolean) {
+  useEffect(() => {
+    if (!etkin) return;
+    const parmaklar = new Map<number, { x: number; y: number }>();
+    let oncekiAralik = 0;
+    const aralik = () => {
+      const [a, b] = [...parmaklar.values()];
+      return Math.hypot(a.x - b.x, a.y - b.y);
+    };
+    const bas = (e: PointerEvent) => {
+      parmaklar.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (parmaklar.size === 2) oncekiAralik = aralik();
+    };
+    const oynat = (e: PointerEvent) => {
+      if (!parmaklar.has(e.pointerId)) return;
+      parmaklar.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (parmaklar.size === 2 && oncekiAralik > 0) {
+        const yeni = aralik();
+        yakinlikDegistir(oncekiAralik / yeni); // parmaklar açılınca yaklaşır
+        oncekiAralik = yeni;
+      }
+    };
+    const kaldir = (e: PointerEvent) => {
+      parmaklar.delete(e.pointerId);
+      oncekiAralik = 0;
+    };
+    const tekerlek = (e: WheelEvent) => {
+      e.preventDefault();
+      yakinlikDegistir(Math.exp(e.deltaY * 0.0015));
+    };
+    window.addEventListener('pointerdown', bas);
+    window.addEventListener('pointermove', oynat);
+    window.addEventListener('pointerup', kaldir);
+    window.addEventListener('pointercancel', kaldir);
+    window.addEventListener('wheel', tekerlek, { passive: false });
+    return () => {
+      window.removeEventListener('pointerdown', bas);
+      window.removeEventListener('pointermove', oynat);
+      window.removeEventListener('pointerup', kaldir);
+      window.removeEventListener('pointercancel', kaldir);
+      window.removeEventListener('wheel', tekerlek);
+    };
+  }, [etkin]);
+}
+
 export function Arayuz() {
   const durum = useDurum();
+  useYakinlastirma(durum.kamera === 'dukkan');
 
   // Parmak ekranın neresinde kalkarsa kalksın kepçe bırakılır.
   useEffect(() => {
@@ -333,7 +415,7 @@ export function Arayuz() {
       <SiparisBalonu />
       <UstBilgi />
       <GunSaat />
-      {ipucu && <div className="ipucu">{m(ipucu)}</div>}
+      {ipucu && <div className="ipucu">{suslemeHatirlatmasi(durum) ?? m(ipucu)}</div>}
       {tezgahta && durum.asama === 'dolduruyor' && <Gosterge />}
       <Bildirim />
       <SuslemeDugmeleri />
@@ -363,6 +445,16 @@ export function Arayuz() {
           </div>
         </>
       ) : (
+        <div className="yakinlik-dugmeleri">
+          <button className="dugme dugme-simge" aria-label={m('kamera.yakinlas')} onClick={() => yakinlikDegistir(0.8)}>
+            +
+          </button>
+          <button className="dugme dugme-simge" aria-label={m('kamera.uzaklas')} onClick={() => yakinlikDegistir(1.25)}>
+            −
+          </button>
+        </div>
+      )}
+      {!tezgahta && (
         <div className="sag-dugmeler">
           <button className={`dugme dugme-servis ${musteri ? 'dikkat' : ''}`} onClick={() => kameraSec('tezgah')}>
             {m('kamera.tezgah')}
