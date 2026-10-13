@@ -22,7 +22,7 @@ export type Altlik = 'kulah' | 'kap' | 'kup';
 // Kup parayla açılır (belge 3: "külah, kap ya da kup"; belge 4: tarif ağacı)
 export const KUP_FIYATI = 200;
 export const KUP_EKI = 5; // kuplu siparişe ek para
-export type Asama = 'altlikSec' | 'kepceBos' | 'dolduruyor' | 'kepceDolu' | 'servis';
+export type Asama = 'altlikSec' | 'kepceBos' | 'dolduruyor' | 'servis';
 export type Sonuc = 'mukemmel' | 'iyi' | 'kucuk' | 'buyuk';
 
 export interface Top {
@@ -76,7 +76,6 @@ export interface Durum {
   toplar: Top[];
   susleme: Susleme[]; // elimizdeki dondurmaya eklenenler (sırasıyla)
   tepsi: Urun[]; // iki dondurmalı siparişte hazırlanıp bekleyen
-  kepcedeki: Top | null;
   kepceKuvet: number | null; // basılı tutulan küvet
   dolumBasladi: number; // basılı tutma anı (ms)
   bildirim: Bildirim | null;
@@ -152,7 +151,6 @@ let durum: Durum = {
   toplar: [],
   susleme: [],
   tepsi: [],
-  kepcedeki: null,
   kepceKuvet: null,
   dolumBasladi: 0,
   bildirim: null,
@@ -244,23 +242,19 @@ export function kuveteBas(kuvet: number) {
   guncelle({ asama: 'dolduruyor', kepceKuvet: kuvet, dolumBasladi: performance.now() });
 }
 
+// Parmak kalkınca top doğrudan külaha / kaba iner; ikinci dokunuş yok
+// (iPhone denemesi, Kemal 13 Ekim).
 export function birak() {
   if (durum.asama !== 'dolduruyor' || durum.kepceKuvet === null) return;
   islemYapildi();
   const dolum = dolumHesapla(performance.now());
   const top: Top = { kuvet: durum.kepceKuvet, boyut: dolum, sonuc: sonucBul(dolum) };
   guncelle({
-    asama: 'kepceDolu',
-    kepcedeki: top,
+    asama: 'kepceBos',
+    toplar: [...durum.toplar, top],
     kepceKuvet: null,
     bildirim: { tur: 'top', sonuc: top.sonuc, zaman: performance.now() },
   });
-}
-
-export function topuYerlestir() {
-  if (durum.asama !== 'kepceDolu' || !durum.kepcedeki) return;
-  islemYapildi();
-  guncelle({ asama: 'kepceBos', toplar: [...durum.toplar, durum.kepcedeki], kepcedeki: null });
 }
 
 // Süsleme ya da sos ekle: en az bir top olmalı, her biri bir kez.
@@ -276,10 +270,8 @@ export function suslemeDegistir(s: Susleme) {
   guncelle({ susleme: durum.susleme.includes(s) ? durum.susleme.filter((x) => x !== s) : [...durum.susleme, s] });
 }
 
-// Geri al: yalnız kepçedeki ve konmuş toplar için (13 Ekim). Sırayla:
-// kepçedeki topu küvete geri koy → son konan topu çıkar. Ceza yok.
+// Geri al: konmuş toplar ve tepsi için (13 Ekim). Son konan top çıkar. Ceza yok.
 export function geriAlinabilir(d: Durum = durum) {
-  if (d.asama === 'kepceDolu') return true;
   if (d.toplar.length === 0 && d.tepsi.length > 0 && (d.asama === 'altlikSec' || d.asama === 'kepceBos')) return true;
   return d.asama === 'kepceBos' && d.toplar.length > 0;
 }
@@ -287,8 +279,7 @@ export function geriAlinabilir(d: Durum = durum) {
 export function geriAl() {
   if (!geriAlinabilir()) return;
   islemYapildi();
-  if (durum.asama === 'kepceDolu') guncelle({ asama: 'kepceBos', kepcedeki: null });
-  else if (durum.toplar.length === 0 && durum.tepsi.length > 0) {
+  if (durum.toplar.length === 0 && durum.tepsi.length > 0) {
     // Tepsideki dondurma ele geri gelir
     const u = durum.tepsi[durum.tepsi.length - 1];
     guncelle({ tepsi: durum.tepsi.slice(0, -1), altlik: u.altlik, toplar: u.toplar, susleme: u.susleme, asama: 'kepceBos' });
@@ -467,7 +458,7 @@ export function servisEt() {
 
   // Servis hareketi bitince yeni dondurma için baştan
   window.setTimeout(() => {
-    guncelle({ asama: 'altlikSec', altlik: null, toplar: [], susleme: [], kepcedeki: null });
+    guncelle({ asama: 'altlikSec', altlik: null, toplar: [], susleme: [] });
   }, 1100);
 }
 
@@ -569,7 +560,6 @@ export function gunSonunuKapat() {
     toplar: [],
     susleme: [],
     tepsi: [],
-    kepcedeki: null,
   });
   kaydet();
 }
@@ -600,7 +590,7 @@ export function musteriTezgahaVardi(id: number) {
 // ---- Sabır (Kemal, 13 Ekim) ----
 // Hiç işlem yapılmadan oyun saatiyle bir saat geçerse öndeki müşteri
 // sıkılıp gider ve memnuniyete sıfır yıldız verir. Para kaybı yok.
-export const SABIR_DAKIKA = 60; // Kemal, 13 Ekim: yarım saat kısaydı, bir saat (≈ 9 sn)
+export const SABIR_DAKIKA = 80; // Kemal, 13 Ekim: gerçekte ~12 sn kalsın (saat hızlanınca 60'tan 80'e)
 
 export function sabirOrani(d: Durum = durum) {
   if (d.sabirMusteri === null || ondekiMusteri(d)?.id !== d.sabirMusteri) return null;
@@ -850,7 +840,6 @@ export function bastanBasla() {
     altlik: null,
     toplar: [],
     susleme: [],
-    kepcedeki: null,
   });
 }
 

@@ -12,7 +12,6 @@ import { TezgahtaGorunur } from './Dukkan';
 // Küvetlerin üstünde, solda: küvetleri kapatmasın (Kemal, 13 Ekim)
 const ALTLIK_KONUM = new THREE.Vector3(-0.52, 1.74, 0.3);
 const KEPCE_DURUS = new THREE.Vector3(0.6, 1.46, 0.1);
-const KEPCE_BEKLEME = new THREE.Vector3(0.05, 1.38, 0.05);
 
 // Topun yarıçapı dolumla büyür; MÜKEMMEL aralığı "tam top" boyu.
 export function topYaricapi(dolum: number) {
@@ -44,6 +43,23 @@ function DondurmaTopu({ top, tohum }: { top: Top; tohum: number }) {
     <mesh geometry={geometri} scale={r} castShadow>
       <meshStandardMaterial color={CESITLER[top.kuvet].renk} roughness={0.55} flatShading />
     </mesh>
+  );
+}
+
+// Yeni konan top yukarıdan hafifçe düşüp yerine oturur (parmak kalkınca)
+function InenTop({ konum, children }: { konum: [number, number, number]; children: React.ReactNode }) {
+  const ref = useRef<THREE.Group>(null);
+  const yukseklik = useRef(0.16);
+  useFrame((_, dt) => {
+    const g = ref.current;
+    if (!g) return;
+    yukseklik.current = THREE.MathUtils.damp(yukseklik.current, 0, 16, dt);
+    g.position.set(konum[0], konum[1] + yukseklik.current, konum[2]);
+  });
+  return (
+    <group ref={ref} position={[konum[0], konum[1] + 0.16, konum[2]]}>
+      {children}
+    </group>
   );
 }
 
@@ -228,12 +244,12 @@ function AltlikVeToplar() {
   // kapta yan yana (üçüncüsü ikisinin üstüne).
   const konumlar = topKonumlari(durum.altlik, durum.toplar);
   const toplar = durum.toplar.map((top, i) => (
-    <group key={i} position={konumlar[i]}>
+    <InenTop key={i} konum={konumlar[i]}>
       <DondurmaTopu top={top} tohum={i * 3 + top.kuvet} />
       {durum.susleme.map((s) => (
         <TopSuslemesi key={s} tur={s} yaricap={topYaricapi(top.boyut)} tohum={i + 1} />
       ))}
-    </group>
+    </InenTop>
   ));
 
   return (
@@ -268,12 +284,6 @@ function Kepce() {
       topBoyu = dolum;
       topRengi = k.renk;
       egim = -1.0;
-    } else if (d.asama === 'kepceDolu' && d.kepcedeki) {
-      hedef.copy(KEPCE_BEKLEME);
-      hedef.y += Math.sin(clock.elapsedTime * 2.4) * 0.01;
-      topBoyu = d.kepcedeki.boyut;
-      topRengi = CESITLER[d.kepcedeki.kuvet].renk;
-      egim = -0.35;
     } else {
       hedef.copy(KEPCE_DURUS);
     }

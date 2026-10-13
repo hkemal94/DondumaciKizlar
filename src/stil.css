@@ -76,11 +76,6 @@ body,
   pointer-events: auto;
 }
 
-.yerlestir-alani {
-  position: absolute;
-  inset: 0;
-}
-
 .ipucu {
   /* Üst sıranın altında, ortada (Kemal, 13 Ekim: üst üste biniyordu) */
   position: absolute;

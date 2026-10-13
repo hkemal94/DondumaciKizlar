@@ -31,7 +31,6 @@ import {
   type Urun,
   tepsiyeKoy,
   tepsiyeKoyabilir,
-  topuYerlestir,
   useDurum,
 } from '../oyun/durum';
 import { m, type MetinAnahtari } from '../metinler';
@@ -466,7 +465,6 @@ export function Arayuz() {
   if (!durum.acik && musteri) ipucu = 'ipucu.kapandi';
   else if (!musteri && durum.asama === 'altlikSec') ipucu = durum.acik ? 'ipucu.musteriYok' : null;
   else if (durum.asama === 'altlikSec') ipucu = 'ipucu.altlik';
-  else if (durum.asama === 'kepceDolu') ipucu = 'ipucu.yerlestir';
   else if (durum.asama === 'kepceBos')
     ipucu = topSayisi === 0 ? 'ipucu.kuvet' : topSayisi >= EN_COK_TOP ? 'ipucu.dolu' : 'ipucu.servisVeyaTop';
   // İki dondurmalı sipariş: tepsiye yönlendir
@@ -490,9 +488,6 @@ export function Arayuz() {
 
   return (
     <div className="arayuz">
-      {/* Kepçede top varken ekranın herhangi bir yerine dokunmak topu yerleştirir */}
-      {tezgahta && durum.asama === 'kepceDolu' && <div className="yerlestir-alani" onPointerDown={topuYerlestir} />}
-
       <SiparisBalonu />
       <CalisanAdi />
       <UstBilgi />

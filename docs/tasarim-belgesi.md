@@ -56,7 +56,7 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | İlk dört çeşit | **Çilek, Çikolata, Fıstık, Kaymak** (Kemal, 13 Ekim) |
 | Para | Adsız jeton (Kemal, 13 Ekim) |
 | Oyuncu ve dükkândakiler | **Karar değişti** (13 Ekim): tezgahın arkasında oyuncunun **kişiselleştirebileceği bir çalışan** olur: ten rengi, saç, kıyafet ve önlük, **ad** (oyuncu yazar); parayla yeni kıyafet açılır; vakti gelince şapka, küpe, gözlük gibi aksesuarlar. Dükkânın sahibi (kanondaki kadın, adı yok) **ara sıra gelip dükkânda dolaşır**, şimdilik başka bir şey yapmaz. Eski "oyuncuya ad, yüz verme" kuralının yerine geçer |
-| Müşteri sabrı | **Karar değişti** (13 Ekim): yalnız **öndeki** (sırası gelen) müşteri sabırsızlanır. Hiç işlem yapılmadan **oyun saatiyle bir saat** (gerçekte ~9 sn, saat 13 Ekim'de hızlanınca ~12 sn'den düştü; önce yarım saatti, Kemal 13 Ekim'de uzattı) geçerse sıkılıp gider ve memnuniyete **sıfır yıldız** verir. Herhangi bir işlem (yanlış bile olsa) sabrı sıfırlar. Para kaybı yok. Balonun altında sabır çubuğu (yeşil → sarı → kırmızı). Kapanıştan sonra saat durduğu için sıradakilerin sabrı azalmaz. |
+| Müşteri sabrı | **Karar değişti** (13 Ekim): yalnız **öndeki** (sırası gelen) müşteri sabırsızlanır. Hiç işlem yapılmadan **oyun saatiyle 80 dakika** (gerçekte ~12 sn; önce yarım saat, sonra bir saatti. Saat 13 Ekim'de hızlanınca Kemal sabrın kısalmamasını istedi: "onu durağanlığın önüne geçmek için koyduk") geçerse sıkılıp gider ve memnuniyete **sıfır yıldız** verir. Herhangi bir işlem (yanlış bile olsa) sabrı sıfırlar. Para kaybı yok. Balonun altında sabır çubuğu (yeşil → sarı → kırmızı). Kapanıştan sonra saat durduğu için sıradakilerin sabrı azalmaz. |
 | Hafta sonu | Hafta sonu daha kalabalık (Kemal, 13 Ekim): müşteri aralığı ×0,65 (geçici). |
 | Siparişlerin büyümesi | Bazen **iki dondurma**, bazen **birden çok süsleme**; bir şey **açılınca** başlar (Kemal, 13 Ekim). Açılan şey: **Tepsi** (aşağıda) |
 | Waffle ve limonata | Şimdilik yok. Gelince **kendi mini oyunları** olur; makineleri **parayla alınıp dükkâna konur**; geliri ve memnuniyeti etkileyen bir yapı düşünülebilir (Kemal, 13 Ekim) |
@@ -147,7 +147,7 @@ ayarlanır, dükkân için yeni masa, bitki ve dekorasyon alınır.
 1. **Altlık seçimi:** Külah, kap ya da kup — siparişe uygun olan seçilir.
 2. **Dondurma alımı (kepçe):** Basılı tutarak küvete daldırılır;
    "MÜKEMMEL!" hizasında bırakılınca kusursuz top elde edilir.
-3. **Yerleştirme:** Top külahın üstüne yerleştirilir.
+3. **Yerleştirme:** Parmak kalkınca top kendiliğinden külaha / kaba iner; ikinci dokunuş yok (iPhone denemesi, Kemal 13 Ekim).
 4. **Süsleme ve sos:** İsteğe bağlı sos ya da şekerleme eklenir.
 5. **Servis:** Dondurma müşteriye sunulur; para ve itibar kazanılır.
 
