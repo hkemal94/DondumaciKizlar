@@ -52,3 +52,6 @@ export function ekrandaKaydir(dxPiksel: number, dyPiksel: number, ekranYukseklig
   const olcek = (12 * dukkanYakinligi.deger) / ekranYuksekligi;
   kaydir((-sx * dxPiksel + ix * dyPiksel) * olcek, (-sz * dxPiksel + iz * dyPiksel) * olcek);
 }
+
+// Gezerken bütün duvarları gizle (Kemal, 13 Ekim: "bakmak için iyi olabilir")
+export const duvarlar = { gizli: false };

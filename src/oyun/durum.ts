@@ -772,3 +772,13 @@ export function gezmeyiBitir() {
   // Menüye geri döner; kamera eski yerine
   guncelle({ gezme: false, kamera: gezmedenOnceKamera });
 }
+
+// ---- Deneme parası (Kemal, 13 Ekim: dekorasyonu görmek için) ----
+// Yalnız adresin sonuna #deneme yazılınca görünür; oyunun kendisinde yok.
+export const DENEME = typeof location !== 'undefined' && location.hash === '#deneme';
+
+export function denemeParasi() {
+  if (!DENEME) return;
+  guncelle({ para: durum.para + 5000 });
+  kaydet();
+}

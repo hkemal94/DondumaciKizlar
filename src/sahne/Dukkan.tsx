@@ -1,10 +1,10 @@
 import { useMemo, useRef, type ReactNode } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { kameraKarisimi } from './kameraKarisimi';
+import { duvarlar, kameraKarisimi } from './kameraKarisimi';
 import * as THREE from 'three';
 import { renk } from './renkler';
 import { CESITLER, kuvetAraligi, kuvetX, vitrinGenisligi } from '../oyun/kuvetler';
-import { kuveteBas, useDurum } from '../oyun/durum';
+import { durumuOku, kuveteBas, useDurum } from '../oyun/durum';
 
 // Dükkânın içi, tezgahın arkasından görünen hâli (birinci şahıs yakın plan).
 // Kodla çizilmiş geçici parçalar; asıl modeller sonra gelecek.
@@ -125,6 +125,11 @@ function KesikDuvar({ yon, children }: { yon: [number, number]; children: ReactN
     if (!ref.current) return;
     if (kameraKarisimi.deger < 0.12) {
       ref.current.visible = true;
+      return;
+    }
+    // Gezerken "Duvarları gizle" açıksa hepsi kalkar
+    if (duvarlar.gizli && durumuOku().gezme) {
+      ref.current.visible = false;
       return;
     }
     kameraYonu.copy(camera.position).sub(DUKKAN_ORTASI);

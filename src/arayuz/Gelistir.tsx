@@ -2,6 +2,8 @@ import { useState } from 'react';
 import {
   bastanBasla,
   cesitAc,
+  DENEME,
+  denemeParasi,
   depodaki,
   esyaAl,
   isikAl,
@@ -141,6 +143,11 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
         </div>
 
         <div className="gel-alt">
+          {DENEME && (
+            <button className="dugme gel-kucuk" onClick={denemeParasi}>
+              {m('deneme.para')}
+            </button>
+          )}
           {silmeOnayi ? (
             <span className="gel-sil">
               {m('bastan.soru')}

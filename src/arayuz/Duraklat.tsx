@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { devamEt, duraklat, duraklatilabilir, gezmeyeBasla, gezmeyiBitir, useDurum } from '../oyun/durum';
 import { m } from '../metinler';
-import { fotograf, ortala, yakinlikDegistir } from '../sahne/kameraKarisimi';
+import { duvarlar, fotograf, ortala, yakinlikDegistir } from '../sahne/kameraKarisimi';
 
 // Duraklatma menüsü (Kemal, 13 Ekim): devam et, dükkânı gez, fotoğraf çek,
 // ses ayarı. Saat, müşteriler ve sabır durur.
@@ -84,7 +84,12 @@ export function DuraklatMenusu() {
 export function GezmeEkrani() {
   const durum = useDurum();
   const [resim, setResim] = useState<string | null>(null);
+  const [duvarsiz, setDuvarsiz] = useState(duvarlar.gizli);
   if (!durum.gezme) return null;
+  const duvarDegistir = () => {
+    duvarlar.gizli = !duvarlar.gizli;
+    setDuvarsiz(duvarlar.gizli);
+  };
   const cek = () => {
     const r = fotograf.cek?.();
     if (r) setResim(r);
@@ -107,6 +112,9 @@ export function GezmeEkrani() {
         </button>
       </div>
       <div className="sag-dugmeler">
+        <button className={`dugme ${duvarsiz ? 'secili' : ''}`} aria-pressed={duvarsiz} onClick={duvarDegistir}>
+          {m(duvarsiz ? 'gezme.duvarGoster' : 'gezme.duvarGizle')}
+        </button>
         <button className="dugme dugme-servis" onClick={cek}>
           <span className="foto-simge" aria-hidden /> {m('gezme.foto')}
         </button>
