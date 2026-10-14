@@ -1126,9 +1126,16 @@ function yapiyiDegistir(degisen: Partial<Durum>, para: number) {
   kaydet();
 }
 
-// Duvar örülebilir mi: kare oyuncunun, açık ve kapalı alana komşu
+// Yürüyüş yolunun yanındaki ön teras sırası: duvar örülmez (Kemal, 14 Ekim:
+// "teras duvarsız olarak kalmalı, yaz kış")
+export function terasMi(anahtar: string) {
+  return parselCoz(anahtar).j === SATIR_EN_AZ;
+}
+
+// Duvar örülebilir mi: kare oyuncunun, açık ve kapalı alana komşu, ön terasta değil
 export function duvarOrulebilir(anahtar: string, d: Durum = durum) {
   if (!d.parseller.includes(anahtar) || d.kapaliParseller.includes(anahtar)) return false;
+  if (terasMi(anahtar)) return false; // ön teras yaz kış duvarsız kalır (Kemal, 14 Ekim)
   return bagliMi([...d.kapaliParseller, anahtar]);
 }
 
@@ -1401,16 +1408,21 @@ function dekorasyonuOku(k: Partial<Kayit>) {
     if (Array.isArray(k.acikBolgeler)) for (const b of k.acikBolgeler) for (const p of eskiAlan[b] ?? []) parseller.add(p);
   }
   // Kapalı alan ve duvar parçaları: yoksa başlangıçtaki (eski kayıtta da yan pencereler gelir)
+  // Ön terastaki kapalı kareler açılır (teras duvarsız kalır); kapılar geri kayar
   let kapali = [...DUKKAN_PARSELLERI];
+  let kayitliKapali = kapali;
   if (Array.isArray(k.kapaliParseller)) {
     const aday = k.kapaliParseller.filter((p): p is string => typeof p === 'string' && parseller.has(p));
-    if (DUKKAN_PARSELLERI.every((p) => aday.includes(p)) && bagliMi(aday)) kapali = aday;
+    if (DUKKAN_PARSELLERI.every((p) => aday.includes(p)) && bagliMi(aday)) kayitliKapali = aday;
+    const terassiz = kayitliKapali.filter((p) => !terasMi(p));
+    kapali = bagliMi(terassiz) ? terassiz : [...DUKKAN_PARSELLERI];
   }
-  const sinir = new Set(sinirKenarlari(kapali).map(kenarAnahtari));
+  const kayitliSinir = new Set(sinirKenarlari(kayitliKapali).map(kenarAnahtari));
   let duvarParcalari: Record<string, ParcaTuru> = { ...BASLANGIC_PARCALARI };
   if (k.duvarParcalari && typeof k.duvarParcalari === 'object') {
     duvarParcalari = {};
-    for (const [a, t] of Object.entries(k.duvarParcalari)) if (sinir.has(a) && ['duvar', 'pencere', 'kapi'].includes(t)) duvarParcalari[a] = t;
+    for (const [a, t] of Object.entries(k.duvarParcalari)) if (kayitliSinir.has(a) && ['duvar', 'pencere', 'kapi'].includes(t)) duvarParcalari[a] = t;
+    duvarParcalari = parcalariUyarla(kayitliKapali, kapali, duvarParcalari);
   }
   if (kapilar(kapali, duvarParcalari).length === 0) duvarParcalari = { ...duvarParcalari, ...BASLANGIC_PARCALARI };
   // Tezgah bölümü

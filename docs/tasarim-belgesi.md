@@ -205,6 +205,7 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Duvar ör / yık | Kare başına **150 / 50** (geçici; Kemal "daha ucuz" seçti). Yıkımda para geri gelmez. Duvar örülünce içeriye uymayan dış eşyalar depoya döner; içerinin zemini koyu ahşap |
 | İkinci kapı | **Her zaman** alınabilir, **250** (geçici); ilk kapı bedava. Kapı düz duvara geri çevrilebilir, ama en az bir kapı kalır. Müşteri tezgaha yakın olan kapıdan girer |
 | Sıra | Her kapalı kare sıraya yer ekler (0.2) |
+| Ön teras | **Duvar örülmez** (Kemal, 14 Ekim: "yürüyüş yolunun yanındaki teras kısmı kapanmamalı, teras duvarsız kalmalı, yaz kış"). Ön teras sırası alınır, masa ve eşya konur ama hep açık kalır. Daha önce kapatılmışsa açılır, kapı dükkânın ön duvarına geri gelir |
 
 ## 1. Oyunun özeti ve vizyonu
 

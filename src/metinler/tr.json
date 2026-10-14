@@ -162,6 +162,7 @@
   "insaat.bitti": "Bitti",
   "insaat.kapali": "Kapalı alan (duvarla çevrili)",
   "insaat.duvarOr": "Duvar ör",
+  "insaat.terasDuvarsiz": "Teras yaz kış duvarsız kalır",
   "insaat.duvarYik": "Duvarı yık",
   "insaat.orulemez": "Duvar örmek için kapalı alana bitişik olmalı",
   "insaat.yikilamaz": "Yıkılamaz: tezgah bölümü ya da tek kapı bu karede, ya da dükkân ikiye bölünür",

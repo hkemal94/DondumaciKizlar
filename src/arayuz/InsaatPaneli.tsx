@@ -7,6 +7,7 @@ import {
   insaattanCik,
   parcaDegistir,
   parcaSecenekleri,
+  terasMi,
   parselAl,
   parselDurumu,
   parselFiyatiNe,
@@ -125,7 +126,9 @@ export function InsaatPaneli() {
           // Açık alan: duvar örülüp kapalı alana katılabilir
           <>
             <span className="insaat-durum">{m('insaat.sahip')}</span>
-            {duvarOrulebilir(secili, durum) ? (
+            {terasMi(secili) ? (
+              <span className="insaat-durum">{m('insaat.terasDuvarsiz')}</span>
+            ) : duvarOrulebilir(secili, durum) ? (
               <button className="dugme gel-al" disabled={durum.para < DUVAR_FIYATI} onClick={() => duvarOr(secili)}>
                 {m('insaat.duvarOr')} <span className="para-simge" aria-hidden /> {DUVAR_FIYATI}
               </button>
