@@ -1,7 +1,10 @@
-import { useLayoutEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Canvas, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { EsyaModeli } from './Dekorlar';
+import { karakterKur, karakterleriYukle, rastgeleVaryant, type Karakter } from './karakterler';
+import { useFrame } from '@react-three/fiber';
 import type { Esya } from '../oyun/dekorasyon';
 
 // Mağaza kartlarındaki küçük resimleri üretmek için (yalnız geliştirirken):
@@ -31,7 +34,60 @@ function Cerceve({ esya }: { esya: Esya }) {
   );
 }
 
-export function Onizleme({ esya }: { esya: Esya }) {
+// Model önizlemesi (#model=karakterler/character-female-a): Kemal seçsin diye
+function Model({ yol }: { yol: string }) {
+  const [sahne, setSahne] = useState<THREE.Object3D | null>(null);
+  const { camera } = useThree();
+  useEffect(() => {
+    new GLTFLoader().load(`${import.meta.env.BASE_URL}modeller/${yol}.glb`, (g) => {
+      const karistirici = new THREE.AnimationMixer(g.scene);
+      const bekle = g.animations.find((a) => a.name === 'idle');
+      if (bekle) {
+        karistirici.clipAction(bekle).play();
+        karistirici.update(0.4);
+      }
+      setSahne(g.scene);
+    });
+  }, [yol]);
+  useLayoutEffect(() => {
+    if (!sahne) return;
+    sahne.updateWorldMatrix(true, true);
+    const kutu = new THREE.Box3().setFromObject(sahne);
+    const merkez = kutu.getCenter(new THREE.Vector3());
+    const y = kutu.getSize(new THREE.Vector3()).y;
+    camera.position.copy(merkez).add(new THREE.Vector3(0.35, 0.15, 1).normalize().multiplyScalar(y * 2.3));
+    camera.lookAt(merkez);
+  }, [sahne, camera]);
+  return sahne ? <primitive object={sahne} /> : null;
+}
+
+// Varyant önizlemesi (#varyant=1): 12 rastgele müşteri yan yana
+function Varyantlar({ tohum }: { tohum: number }) {
+  const [karakterler, setKarakterler] = useState<Karakter[]>([]);
+  const { camera } = useThree();
+  useEffect(() => {
+    karakterleriYukle().then((y) => {
+      const k = Array.from({ length: 12 }, (_, i) => karakterKur(rastgeleVaryant(tohum + i), y));
+      k.forEach((c, i) => {
+        c.kok.position.set((i % 6) * 1.3 - 3.25, i < 6 ? 2.1 : 0, 0);
+        c.eylemler.idle?.play();
+      });
+      setKarakterler(k);
+    });
+    camera.position.set(0, 2.1, 9.5);
+    camera.lookAt(0, 1.85, 0);
+  }, [tohum, camera]);
+  useFrame((_, dt) => karakterler.forEach((k) => k.karistirici.update(dt)));
+  return (
+    <group>
+      {karakterler.map((k, i) => (
+        <primitive key={i} object={k.kok} />
+      ))}
+    </group>
+  );
+}
+
+export function Onizleme({ esya, model, varyant }: { esya?: Esya; model?: string; varyant?: number }) {
   return (
     <Canvas
       className="onizleme"
@@ -42,7 +98,7 @@ export function Onizleme({ esya }: { esya: Esya }) {
       <ambientLight intensity={1.2} />
       <hemisphereLight args={['#fff4e2', '#b98d6a', 1.1]} />
       <directionalLight position={[-4, 8, -6]} intensity={2.2} />
-      <Cerceve esya={esya} />
+      {varyant !== undefined ? <Varyantlar tohum={varyant} /> : model ? <Model yol={model} /> : esya && <Cerceve esya={esya} />}
     </Canvas>
   );
 }
