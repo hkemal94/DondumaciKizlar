@@ -1,7 +1,8 @@
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { durumuOku, musteriTezgahaVardi, musteriyiKaldir, ondekiMusteri, useDurum, type Musteri } from '../oyun/durum';
+import { durumuOku, musteriTezgahaVardi, musteriyiKaldir, ondekiMusteri, useDurum, type Durum, type Musteri } from '../oyun/durum';
+import { HUCRELER } from '../oyun/dekorasyon';
 import { KAPI_X } from './Dukkan';
 import { renk } from './renkler';
 
@@ -41,17 +42,39 @@ function siraYeri(sira: number, hedef: THREE.Vector3) {
   return hedef.set(-0.82 * sira, 0, -1.85 - 0.04 * sira);
 }
 
-function Govde({ g }: { g: Gorunum }) {
+// Bacaklar kalçadan ve dizden bükülür: otururken uyluk öne, baldır aşağı
+function Govde({ g, oturuyor = false }: { g: Gorunum; oturuyor?: boolean }) {
   const kafa = useMemo(() => new THREE.IcosahedronGeometry(0.13, 1), []);
   return (
     <group scale={g.boy}>
       {/* Bacaklar */}
       {[-0.08, 0.08].map((x) => (
-        <mesh key={x} position={[x, 0.38, 0]} castShadow>
-          <boxGeometry args={[0.11, 0.76, 0.13]} />
-          <meshStandardMaterial color={g.alt} roughness={0.85} flatShading />
-        </mesh>
+        <group key={x} position={[x, 0.76, 0]} rotation={[oturuyor ? -Math.PI / 2 : 0, 0, 0]}>
+          <mesh position={[0, -0.19, 0]} castShadow>
+            <boxGeometry args={[0.11, 0.38, 0.13]} />
+            <meshStandardMaterial color={g.alt} roughness={0.85} flatShading />
+          </mesh>
+          <group position={[0, -0.38, 0]} rotation={[oturuyor ? Math.PI / 2 : 0, 0, 0]}>
+            <mesh position={[0, -0.19, 0]} castShadow>
+              <boxGeometry args={[0.11, 0.38, 0.13]} />
+              <meshStandardMaterial color={g.alt} roughness={0.85} flatShading />
+            </mesh>
+          </group>
+        </group>
       ))}
+      {/* Otururken elinde külah */}
+      {oturuyor && (
+        <group position={[0.2, 1.0, 0.2]}>
+          <mesh rotation={[Math.PI, 0, 0]}>
+            <coneGeometry args={[0.045, 0.14, 8]} />
+            <meshStandardMaterial color="#d9a35b" roughness={0.9} flatShading />
+          </mesh>
+          <mesh position={[0, 0.09, 0]}>
+            <icosahedronGeometry args={[0.05, 0]} />
+            <meshStandardMaterial color="#ff8fa0" roughness={0.6} flatShading />
+          </mesh>
+        </group>
+      )}
       {/* Gövde */}
       <mesh position={[0, 1.02, 0]} castShadow>
         <cylinderGeometry args={[0.17, 0.21, 0.56, 7]} />
@@ -107,6 +130,49 @@ function Govde({ g }: { g: Gorunum }) {
   );
 }
 
+// ---- Masalarda oturma (Kemal, 14 Ekim) ----
+// Mutlu giden müşterinin bir kısmı boş bir sandalye varsa oturur, yer, gider.
+// Hangi sandalyenin dolu olduğu yalnız sahnede tutulur (kayda girmez).
+const OTURMA_OLASILIGI = 0.6;
+const OTURMA_SURESI: [number, number] = [10, 16]; // saniye
+const SANDALYE_ARALIGI = 0.62 * 0.85; // Dekorlar'daki masa ölçüsü
+const KOSE_Y = -3.0; // dükkânın köşesini dönerken geçilen hat
+const OTURAK_Y = 0.4; // sandalye oturağının masa zeminine göre yüksekliği
+
+interface Koltuk {
+  anahtar: string;
+  yer: THREE.Vector3;
+  bakis: number; // masaya dönük
+  ic: boolean;
+  yan: 0 | 1 | -1; // dükkânın yanındaki alanlardan biri mi
+}
+
+const doluKoltuklar = new Map<string, number>(); // anahtar → müşteri
+
+function bosKoltuk(d: Durum): Koltuk | null {
+  const bos: Koltuk[] = [];
+  for (const y of d.yerlesim) {
+    if (y.esya !== 'masa' && y.esya !== 'semsiyeliMasa') continue;
+    const h = HUCRELER[y.hucre];
+    if (!h || h.arkada) continue;
+    const yan: 0 | 1 | -1 = !h.ic && h.z > -2.6 ? (h.x > 0 ? 1 : -1) : 0;
+    for (const taraf of [1, -1]) {
+      const anahtar = `${y.hucre}:${taraf}`;
+      if (doluKoltuklar.has(anahtar)) continue;
+      bos.push({
+        anahtar,
+        yer: new THREE.Vector3(h.x + taraf * (SANDALYE_ARALIGI - 0.05), h.ic ? 0 : 0.06, h.z),
+        bakis: taraf > 0 ? -Math.PI / 2 : Math.PI / 2,
+        ic: h.ic,
+        yan,
+      });
+    }
+  }
+  return bos.length ? bos[Math.floor(Math.random() * bos.length)] : null;
+}
+
+type Asama = 'giris' | 'sirada' | 'masaya' | 'oturuyor' | 'cikiyor';
+
 function TekMusteri({ musteri }: { musteri: Musteri }) {
   const ref = useRef<THREE.Group>(null);
   const icRef = useRef<THREE.Group>(null);
@@ -117,9 +183,20 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
   );
   // Sıradaki yol noktaları: önce kapının dışı, sonra içi; sonra sıradaki yeri
   const yol = useRef<THREE.Vector3[]>([KAPI_DIS, KAPI_IC]);
-  const cikiyor = useRef(false);
+  const asama = useRef<Asama>('giris');
+  const koltuk = useRef<Koltuk | null>(null);
+  const kalanOturma = useRef(0);
   const kaldirildi = useRef(false);
+  const [oturuyor, setOturuyor] = useState(false);
   const g = musteriGorunumleri[musteri.gorunum % musteriGorunumleri.length];
+
+  // Sahneden çıkınca sandalyeyi boşalt
+  useEffect(
+    () => () => {
+      if (koltuk.current) doluKoltuklar.delete(koltuk.current.anahtar);
+    },
+    [],
+  );
 
   useFrame(({ clock }, dt) => {
     const grup = ref.current;
@@ -128,25 +205,66 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
     const d = durumuOku();
     const m = d.musteriler.find((x) => x.id === musteri.id);
     if (!m || d.duraklatildi) return; // duraklatınca herkes yerinde durur
+    const son = new THREE.Vector3(m.gidisTarafi * ISKELE_UCU, 0, ISKELE_Z);
 
-    if (m.hal === 'gidiyor' && !cikiyor.current) {
-      cikiyor.current = true;
-      yol.current = [
-        new THREE.Vector3(grup.position.x, 0, -2.12),
-        KAPI_IC,
-        KAPI_DIS,
-        new THREE.Vector3(m.gidisTarafi * ISKELE_UCU, 0, ISKELE_Z),
-      ];
+    // Servis bitti: ya bir masaya oturur ya da doğrudan gider
+    if (m.hal === 'gidiyor' && (asama.current === 'giris' || asama.current === 'sirada')) {
+      const k = m.mutlu && Math.random() < OTURMA_OLASILIGI ? bosKoltuk(d) : null;
+      const cikis = new THREE.Vector3(grup.position.x, 0, -2.12);
+      if (k) {
+        doluKoltuklar.set(k.anahtar, m.id);
+        koltuk.current = k;
+        asama.current = 'masaya';
+        yol.current = k.ic
+          ? [cikis, new THREE.Vector3(k.yer.x, 0, -2.15), k.yer]
+          : k.yan
+            ? [cikis, KAPI_IC, KAPI_DIS, new THREE.Vector3(k.yan * 4.6, 0, KOSE_Y), k.yer]
+            : [cikis, KAPI_IC, KAPI_DIS, new THREE.Vector3(k.yer.x, 0, ISKELE_Z), k.yer];
+      } else {
+        asama.current = 'cikiyor';
+        yol.current = [cikis, KAPI_IC, KAPI_DIS, son];
+      }
+    }
+
+    // Oturuyor: masaya dönük, yer; süre bitince kalkar
+    if (asama.current === 'oturuyor' && koltuk.current) {
+      const k = koltuk.current;
+      grup.position.copy(k.yer);
+      grup.rotation.y = k.bakis;
+      // Kalça sandalyenin oturağına gelsin
+      ic.position.y = OTURAK_Y - 0.76 * g.boy + Math.sin(clock.elapsedTime * 1.6 + musteri.id) * 0.004;
+      kalanOturma.current -= dt;
+      if (kalanOturma.current <= 0) {
+        doluKoltuklar.delete(k.anahtar);
+        asama.current = 'cikiyor';
+        setOturuyor(false);
+        yol.current = k.ic
+          ? [new THREE.Vector3(k.yer.x, 0, -2.15), KAPI_IC, KAPI_DIS, son]
+          : k.yan
+            ? [new THREE.Vector3(k.yan * 4.6, 0, KOSE_Y), son]
+            : [new THREE.Vector3(k.yer.x, 0, ISKELE_Z), son];
+        koltuk.current = null;
+      }
+      return;
     }
 
     if (yol.current.length > 0) {
       hedef.copy(yol.current[0]);
+      hedef.y = 0;
       if (grup.position.distanceTo(hedef) < 0.06) {
         yol.current = yol.current.slice(1);
-        if (yol.current.length === 0 && cikiyor.current && !kaldirildi.current) {
-          kaldirildi.current = true;
-          musteriyiKaldir(m.id);
-          return;
+        if (yol.current.length === 0) {
+          if (asama.current === 'giris') asama.current = 'sirada';
+          else if (asama.current === 'masaya') {
+            asama.current = 'oturuyor';
+            kalanOturma.current = OTURMA_SURESI[0] + Math.random() * (OTURMA_SURESI[1] - OTURMA_SURESI[0]);
+            setOturuyor(true);
+            return;
+          } else if (asama.current === 'cikiyor' && !kaldirildi.current) {
+            kaldirildi.current = true;
+            musteriyiKaldir(m.id);
+            return;
+          }
         }
       }
     } else {
@@ -156,11 +274,13 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
 
     // Yürüyüş: dışarıda biraz daha hızlı, içeride yavaş; gittiği yöne döner
     const fark = hedef.clone().sub(grup.position);
+    fark.y = 0;
     const mesafe = fark.length();
     const disarida = grup.position.z < -2.6 || Math.abs(grup.position.x) > 4.2;
     const hiz = disarida ? 2.6 : 1.3;
     const yuruyor = mesafe > 0.02;
     if (yuruyor) grup.position.add(fark.clone().multiplyScalar(Math.min(1, (hiz * dt) / mesafe)));
+    grup.position.y = 0;
     const bakis = yuruyor && mesafe > 0.05 ? Math.atan2(fark.x, fark.z) : 0; // durunca tezgaha bakar
     let aci = bakis - grup.rotation.y;
     aci = Math.atan2(Math.sin(aci), Math.cos(aci)); // en kısa yoldan dön
@@ -169,14 +289,14 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
     const t = clock.elapsedTime + musteri.id;
     const ziplama = yuruyor ? Math.abs(Math.sin(t * 9)) * 0.04 : Math.sin(t * 1.6) * 0.006;
     // Mutlu giden müşteri çıkarken sevinçle zıplar
-    const sevinc = m.mutlu && cikiyor.current && yol.current.length >= 3 ? Math.abs(Math.sin(t * 7)) * 0.08 : 0;
+    const sevinc = m.mutlu && asama.current === 'cikiyor' && yol.current.length >= 2 ? Math.abs(Math.sin(t * 7)) * 0.08 : 0;
     ic.position.y = ziplama + sevinc;
   });
 
   return (
     <group ref={ref} name={`musteri-${musteri.id}`} position={baslangic.toArray()}>
       <group ref={icRef}>
-        <Govde g={g} />
+        <Govde g={g} oturuyor={oturuyor} />
       </group>
     </group>
   );

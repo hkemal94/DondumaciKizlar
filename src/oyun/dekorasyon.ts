@@ -19,16 +19,33 @@ export const ISIK_SEVIYELERI = [
 ];
 export const EN_YUKSEK_ISIK = ISIK_SEVIYELERI.length;
 
-// Yerleştirme kareleri: terasta iki-üç sıra, içeride köşeler.
-// Müşterilerin yürüdüğü yol (iskele hattı ve kapının önü) boş bırakılır.
+// Satın alınan alanlar (Kemal, 14 Ekim): dükkânın iki yanı ve yol
+// kenarındaki teras. Yalnız dükkânın hizasındaki teras başta açık.
+// Adlar genel görünümde ekranda göründüğü yana göre (x < 0 ekranın sağı).
+export type Bolge = 'solYan' | 'sagYan' | 'solYol' | 'sagYol';
+
+export const BOLGELER: { id: Bolge; fiyat: number }[] = [
+  { id: 'solYan', fiyat: 250 },
+  { id: 'sagYan', fiyat: 250 },
+  { id: 'solYol', fiyat: 400 },
+  { id: 'sagYol', fiyat: 400 },
+];
+
+// Yerleştirme kareleri: terasta iki-üç sıra, içeride köşeler, iki yanda
+// alınabilir alanlar. Müşterilerin yürüdüğü yol (iskele hattı ve kapının
+// önü) boş bırakılır. Kayıtta kareler sıra numarasıyla tutulur: yeni kare
+// yalnız listenin SONUNA eklenir.
 export interface Hucre {
   x: number;
   z: number;
   ic: boolean; // dükkânın içi mi
+  bolge?: Bolge; // yoksa başta açık
+  arkada?: boolean; // tezgahın arkası (müşteri oturmaz)
 }
 
 const KARE = 1.2;
 const KAPI_ARALIGI: [number, number] = [-4.7, -2.1]; // kapının önü boş
+const DUKKAN_HIZASI = 4.2; // bu genişliğin dışındaki teras yol kenarı alanıdır
 
 function hucreleriKur(): Hucre[] {
   const h: Hucre[] = [];
@@ -37,14 +54,22 @@ function hucreleriKur(): Hucre[] {
     for (let i = -9; i <= 9; i++) {
       const x = i * KARE;
       if (z === -3.05 && x > KAPI_ARALIGI[0] && x < KAPI_ARALIGI[1]) continue;
-      h.push({ x, z, ic: false });
+      const bolge: Bolge | undefined = x > DUKKAN_HIZASI ? 'solYol' : x < -DUKKAN_HIZASI ? 'sagYol' : undefined;
+      h.push({ x, z, ic: false, bolge });
     }
   }
   // İçerisi: müşteri tarafının sağ köşesi ve tezgahın arkasındaki köşeler
   for (const x of [1.7, 2.9]) h.push({ x, z: -1.78, ic: true });
-  for (const x of [-2.6, 2.6]) h.push({ x, z: 0.7, ic: true });
+  for (const x of [-2.6, 2.6]) h.push({ x, z: 0.7, ic: true, arkada: true });
+  // Dükkânın iki yanı (14 Ekim)
+  for (const yon of [1, -1] as const)
+    for (const z of [-1.6, -0.4, 0.8])
+      for (const x of [5.0, 6.2, 7.4, 8.6]) h.push({ x: yon * x, z, ic: false, bolge: yon > 0 ? 'solYan' : 'sagYan' });
   return h;
 }
 
 export const HUCRELER = hucreleriKur();
 export const KARE_BOYU = KARE;
+
+// Yan alan alınınca döşenen ahşap zeminin sınırları
+export const YAN_ZEMIN = { icX: 4.3, disX: 9.3, onZ: -2.4, arkaZ: 1.5 };

@@ -1,5 +1,5 @@
-import { hucreDolu, hucreyeKoy, useDurum, yerlesimiKaldir } from '../oyun/durum';
-import { HUCRELER, KARE_BOYU, type Esya } from '../oyun/dekorasyon';
+import { hucreAcik, hucreDolu, hucreyeKoy, useDurum, yerlesimiKaldir } from '../oyun/durum';
+import { HUCRELER, KARE_BOYU, YAN_ZEMIN, type Esya } from '../oyun/dekorasyon';
 import { renk } from './renkler';
 
 // Dekorasyon (belge bölüm 4; 13 Ekim): ışıklandırma seviyeleri ve
@@ -161,20 +161,38 @@ function IsikliSerit() {
   );
 }
 
-// Yerleştirme kareleri: boş kareler yeşil görünür. Dokunma tek bir görünmez
+// Alınmış yan alan: taş kaldırımın üstüne terasla aynı ahşap zemin
+function YanZemin({ yon }: { yon: 1 | -1 }) {
+  const { icX, disX, onZ, arkaZ } = YAN_ZEMIN;
+  const genislik = disX - icX;
+  const tahtalar = [];
+  for (let i = 0; i < 3; i++) {
+    tahtalar.push(
+      <mesh key={i} position={[yon * (icX + (genislik / 3) * (i + 0.5)), 0, (onZ + arkaZ) / 2]} receiveShadow>
+        <boxGeometry args={[genislik / 3 - 0.06, 0.12, arkaZ - onZ]} />
+        <meshStandardMaterial color={i % 2 ? renk.ahsapAcik : renk.ahsapOrta} roughness={0.9} />
+      </mesh>,
+    );
+  }
+  return <group>{tahtalar}</group>;
+}
+
+// Yerleştirme kareleri: boş kareler yeşil görünür, alınmamış alanlarınki gri. Dokunma tek bir görünmez
 // zeminden alınır ve en yakın boş kareye konur (kareye tam isabet gerekmez).
 function Kareler() {
   const durum = useDurum();
   return (
     <group>
-      {HUCRELER.map((h, i) =>
-        hucreDolu(i, durum) || !durum.seciliEsya ? null : (
+      {HUCRELER.map((h, i) => {
+        const acik = hucreAcik(i, durum);
+        if (hucreDolu(i, durum) || (acik && !durum.seciliEsya)) return null;
+        return (
           <mesh key={i} position={[h.x, h.ic ? 0.02 : 0.08, h.z]} rotation={[-Math.PI / 2, 0, 0]}>
-            <planeGeometry args={[KARE_BOYU * 0.9, KARE_BOYU * 0.9]} />
-            <meshBasicMaterial color="#8fe36b" transparent opacity={0.35} depthWrite={false} />
+            <planeGeometry args={[KARE_BOYU * (acik ? 0.9 : 0.8), KARE_BOYU * (acik ? 0.9 : 0.8)]} />
+            <meshBasicMaterial color={acik ? '#8fe36b' : '#5b5560'} transparent opacity={acik ? 0.35 : 0.22} depthWrite={false} />
           </mesh>
-        ),
-      )}
+        );
+      })}
       <mesh
         position={[0, 0.1, -3.2]}
         rotation={[-Math.PI / 2, 0, 0]}
@@ -185,6 +203,7 @@ function Kareler() {
           let enYakin = -1;
           let enKisa = KARE_BOYU * 0.85;
           HUCRELER.forEach((h, i) => {
+            if (!hucreAcik(i)) return; // alınmamış alana konmaz
             const d = Math.hypot(h.x - e.point.x, h.z - e.point.z);
             if (d < enKisa) {
               enKisa = d;
@@ -205,9 +224,11 @@ function Kareler() {
 
 export function Dekorlar() {
   const durum = useDurum();
-  const { isikSeviyesi, yerlesim, yerlestirme } = durum;
+  const { isikSeviyesi, yerlesim, yerlestirme, acikBolgeler } = durum;
   return (
     <group>
+      {acikBolgeler.includes('solYan') && <YanZemin yon={1} />}
+      {acikBolgeler.includes('sagYan') && <YanZemin yon={-1} />}
       {isikSeviyesi >= 1 && (
         <>
           <Fener konum={[-4.6, 0.06, -7.6]} />
