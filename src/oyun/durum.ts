@@ -64,7 +64,7 @@ export interface Musteri {
 
 export type Bildirim =
   | { tur: 'top'; sonuc: Sonuc; zaman: number }
-  | { tur: 'para'; miktar: number; zaman: number }
+  | { tur: 'para'; miktar: number; bahsis: number; zaman: number }
   | { tur: 'yanlis'; zaman: number }
   | { tur: 'sikildi'; zaman: number }
   | { tur: 'ikiDondurma'; zaman: number }
@@ -128,6 +128,7 @@ export interface Durum {
   // Duraklatma menüsü (Kemal, 13 Ekim): saat ve müşteriler durur
   duraklatildi: boolean;
   gezme: boolean; // duraklatıp dükkânı gezme (döndürme, yakınlaştırma, fotoğraf)
+  mukemmelSeri: number; // arka arkaya bütün topları MÜKEMMEL servis (bahşiş için)
 }
 
 // Yazısız el işaretli eğitim: ilk sipariş üç adım, sonra ilk kez görülenler
@@ -147,11 +148,12 @@ export interface GunlukOzet {
   musteri: number;
   kazanc: number;
   mukemmel: number;
+  bahsis: number;
   puanlar: number[];
 }
 
 function bosOzet(): GunlukOzet {
-  return { musteri: 0, kazanc: 0, mukemmel: 0, puanlar: [] };
+  return { musteri: 0, kazanc: 0, mukemmel: 0, bahsis: 0, puanlar: [] };
 }
 
 // Gösterge ayarları
@@ -207,6 +209,7 @@ let durum: Durum = {
   egitimGoruldu: [],
   duraklatildi: false,
   gezme: false,
+  mukemmelSeri: 0,
 };
 
 const dinleyiciler = new Set<() => void>();
@@ -323,6 +326,8 @@ export function geriAl() {
 export const EN_COK_SIRA = 4;
 export const GELIS_ARALIGI: [number, number] = [5000, 9000]; // ms
 export const MUKEMMEL_EKI = 5;
+const BAHSIS_SERISI = 3; // kaçıncı arka arkaya mükemmel serviste bahşiş başlar
+const BAHSIS_EN_COK = 10;
 export const IYI_EKI = 2;
 export const MUSTERI_GORUNUM_SAYISI = 4;
 
@@ -472,8 +477,12 @@ export function servisEt() {
     // Ceza yok: dondurma kenara konur, müşteri beklemeye devam eder.
     guncelle({ asama: 'servis', servisDogru: false, tepsi: [], bildirim: { tur: 'yanlis', zaman: simdi } });
   } else {
-    const miktar = verilen.reduce((t, u) => t + urunFiyati(u), 0);
     const butunToplar = verilen.flatMap((u) => u.toplar);
+    // Bahşiş (Kemal, 14 Ekim): arka arkaya üç ve daha çok mükemmel serviste
+    // müşteri küçük bahşiş bırakır; seri bozulunca ceza yok, sıfırlanır.
+    const seri = butunToplar.every((t) => t.sonuc === 'mukemmel') ? durum.mukemmelSeri + 1 : 0;
+    const bahsis = seri >= BAHSIS_SERISI ? Math.min(BAHSIS_EN_COK, (seri - BAHSIS_SERISI + 1) * 2) : 0;
+    const miktar = verilen.reduce((t, u) => t + urunFiyati(u), 0) + bahsis;
     const hamPuan = butunToplar.reduce((t, top) => t + SONUC_PUANI[top.sonuc], 0) / butunToplar.length;
     // Makulün %20'sinden fazla pahalı çeşitler memnuniyeti biraz düşürür
     const pahalilik = butunToplar.reduce((t, top) => t + Math.min(1, Math.max(0, (cesitFiyati(top.kuvet) / makulFiyat(top.kuvet) - 1.2) * 1.5)), 0) / butunToplar.length;
@@ -483,7 +492,8 @@ export function servisEt() {
       asama: 'servis',
       servisDogru: true,
       tepsi: [],
-      bildirim: { tur: 'para', miktar, zaman: simdi },
+      bildirim: { tur: 'para', miktar, bahsis, zaman: simdi },
+      mukemmelSeri: seri,
       para: durum.para + miktar,
       memnuniyetler: [...durum.memnuniyetler, puan],
       satislar: butunToplar.reduce((s, t) => {
@@ -496,6 +506,7 @@ export function servisEt() {
         musteri: durum.gunluk.musteri + 1,
         kazanc: durum.gunluk.kazanc + miktar,
         mukemmel: durum.gunluk.mukemmel + butunToplar.filter((t) => t.sonuc === 'mukemmel').length,
+        bahsis: durum.gunluk.bahsis + bahsis,
         puanlar: [...durum.gunluk.puanlar, puan],
       },
       musteriler: durum.musteriler.map((m) => (m.id === id ? { ...m, hal: 'gidiyor', mutlu: true } : m)),

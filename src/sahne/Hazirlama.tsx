@@ -6,6 +6,9 @@ import { CESITLER, KUVET_Y, kuvetKonumu } from '../oyun/kuvetler';
 import { renk } from './renkler';
 import { TezgahtaGorunur } from './Dukkan';
 import { tezgahDikligi } from './kameraKarisimi';
+import { Parcaciklar } from './Efektler';
+
+const SERPINTI_RENKLERI = ['#ff6f7d', '#ffc928', '#5fb7e8', '#9b5fc9', '#5fd08a', '#5a2e1c'];
 
 // Tezgah yakın planındaki hareketli parçalar: altlık (külah / kap),
 // kepçe ve dondurma topları. Eller yok (belge 7.1: önce elsiz denenir).
@@ -250,6 +253,11 @@ function AltlikVeToplar() {
     }
   });
 
+  // Serpinti yalnız süsleme eklenince (kaldırınca değil)
+  const serpinti = useRef({ son: 0, sayac: 0 });
+  if (durum.susleme.length > serpinti.current.son) serpinti.current.sayac++;
+  serpinti.current.son = durum.susleme.length;
+
   if (!durum.altlik) return null;
 
   // Toplar altlığa göre farklı dizilir: külahta üst üste,
@@ -264,8 +272,16 @@ function AltlikVeToplar() {
     </InenTop>
   ));
 
+  // Efektler: son konan topun üstünde (MÜKEMMEL kıvılcımı, süsleme serpintisi)
+  const ust = konumlar.length ? konumlar[konumlar.length - 1] : ([0, 0.05, 0] as [number, number, number]);
+  const bildirim = durum.bildirim;
+  const kivilcim = bildirim?.tur === 'top' && bildirim.sonuc === 'mukemmel' ? bildirim.zaman : 0;
   return (
     <group ref={ref} position={ALTLIK_KONUM.toArray()}>
+      <group position={[ust[0], ust[1] + 0.03, ust[2]]}>
+        <Parcaciklar tetik={kivilcim} tur="kivilcim" renkler={['#fff6b0', '#ffc928', '#ffffff']} />
+        <Parcaciklar tetik={serpinti.current.sayac} tur="serpinti" renkler={SERPINTI_RENKLERI} />
+      </group>
       {durum.altlik === 'kulah' ? <Kulah /> : durum.altlik === 'kup' ? <Kup /> : <Kap />}
       {toplar}
     </group>

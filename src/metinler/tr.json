@@ -95,6 +95,8 @@
   "gelistir.kapat": "Tamam",
 
   "egitim.gec": "Geç",
+  "sonuc.bahsis": "bahşiş +{miktar}",
+  "gunSonu.bahsis": "Bahşiş",
   "ekran.kuvetEtiketi": "Küvetlerde çeşit adı",
   "ekran.balonAdlari": "Siparişte çeşit adları",
   "egitim.yeniden": "Eğitimi yeniden göster",
