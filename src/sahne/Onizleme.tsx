@@ -12,11 +12,16 @@ import type { Esya } from '../oyun/dekorasyon';
 // çizilir. Resimler public/gorseller/esyalar/ altına bir kez alınır.
 function Cerceve({ esya }: { esya: Esya }) {
   const grup = useRef<THREE.Group>(null);
+  const kare = useRef(0);
   const { camera } = useThree();
-  useLayoutEffect(() => {
-    if (!grup.current) return;
+  // Hazır paketten gelen eşyalar sonradan yüklenir: ilk iki saniye boyunca
+  // birkaç karede bir yeniden ölçüp çerçevele
+  useFrame(() => {
+    kare.current++;
+    if (!grup.current || kare.current > 120 || kare.current % 10 !== 1) return;
     grup.current.updateWorldMatrix(true, true); // ölçmeden önce iç parçaların yerleri hesaplansın
     const kutu = new THREE.Box3().setFromObject(grup.current);
+    if (kutu.isEmpty()) return;
     const merkez = kutu.getCenter(new THREE.Vector3());
     const boy = kutu.getSize(new THREE.Vector3()).length();
     // Oyundaki genel görünüm gibi önden-soldan, biraz yukarıdan
@@ -26,7 +31,7 @@ function Cerceve({ esya }: { esya: Esya }) {
     camera.position.copy(merkez).addScaledVector(yon, Math.max(boy * 1.85, yukseklik * 2.5));
     camera.lookAt(merkez);
     camera.updateProjectionMatrix();
-  }, [camera, esya]);
+  });
   return (
     <group ref={grup}>
       <EsyaModeli esya={esya} />

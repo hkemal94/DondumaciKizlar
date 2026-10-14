@@ -11,6 +11,13 @@ import { paletliModel, type ModelAyari } from './tasarimDili';
 
 type Parca = [yol: string, ayar: Omit<ModelAyari, 'ham'>];
 const PAKETLER: Record<string, Parca[]> = {
+  // Dekorasyon eşyaları (3. adım)
+  DEK: [
+    ['pastane/table_round_B', { grup: 'dukkan', yukseklik: 0.72, boya: [['#3f7fc0', renk.mor, 38]] }],
+    ['pastane/chair', { grup: 'dukkan', yukseklik: 0.85 }],
+    ['mobilya/benchCushion', { grup: 'dukkan', en: 1.15, boya: [['#f9a39e', renk.mor, 40]] }],
+    ['mobilya/trashcan', { grup: 'dukkan', yukseklik: 0.8 }],
+  ],
   M1: [
     ['mobilya/tableRound', { grup: 'dukkan', yukseklik: 0.75 }],
     ['mobilya/chairCushion', { grup: 'dukkan', yukseklik: 0.9 }],

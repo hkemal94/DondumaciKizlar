@@ -51,44 +51,6 @@ function karaTahtaDokusu() {
   return karaTahtaDokusuOnbellek;
 }
 
-export function Bank() {
-  return (
-    <group>
-      {/* Oturak çıtaları */}
-      {[-0.12, 0, 0.12].map((z) => (
-        <mesh key={z} position={[0, 0.42, z]} castShadow>
-          <boxGeometry args={[1.1, 0.04, 0.1]} />
-          <meshStandardMaterial color={renk.ahsapAcik} roughness={0.85} />
-        </mesh>
-      ))}
-      {/* Arkalık: denize sırtını vermesin, oturan denize baksın diye arkada (+z) */}
-      {[0.58, 0.72].map((y) => (
-        <mesh key={y} position={[0, y, 0.2]} rotation={[-0.15, 0, 0]} castShadow>
-          <boxGeometry args={[1.1, 0.09, 0.03]} />
-          <meshStandardMaterial color={renk.ahsapAcik} roughness={0.85} />
-        </mesh>
-      ))}
-      {/* Demir yanlar */}
-      {[-0.5, 0.5].map((x) => (
-        <group key={x} position={[x, 0, 0]}>
-          <mesh position={[0, 0.21, -0.12]}>
-            <boxGeometry args={[0.04, 0.42, 0.04]} />
-            <meshStandardMaterial color={DEMIR} />
-          </mesh>
-          <mesh position={[0, 0.4, 0.16]}>
-            <boxGeometry args={[0.04, 0.8, 0.04]} />
-            <meshStandardMaterial color={DEMIR} />
-          </mesh>
-          <mesh position={[0, 0.55, 0.0]}>
-            <boxGeometry args={[0.05, 0.04, 0.38]} />
-            <meshStandardMaterial color={DEMIR} />
-          </mesh>
-        </group>
-      ))}
-    </group>
-  );
-}
-
 // Bankın iki oturağı (müşteriler oturur): eşyanın merkezine göre
 export const BANK_OTURAKLARI = [-0.28, 0.28];
 
@@ -308,25 +270,6 @@ export function Bisiklet() {
       <group position={[0.5, 0.86, 0.05]} scale={0.6}>
         <Cicekler genislik={0.2} y={0} sayi={3} />
       </group>
-    </group>
-  );
-}
-
-export function CopKutusu() {
-  return (
-    <group>
-      <mesh position={[0, 0.38, 0]} castShadow>
-        <cylinderGeometry args={[0.2, 0.17, 0.76, 10]} />
-        <meshStandardMaterial color="#4c6b4a" roughness={0.6} flatShading />
-      </mesh>
-      <mesh position={[0, 0.79, 0]}>
-        <cylinderGeometry args={[0.23, 0.23, 0.06, 10]} />
-        <meshStandardMaterial color={DEMIR} roughness={0.5} />
-      </mesh>
-      <mesh position={[0, 0.55, -0.19]}>
-        <boxGeometry args={[0.16, 0.04, 0.02]} />
-        <meshStandardMaterial color={renk.sari} />
-      </mesh>
     </group>
   );
 }
