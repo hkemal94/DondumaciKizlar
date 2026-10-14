@@ -1247,3 +1247,67 @@ a.dugme {
 .gun-sonu > .baslik-logo {
   margin: 0 auto 2px;
 }
+
+/* Fiyat ekranı (14 Ekim): çeşit başına çubuklar */
+.fiyat-seviyeleri {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.fiyat-satir {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  background: #fff;
+  border: 2px solid rgba(78, 36, 112, 0.18);
+}
+.fiyat-satir .gel-ad {
+  flex: 0 0 120px;
+}
+.fiyat-hepsi {
+  background: #f4ecd9;
+}
+.fiyat-cubugu {
+  flex: 1;
+  min-width: 80px;
+  accent-color: #7a3fa8;
+}
+.fiyat-deger {
+  flex: 0 0 auto;
+  min-width: 44px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.fiyat-deger .para-simge {
+  width: 14px;
+  height: 14px;
+}
+.fiyat-istek {
+  flex: 0 0 82px;
+  font-size: 12px;
+  font-weight: 800;
+  text-align: right;
+}
+.fiyat-istek.cok {
+  color: #2f8a45;
+}
+.fiyat-istek.olagan {
+  color: #7a6a85;
+}
+.fiyat-istek.az {
+  color: #c2453d;
+}
+.fiyat-seviyeleri .gel-secenek {
+  padding: 4px 10px;
+  justify-content: flex-start;
+  gap: 0;
+  min-height: 0;
+}
+.fiyat-seviyeleri .gel-aciklama {
+  font-size: 12px;
+  line-height: 1.25;
+}
