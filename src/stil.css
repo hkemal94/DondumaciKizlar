@@ -1990,3 +1990,45 @@ a.dugme {
   border-radius: 8px;
   border: 2px solid var(--mor);
 }
+
+/* ---- Belge 0.6: waffle süsleme paneli ve içecek standı ---- */
+.waffle-susleme-paneli,
+.icecek-paneli {
+  position: absolute;
+  right: max(14px, env(safe-area-inset-right));
+  bottom: calc(max(14px, env(safe-area-inset-bottom)) + 52px);
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+  pointer-events: auto;
+}
+.icecek-paneli {
+  flex-direction: column;
+  align-items: stretch;
+}
+.waffle-grup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.waffle-grup-ad {
+  font-weight: 900;
+  font-size: 11px;
+  color: #fff6c9;
+  text-shadow: 0 1px 0 #4e2470;
+  text-align: center;
+}
+.waffle-susleme-paneli .susleme-dugme,
+.icecek-dugme {
+  font-size: 11px;
+  padding: 3px 8px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  white-space: nowrap;
+}
+.icecek-simge {
+  width: 14px;
+  height: 24px;
+  margin-right: 4px;
+}

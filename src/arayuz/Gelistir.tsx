@@ -14,7 +14,6 @@ import {
   MAKINE_FIYAT_ARALIGI,
   makineFiyatiSec,
   makineSatisFiyati,
-  ikinciVitrinGerek,
   vitrinBuyut,
   cesitAc,
   DENEME,
@@ -112,8 +111,8 @@ function FiyatEkrani() {
           </div>
         );
       })}
-      {/* Waffle ve limonata (belge 0.5): makine alındıysa */}
-      {(['waffle', 'limonata'] as const)
+      {/* Waffle ve içecek (belge 0.5, 0.6): makine / stand alındıysa */}
+      {(['waffle', 'icecek'] as const)
         .filter((u) => durum.sahipParcalar.includes(u))
         .map((u) => (
           <div key={u} className="fiyat-satir">
@@ -216,7 +215,7 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
                     {m('gelistir.al')} <Para miktar={sonrakiVitrin(durum)!.fiyat} />
                   </button>
                 ) : (
-                  <span className="gel-durum">{ikinciVitrinGerek(durum) ? m('vitrin.ikinciGerek') : m('vitrin.enBuyuk')}</span>
+                  <span className="gel-durum">{m('vitrin.enBuyuk')}</span>
                 )}
               </div>
               {CESITLER.map((c, i) => {

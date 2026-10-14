@@ -5,21 +5,24 @@ import type { TezgahYeri } from './dekorasyon';
 
 // ---- İstasyonlar ----
 // Oyuncu güne başlarken birini seçer; yardımcılar ötekilerde çalışır.
-export type Istasyon = 'dondurma' | 'waffle' | 'limonata';
-export const ISTASYONLAR: Istasyon[] = ['dondurma', 'waffle', 'limonata'];
+// İçecek standı (belge 0.6) limonata sebilinin yerine geldi; eski kayıtta 'limonata' → 'icecek'
+export type Istasyon = 'dondurma' | 'waffle' | 'icecek';
+export const ISTASYONLAR: Istasyon[] = ['dondurma', 'waffle', 'icecek'];
 
 // ---- Tezgah parçaları ----
 // Tezgah bölümünün sağ (+x) ya da sol (−x) ucuna sırayla eklenir; derinlikleri
-// tezgahla aynı (3 m). Köşe yalnız süs: ucu kapatan L biçimi.
-export type ParcaTipi = 'waffle' | 'limonata' | 'vitrin2' | 'servis' | 'kose';
-export const PARCA_TIPLERI: ParcaTipi[] = ['waffle', 'limonata', 'vitrin2', 'servis', 'kose'];
+// tezgahla aynı (3 m). Köşe yalnız süs: ucu kapatan L biçimi. İkinci vitrin
+// 0.6'da kaldırıldı.
+export type ParcaTipi = 'waffle' | 'icecek' | 'servis' | 'kose';
+export const PARCA_TIPLERI: ParcaTipi[] = ['waffle', 'icecek', 'servis', 'kose'];
 export const PARCA_BILGI: Record<ParcaTipi, { en: number; fiyat: number }> = {
   waffle: { en: 2, fiyat: 600 },
-  limonata: { en: 2, fiyat: 400 },
-  vitrin2: { en: 3, fiyat: 500 },
+  icecek: { en: 2, fiyat: 400 },
   servis: { en: 2, fiyat: 300 },
   kose: { en: 1, fiyat: 100 },
 };
+// Eski kayıtlar: limonata sebili → içecek standı; ikinci vitrinin parası geri verilir
+export const IKINCI_VITRIN_IADESI = 500;
 export interface TezgahParcasi {
   tur: ParcaTipi;
   yan: 1 | -1;
@@ -51,11 +54,40 @@ export function istasyonParcasi(ist: Istasyon, yerler: ParcaYeri[]) {
 }
 
 // ---- Ürünler ----
-export type WaffleSusleme = 'cikolata' | 'cilek' | 'pudra';
-export const WAFFLE_SUSLEMELERI: WaffleSusleme[] = ['cikolata', 'cilek', 'pudra'];
+// Waffle süslemesi (belge 0.6): üç grup, müşteri serbestçe birden çok ister
+export type WaffleSusleme =
+  | 'sutluCikolata'
+  | 'bitterCikolata'
+  | 'beyazCikolata'
+  | 'cilek'
+  | 'muz'
+  | 'kivi'
+  | 'bogurtlen'
+  | 'findik'
+  | 'renkliSeker'
+  | 'hindistanCevizi'
+  | 'pudra';
+export const WAFFLE_GRUPLARI: { grup: 'cikolata' | 'meyve' | 'susleme'; suslemeler: WaffleSusleme[] }[] = [
+  { grup: 'cikolata', suslemeler: ['sutluCikolata', 'bitterCikolata', 'beyazCikolata'] },
+  { grup: 'meyve', suslemeler: ['cilek', 'muz', 'kivi', 'bogurtlen'] },
+  { grup: 'susleme', suslemeler: ['findik', 'renkliSeker', 'hindistanCevizi', 'pudra'] },
+];
+export const WAFFLE_SUSLEMELERI: WaffleSusleme[] = WAFFLE_GRUPLARI.flatMap((g) => g.suslemeler);
 export const WAFFLE_FIYATI = 6;
-export const LIMONATA_FIYATI = 3;
 export const MAKINE_SUSLEME_FIYATI = 1;
+
+// İçecek standı (belge 0.6): şimdilik kutu / şişe içecekler (geçici liste)
+export type Icecek = 'gazoz' | 'kola' | 'soda' | 'visne' | 'seftali';
+export const ICECEKLER: Icecek[] = ['gazoz', 'kola', 'soda', 'visne', 'seftali'];
+export const ICECEK_RENGI: Record<Icecek, string> = {
+  gazoz: '#9fd86b',
+  kola: '#8a2f2f',
+  soda: '#7ec8e8',
+  visne: '#b0243f',
+  seftali: '#f6a65a',
+};
+export const ICECEK_FIYATI = 2; // tanesi
+export const EN_COK_ICECEK = 3;
 export const MAKINE_MUKEMMEL_EKI = 2;
 
 // Waffle pişmesi: renk çubuğu bu sürede dolar; altın sarı aralığında açılmalı
@@ -69,8 +101,8 @@ export function pismeBul(oran: number): Pisme {
 
 // Müşterinin makine siparişi
 export interface MakineSiparisi {
-  susleme: WaffleSusleme | null; // waffle
-  buz: boolean; // limonata
+  susleme: WaffleSusleme[]; // waffle
+  icecekler: Icecek[]; // içecek standı (aynısından iki tane olabilir)
 }
 
 // ---- Yardımcılar ----
