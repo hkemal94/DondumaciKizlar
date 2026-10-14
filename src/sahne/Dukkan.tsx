@@ -3,7 +3,8 @@ import { useFrame } from '@react-three/fiber';
 import { duvarlar, kameraKarisimi } from './kameraKarisimi';
 import * as THREE from 'three';
 import { renk } from './renkler';
-import { CESITLER, kuvetAraligi, kuvetX, vitrinGenisligi } from '../oyun/kuvetler';
+import { CESITLER, kuvetKonumu, vitrinGenisligi } from '../oyun/kuvetler';
+import { m, type MetinAnahtari } from '../metinler';
 import { durumuOku, kuveteBas, useDurum } from '../oyun/durum';
 
 // Dükkânın içi, tezgahın arkasından görünen hâli (birinci şahıs yakın plan).
@@ -337,11 +338,69 @@ function DondurmaYuzeyi({ renkAdi, tohum }: { renkAdi: string; tohum: number }) 
   );
 }
 
-// Vitrin: dört küvet, üstünde cam siper. Küvete basılı tutunca kepçe dalar.
+// Küvetin önündeki küçük ad kartı (gerçek dondurmacılardaki gibi):
+// çok çeşit olunca renkler karışmasın diye
+const etiketDokulari = new Map<string, THREE.CanvasTexture>();
+function etiketDokusu(yazi: string, renkAdi: string) {
+  const anahtar = `${yazi}|${renkAdi}`;
+  const var_ = etiketDokulari.get(anahtar);
+  if (var_) return var_;
+  const c = document.createElement('canvas');
+  c.width = 256;
+  c.height = 72;
+  const g = c.getContext('2d')!;
+  g.fillStyle = '#fffaf0';
+  g.fillRect(0, 0, 256, 72);
+  g.fillStyle = renkAdi;
+  g.fillRect(0, 0, 18, 72);
+  g.fillStyle = '#3a2350';
+  let boy = 40;
+  g.font = `700 ${boy}px Poppins, system-ui, sans-serif`;
+  while (g.measureText(yazi).width > 220 && boy > 18) {
+    boy -= 2;
+    g.font = `700 ${boy}px Poppins, system-ui, sans-serif`;
+  }
+  g.textBaseline = 'middle';
+  g.textAlign = 'center';
+  g.fillText(yazi, 137, 38);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 4;
+  etiketDokulari.set(anahtar, t);
+  return t;
+}
+
+// Tek sırada ve öndeki sırada kart küvetin önünde yatık durur; arka sırada
+// öndeki dondurmaların üstünde görünsün diye küvetin arkasında, çubukta dikilir.
+function KuvetEtiketi({ cesit, arkada }: { cesit: number; arkada: boolean }) {
+  const c = CESITLER[cesit];
+  const doku = useMemo(() => etiketDokusu(m(`cesit.${c.ad}` as MetinAnahtari), c.renk), [c]);
+  if (arkada)
+    return (
+      <group position={[0, 0, -0.13]}>
+        <mesh position={[0, 0.13, -0.01]}>
+          <cylinderGeometry args={[0.008, 0.008, 0.26, 4]} />
+          <meshStandardMaterial color="#b9c0c6" />
+        </mesh>
+        <mesh position={[0, 0.27, 0]} rotation={[-0.25, 0, 0]}>
+          <planeGeometry args={[0.5, 0.14]} />
+          <meshBasicMaterial map={doku} toneMapped={false} />
+        </mesh>
+      </group>
+    );
+  return (
+    <mesh position={[0, 0.06, 0.25]} rotation={[-0.5, 0, 0]}>
+      <planeGeometry args={[0.5, 0.14]} />
+      <meshBasicMaterial map={doku} toneMapped={false} />
+    </mesh>
+  );
+}
+
+// Vitrin: oyuncunun seçtiği çeşitlerin küvetleri (4–12; 6'dan fazlası iki
+// sıra), üstünde cam siper. Küvete basılı tutunca kepçe dalar.
 function Vitrin() {
-  const { acikCesitler } = useDurum();
-  const VITRIN_GENISLIGI = vitrinGenisligi(acikCesitler.length);
-  const olcek = kuvetAraligi(acikCesitler.length) / 0.62; // sıklaşınca küvetler daralır
+  const { vitrin } = useDurum();
+  const VITRIN_GENISLIGI = vitrinGenisligi(vitrin.length);
   return (
     <group position={[0, 0, -0.62]}>
       {/* Vitrin gövdesi */}
@@ -351,23 +410,31 @@ function Vitrin() {
       <Kutu konum={[0, 0.9, -0.46]} boyut={[VITRIN_GENISLIGI, 0.07, 0.02]} renkAdi={renk.sari} />
       {/* Küvet kasası */}
       <Kutu konum={[0, 0.98, 0]} boyut={[VITRIN_GENISLIGI - 0.3, 0.06, 0.66]} renkAdi="#8d969e" puruz={0.4} />
-      {acikCesitler.map((cesit) => (
-        <group key={cesit} position={[kuvetX(cesit, acikCesitler), 1.0, 0]} scale={[olcek, 1, 1]}>
-          <Kutu konum={[0, -0.02, 0]} boyut={[0.58, 0.06, 0.5]} renkAdi="#d4d9dd" golgeVer={false} puruz={0.3} />
-          <DondurmaYuzeyi renkAdi={CESITLER[cesit].renk} tohum={cesit + 1} />
-          {/* Dokunma alanı: küvetten biraz büyük, görünmez */}
-          <mesh
-            position={[0, 0.08, 0]}
-            onPointerDown={(e) => {
-              e.stopPropagation();
-              kuveteBas(cesit);
-            }}
-          >
-            <boxGeometry args={[0.6, 0.25, 0.7]} />
-            <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-          </mesh>
-        </group>
-      ))}
+      {vitrin.map((cesit) => {
+        const k = kuvetKonumu(cesit, vitrin);
+        return (
+          <group key={cesit} position={[k.x, 1.0, k.z + 0.62]}>
+            <group scale={[k.olcekX, 1, k.olcekZ]}>
+              <Kutu konum={[0, -0.02, 0]} boyut={[0.58, 0.06, 0.5]} renkAdi="#d4d9dd" golgeVer={false} puruz={0.3} />
+              <DondurmaYuzeyi renkAdi={CESITLER[cesit].renk} tohum={cesit + 1} />
+              {/* Dokunma alanı: küvetten biraz büyük, görünmez */}
+              <mesh
+                position={[0, 0.08, 0]}
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                  kuveteBas(cesit);
+                }}
+              >
+                <boxGeometry args={[0.6, 0.25, 0.7]} />
+                <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+              </mesh>
+            </group>
+            <group position={[0, 0, k.arkada ? 0 : (k.olcekZ - 1) * 0.25]} scale={[k.olcekX, k.olcekX, 1]}>
+              <KuvetEtiketi cesit={cesit} arkada={k.arkada} />
+            </group>
+          </group>
+        );
+      })}
       {/* Müşteri tarafında alçak cam siper */}
       <mesh position={[0, 1.2, -0.42]} rotation={[-0.12, 0, 0]}>
         <boxGeometry args={[VITRIN_GENISLIGI - 0.1, 0.42, 0.02]} />
@@ -408,8 +475,8 @@ function Yiginlar({ vitrin }: { vitrin: number }) {
 }
 
 function Tezgah() {
-  const { acikCesitler } = useDurum();
-  const VITRIN_GENISLIGI = vitrinGenisligi(acikCesitler.length);
+  const { vitrin } = useDurum();
+  const VITRIN_GENISLIGI = vitrinGenisligi(vitrin.length);
   return (
     <group>
       {/* Yan tezgahlar (vitrinin iki yanı) */}

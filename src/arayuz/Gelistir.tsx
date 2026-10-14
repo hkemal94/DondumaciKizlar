@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import {
   bastanBasla,
+  cesitAlinabilir,
+  sonrakiVitrin,
+  vitrinBuyut,
   bolgeAl,
   cesitAc,
   DENEME,
@@ -59,16 +62,39 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
         <div className="gel-icerik">
           {sekme === 'cesitler' && (
             <div className="gel-izgara">
+              {/* Vitrin büyütme: 4 → 6 → 8 → 10 → 12 küvet (Kemal, 14 Ekim) */}
+              <div className={`gel-kart ${sonrakiVitrin(durum) ? '' : 'acik'}`}>
+                <span className="gel-ad">
+                  {m('vitrin.buyut')}
+                  {sonrakiVitrin(durum) && (
+                    <span className="gel-aciklama">
+                      {' '}
+                      · {m('vitrin.buyutAciklama', { simdi: durum.vitrinBoyu, sonra: sonrakiVitrin(durum)!.boy })}
+                    </span>
+                  )}
+                </span>
+                {sonrakiVitrin(durum) ? (
+                  <button className="dugme gel-al" disabled={durum.para < sonrakiVitrin(durum)!.fiyat} onClick={vitrinBuyut}>
+                    {m('gelistir.al')} <Para miktar={sonrakiVitrin(durum)!.fiyat} />
+                  </button>
+                ) : (
+                  <span className="gel-durum">{m('vitrin.enBuyuk')}</span>
+                )}
+              </div>
               {CESITLER.map((c, i) => {
                 const acik = durum.acikCesitler.includes(i);
+                const alinabilir = cesitAlinabilir(i, durum);
                 return (
                   <div key={i} className={`gel-kart ${acik ? 'acik' : ''}`}>
                     <span className="gel-renk" style={{ background: c.renk }} aria-hidden />
                     <span className="gel-ad">{m(`cesit.${c.ad}` as MetinAnahtari)}</span>
                     {acik ? (
                       <span className="gel-durum">{m('gelistir.acik')}</span>
+                    ) : !alinabilir ? (
+                      // Memnuniyet eşiğine ulaşılmadı: düğme yerine şart
+                      <span className="gel-durum gel-kilit">{m('cesit.yildizGerek', { yildiz: String(c.yildiz).replace('.', ',') })}</span>
                     ) : (
-                      <button className="dugme gel-al" disabled={durum.para < c.fiyat} onClick={() => cesitAc(i)}>
+                      <button className="dugme gel-al" disabled={durum.para < c.fiyat || !alinabilir} onClick={() => cesitAc(i)}>
                         {m('gelistir.al')} <Para miktar={c.fiyat} />
                       </button>
                     )}
@@ -101,6 +127,9 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
                   </button>
                 )}
               </div>
+              <p className="gel-not" style={{ gridColumn: '1 / -1' }}>
+                {m('cesit.yildizNot', { ortalama: durum.enIyiOrtalama > 0 ? durum.enIyiOrtalama.toFixed(2).replace('.', ',') : '–' })}
+              </p>
             </div>
           )}
 

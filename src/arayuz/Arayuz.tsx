@@ -37,6 +37,7 @@ import { m, type MetinAnahtari } from '../metinler';
 import { CESITLER } from '../oyun/kuvetler';
 import { balon } from '../sahne/Musteriler';
 import { Gelistir } from './Gelistir';
+import { VitrinEkrani } from './VitrinEkrani';
 import { CalisanAdi, CalisanEkrani } from './CalisanEkrani';
 import { dukkanDonusu, ekrandaKaydir, ortala, yakinlikDegistir } from '../sahne/kameraKarisimi';
 import { DuraklatDugmesi, DuraklatMenusu, GezmeEkrani } from './Duraklat';
@@ -228,6 +229,15 @@ function SuslemeDugmeleri() {
   );
 }
 
+// Siparişteki çeşitlerin adları: "Çilek ×2 · Limon"
+function siparisAdlari(s: Siparis) {
+  const sayilar = new Map<number, number>();
+  for (const k of [...s.kuvetler, ...(s.ikinci?.kuvetler ?? [])]) sayilar.set(k, (sayilar.get(k) ?? 0) + 1);
+  return [...sayilar]
+    .map(([k, n]) => m(`cesit.${CESITLER[k].ad}` as MetinAnahtari) + (n > 1 ? ` ×${n}` : ''))
+    .join(' · ');
+}
+
 // Tepside bekleyen dondurmanın küçük resmi
 function urunuSipariseCevir(u: Urun): Omit<Siparis, 'ikinci'> {
   return { altlik: u.altlik, kuvetler: u.toplar.map((t) => t.kuvet), susleme: u.susleme };
@@ -263,6 +273,8 @@ function SiparisBalonu() {
             <SiparisResmi siparis={musteri.siparis} />
             {musteri.siparis.ikinci && <SiparisResmi siparis={musteri.siparis.ikinci} />}
           </div>
+          {/* Çeşitlerin adları: çok çeşit olunca renkler karışmasın */}
+          <div className="balon-adlar">{siparisAdlari(musteri.siparis)}</div>
           {/* Sabır çubuğu: işlem yapılınca dolar, beklerken azalır */}
           {sabirOrani(durum) !== null && (
             <div className="sabir" aria-hidden>
@@ -447,6 +459,7 @@ export function Arayuz() {
   const durum = useDurum();
   const [gelistirAcik, setGelistirAcik] = useState(false);
   const [calisanAcik, setCalisanAcik] = useState(false);
+  const [vitrinAcik, setVitrinAcik] = useState(false);
   useYakinlastirma(durum.kamera === 'dukkan', durum.gezme);
 
   // Parmak ekranın neresinde kalkarsa kalksın kepçe bırakılır.
@@ -564,6 +577,9 @@ export function Arayuz() {
               <button className="dugme" onClick={() => setGelistirAcik(true)}>
                 {m('gelistir.dugme')}
               </button>
+              <button className="dugme" onClick={() => setVitrinAcik(true)}>
+                {m('vitrin.dugme')}
+              </button>
               <button className="dugme" onClick={yerlestirmeyiAc}>
                 {m('yerlestir.dugme')}
               </button>
@@ -583,6 +599,7 @@ export function Arayuz() {
       )}
       {gelistirAcik && durum.hazirlik && <Gelistir kapat={() => setGelistirAcik(false)} />}
       {calisanAcik && durum.hazirlik && <CalisanEkrani kapat={() => setCalisanAcik(false)} />}
+      {vitrinAcik && durum.hazirlik && <VitrinEkrani kapat={() => setVitrinAcik(false)} />}
       <DuraklatMenusu />
 
       <GunSonu />

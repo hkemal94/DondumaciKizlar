@@ -84,6 +84,10 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Sahibi | Günde bir kez, rastgele bir saatte iskeleden gelir, kapıdan girer, dükkânda ve terasta biraz dolaşıp gider; başka bir şey yapmaz. Görünüşü **geçici** (mor elbise, topuz saç); kanonda görünüşü yok, Kemal belirleyecek |
 | Alanlar | (Kemal, 14 Ekim) Dükkânın **iki yanındaki boş alanlar** ve **yol kenarındaki teras** satın alınır; yalnız **dükkânın hizasındaki** teras başta açıktır. Alınan alana eşya konur; yan alan alınınca ahşap zemin döşenir. Dört alan: iki yan, iki yol kenarı. Yerleştirirken kilitli kareler gri görünür |
 | Dış süsler | (Kemal, 14 Ekim: "dükkân dışı için tabela benzeri ürünler; dekorasyonda market çok zayıf") Dokuz yeni eşya: bank, çöp kutusu, çiçekli kasa, ayaklı kara tahta, flama direği, sokak lambası, sepetli bisiklet, ışıklı tabela, dev külah. Hepsi **yalnız dışarıya** konur (şemsiyeli masa da). Tabela ve kara tahtada **yazı yok**, yalnız dondurma çizimleri. Bankta iki müşteri oturabilir. Mağazada iki başlık: "Oturma ve çiçek", "Dükkânın dışı için" |
+| Çeşitler (14 Ekim) | **29 çeşit**, zamanla açılır (Kemal: "24'ten fazla"; liste Claude'un önerisi, Kemal onayladı). Baştan açık: kaymak, çikolata, çilek, fıstık. Parayla: mango, yaban mersini (dönem için az yaygın ama kalsın, Kemal), limon, vişne, kavun, karpuz, muz, kahve, fındık, karamel, portakal, kayısı, şeftali, hindistan cevizi, nane, böğürtlen. Memnuniyetle **satın alınabilir** olanlar: ortalama **4** yıldızda ahududu, bitter çikolata, tarçın, ballı yoğurt; **4,5**'te karadut, sakızlı, incir; **4,75**'te gül, kestane. Eşik en az 10 müşteriden sonraki en iyi ortalamaya bakar; bir kez açılan kapanmaz |
+| Vitrin (14 Ekim) | **4 küvetle başlar**, Dükkânı geliştir'den 6, 8, 10, 12'ye büyür; 6'dan fazlası iki sıra. Gün başında **Vitrin** ekranı: çeşide dokunarak elle seçilir ya da **Otomatik** (her sabah dünün en çok satanları + bir yeni çeşit). Müşteriler **yalnız vitrindekileri** ister. Her küvetin önünde çeşidin adı yazan kart var (arka sırada çubukta); sipariş balonunda da adlar yazar |
+| Işıklı tabela | Üstünde dükkânın adı: "Dondurmacı Kızlar" (Kemal, 14 Ekim) |
+| Çeşit fiyatları (sonraki parça) | Genel fiyat (ucuz / normal / pahalı) kalır; Fiyat ekranı ayrıntılanır: **her çeşidin kendi fiyat çubuğu** ve hepsini birden ayarlayan çubuk. Pahalı çeşit daha seyrek istenir (Kemal, 14 Ekim). *Uygulamada henüz yok* |
 | Masalarda oturan müşteriler | (Kemal, 14 Ekim: "misafirler arada varsa masalara otursun") Dondurmasını alıp mutlu giden müşterilerin bir kısmı boş bir masa varsa oturup yer, sonra iskeleden gider. Tezgahın arkasındaki köşelere konan masalara oturulmaz |
 | Sonraki iş sırası (14 Ekim) | 1. Alanlar + masalarda oturan müşteriler → 2. Dükkân dışı için tabela benzeri yeni dekorasyon ürünleri (market zayıf kaldı) → 3. Çok çeşit dondurma (Türkiye'de 20 çeşit olağan): çeşitler zamanla açılır, vitrine sınırlı küvet sığar, **her sabah vitrine hangi çeşitlerin gireceği seçilir** (önerildi, onay bekliyor) → 4. **Kış paketi:** dükkân tatlıcı / kafe olur, kışın yalnız **sıcak çikolata** istenir; makyaj paketi olarak satılabilir |
 | Topların sırası | Kural değil: yalnız altlık, çeşitler ve top sayısı tutmalı (13 Ekim) |
@@ -263,6 +267,7 @@ KKM'deki oyun dosyasında olup bu belgede olmayan maddeler:
 | Kayıt | Para, gün, açılan çeşitler, fiyat ve dekorasyon bu tarayıcıda saklanır (gün başında ve alışverişte). "Baştan başla" onay ister | Belgede yoktu; ilerlemenin anlamı olsun diye eklendi |
 | Alan fiyatları | Yan alanlar 250, yol kenarları 400. 14 Ekim'den önce kurulmuş bir dükkânda eşya duran alan kendiliğinden açık sayılır | Geçici |
 | Dış süs fiyatları | Bank 140, çöp kutusu 50, çiçekli kasa 80, kara tahta 90, flama 110, sokak lambası 160, bisiklet 180, ışıklı tabela 260, dev külah 380. Her biri öteki eşyalar gibi müşteri sıklığını biraz artırır | Geçici |
+| Çeşit ve vitrin fiyatları | Çeşitler 100–600 (özel olanlar pahalı); vitrin büyütme 6 küvet 300, 8 küvet 600, 10 küvet 1000, 12 küvet 1500. 14 Ekim'den önce kurulmuş dükkânda vitrin, açık çeşit sayısı kadar büyük başlar | Geçici |
 | Masada oturma | Mutlu giden müşterinin %60'ı, boş sandalye varsa 10–16 sn oturur | Geçici oran |
 | Kup | Üçüncü altlık (belge 3: "külah, kap ya da kup"): Dükkânı geliştir → Yeni çeşitler'den 200'e açılır. Açılınca müşteriler kup da ister; kuplu sipariş +5 | Geçici fiyat; ayaklı cam kâse, kodla çizilmiş |
 
@@ -291,5 +296,6 @@ Uygulamada **olan**:
 | Ses ve geçici müzik | Bitti; müzik Kemal'inkiyle değişecek (13 Ekim) |
 | Alanlar + masalarda oturan müşteriler | Bitti (14 Ekim) |
 | Dış süsler (9 eşya) | Bitti (14 Ekim) |
+| 29 çeşit, vitrin (4–12) ve günlük seçim, tabelada ad | Bitti (14 Ekim); çeşit başına fiyat sonraki parça |
 
 Uygulamada **olmayan** ama belgede geçenler: Kemal'in müziği (şimdilik kodla geçici ezgi), gerçek 3B modeller (hepsi kodla çizilmiş geçici parçalar), İngilizce.
