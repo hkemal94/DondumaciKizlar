@@ -216,3 +216,124 @@ export function eskiKareYeri(id: string): { x: number; z: number } | null {
   if (!s) return null;
   return { x: i * 4 + (4 / 3) * (a + 0.5), z: s[0] + ((s[1] - s[0]) / 3) * (b + 0.5) };
 }
+
+// ---- Duvarlar (belge 0.4) ----
+// Kapalı alanın (duvarla çevrili kareler) sınırı 1 m'lik duvar parçalarından
+// oluşur. Parça, içerideki birim (c, r) ve baktığı yönle tutulur:
+// g = güney (denize, −z), k = kuzey (+z), b = batı (−x), d = doğu (+x).
+export type Yon = 'g' | 'k' | 'b' | 'd';
+export type ParcaTuru = 'duvar' | 'pencere' | 'kapi';
+export interface Kenar {
+  c: number;
+  r: number;
+  y: Yon;
+}
+export const YON_ADIMI: Record<Yon, [number, number]> = { g: [0, -1], k: [0, 1], b: [-1, 0], d: [1, 0] };
+export function kenarAnahtari(k: Kenar) {
+  return `${k.c},${k.r},${k.y}`;
+}
+
+export const DUVAR_FIYATI = 150; // kare başına (geçici)
+export const YIKIM_FIYATI = 50;
+export const PENCERE_FIYATI = 40; // 1 m
+export const KAPI_FIYATI = 250; // ikinci kapıdan başlayarak
+
+// Başta: kapı ön duvarın sol ucunda, yan duvarların ortasında 2 m pencere
+export const BASLANGIC_PARCALARI: Record<string, ParcaTuru> = {
+  '-4,0,g': 'kapi',
+  '-4,1,b': 'pencere',
+  '-4,2,b': 'pencere',
+  '3,1,d': 'pencere',
+  '3,2,d': 'pencere',
+};
+
+function kapaliBirimMi(kapali: Set<string>, c: number, r: number) {
+  return kapali.has(birimParseli(c, r));
+}
+
+// Kapalı alanın bütün duvar parçaları
+export function sinirKenarlari(kapaliParseller: string[]): Kenar[] {
+  const kapali = new Set(kapaliParseller);
+  const liste: Kenar[] = [];
+  for (const p of kapaliParseller) {
+    const { i, j } = parselCoz(p);
+    for (let a = 0; a < PARSEL; a++)
+      for (let b = 0; b < PARSEL; b++) {
+        const c = i * PARSEL + a;
+        const r = j * PARSEL + b;
+        for (const y of ['g', 'k', 'b', 'd'] as Yon[]) {
+          const [dc, dr] = YON_ADIMI[y];
+          if (!kapaliBirimMi(kapali, c + dc, r + dr)) liste.push({ c, r, y });
+        }
+      }
+  }
+  return liste;
+}
+
+// Parçanın türü: ön (denize bakan) duvar kendiliğinden cam vitrin, öteki düz duvar
+export function parcaTuru(k: Kenar, parcalar: Record<string, ParcaTuru>): ParcaTuru {
+  return parcalar[kenarAnahtari(k)] ?? (k.y === 'g' ? 'pencere' : 'duvar');
+}
+
+// Kapı yalnız ön duvarda ve önünden yürüyüş yoluna giden yol kapalı alandan geçmiyorsa
+export function kapiOlabilir(k: Kenar, kapaliParseller: string[]) {
+  if (k.y !== 'g') return false;
+  const kapali = new Set(kapaliParseller);
+  for (let r = k.r - 1; r >= SATIR_EN_AZ * PARSEL; r--) if (kapaliBirimMi(kapali, k.c, r)) return false;
+  return true;
+}
+
+export function kapilar(kapaliParseller: string[], parcalar: Record<string, ParcaTuru>): Kenar[] {
+  return sinirKenarlari(kapaliParseller).filter((k) => parcaTuru(k, parcalar) === 'kapi' && kapiOlabilir(k, kapaliParseller));
+}
+
+// Kapalı alan değişince: sınırda kalmayan parçalar silinir; kapılar aynı
+// sütunda yeni ön duvara kayar (öne katılan karede öne, yıkılan karede geriye).
+export function parcalariUyarla(eskiKapali: string[], yeniKapali: string[], parcalar: Record<string, ParcaTuru>) {
+  const yeniSinir = new Set(sinirKenarlari(yeniKapali).map(kenarAnahtari));
+  const sonuc: Record<string, ParcaTuru> = {};
+  for (const [a, t] of Object.entries(parcalar)) if (yeniSinir.has(a)) sonuc[a] = t;
+  const yeniKapaliKume = new Set(yeniKapali);
+  for (const k of kapilar(eskiKapali, parcalar)) {
+    if (yeniSinir.has(kenarAnahtari(k)) && kapiOlabilir(k, yeniKapali)) continue;
+    // Aynı sütunda yeni kapalı alanın ön duvarı: önce öne, yoksa geriye bak
+    let bulunan: Kenar | null = null;
+    for (let r = k.r - 1; r >= SATIR_EN_AZ * PARSEL && !bulunan; r--)
+      if (kapaliBirimMi(yeniKapaliKume, k.c, r) && !kapaliBirimMi(yeniKapaliKume, k.c, r - 1)) bulunan = { c: k.c, r, y: 'g' };
+    for (let r = k.r; r < (SATIR_EN_COK + 1) * PARSEL && !bulunan; r++)
+      if (kapaliBirimMi(yeniKapaliKume, k.c, r) && !kapaliBirimMi(yeniKapaliKume, k.c, r - 1)) bulunan = { c: k.c, r, y: 'g' };
+    if (bulunan && kapiOlabilir(bulunan, yeniKapali)) sonuc[kenarAnahtari(bulunan)] = 'kapi';
+  }
+  return sonuc;
+}
+
+// Kapalı alan tek parça mı (kareler kenardan birbirine bağlı)
+export function bagliMi(parseller: string[]) {
+  if (parseller.length === 0) return false;
+  const kume = new Set(parseller);
+  const gorulen = new Set([parseller[0]]);
+  const sira = [parseller[0]];
+  while (sira.length) {
+    const { i, j } = parselCoz(sira.pop()!);
+    for (const [a, b] of [
+      [i - 1, j],
+      [i + 1, j],
+      [i, j - 1],
+      [i, j + 1],
+    ]) {
+      const k = parselAnahtari(a, b);
+      if (kume.has(k) && !gorulen.has(k)) {
+        gorulen.add(k);
+        sira.push(k);
+      }
+    }
+  }
+  return gorulen.size === kume.size;
+}
+
+// Kenarın dünyadaki ortası ve dışa bakan yönü
+export function kenarYeri(k: Kenar) {
+  const [dc, dr] = YON_ADIMI[k.y];
+  const o = birimOrtasi(k.c, k.r);
+  return { x: o.x + dc * 0.5, z: o.z + dr * 0.5, nx: dc, nz: dr };
+}

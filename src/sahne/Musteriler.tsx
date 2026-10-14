@@ -1,14 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { birimIcMi, durumuOku, kapaliParseller, musteriTezgahaVardi, musteriyiKaldir, ondekiMusteri, useDurum, type Durum, type Musteri } from '../oyun/durum';
-import { PARSEL, YURUYUS_Z, birimCoz, esyaOrtasi, parselCoz } from '../oyun/dekorasyon';
+import { birimIcMi, dukkanKapilari, durumuOku, kapaliParseller, musteriTezgahaVardi, musteriyiKaldir, ondekiMusteri, useDurum, type Durum, type Musteri } from '../oyun/durum';
+import { PARSEL, YURUYUS_Z, Z0, birimCoz, esyaOrtasi, kenarYeri, parselCoz } from '../oyun/dekorasyon';
 import { tezgahOfseti } from './kameraKarisimi';
 import { BANK_OTURAKLARI } from './DisSusler';
 import { Parcaciklar } from './Efektler';
 import { rastgeleVaryant } from './karakterler';
 import { KenneyKarakter, type Hareket } from './KenneyKarakter';
-import { KAPI_X } from './Dukkan';
 
 // Tezgah önünde sıraya giren müşteriler (iş sırası 3). Kenney Mini Characters
 // (CC0) üzerine her müşteri için farklı baş, gövde, renk ve aksesuar
@@ -28,15 +27,35 @@ function yolUcu(d: Durum) {
   const kenar = Math.max(...d.parseller.map((p) => Math.max(Math.abs(parselCoz(p).i * PARSEL), Math.abs(parselCoz(p).i * PARSEL + PARSEL))));
   return Math.max(22, kenar + 12);
 }
-const KAPI_DIS = new THREE.Vector3(KAPI_X, 0, -3.1);
-const KAPI_IC = new THREE.Vector3(KAPI_X, 0, -2.05);
-const KAPI_YOLU = new THREE.Vector3(KAPI_X, 0, ISKELE_Z); // kapının önünden yürüyüş yoluna
-const DUKKAN_KENARI = 4.6; // dükkânın arkasına giderken yanından geçilen hat
+// Kapı (belge 0.4): birden çok kapı varsa tezgaha (sıranın başına) en yakın
+// olandan girilip çıkılır. Yürüyüş yolu → kapının önü → kapının içi.
+function kapiYolu(d: Durum): THREE.Vector3[] {
+  const bas = new THREE.Vector3(0, 0, ON_YER.z).add(tezgahOfseti);
+  let enIyi = dukkanKapilari(d)[0];
+  let enKisa = Infinity;
+  for (const k of dukkanKapilari(d)) {
+    const y = kenarYeri(k);
+    const uzak = Math.hypot(y.x - bas.x, y.z - bas.z);
+    if (uzak < enKisa) {
+      enKisa = uzak;
+      enIyi = k;
+    }
+  }
+  const y = enIyi ? kenarYeri(enIyi) : { x: -3.5, z: Z0 };
+  return [new THREE.Vector3(y.x, 0, ISKELE_Z), new THREE.Vector3(y.x, 0, y.z - 0.7), new THREE.Vector3(y.x, 0, y.z + 0.35)];
+}
 
-// Yürüyüş yolundan bir oturma yerine: dükkânın arkasındaysa yanından dolaşır
-function yoldanKoltuga(yer: THREE.Vector3): THREE.Vector3[] {
-  if (yer.z < -2.5 || Math.abs(yer.x) > DUKKAN_KENARI - 0.3) return [new THREE.Vector3(yer.x, 0, ISKELE_Z), yer];
-  const yan = yer.x >= 0 ? DUKKAN_KENARI : -DUKKAN_KENARI;
+// Yürüyüş yolundan bir oturma yerine: kapalı alanın arkasındaysa yanından dolaşır
+function yoldanKoltuga(yer: THREE.Vector3, d: Durum): THREE.Vector3[] {
+  let solX = Infinity, sagX = -Infinity, onZ = Infinity;
+  for (const p of kapaliParseller(d)) {
+    const { i, j } = parselCoz(p);
+    solX = Math.min(solX, i * PARSEL);
+    sagX = Math.max(sagX, i * PARSEL + PARSEL);
+    onZ = Math.min(onZ, Z0 + j * PARSEL);
+  }
+  if (yer.z < onZ - 0.1 || yer.x < solX - 0.3 || yer.x > sagX + 0.3) return [new THREE.Vector3(yer.x, 0, ISKELE_Z), yer];
+  const yan = yer.x - solX < sagX - yer.x ? solX - 0.6 : sagX + 0.6;
   return [new THREE.Vector3(yan, 0, ISKELE_Z), new THREE.Vector3(yan, 0, yer.z), yer];
 }
 
@@ -125,7 +144,7 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
     [musteri.gelisTarafi, musteri.id],
   );
   // Sıradaki yol noktaları: önce kapının dışı, sonra içi; sonra sıradaki yeri
-  const yol = useRef<THREE.Vector3[]>([KAPI_YOLU, KAPI_DIS, KAPI_IC]);
+  const yol = useRef<THREE.Vector3[]>(kapiYolu(durumuOku()));
   const asama = useRef<Asama>('giris');
   const koltuk = useRef<Koltuk | null>(null);
   const kalanOturma = useRef(0);
@@ -161,10 +180,10 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
         asama.current = 'masaya';
         yol.current = k.ic
           ? [cikis, new THREE.Vector3(k.yer.x, 0, -2.15), k.yer]
-          : [cikis, KAPI_IC, KAPI_DIS, KAPI_YOLU, ...yoldanKoltuga(k.yer)];
+          : [cikis, ...kapiYolu(d).reverse(), ...yoldanKoltuga(k.yer, d)];
       } else {
         asama.current = 'cikiyor';
-        yol.current = [cikis, KAPI_IC, KAPI_DIS, KAPI_YOLU, son];
+        yol.current = [cikis, ...kapiYolu(d).reverse(), son];
       }
     }
 
@@ -181,8 +200,8 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
         doluKoltuklar.delete(k.anahtar);
         asama.current = 'cikiyor';
         yol.current = k.ic
-          ? [new THREE.Vector3(k.yer.x, 0, -2.15), KAPI_IC, KAPI_DIS, KAPI_YOLU, son]
-          : [...yoldanKoltuga(k.yer).slice(0, -1).reverse(), son];
+          ? [...kapiYolu(d).reverse(), son]
+          : [...yoldanKoltuga(k.yer, d).slice(0, -1).reverse(), son];
         koltuk.current = null;
       }
       return;

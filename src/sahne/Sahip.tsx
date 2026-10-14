@@ -1,9 +1,8 @@
 import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { calismaSaatleri, durumuOku } from '../oyun/durum';
-import { KAPI_X } from './Dukkan';
-import { YURUYUS_Z } from '../oyun/dekorasyon';
+import { calismaSaatleri, dukkanKapilari, durumuOku } from '../oyun/durum';
+import { YURUYUS_Z, kenarYeri } from '../oyun/dekorasyon';
 import { KenneyKarakter, type Hareket } from './KenneyKarakter';
 import type { Varyant } from './karakterler';
 
@@ -14,8 +13,6 @@ import type { Varyant } from './karakterler';
 
 const ISKELE_Z = YURUYUS_Z + 0.2;
 const ISKELE_UCU = 22;
-const KAPI_DIS = new THREE.Vector3(KAPI_X, 0, -3.1);
-const KAPI_IC = new THREE.Vector3(KAPI_X, 0, -2.1);
 
 interface Nokta {
   yer: THREE.Vector3;
@@ -24,6 +21,12 @@ interface Nokta {
 
 function gezintiYolu(donus: 1 | -1): Nokta[] {
   const n = (x: number, z: number, bekle = 0): Nokta => ({ yer: new THREE.Vector3(x, 0, z), bekle });
+  // İlk kapıdan girer çıkar (belge 0.4)
+  const kapi = dukkanKapilari()[0];
+  const ky = kapi ? kenarYeri(kapi) : { x: -3.5, z: -2.4 };
+  const KAPI_X = ky.x;
+  const KAPI_DIS = new THREE.Vector3(ky.x, 0, ky.z - 0.7);
+  const KAPI_IC = new THREE.Vector3(ky.x, 0, ky.z + 0.3);
   return [
     n(KAPI_X, ISKELE_Z),
     { yer: KAPI_DIS, bekle: 0 },

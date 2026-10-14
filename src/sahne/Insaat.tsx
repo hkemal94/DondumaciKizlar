@@ -7,6 +7,11 @@ import {
   SUTUN_EN_COK,
   TEZGAH_DERINLIGI,
   Z0,
+  kenarAnahtari,
+  kenarYeri,
+  parcaTuru,
+  sinirKenarlari,
+  type ParcaTuru,
   parselAnahtari,
   parselCoz,
   parselSiniri,
@@ -63,6 +68,38 @@ function Kare({ anahtar, durumu, secili }: { anahtar: string; durumu: ParselDuru
   );
 }
 
+// Duvar parçaları (belge 0.4): duvarların üstünde ince şeritler; türüne
+// göre renkli (düz duvar bej, pencere mavi, kapı mor), dokununca seçilir
+const PARCA_RENGI: Record<ParcaTuru, string> = { duvar: '#d8c8b2', pencere: '#8fd3ff', kapi: '#9b5fc9' };
+function DuvarSecici({ secili }: { secili: string | null }) {
+  const { kapaliParseller, duvarParcalari } = useDurum();
+  const kenarlar = useMemo(() => sinirKenarlari(kapaliParseller), [kapaliParseller]);
+  return (
+    <group>
+      {kenarlar.map((k) => {
+        const anahtar = kenarAnahtari(k);
+        const { x, z, nx } = kenarYeri(k);
+        const buSecili = secili === `duvar:${anahtar}`;
+        return (
+          <mesh
+            key={anahtar}
+            position={[x, 3.45, z]}
+            rotation={[-Math.PI / 2, 0, nx !== 0 ? Math.PI / 2 : 0]}
+            onClick={(e) => {
+              if (e.delta > 12) return;
+              e.stopPropagation();
+              parselSec(`duvar:${anahtar}`);
+            }}
+          >
+            <planeGeometry args={[0.92, 0.45]} />
+            <meshBasicMaterial color={buSecili ? '#ffffff' : PARCA_RENGI[parcaTuru(k, duvarParcalari)]} transparent opacity={buSecili ? 0.95 : 0.8} depthWrite={false} />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+}
+
 // Tezgah bölümü: üstünde mor yarı saydam bir kutu; dokununca seçilir
 function TezgahSecici({ secili }: { secili: boolean }) {
   const { tezgah } = useDurum();
@@ -102,6 +139,7 @@ export function Insaat() {
         <Kare key={k} anahtar={k} durumu={parselDurumu(k, durum)} secili={durum.seciliParsel === k} />
       ))}
       <TezgahSecici secili={durum.seciliParsel === 'tezgah'} />
+      <DuvarSecici secili={durum.seciliParsel} />
     </group>
   );
 }

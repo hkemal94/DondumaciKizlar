@@ -2,13 +2,27 @@ import { useSyncExternalStore } from 'react';
 
 import { BASLANGIC_CESITLERI, CESITLER, EN_BUYUK_VITRIN, FIYAT_ARALIGI, ILK_VITRIN, makulFiyat, VITRIN_BUYUTMELERI } from './kuvetler';
 import {
+  BASLANGIC_PARCALARI,
   BASLANGIC_PARSELLERI,
   BASLANGIC_TEZGAHI,
+  DUVAR_FIYATI,
+  KAPI_FIYATI,
+  PENCERE_FIYATI,
+  SATIR_EN_AZ,
+  YIKIM_FIYATI,
+  bagliMi,
+  kapiOlabilir,
+  kapilar,
+  kenarAnahtari,
+  parcaTuru,
+  parcalariUyarla,
+  sinirKenarlari,
+  type Kenar,
+  type ParcaTuru,
   DUKKAN_PARSELLERI,
   EN_YUKSEK_ISIK,
   ESYALAR,
   ISIK_SEVIYELERI,
-  KAPI_SUTUNU,
   PARSEL,
   TEZGAH_DERINLIGI,
   TEZGAH_EN_KISA,
@@ -148,6 +162,9 @@ export interface Durum {
   parseller: string[]; // sahip olunan arazi kareleri ("i,j"; belge 0.2)
   depo: Partial<Record<Esya, number>>;
   yerlesim: Yerlesim[];
+  // Kapalı alan ve duvar parçaları (belge 0.4)
+  kapaliParseller: string[];
+  duvarParcalari: Record<string, ParcaTuru>;
   // Tezgah bölümü (belge 0.3): yeri ve boyu; şimdiye dek parası ödenmiş en uzun boy
   tezgah: TezgahYeri;
   tezgahAlinanBoy: number;
@@ -242,6 +259,8 @@ let durum: Durum = {
   parseller: [...BASLANGIC_PARSELLERI],
   depo: {},
   yerlesim: [],
+  kapaliParseller: [...DUKKAN_PARSELLERI],
+  duvarParcalari: { ...BASLANGIC_PARCALARI },
   tezgah: { ...BASLANGIC_TEZGAHI },
   tezgahAlinanBoy: BASLANGIC_TEZGAHI.boy,
   insaat: false,
@@ -371,6 +390,10 @@ export function geriAl() {
 // ---- Müşteri sırası (iş sırası 3) ----
 // Sayılar geçici: fiyat, gelme aralığı ve sıra uzunluğu denemeyle ayarlanacak.
 export const EN_COK_SIRA = 4;
+// Kapalı alan büyüdükçe sıra uzar: başlangıçtaki iki kareden sonra her kare bir kişi (belge 0.2)
+export function enCokSira(d: Durum = durum) {
+  return EN_COK_SIRA + Math.max(0, d.kapaliParseller.length - DUKKAN_PARSELLERI.length);
+}
 export const GELIS_ARALIGI: [number, number] = [5000, 9000]; // ms
 export const MUKEMMEL_EKI = 5;
 const BAHSIS_SERISI = 3; // kaçıncı arka arkaya mükemmel serviste bahşiş başlar
@@ -429,7 +452,7 @@ export function ondekiMusteri(d: Durum = durum): Musteri | undefined {
 export function musteriDongusu(simdi: number) {
   const siradaki = durum.musteriler.filter((m) => m.hal === 'sirada').length;
   if (!durum.acik || durum.gunSonu || durum.hazirlik || durum.duraklatildi) return; // kapanınca, gün başlamadan ve duraklatınca müşteri gelmez
-  if (siradaki >= EN_COK_SIRA || simdi < durum.sonrakiGelis) return;
+  if (siradaki >= enCokSira() || simdi < durum.sonrakiGelis) return;
   // İlk sipariş eğitimi: yalnız bir müşteri gelir, siparişi tek toplu külah
   const egitim = ilkSiparisEgitimi();
   if (egitim && durum.musteriler.length > 0) return;
@@ -986,17 +1009,22 @@ export function birimSahipli(c: number, r: number, d: Durum = durum) {
 }
 
 // Kapalı alan (duvarların içi): şimdilik yalnız dükkân; duvar adımında büyüyecek
-export function kapaliParseller(_d: Durum = durum) {
-  return DUKKAN_PARSELLERI;
+export function kapaliParseller(_d: Durum = durum): string[] {
+  return _d.kapaliParseller;
 }
 export function birimIcMi(c: number, r: number, d: Durum = durum) {
   return kapaliParseller(d).includes(birimParseli(c, r));
 }
 
-// Eşya konamayan birimler: kapının önünden yürüyüş yoluna giden yol, kapının
-// içindeki birim, tezgah bölümü ve önündeki müşteri sırası
+// Dükkânın kapıları (belge 0.4)
+export function dukkanKapilari(d: Durum = durum) {
+  return kapilar(d.kapaliParseller, d.duvarParcalari);
+}
+
+// Eşya konamayan birimler: her kapının önünden yürüyüş yoluna giden yol,
+// kapının içindeki birim, tezgah bölümü ve önündeki müşteri sırası
 export function birimEngelli(c: number, r: number, d: Durum = durum) {
-  if (c === KAPI_SUTUNU && r >= -PARSEL && r <= 0) return true;
+  if (dukkanKapilari(d).some((k) => k.c === c && r >= SATIR_EN_AZ * PARSEL && r <= k.r)) return true;
   const t = d.tezgah;
   if (c >= t.c && c < t.c + t.boy && r >= t.r && r < t.r + TEZGAH_DERINLIGI) return true;
   return siraBirimiMi(t, c, r);
@@ -1083,13 +1111,85 @@ export function esyaCevir() {
   guncelle({ seciliYon: (durum.seciliYon + 1) % 2 });
 }
 
+// ---- Duvar ör / yık, duvar parçaları (belge 0.4) ----
+// Yapı değişince sığmayan eşyalar (dış eşya içeride kaldı, kapı yolunda
+// kaldı, yarısı içeride yarısı dışarıda…) depoya döner.
+function yapiyiDegistir(degisen: Partial<Durum>, para: number) {
+  const sonra: Durum = { ...durum, ...degisen, yerlesim: [] };
+  const depo = { ...durum.depo };
+  for (const y of durum.yerlesim) {
+    const k = birimCoz(y.hucre);
+    if (esyaSigar(y.esya, k.c, k.r, y.yon, sonra)) sonra.yerlesim.push(y);
+    else depo[y.esya] = (depo[y.esya] ?? 0) + 1;
+  }
+  guncelle({ ...degisen, yerlesim: sonra.yerlesim, depo, para: durum.para - para });
+  kaydet();
+}
+
+// Duvar örülebilir mi: kare oyuncunun, açık ve kapalı alana komşu
+export function duvarOrulebilir(anahtar: string, d: Durum = durum) {
+  if (!d.parseller.includes(anahtar) || d.kapaliParseller.includes(anahtar)) return false;
+  return bagliMi([...d.kapaliParseller, anahtar]);
+}
+
+export function duvarOr(anahtar: string) {
+  if (!durum.insaat || !duvarOrulebilir(anahtar) || durum.para < DUVAR_FIYATI) return;
+  const yeni = [...durum.kapaliParseller, anahtar];
+  yapiyiDegistir({ kapaliParseller: yeni, duvarParcalari: parcalariUyarla(durum.kapaliParseller, yeni, durum.duvarParcalari) }, DUVAR_FIYATI);
+}
+
+// Duvar yıkılabilir mi: tezgah bölümü ve sırası o karede olmamalı; kalan
+// kapalı alan tek parça kalmalı ve en az bir kapısı olmalı
+export function duvarYikilabilir(anahtar: string, d: Durum = durum) {
+  if (!d.kapaliParseller.includes(anahtar)) return false;
+  const yeni = d.kapaliParseller.filter((p) => p !== anahtar);
+  if (!bagliMi(yeni)) return false;
+  const sonra: Durum = { ...d, kapaliParseller: yeni, duvarParcalari: parcalariUyarla(d.kapaliParseller, yeni, d.duvarParcalari) };
+  if (!tezgahUygun(d.tezgah, sonra)) return false;
+  return dukkanKapilari(sonra).length > 0;
+}
+
+export function duvarYik(anahtar: string) {
+  if (!durum.insaat || !duvarYikilabilir(anahtar) || durum.para < YIKIM_FIYATI) return;
+  const yeni = durum.kapaliParseller.filter((p) => p !== anahtar);
+  yapiyiDegistir({ kapaliParseller: yeni, duvarParcalari: parcalariUyarla(durum.kapaliParseller, yeni, durum.duvarParcalari) }, YIKIM_FIYATI);
+}
+
+// Bir duvar parçasının yapılabilecek türleri ve fiyatları
+export function parcaSecenekleri(k: Kenar, d: Durum = durum): { tur: ParcaTuru; fiyat: number; olur: boolean }[] {
+  const simdiki = parcaTuru(k, d.duvarParcalari);
+  const kapiSayisi = dukkanKapilari(d).length;
+  const kapiyiKaldirir = simdiki === 'kapi';
+  const sonra = (tur: ParcaTuru): Durum => ({ ...d, duvarParcalari: { ...d.duvarParcalari, [kenarAnahtari(k)]: tur } });
+  const secenekler: { tur: ParcaTuru; fiyat: number; olur: boolean }[] = [
+    { tur: 'duvar', fiyat: 0, olur: !kapiyiKaldirir || kapiSayisi > 1 },
+    { tur: 'pencere', fiyat: PENCERE_FIYATI, olur: !kapiyiKaldirir || kapiSayisi > 1 },
+  ];
+  if (kapiOlabilir(k, d.kapaliParseller)) {
+    const tezgahIcinde = tezgahBirimleri(d.tezgah).govde.some((b) => b.c === k.c && b.r === k.r);
+    secenekler.push({ tur: 'kapi', fiyat: kapiSayisi > 0 ? KAPI_FIYATI : 0, olur: !tezgahIcinde && tezgahUygun(d.tezgah, sonra('kapi')) });
+  }
+  return secenekler.map((x) => ({ ...x, olur: x.olur && x.tur !== simdiki && d.para >= x.fiyat }));
+}
+
+export function parcaDegistir(anahtar: string, tur: ParcaTuru) {
+  if (!durum.insaat) return;
+  const [c, r, y] = anahtar.split(',');
+  const k: Kenar = { c: Number(c), r: Number(r), y: y as Kenar['y'] };
+  if (!sinirKenarlari(durum.kapaliParseller).some((x) => kenarAnahtari(x) === anahtar)) return;
+  const secenek = parcaSecenekleri(k).find((x) => x.tur === tur);
+  if (!secenek?.olur) return;
+  yapiyiDegistir({ duvarParcalari: { ...durum.duvarParcalari, [anahtar]: tur } }, secenek.fiyat);
+}
+
 // ---- Tezgah bölümü: taşıma ve boy (belge 0.3) ----
 // Tezgah ve önündeki sıra tamamen kapalı alanda olmalı; kapının içindeki
 // birim boş kalmalı.
 export function tezgahUygun(t: TezgahYeri, d: Durum = durum) {
   if (t.boy < TEZGAH_EN_KISA || t.boy > TEZGAH_EN_UZUN) return false;
   const { govde, sira } = tezgahBirimleri(t);
-  if (govde.some((b) => b.c === KAPI_SUTUNU && b.r === 0)) return false;
+  const kapiIci = dukkanKapilari(d);
+  if (govde.some((b) => kapiIci.some((k) => k.c === b.c && k.r === b.r))) return false;
   return [...govde, ...sira].every((b) => birimIcMi(b.c, b.r, d));
 }
 
@@ -1181,6 +1281,8 @@ interface Kayit {
   yerlesim: { esya: Esya; hucre: string | number; yon?: number }[];
   tezgah?: TezgahYeri;
   tezgahAlinanBoy?: number;
+  kapaliParseller?: string[];
+  duvarParcalari?: Record<string, ParcaTuru>;
   dekorlar?: string[]; // eski kayıt (13 Ekim öncesi)
   calisan: CalisanGorunumu;
   acikOnlukler: string[];
@@ -1207,6 +1309,8 @@ function kaydet() {
     parseller: durum.parseller,
     tezgah: durum.tezgah,
     tezgahAlinanBoy: durum.tezgahAlinanBoy,
+    kapaliParseller: durum.kapaliParseller,
+    duvarParcalari: durum.duvarParcalari,
     depo: durum.depo,
     yerlesim: durum.yerlesim,
     calisan: durum.calisan,
@@ -1296,10 +1400,23 @@ function dekorasyonuOku(k: Partial<Kayit>) {
     const eskiAlan: Record<EskiBolge, string[]> = { solYan: ['1,0'], sagYan: ['-2,0'], solYol: ['1,-1'], sagYol: ['-2,-1'] };
     if (Array.isArray(k.acikBolgeler)) for (const b of k.acikBolgeler) for (const p of eskiAlan[b] ?? []) parseller.add(p);
   }
+  // Kapalı alan ve duvar parçaları: yoksa başlangıçtaki (eski kayıtta da yan pencereler gelir)
+  let kapali = [...DUKKAN_PARSELLERI];
+  if (Array.isArray(k.kapaliParseller)) {
+    const aday = k.kapaliParseller.filter((p): p is string => typeof p === 'string' && parseller.has(p));
+    if (DUKKAN_PARSELLERI.every((p) => aday.includes(p)) && bagliMi(aday)) kapali = aday;
+  }
+  const sinir = new Set(sinirKenarlari(kapali).map(kenarAnahtari));
+  let duvarParcalari: Record<string, ParcaTuru> = { ...BASLANGIC_PARCALARI };
+  if (k.duvarParcalari && typeof k.duvarParcalari === 'object') {
+    duvarParcalari = {};
+    for (const [a, t] of Object.entries(k.duvarParcalari)) if (sinir.has(a) && ['duvar', 'pencere', 'kapi'].includes(t)) duvarParcalari[a] = t;
+  }
+  if (kapilar(kapali, duvarParcalari).length === 0) duvarParcalari = { ...duvarParcalari, ...BASLANGIC_PARCALARI };
   // Tezgah bölümü
   const t = k.tezgah;
   const tezgahAlinanBoy = typeof k.tezgahAlinanBoy === 'number' ? Math.min(TEZGAH_EN_UZUN, Math.max(BASLANGIC_TEZGAHI.boy, k.tezgahAlinanBoy)) : BASLANGIC_TEZGAHI.boy;
-  const deneme: Durum = { ...durum, parseller: [...parseller], yerlesim: [] };
+  const deneme: Durum = { ...durum, parseller: [...parseller], kapaliParseller: kapali, duvarParcalari, yerlesim: [] };
   const tezgah: TezgahYeri =
     t && [t.c, t.r, t.boy].every((n) => Number.isInteger(n)) && t.boy <= tezgahAlinanBoy && tezgahUygun(t, deneme) ? { c: t.c, r: t.r, boy: t.boy } : { ...BASLANGIC_TEZGAHI };
   deneme.tezgah = tezgah;
@@ -1341,7 +1458,7 @@ function dekorasyonuOku(k: Partial<Kayit>) {
     if (k.dekorlar.includes('semsiye')) depo.semsiyeliMasa = (depo.semsiyeliMasa ?? 0) + 1;
     if (k.dekorlar.includes('cicekler')) depo.saksi = (depo.saksi ?? 0) + 3;
   }
-  return { isikSeviyesi, depo, yerlesim: deneme.yerlesim, parseller: [...parseller], tezgah, tezgahAlinanBoy };
+  return { isikSeviyesi, depo, yerlesim: deneme.yerlesim, parseller: [...parseller], tezgah, tezgahAlinanBoy, kapaliParseller: kapali, duvarParcalari };
 }
 
 // Baştan başla: kaydı siler, her şeyi ilk güne döndürür.
@@ -1372,6 +1489,8 @@ export function bastanBasla() {
     parseller: [...BASLANGIC_PARSELLERI],
     depo: {},
     yerlesim: [],
+    kapaliParseller: [...DUKKAN_PARSELLERI],
+    duvarParcalari: { ...BASLANGIC_PARCALARI },
     tezgah: { ...BASLANGIC_TEZGAHI },
     tezgahAlinanBoy: BASLANGIC_TEZGAHI.boy,
     insaat: false,
