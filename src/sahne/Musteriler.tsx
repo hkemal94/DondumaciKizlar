@@ -5,7 +5,8 @@ import { durumuOku, musteriTezgahaVardi, musteriyiKaldir, ondekiMusteri, useDuru
 import { HUCRELER } from '../oyun/dekorasyon';
 import { BANK_OTURAKLARI } from './DisSusler';
 import { Parcaciklar } from './Efektler';
-import { karakterKur, karakterleriYukle, rastgeleVaryant, type Karakter } from './karakterler';
+import { rastgeleVaryant } from './karakterler';
+import { KenneyKarakter, type Hareket } from './KenneyKarakter';
 import { KAPI_X } from './Dukkan';
 
 // Tezgah önünde sıraya giren müşteriler (iş sırası 3). Kenney Mini Characters
@@ -29,37 +30,6 @@ function siraYeri(sira: number, hedef: THREE.Vector3) {
   return hedef.set(-0.82 * sira, 0, -1.85 - 0.04 * sira);
 }
 
-
-// ---- Kenney karakterleri (Kemal, 14 Ekim): her müşteri farklı ----
-// Müşterinin numarasından baş, gövde, renkler ve aksesuar seçilir; hareket
-// (bekle / yürü / otur) modelin kendi animasyonlarından gelir.
-type Hareket = 'dur' | 'yuru' | 'otur';
-const HAREKET_ANIMASYONU: Record<Hareket, string> = { dur: 'idle', yuru: 'walk', otur: 'sit' };
-
-function KenneyGovde({ tohum, hareket }: { tohum: number; hareket: React.MutableRefObject<Hareket> }) {
-  const [k, setK] = useState<Karakter | null>(null);
-  const simdiki = useRef('');
-  useEffect(() => {
-    let iptal = false;
-    karakterleriYukle().then((y) => {
-      if (!iptal) setK(karakterKur(rastgeleVaryant(tohum), y));
-    });
-    return () => {
-      iptal = true;
-    };
-  }, [tohum]);
-  useFrame((_, dt) => {
-    if (!k || durumuOku().duraklatildi) return;
-    const ad = HAREKET_ANIMASYONU[hareket.current];
-    if (ad !== simdiki.current) {
-      k.eylemler[ad]?.reset().fadeIn(0.25).play();
-      k.eylemler[simdiki.current]?.fadeOut(0.25);
-      simdiki.current = ad;
-    }
-    k.karistirici.update(dt);
-  });
-  return k ? <primitive object={k.kok} /> : null;
-}
 
 // ---- Masalarda oturma (Kemal, 14 Ekim) ----
 // Mutlu giden müşterinin bir kısmı boş bir sandalye ya da bank varsa oturur, yer, gider.
@@ -132,6 +102,8 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
   const kalanOturma = useRef(0);
   const kaldirildi = useRef(false);
   const hareket = useRef<Hareket>('yuru');
+  // Her müşteri farklı: baş, gövde, renkler, aksesuar müşterinin numarasından
+  const varyant = useMemo(() => rastgeleVaryant(musteri.id * 7 + musteri.gorunum), [musteri.id, musteri.gorunum]);
 
   // Sahneden çıkınca sandalyeyi boşalt
   useEffect(
@@ -236,7 +208,7 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
   return (
     <group ref={ref} name={`musteri-${musteri.id}`} position={baslangic.toArray()}>
       <group ref={icRef}>
-        <KenneyGovde tohum={musteri.id * 7 + musteri.gorunum} hareket={hareket} />
+        <KenneyKarakter varyant={varyant} hareket={hareket} />
       </group>
       {/* Sıkılıp giden müşterinin başında küçük gri bulut (14 Ekim) */}
       <group position={[0, BAS_USTU, 0]}>

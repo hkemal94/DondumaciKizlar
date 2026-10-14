@@ -24,7 +24,7 @@ const TEZGAH = { konum: new THREE.Vector3(0, 1.95, 1.5), hedef: new THREE.Vector
 const TEZGAH_DIK = { konum: new THREE.Vector3(0.12, 2.25, 1.3), hedef: new THREE.Vector3(0.12, 0.55, -2.9), yatay: 80 };
 // Genel görünüm dükkânın önünden (deniz / müşteri tarafı) çeker (Kemal, 13 Ekim)
 // Çalışanı kişiselleştirirken: müşteri tarafından ona yakından bakış (sağda panel olduğu için çalışan solda)
-const CALISAN_ODAGI = { konum: new THREE.Vector3(-0.6, 1.65, -2.15), hedef: new THREE.Vector3(-0.68, 1.05, 0.75) };
+const CALISAN_ODAGI = { konum: new THREE.Vector3(-0.62, 2.15, -1.95), hedef: new THREE.Vector3(-0.68, 1.0, 0.75) };
 
 const DUKKAN = { konum: new THREE.Vector3(-13.5, 15.5, -20), hedef: new THREE.Vector3(-0.4, 0.2, -1.6), yatay: 50 };
 
