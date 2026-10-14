@@ -187,14 +187,22 @@ function Odalar() {
       <Kutu konum={[(KAPI_SAG + 4.07) / 2, 0.18, PENCERE_Z]} boyut={[4.07 - KAPI_SAG, 0.36, 0.2]} renkAdi={renk.ahsapAcik} golgeVer={false} />
       {/* Genel görünümde kapının yeri: zeminde mor eşik */}
       <Kutu konum={[(KAPI_SOL + KAPI_SAG) / 2, 0.02, PENCERE_Z]} boyut={[KAPI_SAG - KAPI_SOL, 0.04, 0.3]} renkAdi={renk.mor} golgeVer={false} />
-      {/* Dükkânın etrafındaki taş kaldırım */}
-      <mesh position={[0, -0.12, 4]} receiveShadow>
-        <boxGeometry args={[40, 0.1, 13]} />
+      {/* Dükkânın etrafındaki taş kaldırım; derzler arazi karelerinin sınırında (4 m) */}
+      <mesh position={[0, -0.12, 4.6]} receiveShadow>
+        <boxGeometry args={[92, 0.1, 14.4]} />
         <meshStandardMaterial color="#d9c9ad" roughness={1} />
       </mesh>
-      {[-12, -6, 6, 12].map((x) => (
-        <mesh key={x} position={[x, -0.065, 4]}>
-          <boxGeometry args={[0.06, 0.01, 13]} />
+      {Array.from({ length: 23 }, (_, n) => (n - 11) * 4)
+        .filter((x) => Math.abs(x) > 4)
+        .map((x) => (
+          <mesh key={x} position={[x, -0.065, 4.6]}>
+            <boxGeometry args={[0.06, 0.01, 14.4]} />
+            <meshStandardMaterial color="#c4b293" />
+          </mesh>
+        ))}
+      {[6.05, 10.05].map((z) => (
+        <mesh key={z} position={[0, -0.065, z]}>
+          <boxGeometry args={[92, 0.01, 0.06]} />
           <meshStandardMaterial color="#c4b293" />
         </mesh>
       ))}

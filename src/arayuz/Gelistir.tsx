@@ -12,7 +12,6 @@ import {
   cesitAlinabilir,
   sonrakiVitrin,
   vitrinBuyut,
-  bolgeAl,
   cesitAc,
   DENEME,
   denemeParasi,
@@ -29,7 +28,7 @@ import {
   type FiyatSeviyesi,
 } from '../oyun/durum';
 import { CESITLER, FIYAT_ARALIGI, makulFiyat } from '../oyun/kuvetler';
-import { BOLGELER, EN_YUKSEK_ISIK, ESYALAR, ISIK_SEVIYELERI, type Esya } from '../oyun/dekorasyon';
+import { EN_YUKSEK_ISIK, ESYALAR, ISIK_SEVIYELERI, type Esya } from '../oyun/dekorasyon';
 import { m, type MetinAnahtari } from '../metinler';
 import { logoAdresi } from '../sahne/logo';
 
@@ -268,27 +267,6 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
                   <span className="gel-durum">{m('dekor.enIyi')}</span>
                 )}
               </div>
-
-              {/* Alanlar: dükkânın yanları ve yol kenarı (14 Ekim) */}
-              <div className="gel-baslik">{m('dekor.alanlar')}</div>
-              <div className="gel-izgara">
-                {BOLGELER.map((b) => {
-                  const alindi = durum.acikBolgeler.includes(b.id);
-                  return (
-                    <div key={b.id} className={`gel-kart ${alindi ? 'acik' : ''}`}>
-                      <span className="gel-ad">{m(`bolge.${b.id}` as MetinAnahtari)}</span>
-                      {alindi ? (
-                        <span className="gel-durum">{m('bolge.alindi')}</span>
-                      ) : (
-                        <button className="dugme gel-al" disabled={durum.para < b.fiyat} onClick={() => bolgeAl(b.id)}>
-                          {m('gelistir.al')} <Para miktar={b.fiyat} />
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-              <p className="gel-not">{m('dekor.alanNot')}</p>
 
               {/* Taşınabilir eşyalar: alınır, depoya gider */}
               {(['oturma', 'dis'] as const).map((grup) => (

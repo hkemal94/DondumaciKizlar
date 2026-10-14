@@ -1,7 +1,21 @@
 import { useSyncExternalStore } from 'react';
 
 import { BASLANGIC_CESITLERI, CESITLER, EN_BUYUK_VITRIN, FIYAT_ARALIGI, ILK_VITRIN, makulFiyat, VITRIN_BUYUTMELERI } from './kuvetler';
-import { BOLGELER, EN_YUKSEK_ISIK, ESYALAR, HUCRELER, ISIK_SEVIYELERI, type Bolge, type Esya } from './dekorasyon';
+import {
+  BASLANGIC_PARSELLERI,
+  EN_YUKSEK_ISIK,
+  ESYALAR,
+  HUCRELER,
+  ISIK_SEVIYELERI,
+  eskiHucreler,
+  hucreBul,
+  parselAnahtari,
+  parselCoz,
+  parselFiyati,
+  parselGecerli,
+  type EskiBolge,
+  type Esya,
+} from './dekorasyon';
 import {
   AD_EN_UZUN,
   AKSESUARLAR,
@@ -113,9 +127,12 @@ export interface Durum {
   cesitFiyatlari: number[]; // oyuncunun koyduğu top fiyatı (boşsa makul fiyat)
   // Dekorasyon: ışık seviyesi, depodaki eşyalar, yere konmuş eşyalar
   isikSeviyesi: number;
-  acikBolgeler: Bolge[];
+  parseller: string[]; // sahip olunan arazi kareleri ("i,j"; belge 0.2)
   depo: Partial<Record<Esya, number>>;
   yerlesim: Yerlesim[];
+  // İnşaat modu (gün başında; kaydedilmez)
+  insaat: boolean;
+  seciliParsel: string | null;
   // Yerleştirme ekranı (kaydedilmez)
   yerlestirme: boolean;
   seciliEsya: Esya | null;
@@ -138,7 +155,7 @@ export const EGITIMLER: EgitimAdi[] = ['ilkSiparis', 'susleme', 'tepsi', 'vitrin
 
 export interface Yerlesim {
   esya: Esya;
-  hucre: number; // HUCRELER sırası
+  hucre: string; // HUCRELER kimliği
 }
 
 export type FiyatSeviyesi = 'ucuz' | 'normal' | 'pahali';
@@ -199,9 +216,11 @@ let durum: Durum = {
   fiyatSeviyesi: 'normal',
   cesitFiyatlari: [],
   isikSeviyesi: 0,
-  acikBolgeler: [],
+  parseller: [...BASLANGIC_PARSELLERI],
   depo: {},
   yerlesim: [],
+  insaat: false,
+  seciliParsel: null,
   yerlestirme: false,
   seciliEsya: null,
   calisan: { ...VARSAYILAN_CALISAN },
@@ -886,31 +905,72 @@ export function esyaSec(esya: Esya) {
   if (depodaki(esya) > 0) guncelle({ seciliEsya: esya });
 }
 
-// Alan satın alma (Kemal, 14 Ekim)
-export function bolgeAl(bolge: Bolge) {
-  const b = BOLGELER.find((x) => x.id === bolge);
-  if (!b || durum.acikBolgeler.includes(bolge) || durum.para < b.fiyat) return;
-  guncelle({ para: durum.para - b.fiyat, acikBolgeler: [...durum.acikBolgeler, bolge] });
+// ---- Arazi ve İnşaat modu (belge 0.1, 0.2; Kemal, 14 Ekim) ----
+// Kare durumu: sahip olunan (yeşil), komşusu sahip olunan → alınabilir
+// (sarı), öteki kareler alınamaz (gri).
+export type ParselDurumu = 'sahip' | 'alinabilir' | 'kilitli';
+export function parselDurumu(anahtar: string, d: Durum = durum): ParselDurumu {
+  if (d.parseller.includes(anahtar)) return 'sahip';
+  const { i, j } = parselCoz(anahtar);
+  if (!parselGecerli(i, j)) return 'kilitli';
+  const komsu = [
+    [i - 1, j],
+    [i + 1, j],
+    [i, j - 1],
+    [i, j + 1],
+  ].some(([a, b]) => d.parseller.includes(parselAnahtari(a, b)));
+  return komsu ? 'alinabilir' : 'kilitli';
+}
+
+// Şimdiye dek satın alınan kare sayısı (başlangıç kareleri sayılmaz)
+function alinanParselSayisi(d: Durum) {
+  return d.parseller.filter((p) => !BASLANGIC_PARSELLERI.includes(p)).length;
+}
+
+export function parselFiyatiNe(anahtar: string, d: Durum = durum) {
+  const { i, j } = parselCoz(anahtar);
+  return parselFiyati(i, j, alinanParselSayisi(d));
+}
+
+export function insaataBasla() {
+  if (!durum.hazirlik) return;
+  guncelle({ insaat: true, seciliParsel: null, kamera: 'dukkan' });
+}
+
+export function insaattanCik() {
+  guncelle({ insaat: false, seciliParsel: null });
   kaydet();
 }
 
-// Kareye eşya konabilir mi: başta açık ya da alanı alınmış
-export function hucreAcik(hucre: number, d: Durum = durum) {
-  const h = HUCRELER[hucre];
-  return !!h && (!h.bolge || d.acikBolgeler.includes(h.bolge));
+export function parselSec(anahtar: string | null) {
+  if (durum.insaat) guncelle({ seciliParsel: anahtar });
+}
+
+export function parselAl(anahtar: string) {
+  if (!durum.insaat || parselDurumu(anahtar) !== 'alinabilir') return;
+  const fiyat = parselFiyatiNe(anahtar);
+  if (durum.para < fiyat) return;
+  guncelle({ para: durum.para - fiyat, parseller: [...durum.parseller, anahtar] });
+  kaydet();
+}
+
+// Kareye eşya konabilir mi: arazisi oyuncunun olmalı
+export function hucreAcik(hucre: string, d: Durum = durum) {
+  const h = hucreBul(hucre);
+  return !!h && d.parseller.includes(h.parsel);
 }
 
 // Seçili eşya bu kareye konabilir mi: dışarıya özel eşyalar dükkânın içine konmaz
-export function hucreUygun(hucre: number, esya: Esya | null, d: Durum = durum) {
+export function hucreUygun(hucre: string, esya: Esya | null, d: Durum = durum) {
   if (!hucreAcik(hucre, d)) return false;
-  return !(HUCRELER[hucre].ic && ESYALAR.find((e) => e.id === esya)?.disari);
+  return !(hucreBul(hucre)?.ic && ESYALAR.find((e) => e.id === esya)?.disari);
 }
 
-export function hucreDolu(hucre: number, d: Durum = durum) {
+export function hucreDolu(hucre: string, d: Durum = durum) {
   return d.yerlesim.some((y) => y.hucre === hucre);
 }
 
-export function hucreyeKoy(hucre: number) {
+export function hucreyeKoy(hucre: string) {
   const e = durum.seciliEsya;
   if (!durum.yerlestirme || !e || depodaki(e) <= 0 || hucreDolu(hucre) || !hucreUygun(hucre, e)) return;
   const kalan = depodaki(e) - 1;
@@ -923,7 +983,7 @@ export function hucreyeKoy(hucre: number) {
 }
 
 // Konmuş eşyaya dokununca yerden kalkar, depoya döner ve seçilir (taşımak için)
-export function yerlesimiKaldir(hucre: number) {
+export function yerlesimiKaldir(hucre: string) {
   const y = durum.yerlesim.find((x) => x.hucre === hucre);
   if (!durum.yerlestirme || !y) return;
   guncelle({
@@ -958,9 +1018,10 @@ interface Kayit {
   fiyatSeviyesi: FiyatSeviyesi;
   cesitFiyatlari: (number | null)[];
   isikSeviyesi: number;
-  acikBolgeler: Bolge[];
+  parseller: string[];
+  acikBolgeler?: EskiBolge[]; // eski kayıt (14 Ekim akşamı öncesi)
   depo: Partial<Record<Esya, number>>;
-  yerlesim: Yerlesim[];
+  yerlesim: { esya: Esya; hucre: string | number }[];
   dekorlar?: string[]; // eski kayıt (13 Ekim öncesi)
   calisan: CalisanGorunumu;
   acikOnlukler: string[];
@@ -984,7 +1045,7 @@ function kaydet() {
     fiyatSeviyesi: durum.fiyatSeviyesi,
     cesitFiyatlari: durum.cesitFiyatlari,
     isikSeviyesi: durum.isikSeviyesi,
-    acikBolgeler: durum.acikBolgeler,
+    parseller: durum.parseller,
     depo: durum.depo,
     yerlesim: durum.yerlesim,
     calisan: durum.calisan,
@@ -1064,9 +1125,37 @@ function dekorasyonuOku(k: Partial<Kayit>) {
   const depo: Partial<Record<Esya, number>> = {};
   if (k.depo && typeof k.depo === 'object')
     for (const [e, n] of Object.entries(k.depo)) if (esyaMi(e) && typeof n === 'number' && n > 0) depo[e] = n;
-  const yerlesim = Array.isArray(k.yerlesim)
-    ? k.yerlesim.filter((y, i, t) => esyaMi(y?.esya) && HUCRELER[y.hucre] && t.findIndex((z) => z.hucre === y.hucre) === i)
-    : [];
+  // Arazi: kayıttaki kareler; yoksa eski kayıttır, yeni araziye taşınır
+  const parseller = new Set<string>(BASLANGIC_PARSELLERI);
+  if (Array.isArray(k.parseller)) {
+    for (const p of k.parseller) if (typeof p === 'string' && parselGecerli(parselCoz(p).i, parselCoz(p).j)) parseller.add(p);
+  } else {
+    // Önceden bedava olan dükkân önü teras ve alınmış alanların karşılığı kareler
+    parseller.add('0,-1');
+    const eskiAlan: Record<EskiBolge, string[]> = { solYan: ['1,0'], sagYan: ['-2,0'], solYol: ['1,-1'], sagYol: ['-2,-1'] };
+    if (Array.isArray(k.acikBolgeler)) for (const b of k.acikBolgeler) for (const p of eskiAlan[b] ?? []) parseller.add(p);
+  }
+  // Konmuş eşyalar: eski kayıtta sıra numarasıyla; en yakın boş yeni kareye
+  // taşınır, olmazsa depoya döner.
+  const eski = eskiHucreler();
+  const yerlesim: Yerlesim[] = [];
+  if (Array.isArray(k.yerlesim))
+    for (const y of k.yerlesim) {
+      if (!esyaMi(y?.esya)) continue;
+      if (typeof y.hucre === 'string') {
+        if (hucreBul(y.hucre) && !yerlesim.some((z) => z.hucre === y.hucre)) yerlesim.push({ esya: y.esya, hucre: y.hucre });
+        continue;
+      }
+      const e = eski[y.hucre];
+      const icMi = !!e && e.z > -2.4 && Math.abs(e.x) < 4;
+      const aday = e
+        ? HUCRELER.filter((h) => h.ic === icMi && !yerlesim.some((z) => z.hucre === h.id))
+            .map((h) => ({ h, uzak: Math.hypot(h.x - e.x, h.z - e.z) }))
+            .sort((a, b) => a.uzak - b.uzak)[0]
+        : undefined;
+      if (aday && aday.uzak < 1.6) yerlesim.push({ esya: y.esya, hucre: aday.h.id });
+      else depo[y.esya] = (depo[y.esya] ?? 0) + 1;
+    }
   let isikSeviyesi = typeof k.isikSeviyesi === 'number' ? Math.min(EN_YUKSEK_ISIK, Math.max(0, k.isikSeviyesi)) : 0;
   // Eski kayıttaki dekorasyon: fenerler → 1. ışık; masa, şemsiye, çiçekler → depoya
   if (Array.isArray(k.dekorlar)) {
@@ -1075,11 +1164,12 @@ function dekorasyonuOku(k: Partial<Kayit>) {
     if (k.dekorlar.includes('semsiye')) depo.semsiyeliMasa = (depo.semsiyeliMasa ?? 0) + 1;
     if (k.dekorlar.includes('cicekler')) depo.saksi = (depo.saksi ?? 0) + 3;
   }
-  // Alanlar: kayıttakiler + 14 Ekim'den önce eşya konmuş alanlar (o dükkânda zaten kullanılıyordu)
-  const acikBolgeler = BOLGELER.map((b) => b.id).filter(
-    (b) => (Array.isArray(k.acikBolgeler) && k.acikBolgeler.includes(b)) || yerlesim.some((y) => HUCRELER[y.hucre].bolge === b),
-  );
-  return { isikSeviyesi, depo, yerlesim, acikBolgeler };
+  // Eşyaların durduğu kareler oyuncunun olmalı (o yeri zaten kullanıyordu)
+  for (const y of yerlesim) {
+    const p = hucreBul(y.hucre)?.parsel;
+    if (p) parseller.add(p);
+  }
+  return { isikSeviyesi, depo, yerlesim, parseller: [...parseller] };
 }
 
 // Baştan başla: kaydı siler, her şeyi ilk güne döndürür.
@@ -1107,9 +1197,11 @@ export function bastanBasla() {
     fiyatSeviyesi: 'normal',
     cesitFiyatlari: [],
     isikSeviyesi: 0,
-    acikBolgeler: [],
+    parseller: [...BASLANGIC_PARSELLERI],
     depo: {},
     yerlesim: [],
+    insaat: false,
+    seciliParsel: null,
     yerlestirme: false,
     seciliEsya: null,
     calisan: { ...VARSAYILAN_CALISAN },

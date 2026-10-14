@@ -5,7 +5,8 @@ import { durumuOku, saatDakikasi } from '../oyun/durum';
 import { gezmeSaati, gokRenkleri } from './gokRenkleri';
 import * as THREE from 'three';
 import { Disari } from './Disari';
-import { dukkanDonusu, dukkanEgimi, dukkanKaydirma, dukkanYakinligi, fotograf, kameraKarisimi, odak, tezgahDikligi } from './kameraKarisimi';
+import { parselCoz, parselSiniri } from '../oyun/dekorasyon';
+import { alanCercevesi, dukkanDonusu, dukkanEgimi, dukkanKaydirma, dukkanYakinligi, fotograf, kameraKarisimi, odak, tezgahDikligi } from './kameraKarisimi';
 import { Calisan } from './Calisan';
 import { Sahip } from './Sahip';
 import { Dukkan } from './Dukkan';
@@ -13,6 +14,7 @@ import { Hazirlama } from './Hazirlama';
 import { Musteriler } from './Musteriler';
 import { EgitimTakibi } from './EgitimTakibi';
 import { Dekorlar } from './Dekorlar';
+import { Insaat } from './Insaat';
 import { renk } from './renkler';
 
 // İki sabit kamera (belge bölüm 0): dükkânın genel görünümü ve tezgahın
@@ -28,6 +30,32 @@ const CALISAN_ODAGI = { konum: new THREE.Vector3(-0.62, 2.15, -1.95), hedef: new
 
 const DUKKAN = { konum: new THREE.Vector3(-13.5, 15.5, -20), hedef: new THREE.Vector3(-0.4, 0.2, -1.6), yatay: 50 };
 
+
+// Alınmış arazinin ortası (başlangıç arazisine göre kayma) ve ne kadar geri
+// çekilmek gerektiği. Başlangıç arazisi 8 m geniş, ~8.5 m derin.
+const BASLANGIC_MERKEZI = { x: 0, z: -2.18 };
+let sonArazi = '';
+let sonCerceve = { merkezX: 0, merkezZ: 0, olcek: 1 };
+function araziCercevesi(parseller: string[]) {
+  const anahtar = parseller.join('|');
+  if (anahtar === sonArazi) return sonCerceve;
+  let solX = Infinity, sagX = -Infinity, onZ = Infinity, arkaZ = -Infinity;
+  for (const p of parseller) {
+    const { i, j } = parselCoz(p);
+    const s = parselSiniri(i, j);
+    solX = Math.min(solX, s.solX);
+    sagX = Math.max(sagX, s.sagX);
+    onZ = Math.min(onZ, s.onZ);
+    arkaZ = Math.max(arkaZ, s.arkaZ);
+  }
+  sonArazi = anahtar;
+  sonCerceve = {
+    merkezX: (solX + sagX) / 2 - BASLANGIC_MERKEZI.x,
+    merkezZ: (onZ + arkaZ) / 2 - BASLANGIC_MERKEZI.z,
+    olcek: Math.max(1, (sagX - solX) / 16, (arkaZ - onZ) / 11),
+  };
+  return sonCerceve;
+}
 
 function dikeyAci(yatayDerece: number, oran: number) {
   const yatay = THREE.MathUtils.degToRad(yatayDerece);
@@ -80,7 +108,12 @@ function KameraYoneticisi() {
     const fark = DUKKAN.konum.clone().sub(DUKKAN.hedef);
     const yerde = Math.hypot(fark.x, fark.z);
     const aci = Math.atan2(fark.y, yerde) + egim.current;
-    const uzaklik = fark.length() * yakinlik.current;
+    // Arazi büyüdükçe görünüm geri çekilir ve arazinin ortasına bakar
+    const alan = araziCercevesi(d.parseller);
+    alanCercevesi.olcek = THREE.MathUtils.damp(alanCercevesi.olcek, alan.olcek, 3, dt);
+    alanCercevesi.merkezX = THREE.MathUtils.damp(alanCercevesi.merkezX, alan.merkezX, 3, dt);
+    alanCercevesi.merkezZ = THREE.MathUtils.damp(alanCercevesi.merkezZ, alan.merkezZ, 3, dt);
+    const uzaklik = fark.length() * yakinlik.current * alanCercevesi.olcek;
     dukkanKonumu.current
       .set((fark.x / yerde) * Math.cos(aci) * uzaklik, Math.sin(aci) * uzaklik, (fark.z / yerde) * Math.cos(aci) * uzaklik)
       .applyAxisAngle(new THREE.Vector3(0, 1, 0), donus.current)
@@ -89,7 +122,11 @@ function KameraYoneticisi() {
     kayma.current.x = THREE.MathUtils.damp(kayma.current.x, dukkanKaydirma.x, 12, dt);
     kayma.current.z = THREE.MathUtils.damp(kayma.current.z, dukkanKaydirma.z, 12, dt);
     dukkanKonumu.current.add(kayma.current);
+    dukkanKonumu.current.x += alanCercevesi.merkezX;
+    dukkanKonumu.current.z += alanCercevesi.merkezZ;
     dukkanHedefi.current.copy(DUKKAN.hedef).add(kayma.current);
+    dukkanHedefi.current.x += alanCercevesi.merkezX;
+    dukkanHedefi.current.z += alanCercevesi.merkezZ;
     // Tezgah pozu: vitrin büyüyünce dikleşir
     const dik = (tezgahDikligi.deger = THREE.MathUtils.damp(tezgahDikligi.deger, d.vitrin.length > 6 ? 1 : 0, 4, dt));
     tezgahKonumu.current.lerpVectors(TEZGAH.konum, TEZGAH_DIK.konum, dik);
@@ -228,6 +265,7 @@ export function Sahne() {
         <Musteriler />
         <EgitimTakibi />
         <Dekorlar />
+        <Insaat />
         <Calisan />
         <Sahip />
       </Suspense>

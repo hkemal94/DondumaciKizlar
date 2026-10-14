@@ -1818,3 +1818,30 @@ a.dugme {
   background: var(--sari);
   color: var(--mor-koyu);
 }
+
+/* İnşaat modu paneli (14 Ekim): seçilen karenin yeri, durumu, fiyatı */
+.insaat-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: var(--krem);
+  border: 3px solid var(--mor-koyu);
+  color: var(--mor-koyu);
+  font-weight: 800;
+  font-size: 13px;
+}
+.insaat-yer {
+  color: var(--mor);
+  font-weight: 900;
+}
+.insaat-durum {
+  font-weight: 700;
+}
+.insaat-panel .gel-al {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
