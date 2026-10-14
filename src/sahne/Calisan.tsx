@@ -5,7 +5,7 @@ import { durumuOku, useDurum } from '../oyun/durum';
 import { ONLUKLER, SAC_RENKLERI, TENLER, type CalisanGorunumu, type Onluk } from '../oyun/calisan';
 import { KenneyKarakter, type Hareket } from './KenneyKarakter';
 import type { Karakter, Varyant } from './karakterler';
-import { kameraKarisimi, odak, tezgahOfseti } from './kameraKarisimi';
+import { istasyonOdagi, kameraKarisimi, odak, tezgahOfseti } from './kameraKarisimi';
 import { renk } from './renkler';
 
 // Tezgahın arkasındaki çalışan (Kemal, 13 Ekim). Genel görünümde görünür;
@@ -81,11 +81,13 @@ export function Calisan() {
     if (!g) return;
     g.visible = kameraKarisimi.deger > 0.12;
     const d = durumuOku();
-    // Kepçe dalarken çalışır gibi uzanır
-    hareket.current = d.asama === 'dolduruyor' ? 'calis' : 'dur';
+    // Oyuncunun istasyonunda durur (belge 0.5)
+    g.position.x = CALISAN_YERI.x + istasyonOdagi.x;
+    // Kepçe dalarken ya da makinede çalışırken uzanır
+    hareket.current = d.asama === 'dolduruyor' || ['dokuluyor', 'doluyor'].includes(d.makine.asama) ? 'calis' : 'dur';
     const etiket = calisanEtiketi.oge;
     if (etiket) {
-      v.set(CALISAN_YERI.x + tezgahOfseti.x, 1.6, CALISAN_YERI.z + tezgahOfseti.z).project(camera);
+      v.set(g.position.x + tezgahOfseti.x, 1.6, CALISAN_YERI.z + tezgahOfseti.z).project(camera);
       etiket.style.transform = `translate(${((v.x + 1) / 2) * size.width}px, ${((1 - v.y) / 2) * size.height}px)`;
       etiket.style.opacity = g.visible && d.calisan.ad && !odak.calisan ? '1' : '0';
     }

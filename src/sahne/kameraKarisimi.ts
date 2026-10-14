@@ -111,3 +111,7 @@ export function tezgahOfsetiniGuncelle(t: TezgahYeri) {
   tezgahOfseti.set(k.x, 0, k.z + BLOK_KAYMASI_Z);
   return tezgahOfseti;
 }
+
+// Oyuncunun istasyonu (belge 0.5): tezgah yakın planı ve çalışan, tezgah
+// bölümünün ortasından bu kadar yana kayar (yumuşakça)
+export const istasyonOdagi = { x: 0 };

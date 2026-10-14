@@ -1,12 +1,12 @@
 import { Suspense, useLayoutEffect } from 'react';
 import { Canvas, events, useFrame, useThree, type RootState } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
-import { durumuOku, saatDakikasi } from '../oyun/durum';
+import { durumuOku, istasyonX, saatDakikasi } from '../oyun/durum';
 import { gezmeSaati, gokRenkleri } from './gokRenkleri';
 import * as THREE from 'three';
 import { Disari } from './Disari';
 import { parselCoz, parselSiniri } from '../oyun/dekorasyon';
-import { alanCercevesi, tezgahOfseti, dukkanDonusu, dukkanEgimi, dukkanKaydirma, dukkanYakinligi, fotograf, kameraKarisimi, odak, tezgahDikligi } from './kameraKarisimi';
+import { alanCercevesi, istasyonOdagi, tezgahOfseti, dukkanDonusu, dukkanEgimi, dukkanKaydirma, dukkanYakinligi, fotograf, kameraKarisimi, odak, tezgahDikligi } from './kameraKarisimi';
 import { Calisan } from './Calisan';
 import { Sahip } from './Sahip';
 import { Dukkan, TezgahGrubu } from './Dukkan';
@@ -132,8 +132,11 @@ function KameraYoneticisi() {
     // Tezgah pozu: vitrin büyüyünce dikleşir
     const dik = (tezgahDikligi.deger = THREE.MathUtils.damp(tezgahDikligi.deger, d.vitrin.length > 6 ? 1 : 0, 4, dt));
     // Tezgah bölümü taşınınca yakın plan da onunla gider (belge 0.3)
+    istasyonOdagi.x = THREE.MathUtils.damp(istasyonOdagi.x, istasyonX(d), 6, dt);
     tezgahKonumu.current.lerpVectors(TEZGAH.konum, TEZGAH_DIK.konum, dik).add(tezgahOfseti);
     tezgahHedefi.current.lerpVectors(TEZGAH.hedef, TEZGAH_DIK.hedef, dik).add(tezgahOfseti);
+    tezgahKonumu.current.x += istasyonOdagi.x;
+    tezgahHedefi.current.x += istasyonOdagi.x;
     konum.current.lerpVectors(tezgahKonumu.current, dukkanKonumu.current, t);
     konum.current.y += Math.sin(t * Math.PI) * 0.8;
     hedef.current.lerpVectors(tezgahHedefi.current, dukkanHedefi.current, t);
@@ -145,8 +148,8 @@ function KameraYoneticisi() {
     odakKarisimi.current = THREE.MathUtils.damp(odakKarisimi.current, odak.calisan ? 1 : 0, 5, dt);
     const o = odakKarisimi.current;
     if (o > 0.001) {
-      konum.current.lerp(calisanOdakKonumu.copy(CALISAN_ODAGI.konum).add(tezgahOfseti), o);
-      hedef.current.lerp(calisanOdakHedefi.copy(CALISAN_ODAGI.hedef).add(tezgahOfseti), o);
+      konum.current.lerp(calisanOdakKonumu.copy(CALISAN_ODAGI.konum).add(tezgahOfseti).setX(CALISAN_ODAGI.konum.x + tezgahOfseti.x + istasyonOdagi.x), o);
+      hedef.current.lerp(calisanOdakHedefi.copy(CALISAN_ODAGI.hedef).add(tezgahOfseti).setX(CALISAN_ODAGI.hedef.x + tezgahOfseti.x + istasyonOdagi.x), o);
       kamera.fov = THREE.MathUtils.lerp(kamera.fov, 40, o);
     }
     kamera.position.copy(konum.current);
