@@ -470,5 +470,6 @@ Uygulamada **olan**:
 | Küçük düğmeler, gün başı menü şeridi, küçük etiketler + ekran ayarı (mola menüsünde), resimli eşya kartları, "Şimdi yerleştir / Alışverişe devam et" | Bitti (14 Ekim). Eşya resimleri `public/gorseller/esyalar/`; yeni eşya eklenince adresin sonuna `#onizleme=<eşya>` yazılıp çekilir |
 | Tezgah küvetleri büyüdü (iki sırada vitrin yanlara, kamera dik) + logo (tabela, arka duvar, ön cephe, pencere başlıkları) | Bitti (14 Ekim) |
 | Tasarım dili denemesi (0.7, 2. adım) | Deneme (14 Ekim). Yedi paketten üçer parça palete çevrildi; adresin sonuna `#tasarim=M1` (ham hâli `#tasarim=M1-ham`) yazınca görünür. Oyunun kendisinde henüz değişiklik yok. K2 (karakterler) indirilemedi: Google Drive "kota doldu" diyor |
+| Tasarım dili oyunda: tekneler ve depo (0.7, 3. adımın ilk parçası) | Bitti (14 Ekim). Denizdeki elle çizilmiş dört tekne yerine Kenney balıkçı tekneleri ve sandallar, iskelenin yanına iki şamandıra. Mutfak deposunda buzdolabı (KayKit, nane yeşili) ve kasalar. Sırada: dükkânın arkasına Liman binaları ve ağaçlar (önce arkaya zemin gerekiyor), dekorasyon eşyaları, karakterler (K2 indirilemedi) |
 
 Uygulamada **olmayan** ama belgede geçenler: Kemal'in müziği (şimdilik kodla geçici ezgi), gerçek 3B modeller (hepsi kodla çizilmiş geçici parçalar), İngilizce.

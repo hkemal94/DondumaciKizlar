@@ -5,10 +5,11 @@ import { renk } from './renkler';
 import { gokRenkleri } from './gokRenkleri';
 import { PARSEL, YURUYUS_Z, Z0, parselAnahtari } from '../oyun/dekorasyon';
 import { useDurum } from '../oyun/durum';
+import { HazirModel } from './HazirModel';
 
 // Dükkânın penceresinden görünen dış dünya: gök, deniz, tepeler,
-// iskele, tekneler, önündeki ahşap teras. Hepsi kodla çizilmiş
-// geçici low-poly parçalar; beğenilmeyen olursa değiştirilir.
+// iskele, tekneler, önündeki ahşap teras. Tekneler hazır paketten (belge
+// 0.7); öteki parçalar kodla çizilmiş geçici low-poly parçalar.
 
 // Aynı sahne her açılışta aynı görünsün diye tohumlu rastgele sayı.
 function tohumluRastgele(tohum: number) {
@@ -118,51 +119,19 @@ function Tepe({
   );
 }
 
-function Tekne({ konum, olcek = 1, faz = 0 }: { konum: [number, number, number]; olcek?: number; faz?: number }) {
+// Tekneler (belge 0.7): Kenney Watercraft Kit, tasarım diline çevrilmiş;
+// dalgada hafifçe sallanır. Mor ve sarı yok (Liman paleti).
+function Tekne({ yol, konum, en, donus = 0, faz = 0 }: { yol: string; konum: [number, number, number]; en: number; donus?: number; faz?: number }) {
   const ref = useRef<THREE.Group>(null);
-  const govde = useMemo(() => {
-    const s = new THREE.Shape();
-    s.moveTo(-1.6, 0.35);
-    s.lineTo(1.9, 0.35);
-    s.lineTo(1.2, -0.25);
-    s.lineTo(-1.3, -0.25);
-    s.closePath();
-    const g = new THREE.ExtrudeGeometry(s, { depth: 0.9, bevelEnabled: false });
-    g.translate(0, 0, -0.45);
-    return g;
-  }, []);
-  const yelken = useMemo(() => {
-    const s = new THREE.Shape();
-    s.moveTo(0, 0);
-    s.lineTo(0, 3.2);
-    s.lineTo(1.5, 0.1);
-    s.closePath();
-    return new THREE.ShapeGeometry(s);
-  }, []);
-
   useFrame(({ clock }) => {
     if (!ref.current) return;
     const t = clock.elapsedTime + faz;
     ref.current.position.y = konum[1] + Math.sin(t * 1.1) * 0.08;
     ref.current.rotation.z = Math.sin(t * 0.9) * 0.04;
   });
-
   return (
-    <group ref={ref} position={konum} scale={olcek}>
-      <mesh geometry={govde}>
-        <meshStandardMaterial color={renk.tekneGovde} flatShading />
-      </mesh>
-      <mesh position={[0, 0.4, 0]}>
-        <boxGeometry args={[3.3, 0.08, 0.95]} />
-        <meshStandardMaterial color={renk.ahsapOrta} />
-      </mesh>
-      <mesh position={[0.1, 1.95, 0]}>
-        <cylinderGeometry args={[0.04, 0.05, 3.2, 5]} />
-        <meshStandardMaterial color={renk.ahsapKoyu} />
-      </mesh>
-      <mesh geometry={yelken} position={[0.16, 0.6, 0]}>
-        <meshStandardMaterial color={renk.yelken} side={THREE.DoubleSide} flatShading />
-      </mesh>
+    <group ref={ref} position={konum}>
+      <HazirModel yol={yol} ayar={{ grup: 'liman', en }} donus={donus} />
     </group>
   );
 }
@@ -278,10 +247,13 @@ export function Disari() {
       <Tepe konum={[22, -1.3, -70]} olcek={[5, 2.2, 3]} tohum={23} renkAdi={renk.kaya} />
       <Tepe konum={[-34, -1.2, -55]} olcek={[3.5, 1.8, 2.5]} tohum={29} renkAdi={renk.kaya} />
       {/* Tekneler */}
-      <Tekne konum={[-5, -0.75, -42]} olcek={1.1} faz={0} />
-      <Tekne konum={[16, -0.75, -60]} olcek={1.2} faz={1.7} />
-      <Tekne konum={[34, -0.75, -48]} olcek={0.9} faz={3.1} />
-      <Tekne konum={[-8.4, -0.75, -24]} olcek={0.8} faz={0.6} />
+      <Tekne yol="tekneler/boat-fishing-small" konum={[-5, -1.25, -42]} en={6.5} donus={0.4} faz={0} />
+      <Tekne yol="tekneler/boat-fishing-small" konum={[16, -1.25, -60]} en={7} donus={-0.9} faz={1.7} />
+      <Tekne yol="tekneler/boat-row-small" konum={[34, -1.05, -48]} en={3.6} donus={1.2} faz={3.1} />
+      <Tekne yol="tekneler/boat-row-small" konum={[-8.4, -1.05, -24]} en={3.4} donus={0.1} faz={0.6} />
+      {/* İskelenin yanında şamandıralar */}
+      <Tekne yol="tekneler/buoy" konum={[-14.5, -1.3, -30]} en={0.9} faz={2.2} />
+      <Tekne yol="tekneler/buoy" konum={[-6.5, -1.3, -36]} en={0.9} faz={4.1} />
     </group>
   );
 }
