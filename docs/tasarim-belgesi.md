@@ -177,6 +177,24 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | İç masalar | Müşteriler dış masalar gibi iç masalara da oturur |
 | İş sırası | 1) Kareler + yol denize + İnşaat modu + Al → 2) Duvar ör / yık + uzun sıra + ikinci kapı → 3) Mutfağa kat → sonra 3b (tezgah parçaları, istasyonlar, makineler, yardımcı). Her adım ayrı PR |
 
+### 0.3 Ölçü ve tezgah bölümü (Kemal, 14 Ekim gece soru turu)
+
+0.1 ve 0.2'yi şu kararlar netleştirir; çelişirse **bunlar geçerli**.
+
+| Konu | Karar |
+|---|---|
+| Ölçü birimi | **Her şey 1×1 m'lik birimle.** Küsurat yok (Kemal: "küsurat istemiyorum") |
+| Arazi karesi | **4×4 m**, içi **16 adet 1×1 m** eşya yeri (Kemal kararı Claude'a bıraktı: 4×4 bugünkü dükkâna ve alınmış karelere tam oturuyor) |
+| Dükkân | **8×4 m** (2 kare). Önde 1 m müşteri sırası, arkada 8×3 m tezgah bölümü. Arka duvar 4,45'ten 4 m'ye gelir |
+| Ön teras | 4 m (1 kare sırası) |
+| Zemin | Dışarısı (teras ve alınan açık kareler) **1 m genişlikte, aynı hizada ahşap tahta**; yan yana kareler tek zemin gibi. İçerisi başka (koyu ahşap) |
+| Eşya boyu | **Boyuna göre:** küçükler 1×1 (saksı, çöp kutusu, flama, sokak lambası, kara tahta, ışıklı tabela, külah figürü); bank, bisiklet, çiçekli kasa 2×1; sandalyeli masa ve şemsiyeli masa 2×2. Yerleştirirken **çevir** düğmesi |
+| Tezgah bölümü | Bugün kullanılan çalışma alanı (vitrinli tezgah, arka tezgah, çalışanın yeri; 8×3 m) **tek parça**. Önünde hep 1 m müşteri sırası kalır, önü hep denize dönük |
+| Taşıma | **İnşaat modunda, ücretsiz**; kapalı alanda her yere, 1 m adımlarla (ileri, geri, sağa, sola). Tezgah yakın planı ve müşteri sırası onunla birlikte gider. Altında kalan eşyalar depoya döner |
+| Boy | İnşaat'ta **1 m adımlarla uzatılır / kısaltılır, 4–16 m**. Her yeni metre ücretli (80, geçici), kısaltmak bedava; bir kez alınan metre tekrar uzatınca yeniden ödenmez |
+| 3b ile ilişki | Tek parça kalabilir; ileride gelecek modüler tezgah parçaları (köşe, süsleme, makine…) yanına eklenebilecek biçimde |
+| Ne zaman | **Bu adımda.** Bugünkü 8×4 dükkânda yer yok; kısaltınca yana kayabilir, duvar adımıyla kapalı alan büyüyünce her yöne taşınır |
+
 ## 1. Oyunun özeti ve vizyonu
 
 ### 1.1 Tek cümlelik özet
@@ -384,6 +402,7 @@ Uygulamada **olan**:
 | Müşteriler Kenney karakterleri (varyasyonlu) | Bitti (14 Ekim). Kemal: "tek tip 12 karakteri beğenmedim… kıyafetleri, saç, aksesuar değişsin; her gün aynı karakterlere neden hizmet versin". Her müşteride baş (11) ve gövde (12) ayrı seçilir; ten, saç, üst, alt, ayakkabı renkleri; aksesuar (hasır şapka, gözlük, güneş gözlüğü). Yürüme / bekleme / oturma modelin kendi hareketleri. Çalışan ve sahip henüz eski hâlinde (Kemal'in kararı bekleniyor) |
 | Bütün karakterler aynı parçalardan (**taslak**) | Bitti (14 Ekim). Kemal: "Tüm karakterler aynı assetlerden üretilsin bir fark olmasın. Bunu şimdilik taslak olarak kabul edeceğim, daha sonra revize ederiz, pek beğenmedim". Çalışan ve sahip de müşterilerle aynı Kenney parçalarından. Çalışan ekranındaki seçimler sürer: saç biçimi → baş modeli, ten ve saç rengi, önlük gövdenin üstünde, aksesuarlar (gözlük, güneş gözlüğü, hasır şapka, kasket, bandana, küpe). Sahip geçici: mor kıyafet, topuz, küpe. **Hepsi taslak; Kemal sonra yeniden ele alacak** |
 | Büyüme 1. adım: kareler + İnşaat modu | Bitti (14 Ekim). Arazi 4×4 m karelere bölündü (yana 10'ar sütun, arkaya 2 sıra; sınır şimdilik bu). Başta dükkânın içi ve kapının önü. Gün başı menüsünde **İnşaat**: kamera önden ve üstten bakar, kareler yeşil / sarı / gri; kareye dokununca yeri ve fiyatı, sarıysa "Al". Fiyat ön teras 250, dükkân sırası 200, arka 150; iskele tarafı %15 pahalı; her alımda %20 artar (geçici sayılar). Alınan yan / arka kareye ahşap zemin döşenir, Yerleştir'de kareleri açılır. Yürüyüş yolu deniz tarafına alındı (taş yol); kapının önü müşteri yolu olarak boş kalır. Arazi büyüdükçe genel görünüm geri çekilir. Eski "Alanlar" Geliştir'den kalktı; eski kayıtlarda alınan alanlar ve eşyaların durduğu yerler karelere taşınır |
+| Ölçü düzeni + tezgah bölümü (0.3) | Bitti (14 Ekim gece). Her şey 1 m'lik birimle: 4×4 m kare, içi 16 eşya yeri. Dükkân 8×4 m (arka duvar 0,45 m öne geldi; tezgah bölümü ve içindekiler 0,4 m öne alındı). Terasın ve alınan karelerin tahtaları 1 m, tam metrelerde, aynı hizada. Eşyalar boyuna göre 1×1 / 2×1 / 2×2, Yerleştir'de "Çevir". Tezgah bölümü İnşaat'ta seçilir (mor): ok tuşlarıyla 1 m taşınır, 4–16 m uzar / kısalır (her yeni metre 80, geçici); yakın plan, çalışan, hazırlama ve müşteri sırası onunla gider; altında kalan eşya depoya döner. Bugünkü 8×4 dükkânda yalnız kısaltıp yana kaydırmak mümkün; asıl taşıma duvar adımıyla açılır |
 | Açılış ekranı + Ayarlar | Bitti (14 Ekim). Ses, ekran (etiketler), eğitimi yeniden göster, dil (İngilizce gelince), baştan başla Ayarlar'da; mola menüsünde yalnız Devam et, Dükkânı gez, Ayarlar |
 | Efektler (kıvılcım, serpinti, sıkılan müşteride bulut, kasaya uçan jeton) + bahşiş + yatay balon | Bitti (14 Ekim). Bahşiş: arka arkaya 3. mükemmel servisten başlar (+2, +4… en çok +10), gün sonunda ayrı satır. Uçan jetonlar test ortamında görüntülenemedi; telefonda bakılacak |
 | Küçük düğmeler, gün başı menü şeridi, küçük etiketler + ekran ayarı (mola menüsünde), resimli eşya kartları, "Şimdi yerleştir / Alışverişe devam et" | Bitti (14 Ekim). Eşya resimleri `public/gorseller/esyalar/`; yeni eşya eklenince adresin sonuna `#onizleme=<eşya>` yazılıp çekilir |

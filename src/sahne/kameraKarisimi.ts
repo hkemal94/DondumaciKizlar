@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { tezgahKaymasi, type TezgahYeri } from '../oyun/dekorasyon';
 
 // Kameranın hangi görünümde olduğu: 0 = tezgah, 1 = dükkânın genel görünümü.
 // Geçiş sırasında aradaki değerleri alır. Sahnedeki parçalar (tavan, kepçe…)
@@ -99,3 +100,14 @@ export const odak = { calisan: false };
 // Tezgah görünümünün dikliği (Kemal, 14 Ekim): vitrin iki sıra olunca kamera
 // biraz yukarıdan bakar, küvetler büyür. 0 = tek sıra, 1 = iki sıra.
 export const tezgahDikligi = { deger: 0 };
+
+// Tezgah bölümü (belge 0.3) taşınınca vitrin, arka tezgah, çalışan, hazırlama
+// ve tezgah yakın planı birlikte kayar. Parçalar eski yerlerine göre
+// çizilidir; dükkân 4 m derine indiği için hepsi 0,4 m öne alındı.
+const BLOK_KAYMASI_Z = -0.4;
+export const tezgahOfseti = new THREE.Vector3(0, 0, BLOK_KAYMASI_Z);
+export function tezgahOfsetiniGuncelle(t: TezgahYeri) {
+  const k = tezgahKaymasi(t);
+  tezgahOfseti.set(k.x, 0, k.z + BLOK_KAYMASI_Z);
+  return tezgahOfseti;
+}

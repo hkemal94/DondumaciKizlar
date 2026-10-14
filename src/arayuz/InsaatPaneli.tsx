@@ -1,5 +1,18 @@
 import { m, type MetinAnahtari } from '../metinler';
-import { insaattanCik, parselAl, parselDurumu, parselFiyatiNe, useDurum } from '../oyun/durum';
+import {
+  insaattanCik,
+  parselAl,
+  parselDurumu,
+  parselFiyatiNe,
+  tezgahKisaltilabilir,
+  tezgahTasinabilir,
+  tezgahUzatilabilir,
+  tezgahUzatmaFiyati,
+  tezgahiKisalt,
+  tezgahiTasi,
+  tezgahiUzat,
+  useDurum,
+} from '../oyun/durum';
 import { DUKKAN_PARSELLERI, parselCoz } from '../oyun/dekorasyon';
 import { ortala } from '../sahne/kameraKarisimi';
 
@@ -13,7 +26,44 @@ export function InsaatPaneli() {
     ortala();
   };
   let icerik = null;
-  if (secili) {
+  if (secili === 'tezgah') {
+    // Tezgah bölümü (belge 0.3): taşı, uzat, kısalt. Oklar İnşaat'ın önden
+    // bakışına göre: ekranın solu +x, yukarısı dükkânın arkası.
+    const yonler: [MetinAnahtari, string, number, number][] = [
+      ['insaat.sola', '◀', 1, 0],
+      ['insaat.arkaya', '▲', 0, 1],
+      ['insaat.one', '▼', 0, -1],
+      ['insaat.saga', '▶', -1, 0],
+    ];
+    const fiyat = tezgahUzatmaFiyati(durum);
+    icerik = (
+      <>
+        <span className="insaat-yer">{m('insaat.tezgah', { boy: durum.tezgah.boy })}</span>
+        <span className="insaat-durum">{m('insaat.tezgahNot')}</span>
+        <div className="insaat-oklar">
+          {yonler.map(([ad, ok, dc, dr]) => (
+            <button key={ad} className="dugme dugme-simge" aria-label={m(ad)} disabled={!tezgahTasinabilir(dc, dr, durum)} onClick={() => tezgahiTasi(dc, dr)}>
+              {ok}
+            </button>
+          ))}
+        </div>
+        <div className="insaat-oklar">
+          <button className="dugme gel-al" disabled={!tezgahUzatilabilir(durum)} onClick={tezgahiUzat}>
+            {m('insaat.uzat')}
+            {fiyat > 0 && (
+              <>
+                {' '}
+                <span className="para-simge" aria-hidden /> {fiyat}
+              </>
+            )}
+          </button>
+          <button className="dugme gel-al" disabled={!tezgahKisaltilabilir(durum)} onClick={tezgahiKisalt}>
+            {m('insaat.kisalt')}
+          </button>
+        </div>
+      </>
+    );
+  } else if (secili) {
     const { i, j } = parselCoz(secili);
     const durumu = parselDurumu(secili, durum);
     const fiyat = parselFiyatiNe(secili, durum);

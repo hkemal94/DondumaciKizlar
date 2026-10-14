@@ -198,11 +198,12 @@ const ISKELE_ACIKLIGI: [number, number] = [-12.4, -9.6];
 
 function Teras() {
   const tahtalar = [];
-  for (let x = -TERAS_UCU, i = 0; x < TERAS_UCU; x += 1.75, i++) {
+  // Tahtalar 1 m geniş, tam metrelerde: alınan karelerin ahşabıyla aynı hizada (belge 0.3)
+  for (let x = -TERAS_UCU; x < TERAS_UCU; x++) {
     tahtalar.push(
-      <mesh key={i} position={[x + 0.85, 0, -5.4]} receiveShadow>
-        <boxGeometry args={[1.68, 0.12, 6]} />
-        <meshStandardMaterial color={i % 2 ? renk.ahsapAcik : renk.ahsapOrta} roughness={0.9} />
+      <mesh key={x} position={[x + 0.5, 0, -5.4]} receiveShadow>
+        <boxGeometry args={[0.96, 0.12, 6]} />
+        <meshStandardMaterial color={((x % 2) + 2) % 2 ? renk.ahsapAcik : renk.ahsapOrta} roughness={0.9} />
       </mesh>,
     );
   }
