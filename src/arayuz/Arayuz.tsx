@@ -48,7 +48,7 @@ import { AyarlarEkrani } from './AyarlarEkrani';
 import { useEkranAyari } from './ekranAyari';
 import { EgitimEli, egitimHedefi } from './EgitimEli';
 import { CalisanAdi, CalisanEkrani } from './CalisanEkrani';
-import { dukkanDonusu, ekrandaKaydir, ortala, yakinlikDegistir } from '../sahne/kameraKarisimi';
+import { dondur, ekrandaKaydir, ortala, yakinlikDegistir } from '../sahne/kameraKarisimi';
 import { DuraklatDugmesi, DuraklatMenusu, GezmeEkrani } from './Duraklat';
 import { ESYALAR } from '../oyun/dekorasyon';
 
@@ -450,14 +450,25 @@ function UstBilgi() {
   );
 }
 
-// Genel görünümde iki parmakla sıkıştır / aç ve fare tekerleği: yakınlaştırma.
-function useYakinlastirma(etkin: boolean, gezme: boolean) {
+// Genel görünümde kamera (Kemal, 14 Ekim: "360 döndürme ve aşağı yukarı
+// bakma, her yerde"): tek parmak döndürür (sağa sola) ve eğer (aşağı yukarı);
+// iki parmak kaydırır, sıkıştır / aç yakınlaştırır. Farede sol tuş döndürür,
+// sağ tuş kaydırır, tekerlek yakınlaştırır.
+function useYakinlastirma(etkin: boolean) {
   useEffect(() => {
     if (!etkin) return;
-    let oncekiX: number | null = null;
-    let oncekiY: number | null = null;
     const parmaklar = new Map<number, { x: number; y: number }>();
     let oncekiAralik = 0;
+    let onceki: { x: number; y: number } | null = null;
+    let sagTus = false;
+    // Oyun dik telefonda çevrilmiş olabilir: ekrandaki noktayı oyunun yatay ekranına çevir
+    const oyunda = (p: { x: number; y: number }) =>
+      window.matchMedia('(orientation: portrait)').matches ? { x: p.y, y: window.innerWidth - p.x } : p;
+    const ekranYuksekligi = () => (window.matchMedia('(orientation: portrait)').matches ? window.innerWidth : window.innerHeight);
+    const orta = () => {
+      const [a, b] = [...parmaklar.values()].map(oyunda);
+      return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    };
     const aralik = () => {
       const [a, b] = [...parmaklar.values()];
       return Math.hypot(a.x - b.x, a.y - b.y);
@@ -466,39 +477,40 @@ function useYakinlastirma(etkin: boolean, gezme: boolean) {
       // Panel, düğme ya da yazı kutusunun üstünde başlayan kaydırma görüntüyü oynatmaz
       if ((e.target as HTMLElement | null)?.closest('button, input, .calisan-panel, .gelistir, .gun-sonu')) return;
       parmaklar.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      sagTus = e.pointerType === 'mouse' && e.button === 2;
       if (parmaklar.size === 2) {
         oncekiAralik = aralik();
-        oncekiX = null;
-        oncekiY = null;
-      }
+        onceki = orta();
+      } else onceki = oyunda({ x: e.clientX, y: e.clientY });
     };
     const oynat = (e: PointerEvent) => {
       if (!parmaklar.has(e.pointerId)) return;
       parmaklar.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      // Tek parmak: gezerken dükkânın çevresinde döner, yoksa görüntüyü kaydırır
-      if (parmaklar.size === 1) {
-        const dik = window.matchMedia('(orientation: portrait)').matches; // oyun çevrilmiş
-        const x = dik ? e.clientY : e.clientX;
-        const y = dik ? window.innerWidth - e.clientX : e.clientY;
-        if (oncekiX !== null && oncekiY !== null) {
-          if (gezme) dukkanDonusu.deger -= (x - oncekiX) * 0.008;
-          else ekrandaKaydir(x - oncekiX, y - oncekiY, dik ? window.innerWidth : window.innerHeight);
-        }
-        oncekiX = x;
-        oncekiY = y;
+      if (parmaklar.size === 1 && onceki) {
+        const simdi = oyunda({ x: e.clientX, y: e.clientY });
+        const dx = simdi.x - onceki.x;
+        const dy = simdi.y - onceki.y;
+        if (sagTus) ekrandaKaydir(dx, dy, ekranYuksekligi());
+        else dondur(-dx * 0.008, dy * 0.006);
+        onceki = simdi;
       }
-      if (parmaklar.size === 2 && oncekiAralik > 0) {
+      if (parmaklar.size === 2 && onceki) {
+        const simdi = orta();
+        ekrandaKaydir(simdi.x - onceki.x, simdi.y - onceki.y, ekranYuksekligi());
+        onceki = simdi;
         const yeni = aralik();
-        yakinlikDegistir(oncekiAralik / yeni); // parmaklar açılınca yaklaşır
+        if (oncekiAralik > 0) yakinlikDegistir(oncekiAralik / yeni); // parmaklar açılınca yaklaşır
         oncekiAralik = yeni;
       }
     };
     const kaldir = (e: PointerEvent) => {
       parmaklar.delete(e.pointerId);
       oncekiAralik = 0;
-      oncekiX = null;
-      oncekiY = null;
+      // Bir parmak kalırsa oradan yeniden başlar (zıplamasın)
+      const kalan = [...parmaklar.values()][0];
+      onceki = kalan ? oyunda(kalan) : null;
     };
+    const sagMenu = (e: MouseEvent) => e.preventDefault();
     const tekerlek = (e: WheelEvent) => {
       e.preventDefault();
       yakinlikDegistir(Math.exp(e.deltaY * 0.0015));
@@ -508,14 +520,16 @@ function useYakinlastirma(etkin: boolean, gezme: boolean) {
     window.addEventListener('pointerup', kaldir);
     window.addEventListener('pointercancel', kaldir);
     window.addEventListener('wheel', tekerlek, { passive: false });
+    window.addEventListener('contextmenu', sagMenu);
     return () => {
+      window.removeEventListener('contextmenu', sagMenu);
       window.removeEventListener('pointerdown', bas);
       window.removeEventListener('pointermove', oynat);
       window.removeEventListener('pointerup', kaldir);
       window.removeEventListener('pointercancel', kaldir);
       window.removeEventListener('wheel', tekerlek);
     };
-  }, [etkin, gezme]);
+  }, [etkin]);
 }
 
 export function Arayuz() {
@@ -524,7 +538,7 @@ export function Arayuz() {
   const [calisanAcik, setCalisanAcik] = useState(false);
   const [vitrinAcik, setVitrinAcik] = useState(false);
   const [ayarlarAcik, setAyarlarAcik] = useState(false);
-  useYakinlastirma(durum.kamera === 'dukkan', durum.gezme);
+  useYakinlastirma(durum.kamera === 'dukkan');
 
   // Parmak ekranın neresinde kalkarsa kalksın kepçe bırakılır.
   useEffect(() => {

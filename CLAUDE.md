@@ -20,7 +20,7 @@ işletme oyunu. Oyuncu tezgahın arkasında dondurmayı kendi eliyle hazırlar.
 
 | Konu | Değer |
 |---|---|
-| Kamera | **İki sabit kamera:** dükkânın izometrik genel görünümü + sipariş gelince tezgahın arkasından birinci şahıs yakın plan. Aralarında yumuşak geçiş. **Oyuncu yürümez.** Genel görünümde yakınlaştırma var; serbest dönme yalnız duraklatıp "Dükkânı gez"de (13 Ekim) |
+| Kamera | **İki sabit kamera:** dükkânın izometrik genel görünümü + sipariş gelince tezgahın arkasından birinci şahıs yakın plan. Aralarında yumuşak geçiş. **Oyuncu yürümez.** Genel görünümde her an 360° döndürme, aşağı yukarı eğme, kaydırma ve yakınlaştırma var (14 Ekim); tezgah yakın planı sabit |
 | 3B | Gerçek 3B modeller, **sabit açılar** |
 | Stil | Low-poly, yumuşak ışık; logo renkleri (mor, sarı) öne çıkar. Sakin, dinlendirici; kaybetme yok, para cezası yok (çok bekleyen müşteri gidip sıfır yıldız verebilir, 13 Ekim) |
 | Platform | **Telefon önce.** Dokunmatik birincil kontrol; fare de çalışır. Mağaza ve PC paketi sonra |

@@ -69,10 +69,10 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Dekorasyon türleri | İki tür (Kemal, 13 Ekim): **genel** (ör. ışıklandırma; tek tip, daha pahalı üst seviyeleri olabilir) ve **taşınabilir** (ör. masa takımı: alınır, yerini oyuncu elle seçer; kareli yerleştirme düzeni önerildi). Taşınabilir eşyalar **dükkânın içine de önüne (terasa) de** konabilir (Kemal, 13 Ekim). Dekorasyon uzun soluklu bir alan. *Uygulamada henüz yok* |
 | Kapı ve müşteri yolu | Dükkânın önünde (teras / iskele tarafında) bir **kapı** olur. Müşteriler havadan belirmez: kameranın dışından **iskele boyunca yürüyerek** gelir, kapıdan girer, sıraya geçer; giderken kapıdan çıkıp yürür. Hep aynı taraftan gelmezler, iki yönden de gelirler (Kemal, 13 Ekim) |
 | Dekorasyon | **Genel:** ışıklandırma üç seviye — 1 fenerler, 2 terasa asma ampuller, 3 dükkân önünde ışıklı mor-sarı şerit; her seviye öncekinden pahalı. **Taşınabilir:** masa takımı, şemsiyeli masa, çiçek saksısı; alınınca depoya gider, gün başında "Yerleştir" ile kareli zeminde bir kareye konur (terasa ve içeri); konmuş eşyaya dokunulunca yeniden seçilir, başka yere taşınır. Müşteri yolu ve kapı önü boş kalır. Yerleştirilen her eşya ve her ışık seviyesi müşterileri biraz daha sık getirir. Fiyatlar geçici |
-| Genel görünümde kaydırma | Tek parmakla sürükleyince görüntü sağa, sola, ileri, geri kayar; açı değişmez (Kemal, 13 Ekim). Sol alttaki **ortala** düğmesi baştaki görünüme döndürür. Dükkânı gezerken tek parmak döndürür |
+| Genel görünümde kamera | **Değişti (Kemal, 14 Ekim):** "360 döndürme ve aşağı yukarı bakma, her yerde". Genel görünümde her an: **tek parmak** dükkânın çevresinde döndürür (sağa sola) ve eğer (aşağı yukarı; yerden alçak bakıştan neredeyse tepeden bakışa kadar). **İki parmak** kaydırır, sıkıştır / aç yakınlaştırır. Farede sol tuş döndürür, sağ tuş kaydırır, tekerlek yakınlaştırır. Sol alttaki **ortala** düğmesi baştaki görünüme döndürür. Tezgah yakın planı sabit kalır. (13 Ekim'deki "tek parmak kaydırır, açı değişmez" kuralının yerine geçer) |
 | Tezgah düzeni | Dar telefon ekranında külah çikolata küvetini kapatıyordu (Kemal, 13 Ekim). Kamera biraz aşağı eğildi, küvetler ekranda yukarı çıktı; külah küvetlerin üstüne, sola alındı |
 | Duraklatma menüsü | Sol üstte duraklat düğmesi (Kemal, 13 Ekim). Saat, müşteriler ve sabır durur. Menüde: **Devam et**, **Dükkânı gez**, **ses ayarı** (müzik ve sesler; ses henüz yok, ayar saklanır) |
-| Dükkânı gezme | Duraklatınca dükkânın çevresinde **parmakla döndürülür**, yakınlaştırılır; bakılan yöne dönük duvarlar kalkar. Serbest kameranın tek istisnası budur; oyun sırasında açılar sabit |
+| Dükkânı gezme | Duraklatınca dükkânın çevresinde **parmakla döndürülür**, yakınlaştırılır; bakılan yöne dönük duvarlar kalkar. 14 Ekim'den beri genel görünümde de döndürülebiliyor; gezmenin farkı duvar ve ışık seçenekleri ile fotoğraf |
 | Gezerken duvarlar | Tek düğme sırayla değiştirir (Kemal, 13 Ekim): **Kesit** (bakılan yöne dönük duvarlar kalkar) → **Duvarsız** (hepsi kalkar) → **Kapalı** (bütün duvarlar ve tavan yerinde; dükkâna tümden dışarıdan bakılır) |
 | Gezerken gece / gündüz | Dükkânı gezerken bir düğme ışığı sırayla değiştirir: şimdiki saat → gündüz → akşam → gece (Kemal, 13 Ekim). Yalnız görünüş; oyunun saati değişmez |
 | Deneme parası | Yalnız adresin sonuna `#deneme` yazılınca, Dükkânı geliştir'de "Deneme parası +5000" düğmesi çıkar; dekorasyonu denemek için (Kemal, 13 Ekim). Oyunun kendisinde yok |
@@ -154,6 +154,28 @@ Taslakla çelişen yerde bu bölüm geçerli.
 **Ekran**
 - Gün başında **İnşaat modu**: dükkâna üstten bakılır, dilimler renkli görünür.
 - Dilime dokununca seçenekler ve fiyat çıkar: Al / Duvar ör / Mutfağa kat / Tezgah parçası koy.
+
+### 0.2 Büyüme soru turu 2 (Kemal, 14 Ekim akşam)
+
+0.1'i şu cevaplar netleştirir; çelişirse **bunlar geçerli**.
+
+| Konu | Karar |
+|---|---|
+| Ön teras | Yol deniz tarafına kayar. **Ön teras da satın alınır**: başta yalnız dükkânın içi ve kapının önü açık |
+| Arazi biçimi | **Kare kare** (~4×4 m). Her kare ayrı alınır |
+| Alma sırası | Yalnız sahip olunan yere **komşu** kare alınır; arada boşluk kalmaz |
+| Kamera | Dükkân büyüdükçe genel görünüm **kendiliğinden geri çekilir**; yakınlaştırma yine oyuncuda |
+| İnşaat modu | **Yalnız gün başında** (müşteri yokken) |
+| Renkler | Trafik ışığı: alınmış **yeşil**, alınabilir **sarı**, alınamaz **gri** |
+| Duvar örülünce | İçeriye uymayan dış eşyalar **depoya döner**; içe uyanlar yerinde kalır |
+| Kapı | Bugünkü kapı yerinde kalır. Ön duvar yeterince uzayınca (ör. 3 kare) **ikinci kapı** alınabilir; müşteri yakın olandan girer |
+| Fiyat ölçüsü | **Bugünkü gibi**: ilk kare ~150–250, her alımda biraz artar; ön / iskele tarafı pahalı, arka ucuz |
+| Duvarı yıkmak | **Ücretli**, duvara ödenen para geri gelmez |
+| Eski "Alanlar" | Eski alınan yerin üstüne düşen kareler oyuncunun olur, eşyalar yerinde kalır |
+| Boş mutfak | Fayans zemin, boş; makine ve depo geldikçe dolar |
+| Uzun sıra | **Duvarla birlikte**: her kapalı kare sıraya yer ekler |
+| İç masalar | Müşteriler dış masalar gibi iç masalara da oturur |
+| İş sırası | 1) Kareler + yol denize + İnşaat modu + Al → 2) Duvar ör / yık + uzun sıra + ikinci kapı → 3) Mutfağa kat → sonra 3b (tezgah parçaları, istasyonlar, makineler, yardımcı). Her adım ayrı PR |
 
 ## 1. Oyunun özeti ve vizyonu
 
