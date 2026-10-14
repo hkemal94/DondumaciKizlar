@@ -1,0 +1,942 @@
+import { useSyncExternalStore } from 'react';
+
+import { BASLANGIC_CESITLERI, CESITLER } from './kuvetler';
+import { EN_YUKSEK_ISIK, ESYALAR, HUCRELER, ISIK_SEVIYELERI, type Esya } from './dekorasyon';
+import {
+  AD_EN_UZUN,
+  AKSESUARLAR,
+  ONLUKLER,
+  SAC_MODELLERI,
+  SAC_RENKLERI,
+  TENLER,
+  VARSAYILAN_CALISAN,
+  type Aksesuar,
+  type CalisanGorunumu,
+} from './calisan';
+
+// Oyunun durumu: kepçe mini oyunu (belge bölüm 3: altlık → kepçe →
+// yerleştir → servis) ve müşteri sırası (iş sırası 3).
+// Oyuncunun yaptığı her şey buradan geçer; ekran ve 3B sahne buradan okur.
+
+export type Altlik = 'kulah' | 'kap' | 'kup';
+// Kup parayla açılır (belge 3: "külah, kap ya da kup"; belge 4: tarif ağacı)
+export const KUP_FIYATI = 200;
+export const KUP_EKI = 5; // kuplu siparişe ek para
+export type Asama = 'altlikSec' | 'kepceBos' | 'dolduruyor' | 'servis';
+export type Sonuc = 'mukemmel' | 'iyi' | 'kucuk' | 'buyuk';
+
+export interface Top {
+  kuvet: number;
+  boyut: number; // 0–1 arası dolum
+  sonuc: Sonuc;
+}
+
+// Süsleme ve sos (belge bölüm 3, adım 4). Adlar yalnız yiyeceğin adı.
+export type Susleme = 'sos' | 'seker' | 'findik';
+export const SUSLEMELER: Susleme[] = ['sos', 'seker', 'findik'];
+export const SUSLEME_FIYATI = 3;
+
+export interface Siparis {
+  altlik: Altlik;
+  kuvetler: number[]; // hangi küvetlerden kaç top
+  susleme: Susleme[];
+  ikinci?: Omit<Siparis, 'ikinci'>; // tepsi açılınca: ikinci dondurma
+}
+
+// Hazırlanmış bir dondurma (tepside bekleyen ya da elde olan)
+export interface Urun {
+  altlik: Altlik;
+  toplar: Top[];
+  susleme: Susleme[];
+}
+
+export const TEPSI_FIYATI = 400;
+
+export interface Musteri {
+  id: number;
+  gorunum: number; // musteriGorunumleri sırası
+  siparis: Siparis;
+  hal: 'sirada' | 'gidiyor';
+  mutlu: boolean;
+  gelisTarafi: 1 | -1; // iskelenin hangi ucundan geldi (1 = sağ, -1 = sol)
+  gidisTarafi: 1 | -1;
+}
+
+export type Bildirim =
+  | { tur: 'top'; sonuc: Sonuc; zaman: number }
+  | { tur: 'para'; miktar: number; zaman: number }
+  | { tur: 'yanlis'; zaman: number }
+  | { tur: 'sikildi'; zaman: number }
+  | { tur: 'ikiDondurma'; zaman: number }
+  | { tur: 'susleme'; eksik: Susleme[]; fazla: Susleme[]; zaman: number };
+
+export interface Durum {
+  asama: Asama;
+  altlik: Altlik | null;
+  toplar: Top[];
+  susleme: Susleme[]; // elimizdeki dondurmaya eklenenler (sırasıyla)
+  tepsi: Urun[]; // iki dondurmalı siparişte hazırlanıp bekleyen
+  kepceKuvet: number | null; // basılı tutulan küvet
+  dolumBasladi: number; // basılı tutma anı (ms)
+  bildirim: Bildirim | null;
+  servisDogru: boolean;
+  musteriler: Musteri[];
+  sonrakiGelis: number; // bir sonraki müşterinin geleceği an (ms)
+  para: number;
+  memnuniyetler: number[]; // her müşterinin 1–5 puanı
+  // Gün ve saat (iş sırası 4)
+  gun: number;
+  dakika: number; // açılıştan bu yana geçen oyun dakikası
+  acik: boolean;
+  gunSonu: boolean;
+  // Gün başlamadan önce: oyuncu dükkânına bakar, alışveriş yapar; müşteri gelmez, saat durur
+  hazirlik: boolean;
+  // Sabır (Kemal, 13 Ekim): yalnız öndeki müşteri; son işlemden bu yana geçen oyun dakikası
+  sabirMusteri: number | null; // tezgaha varmış öndeki müşteri
+  sabirBasi: number; // sabrın başladığı / sıfırlandığı oyun dakikası
+  gunluk: GunlukOzet;
+  // Kamera (iş sırası 5): dükkânın genel görünümü ya da tezgah yakın planı
+  kamera: Kamera;
+  // İlerleme (belge 2.4 ve 4): kayıtta saklanır
+  acikCesitler: number[];
+  acikAltliklar: Altlik[];
+  tepsiAcik: boolean;
+  fiyatSeviyesi: FiyatSeviyesi;
+  // Dekorasyon: ışık seviyesi, depodaki eşyalar, yere konmuş eşyalar
+  isikSeviyesi: number;
+  depo: Partial<Record<Esya, number>>;
+  yerlesim: Yerlesim[];
+  // Yerleştirme ekranı (kaydedilmez)
+  yerlestirme: boolean;
+  seciliEsya: Esya | null;
+  // Çalışan (Kemal, 13 Ekim): oyuncunun kişiselleştirdiği
+  calisan: CalisanGorunumu;
+  acikOnlukler: string[];
+  acikAksesuarlar: Aksesuar[];
+  // Duraklatma menüsü (Kemal, 13 Ekim): saat ve müşteriler durur
+  duraklatildi: boolean;
+  gezme: boolean; // duraklatıp dükkânı gezme (döndürme, yakınlaştırma, fotoğraf)
+}
+
+export interface Yerlesim {
+  esya: Esya;
+  hucre: number; // HUCRELER sırası
+}
+
+export type FiyatSeviyesi = 'ucuz' | 'normal' | 'pahali';
+
+export type Kamera = 'dukkan' | 'tezgah';
+
+export interface GunlukOzet {
+  musteri: number;
+  kazanc: number;
+  mukemmel: number;
+  puanlar: number[];
+}
+
+function bosOzet(): GunlukOzet {
+  return { musteri: 0, kazanc: 0, mukemmel: 0, puanlar: [] };
+}
+
+// Gösterge ayarları
+export const MUKEMMEL_ALT = 0.62;
+export const MUKEMMEL_UST = 0.8;
+export const IYI_PAYI = 0.14;
+export const DOLUM_SURESI = 1000; // boştan tama, ms (Kemal: 1500 yavaştı)
+export const EN_COK_TOP = 3;
+
+let durum: Durum = {
+  asama: 'altlikSec',
+  altlik: null,
+  toplar: [],
+  susleme: [],
+  tepsi: [],
+  kepceKuvet: null,
+  dolumBasladi: 0,
+  bildirim: null,
+  servisDogru: false,
+  musteriler: [],
+  sonrakiGelis: 0,
+  para: 0,
+  memnuniyetler: [],
+  gun: 1,
+  dakika: 0,
+  acik: true,
+  gunSonu: false,
+  hazirlik: true,
+  sabirMusteri: null,
+  sabirBasi: 0,
+  gunluk: bosOzet(),
+  kamera: 'dukkan',
+  acikCesitler: [...BASLANGIC_CESITLERI],
+  acikAltliklar: ['kulah', 'kap'],
+  tepsiAcik: false,
+  fiyatSeviyesi: 'normal',
+  isikSeviyesi: 0,
+  depo: {},
+  yerlesim: [],
+  yerlestirme: false,
+  seciliEsya: null,
+  calisan: { ...VARSAYILAN_CALISAN },
+  acikOnlukler: ONLUKLER.filter((o) => o.fiyat === 0).map((o) => o.id),
+  acikAksesuarlar: [],
+  duraklatildi: false,
+  gezme: false,
+};
+
+const dinleyiciler = new Set<() => void>();
+function guncelle(yeni: Partial<Durum>) {
+  durum = { ...durum, ...yeni };
+  dinleyiciler.forEach((d) => d());
+}
+
+// Oyuncunun yaptığı her işlem (yanlış bile olsa) öndeki müşterinin sabrını sıfırlar.
+function islemYapildi() {
+  if (durum.sabirMusteri !== null) durum = { ...durum, sabirBasi: durum.dakika };
+}
+
+export function durumuOku() {
+  return durum;
+}
+
+export function useDurum() {
+  return useSyncExternalStore(
+    (d) => {
+      dinleyiciler.add(d);
+      return () => dinleyiciler.delete(d);
+    },
+    () => durum,
+  );
+}
+
+// Basılı tutulan süreden dolum: dolar, tepeye varınca geri iner (gidip gelir).
+// Kaçırmak ceza değil; gösterge tekrar MÜKEMMEL'den geçer.
+export function dolumHesapla(simdi: number): number {
+  if (durum.asama !== 'dolduruyor') return 0;
+  const t = ((simdi - durum.dolumBasladi) / DOLUM_SURESI) % 2;
+  return t <= 1 ? t : 2 - t;
+}
+
+function sonucBul(dolum: number): Sonuc {
+  if (dolum >= MUKEMMEL_ALT && dolum <= MUKEMMEL_UST) return 'mukemmel';
+  if (dolum >= MUKEMMEL_ALT - IYI_PAYI && dolum <= MUKEMMEL_UST + IYI_PAYI) return 'iyi';
+  return dolum < MUKEMMEL_ALT ? 'kucuk' : 'buyuk';
+}
+
+// Altlıklar arasında her an doğrudan geçilir; konmuş toplar ve süslemeler
+// yeni altlığa geçer (Kemal, 13 Ekim). Kepçe dalarken ve servis anında olmaz.
+export function altlikDegisebilir(d: Durum = durum) {
+  return d.asama !== 'dolduruyor' && d.asama !== 'servis' && d.kamera === 'tezgah';
+}
+
+export function altlikSec(altlik: Altlik) {
+  if (!altlikDegisebilir() || !durum.acikAltliklar.includes(altlik)) return;
+  islemYapildi();
+  guncelle({ altlik, asama: durum.asama === 'altlikSec' ? 'kepceBos' : durum.asama });
+}
+
+export function kuveteBas(kuvet: number) {
+  if (durum.asama !== 'kepceBos' || durum.kamera !== 'tezgah') return;
+  if (durum.toplar.length >= EN_COK_TOP) return;
+  if (durum.susleme.length > 0) return; // süslemenin üstüne top konmaz
+  guncelle({ asama: 'dolduruyor', kepceKuvet: kuvet, dolumBasladi: performance.now() });
+}
+
+// Parmak kalkınca top doğrudan külaha / kaba iner; ikinci dokunuş yok
+// (iPhone denemesi, Kemal 13 Ekim).
+export function birak() {
+  if (durum.asama !== 'dolduruyor' || durum.kepceKuvet === null) return;
+  islemYapildi();
+  const dolum = dolumHesapla(performance.now());
+  const top: Top = { kuvet: durum.kepceKuvet, boyut: dolum, sonuc: sonucBul(dolum) };
+  guncelle({
+    asama: 'kepceBos',
+    toplar: [...durum.toplar, top],
+    kepceKuvet: null,
+    bildirim: { tur: 'top', sonuc: top.sonuc, zaman: performance.now() },
+  });
+}
+
+// Süsleme ya da sos ekle: en az bir top olmalı, her biri bir kez.
+// Süsleme düğmesi aç / kapa: basınca eklenir, yeniden basınca kalkar
+// (Kemal, 13 Ekim). En az bir top olmalı; birden çok süsleme olabilir.
+export function suslemeBasilabilir(d: Durum = durum) {
+  return d.asama === 'kepceBos' && d.toplar.length > 0;
+}
+
+export function suslemeDegistir(s: Susleme) {
+  if (!suslemeBasilabilir()) return;
+  islemYapildi();
+  guncelle({ susleme: durum.susleme.includes(s) ? durum.susleme.filter((x) => x !== s) : [...durum.susleme, s] });
+}
+
+// Geri al: konmuş toplar ve tepsi için (13 Ekim). Son konan top çıkar. Ceza yok.
+export function geriAlinabilir(d: Durum = durum) {
+  if (d.toplar.length === 0 && d.tepsi.length > 0 && (d.asama === 'altlikSec' || d.asama === 'kepceBos')) return true;
+  return d.asama === 'kepceBos' && d.toplar.length > 0;
+}
+
+export function geriAl() {
+  if (!geriAlinabilir()) return;
+  islemYapildi();
+  if (durum.toplar.length === 0 && durum.tepsi.length > 0) {
+    // Tepsideki dondurma ele geri gelir
+    const u = durum.tepsi[durum.tepsi.length - 1];
+    guncelle({ tepsi: durum.tepsi.slice(0, -1), altlik: u.altlik, toplar: u.toplar, susleme: u.susleme, asama: 'kepceBos' });
+  } else {
+    const toplar = durum.toplar.slice(0, -1);
+    // Top kalmadıysa süsleme de kalkar
+    guncelle({ toplar, susleme: toplar.length ? durum.susleme : [] });
+  }
+}
+
+// ---- Müşteri sırası (iş sırası 3) ----
+// Sayılar geçici: fiyat, gelme aralığı ve sıra uzunluğu denemeyle ayarlanacak.
+export const EN_COK_SIRA = 4;
+export const GELIS_ARALIGI: [number, number] = [5000, 9000]; // ms
+export const TOP_FIYATI = 10;
+export const MUKEMMEL_EKI = 5;
+export const IYI_EKI = 2;
+export const MUSTERI_GORUNUM_SAYISI = 4;
+
+let sonId = 0;
+
+function rastgeleDondurma(enCokTop: number, ikiSuslemeOlabilir: boolean): Omit<Siparis, 'ikinci'> {
+  const z = Math.random();
+  const sayi = Math.min(enCokTop, z < 0.5 ? 1 : z < 0.85 ? 2 : 3);
+  // Siparişlerin üçte birinde süsleme istenir; tepsi açıksa bazen iki süsleme (geçici oranlar)
+  const susleme: Susleme[] = [];
+  if (Math.random() < 0.33) {
+    const karisik = [...SUSLEMELER].sort(() => Math.random() - 0.5);
+    susleme.push(karisik[0]);
+    if (ikiSuslemeOlabilir && Math.random() < 0.35) susleme.push(karisik[1]);
+  }
+  return {
+    altlik: durum.acikAltliklar[Math.floor(Math.random() * durum.acikAltliklar.length)],
+    kuvetler: Array.from({ length: sayi }, () => durum.acikCesitler[Math.floor(Math.random() * durum.acikCesitler.length)]),
+    susleme,
+  };
+}
+
+function rastgeleSiparis(): Siparis {
+  // Tepsi açılınca siparişlerin dörtte biri iki dondurma (her biri en çok 2 top)
+  if (durum.tepsiAcik && Math.random() < 0.25) {
+    return { ...rastgeleDondurma(2, true), ikinci: rastgeleDondurma(2, true) };
+  }
+  return rastgeleDondurma(3, durum.tepsiAcik);
+}
+
+// Giden müşteri iskelenin ucuna varıp ekrandan çıkınca sahne bunu çağırır.
+export function musteriyiKaldir(id: number) {
+  guncelle({ musteriler: durum.musteriler.filter((m) => m.id !== id) });
+}
+
+export function ondekiMusteri(d: Durum = durum): Musteri | undefined {
+  return d.musteriler.find((m) => m.hal === 'sirada');
+}
+
+// Oyun döngüsü bunu yarım saniyede bir çağırır: sıra boşsa müşteri gelir.
+export function musteriDongusu(simdi: number) {
+  const siradaki = durum.musteriler.filter((m) => m.hal === 'sirada').length;
+  if (!durum.acik || durum.gunSonu || durum.hazirlik || durum.duraklatildi) return; // kapanınca, gün başlamadan ve duraklatınca müşteri gelmez
+  if (siradaki >= EN_COK_SIRA || simdi < durum.sonrakiGelis) return;
+  const [en, enCok] = GELIS_ARALIGI;
+  // Sıra boşken ilk müşteri hemen gelsin. Fiyat ve dekorasyon müşteri
+  // sıklığını etkiler (belge 4: dükkânın çekiciliği).
+  const bekle = siradaki === 0 ? 1500 : (en + Math.random() * (enCok - en)) * gelisCarpani();
+  guncelle({
+    musteriler: [
+      ...durum.musteriler,
+      {
+        id: ++sonId,
+        gorunum: Math.floor(Math.random() * MUSTERI_GORUNUM_SAYISI),
+        siparis: rastgeleSiparis(),
+        hal: 'sirada',
+        mutlu: false,
+        gelisTarafi: Math.random() < 0.5 ? 1 : -1,
+        gidisTarafi: Math.random() < 0.5 ? 1 : -1,
+      },
+    ],
+    sonrakiGelis: simdi + bekle,
+  });
+}
+
+// Altlık ve toplar tutuyor mu (sıra kural değil; Kemal, 13 Ekim)
+function dondurmaTutuyorMu(siparis: Siparis, altlik: Altlik | null, toplar: Top[]) {
+  if (altlik !== siparis.altlik || toplar.length !== siparis.kuvetler.length) return false;
+  const a = toplar.map((t) => t.kuvet).sort();
+  const b = [...siparis.kuvetler].sort();
+  return a.every((k, i) => k === b[i]);
+}
+
+const SONUC_PUANI: Record<Sonuc, number> = { mukemmel: 5, iyi: 4, kucuk: 3, buyuk: 3 };
+
+// İki dondurmalı siparişte ilk dondurma tepsiye konur, ikincisi hazırlanır
+export function tepsiyeKoyabilir(d: Durum = durum) {
+  const m = ondekiMusteri(d);
+  return !!m?.siparis.ikinci && d.asama === 'kepceBos' && d.toplar.length > 0 && d.altlik !== null && d.tepsi.length === 0;
+}
+
+export function tepsiyeKoy() {
+  if (!tepsiyeKoyabilir()) return;
+  islemYapildi();
+  guncelle({
+    tepsi: [{ altlik: durum.altlik!, toplar: durum.toplar, susleme: durum.susleme }],
+    asama: 'altlikSec',
+    altlik: null,
+    toplar: [],
+    susleme: [],
+  });
+}
+
+function urunFiyati(u: Urun) {
+  return (
+    u.toplar.reduce((t, top) => t + topFiyati() + (top.sonuc === 'mukemmel' ? MUKEMMEL_EKI : top.sonuc === 'iyi' ? IYI_EKI : 0), 0) +
+    u.susleme.length * SUSLEME_FIYATI +
+    (u.altlik === 'kup' ? KUP_EKI : 0)
+  );
+}
+
+export function servisEt() {
+  const musteri = ondekiMusteri();
+  if (durum.asama !== 'kepceBos' || durum.toplar.length === 0 || !musteri || !durum.altlik) return;
+  islemYapildi();
+  const simdi = performance.now();
+
+  const istenen = [musteri.siparis, ...(musteri.siparis.ikinci ? [musteri.siparis.ikinci] : [])];
+  const verilen: Urun[] = [...durum.tepsi, { altlik: durum.altlik, toplar: durum.toplar, susleme: durum.susleme }];
+
+  // İki dondurma istenmiş ama biri hazır: hatırlat, bir şey çöpe gitmez
+  if (verilen.length < istenen.length) {
+    guncelle({ bildirim: { tur: 'ikiDondurma', zaman: simdi } });
+    return;
+  }
+
+  // Dondurmaları siparişlerle eşleştir (sıra kural değil)
+  const eslesmeler = istenen.length === 1 ? [[0]] : [[0, 1], [1, 0]];
+  const eslesme = eslesmeler.find((e) => e.every((v, i) => dondurmaTutuyorMu(istenen[i], verilen[v].altlik, verilen[v].toplar)));
+
+  if (eslesme) {
+    const eksik = istenen.flatMap((s, i) => s.susleme.filter((x) => !verilen[eslesme[i]].susleme.includes(x)));
+    const fazla = istenen.flatMap((s, i) => verilen[eslesme[i]].susleme.filter((x) => !s.susleme.includes(x)));
+    if (eksik.length > 0 || fazla.length > 0) {
+      // Yalnız süsleme tutmuyor: dondurma çöpe gitmez, hatırlatılır (Kemal, 13 Ekim)
+      guncelle({ bildirim: { tur: 'susleme', eksik, fazla, zaman: simdi } });
+      return;
+    }
+  }
+
+  if (!eslesme) {
+    // Ceza yok: dondurma kenara konur, müşteri beklemeye devam eder.
+    guncelle({ asama: 'servis', servisDogru: false, tepsi: [], bildirim: { tur: 'yanlis', zaman: simdi } });
+  } else {
+    const miktar = verilen.reduce((t, u) => t + urunFiyati(u), 0);
+    const butunToplar = verilen.flatMap((u) => u.toplar);
+    const hamPuan = butunToplar.reduce((t, top) => t + SONUC_PUANI[top.sonuc], 0) / butunToplar.length;
+    const puan = Math.max(1, hamPuan - FIYAT_ETKISI[durum.fiyatSeviyesi].memnuniyet);
+    const id = musteri.id;
+    guncelle({
+      asama: 'servis',
+      servisDogru: true,
+      tepsi: [],
+      bildirim: { tur: 'para', miktar, zaman: simdi },
+      para: durum.para + miktar,
+      memnuniyetler: [...durum.memnuniyetler, puan],
+      gunluk: {
+        musteri: durum.gunluk.musteri + 1,
+        kazanc: durum.gunluk.kazanc + miktar,
+        mukemmel: durum.gunluk.mukemmel + butunToplar.filter((t) => t.sonuc === 'mukemmel').length,
+        puanlar: [...durum.gunluk.puanlar, puan],
+      },
+      musteriler: durum.musteriler.map((m) => (m.id === id ? { ...m, hal: 'gidiyor', mutlu: true } : m)),
+    });
+    // Sırada kimse kalmadıysa kamera dükkânın genel görünümüne döner
+    window.setTimeout(() => {
+      if (!ondekiMusteri()) kameraSec('dukkan');
+    }, 1600);
+  }
+
+  // Servis hareketi bitince yeni dondurma için baştan
+  window.setTimeout(() => {
+    guncelle({ asama: 'altlikSec', altlik: null, toplar: [], susleme: [] });
+  }, 1100);
+}
+
+export function tepsiAc() {
+  if (durum.tepsiAcik || durum.para < TEPSI_FIYATI) return;
+  guncelle({ para: durum.para - TEPSI_FIYATI, tepsiAcik: true });
+  kaydet();
+}
+
+export function ortalamaMemnuniyet(d: Durum = durum): number | null {
+  if (d.memnuniyetler.length === 0) return null;
+  return d.memnuniyetler.reduce((a, b) => a + b, 0) / d.memnuniyetler.length;
+}
+
+// ---- Gün ve saat (iş sırası 4) ----
+// Yaz dönemi saatleri (Kemal, 13 Ekim): hafta içi 11:00–00:00, hafta sonu
+// 10:00–02:00. Saat beşer dakika ilerler; hafta içi bir gün yaklaşık
+// 2 dakika sürsün diye (Kemal, 13 Ekim) her adım 0,77 saniye. 1. gün pazartesi (Kemal, 13 Ekim). Adresin sonuna #hizli
+// yazılırsa gün 30 saniyede biter (gün sonunu görmek için).
+const ADIM = 5; // saat kaçar dakika ilerler
+const HIZLI = typeof location !== 'undefined' && location.hash === '#hizli';
+
+export function haftaGunu(d: Durum = durum) {
+  return (d.gun - 1) % 7; // 0 = pazartesi … 6 = pazar
+}
+
+export function haftaSonuMu(d: Durum = durum) {
+  return haftaGunu(d) >= 5;
+}
+
+// O günün açılış ve kapanışı (gece yarısından sonrası 24+ olarak)
+export function calismaSaatleri(d: Durum = durum) {
+  return haftaSonuMu(d) ? { acilis: 10 * 60, kapanis: 26 * 60 } : { acilis: 11 * 60, kapanis: 24 * 60 };
+}
+
+function gunUzunlugu(d: Durum = durum) {
+  const { acilis, kapanis } = calismaSaatleri(d);
+  return kapanis - acilis;
+}
+
+// Bir adımın (5 oyun dakikası) gerçek süresi: hafta içi 156 adım × 0,77 sn ≈ 2 dk,
+// hafta sonu 192 adım ≈ 2,5 dk
+const ADIM_MS = 770;
+function adimMs() {
+  return HIZLI ? (30_000 / gunUzunlugu()) * ADIM : ADIM_MS;
+}
+
+let birikenMs = 0;
+
+// Oyun döngüsü her turda geçen süreyi verir.
+export function zamanIlerlet(gecenMs: number) {
+  if (durum.gunSonu || durum.hazirlik || durum.duraklatildi) return;
+  if (durum.acik) {
+    birikenMs += Math.min(gecenMs, 1000); // sekme arkadayken gün akıp gitmesin
+    const adim = Math.floor(birikenMs / adimMs());
+    if (adim > 0) {
+      birikenMs -= adim * adimMs();
+      const uzunluk = gunUzunlugu();
+      const dakika = Math.min(uzunluk, durum.dakika + adim * ADIM);
+      guncelle({ dakika, acik: dakika < uzunluk });
+    }
+    sabirKontrol();
+    return;
+  }
+  // Kapandıktan sonra saat durur; sıradakilerin sabrı da azalmaz
+  // Kapandı: sıradakilere servis bitince gün sonu ekranı
+  const bekleyen = durum.musteriler.some((m) => m.hal === 'sirada');
+  if (!bekleyen && durum.asama === 'altlikSec') guncelle({ gunSonu: true });
+}
+
+// Günün saati, dakika olarak (gece yarısından sonra 24*60'ı geçer)
+export function saatDakikasi(d: Durum = durum) {
+  return calismaSaatleri(d).acilis + d.dakika;
+}
+
+export function saatYazisi(d: Durum = durum) {
+  const toplam = saatDakikasi(d) % (24 * 60);
+  const s = Math.floor(toplam / 60);
+  const dk = toplam % 60;
+  return `${String(s).padStart(2, '0')}:${String(dk).padStart(2, '0')}`;
+}
+
+// Gün sonu ekranında Tamam: ertesi günün başına, dükkânın genel görünümüne
+// geçilir. Gün, oyuncu "Güne başla" deyince başlar (Kemal, 13 Ekim).
+export function gunSonunuKapat() {
+  if (!durum.gunSonu) return;
+  birikenMs = 0;
+  guncelle({
+    gun: durum.gun + 1,
+    dakika: 0,
+    acik: true,
+    gunSonu: false,
+    hazirlik: true,
+    gunluk: bosOzet(),
+    sonrakiGelis: 0,
+    kamera: 'dukkan',
+    asama: 'altlikSec',
+    altlik: null,
+    toplar: [],
+    susleme: [],
+    tepsi: [],
+  });
+  kaydet();
+}
+
+export function guneBasla() {
+  if (!durum.hazirlik) return;
+  birikenMs = 0;
+  guncelle({ hazirlik: false, sonrakiGelis: 0, yerlestirme: false, seciliEsya: null });
+  kaydet();
+}
+
+// ---- Kamera (iş sırası 5) ----
+// Sipariş gelince (öndeki müşteri tezgaha varınca) kamera tezgaha geçer;
+// sıra boşalınca dükkânın genel görünümüne döner. Oyuncu düğmeyle de geçer.
+export function kameraSec(kamera: Kamera) {
+  if (durum.kamera !== kamera) guncelle({ kamera });
+}
+
+let sonKarsilanan = 0;
+// Öndeki müşteri tezgaha vardığında sahne bunu çağırır (her müşteri için bir kez).
+export function musteriTezgahaVardi(id: number) {
+  if (id === sonKarsilanan) return;
+  sonKarsilanan = id;
+  guncelle({ sabirMusteri: id, sabirBasi: durum.dakika });
+  kameraSec('tezgah');
+}
+
+// ---- Sabır (Kemal, 13 Ekim) ----
+// Hiç işlem yapılmadan oyun saatiyle bir saat geçerse öndeki müşteri
+// sıkılıp gider ve memnuniyete sıfır yıldız verir. Para kaybı yok.
+export const SABIR_DAKIKA = 80; // Kemal, 13 Ekim: gerçekte ~12 sn kalsın (saat hızlanınca 60'tan 80'e)
+
+export function sabirOrani(d: Durum = durum) {
+  if (d.sabirMusteri === null || ondekiMusteri(d)?.id !== d.sabirMusteri) return null;
+  return Math.max(0, 1 - (d.dakika - d.sabirBasi) / SABIR_DAKIKA);
+}
+
+function sabirKontrol() {
+  const oran = sabirOrani();
+  if (oran === null || oran > 0 || durum.asama === 'servis') return;
+  const id = durum.sabirMusteri;
+  guncelle({
+    sabirMusteri: null,
+    memnuniyetler: [...durum.memnuniyetler, 0],
+    gunluk: { ...durum.gunluk, puanlar: [...durum.gunluk.puanlar, 0] },
+    musteriler: durum.musteriler.map((m) => (m.id === id ? { ...m, hal: 'gidiyor', mutlu: false } : m)),
+    bildirim: { tur: 'sikildi', zaman: performance.now() },
+  });
+  window.setTimeout(() => {
+    if (!ondekiMusteri()) kameraSec('dukkan');
+  }, 1600);
+}
+
+// ---- İlerleme (belge 2.4 ve 4) ----
+// Hepsi geçici sayılar; Kemal'in onayını bekliyor (belge 7.4).
+export const FIYAT_ETKISI: Record<FiyatSeviyesi, { fiyat: number; gelis: number; memnuniyet: number }> = {
+  ucuz: { fiyat: 0.8, gelis: 0.8, memnuniyet: 0 },
+  normal: { fiyat: 1, gelis: 1, memnuniyet: 0 },
+  pahali: { fiyat: 1.3, gelis: 1.3, memnuniyet: 0.5 },
+};
+
+// Her yerleştirilmiş eşya ve her ışık seviyesi müşteri aralığını kısaltır (en çok %50)
+const ESYA_ETKISI = 0.04;
+const ISIK_ETKISI = 0.06;
+
+export function topFiyati(d: Durum = durum) {
+  return Math.round(TOP_FIYATI * FIYAT_ETKISI[d.fiyatSeviyesi].fiyat);
+}
+
+// Hafta sonu daha kalabalık (Kemal, 13 Ekim): müşteriler daha sık gelir
+const HAFTA_SONU_CARPANI = 0.65;
+
+function gelisCarpani() {
+  const haftaSonu = haftaSonuMu() ? HAFTA_SONU_CARPANI : 1;
+  const cekicilik = Math.min(0.5, ESYA_ETKISI * durum.yerlesim.length + ISIK_ETKISI * durum.isikSeviyesi);
+  return FIYAT_ETKISI[durum.fiyatSeviyesi].gelis * (1 - cekicilik) * haftaSonu;
+}
+
+export function cesitAc(cesit: number) {
+  const c = CESITLER[cesit];
+  if (!c || durum.acikCesitler.includes(cesit) || durum.para < c.fiyat) return;
+  guncelle({ para: durum.para - c.fiyat, acikCesitler: [...durum.acikCesitler, cesit] });
+  kaydet();
+}
+
+export function kupAc() {
+  if (durum.acikAltliklar.includes('kup') || durum.para < KUP_FIYATI) return;
+  guncelle({ para: durum.para - KUP_FIYATI, acikAltliklar: [...durum.acikAltliklar, 'kup'] });
+  kaydet();
+}
+
+// ---- Dekorasyon (3. paket) ----
+export function isikAl() {
+  const sonraki = ISIK_SEVIYELERI[durum.isikSeviyesi];
+  if (!sonraki || durum.isikSeviyesi >= EN_YUKSEK_ISIK || durum.para < sonraki.fiyat) return;
+  guncelle({ para: durum.para - sonraki.fiyat, isikSeviyesi: durum.isikSeviyesi + 1 });
+  kaydet();
+}
+
+export function esyaAl(esya: Esya) {
+  const e = ESYALAR.find((x) => x.id === esya);
+  if (!e || durum.para < e.fiyat) return;
+  guncelle({ para: durum.para - e.fiyat, depo: { ...durum.depo, [esya]: (durum.depo[esya] ?? 0) + 1 } });
+  kaydet();
+}
+
+export function depodaki(esya: Esya, d: Durum = durum) {
+  return d.depo[esya] ?? 0;
+}
+
+export function yerlestirmeyiAc() {
+  if (!durum.hazirlik) return;
+  const ilk = ESYALAR.find((e) => depodaki(e.id) > 0)?.id ?? null;
+  guncelle({ yerlestirme: true, seciliEsya: ilk, kamera: 'dukkan' });
+}
+
+export function yerlestirmeyiKapat() {
+  guncelle({ yerlestirme: false, seciliEsya: null });
+  kaydet();
+}
+
+export function esyaSec(esya: Esya) {
+  if (depodaki(esya) > 0) guncelle({ seciliEsya: esya });
+}
+
+export function hucreDolu(hucre: number, d: Durum = durum) {
+  return d.yerlesim.some((y) => y.hucre === hucre);
+}
+
+export function hucreyeKoy(hucre: number) {
+  const e = durum.seciliEsya;
+  if (!durum.yerlestirme || !e || depodaki(e) <= 0 || hucreDolu(hucre) || !HUCRELER[hucre]) return;
+  const kalan = depodaki(e) - 1;
+  guncelle({
+    yerlesim: [...durum.yerlesim, { esya: e, hucre }],
+    depo: { ...durum.depo, [e]: kalan },
+    // Depoda o eşya kalmadıysa başka bir eşyaya geç
+    seciliEsya: kalan > 0 ? e : (ESYALAR.find((x) => x.id !== e && depodaki(x.id) > 0)?.id ?? null),
+  });
+}
+
+// Konmuş eşyaya dokununca yerden kalkar, depoya döner ve seçilir (taşımak için)
+export function yerlesimiKaldir(hucre: number) {
+  const y = durum.yerlesim.find((x) => x.hucre === hucre);
+  if (!durum.yerlestirme || !y) return;
+  guncelle({
+    yerlesim: durum.yerlesim.filter((x) => x !== y),
+    depo: { ...durum.depo, [y.esya]: depodaki(y.esya) + 1 },
+    seciliEsya: y.esya,
+  });
+}
+
+export function fiyatSec(f: FiyatSeviyesi) {
+  guncelle({ fiyatSeviyesi: f });
+  kaydet();
+}
+
+// ---- Kayıt ----
+// İlerleme bu tarayıcıda saklanır (para, gün, açılan çeşitler, fiyat,
+// dekorasyon). Tarayıcı izin vermezse oyun kayıtsız çalışır.
+const KAYIT_ANAHTARI = 'dondurmaci-kizlar-kayit-1';
+
+interface Kayit {
+  para: number;
+  gun: number;
+  memnuniyetler: number[];
+  acikCesitler: number[];
+  acikAltliklar: Altlik[];
+  tepsiAcik: boolean;
+  fiyatSeviyesi: FiyatSeviyesi;
+  isikSeviyesi: number;
+  depo: Partial<Record<Esya, number>>;
+  yerlesim: Yerlesim[];
+  dekorlar?: string[]; // eski kayıt (13 Ekim öncesi)
+  calisan: CalisanGorunumu;
+  acikOnlukler: string[];
+  acikAksesuarlar: Aksesuar[];
+}
+
+function kaydet() {
+  const k: Kayit = {
+    para: durum.para,
+    gun: durum.gun,
+    memnuniyetler: durum.memnuniyetler.slice(-60),
+    acikCesitler: durum.acikCesitler,
+    acikAltliklar: durum.acikAltliklar,
+    tepsiAcik: durum.tepsiAcik,
+    fiyatSeviyesi: durum.fiyatSeviyesi,
+    isikSeviyesi: durum.isikSeviyesi,
+    depo: durum.depo,
+    yerlesim: durum.yerlesim,
+    calisan: durum.calisan,
+    acikOnlukler: durum.acikOnlukler,
+    acikAksesuarlar: durum.acikAksesuarlar,
+  };
+  try {
+    localStorage.setItem(KAYIT_ANAHTARI, JSON.stringify(k));
+  } catch {
+    // Kayıt yapılamadı (gizli pencere vb.); oyun devam eder.
+  }
+}
+
+export function kaydiYukle() {
+  try {
+    const ham = localStorage.getItem(KAYIT_ANAHTARI);
+    if (!ham) return;
+    const k = JSON.parse(ham) as Partial<Kayit>;
+    const acik = Array.isArray(k.acikCesitler) ? k.acikCesitler.filter((i) => CESITLER[i]) : [];
+    guncelle({
+      para: typeof k.para === 'number' ? k.para : 0,
+      gun: typeof k.gun === 'number' ? k.gun : 1,
+      memnuniyetler: Array.isArray(k.memnuniyetler) ? k.memnuniyetler : [],
+      acikCesitler: acik.length ? acik : [...BASLANGIC_CESITLERI],
+      tepsiAcik: k.tepsiAcik === true,
+      acikAltliklar: Array.isArray(k.acikAltliklar) && k.acikAltliklar.includes('kup') ? ['kulah', 'kap', 'kup'] : ['kulah', 'kap'],
+      fiyatSeviyesi: k.fiyatSeviyesi && k.fiyatSeviyesi in FIYAT_ETKISI ? k.fiyatSeviyesi : 'normal',
+      ...dekorasyonuOku(k),
+      ...calisaniOku(k),
+    });
+  } catch {
+    // Bozuk ya da okunamayan kayıt: baştan başlanır.
+  }
+}
+
+function dekorasyonuOku(k: Partial<Kayit>) {
+  const esyaMi = (e: unknown): e is Esya => ESYALAR.some((x) => x.id === e);
+  const depo: Partial<Record<Esya, number>> = {};
+  if (k.depo && typeof k.depo === 'object')
+    for (const [e, n] of Object.entries(k.depo)) if (esyaMi(e) && typeof n === 'number' && n > 0) depo[e] = n;
+  const yerlesim = Array.isArray(k.yerlesim)
+    ? k.yerlesim.filter((y, i, t) => esyaMi(y?.esya) && HUCRELER[y.hucre] && t.findIndex((z) => z.hucre === y.hucre) === i)
+    : [];
+  let isikSeviyesi = typeof k.isikSeviyesi === 'number' ? Math.min(EN_YUKSEK_ISIK, Math.max(0, k.isikSeviyesi)) : 0;
+  // Eski kayıttaki dekorasyon: fenerler → 1. ışık; masa, şemsiye, çiçekler → depoya
+  if (Array.isArray(k.dekorlar)) {
+    if (k.dekorlar.includes('fenerler')) isikSeviyesi = Math.max(isikSeviyesi, 1);
+    if (k.dekorlar.includes('masa')) depo.masa = (depo.masa ?? 0) + 1;
+    if (k.dekorlar.includes('semsiye')) depo.semsiyeliMasa = (depo.semsiyeliMasa ?? 0) + 1;
+    if (k.dekorlar.includes('cicekler')) depo.saksi = (depo.saksi ?? 0) + 3;
+  }
+  return { isikSeviyesi, depo, yerlesim };
+}
+
+// Baştan başla: kaydı siler, her şeyi ilk güne döndürür.
+export function bastanBasla() {
+  try {
+    localStorage.removeItem(KAYIT_ANAHTARI);
+  } catch {
+    // yok sayılır
+  }
+  birikenMs = 0;
+  guncelle({
+    para: 0,
+    gun: 1,
+    memnuniyetler: [],
+    acikCesitler: [...BASLANGIC_CESITLERI],
+    acikAltliklar: ['kulah', 'kap'],
+    tepsiAcik: false,
+    tepsi: [],
+    fiyatSeviyesi: 'normal',
+    isikSeviyesi: 0,
+    depo: {},
+    yerlesim: [],
+    yerlestirme: false,
+    seciliEsya: null,
+    calisan: { ...VARSAYILAN_CALISAN },
+    acikOnlukler: ONLUKLER.filter((o) => o.fiyat === 0).map((o) => o.id),
+    acikAksesuarlar: [],
+    dakika: 0,
+    acik: true,
+    gunSonu: false,
+    hazirlik: true,
+    gunluk: bosOzet(),
+    sonrakiGelis: 0,
+    musteriler: [],
+    kamera: 'dukkan',
+    asama: 'altlikSec',
+    altlik: null,
+    toplar: [],
+    susleme: [],
+  });
+}
+
+// ---- Duraklatma (Kemal, 13 Ekim) ----
+// Saat, müşteriler ve sabır durur. Menüden dükkân gezilir, fotoğraf çekilir,
+// ses ayarlanır. Kepçe dalarken ve gün sonunda açılmaz.
+export function duraklatilabilir(d: Durum = durum) {
+  return !d.gunSonu && d.asama !== 'dolduruyor' && !d.yerlestirme;
+}
+
+export function duraklat() {
+  if (!duraklatilabilir()) return;
+  guncelle({ duraklatildi: true, gezme: false });
+}
+
+export function devamEt() {
+  guncelle({ duraklatildi: false, gezme: false });
+}
+
+let gezmedenOnceKamera: Kamera = 'dukkan';
+export function gezmeyeBasla() {
+  if (!durum.duraklatildi) return;
+  gezmedenOnceKamera = durum.kamera;
+  guncelle({ gezme: true, kamera: 'dukkan' });
+}
+
+export function gezmeyiBitir() {
+  // Menüye geri döner; kamera eski yerine
+  guncelle({ gezme: false, kamera: gezmedenOnceKamera });
+}
+
+// ---- Deneme parası (Kemal, 13 Ekim: dekorasyonu görmek için) ----
+// Yalnız adresin sonuna #deneme yazılınca görünür; oyunun kendisinde yok.
+export const DENEME = typeof location !== 'undefined' && location.hash === '#deneme';
+
+export function denemeParasi() {
+  if (!DENEME) return;
+  guncelle({ para: durum.para + 5000 });
+  kaydet();
+}
+
+// ---- Çalışan (Kemal, 13 Ekim) ----
+export function calisaniDegistir(yeni: Partial<CalisanGorunumu>) {
+  const c = { ...durum.calisan, ...yeni };
+  if (yeni.ad !== undefined) c.ad = yeni.ad.slice(0, AD_EN_UZUN);
+  if (yeni.onluk && !durum.acikOnlukler.includes(yeni.onluk)) return;
+  guncelle({ calisan: c });
+  kaydet();
+}
+
+export function onlukAl(id: string) {
+  const o = ONLUKLER.find((x) => x.id === id);
+  if (!o || durum.acikOnlukler.includes(id) || durum.para < o.fiyat) return;
+  guncelle({ para: durum.para - o.fiyat, acikOnlukler: [...durum.acikOnlukler, id], calisan: { ...durum.calisan, onluk: id } });
+  kaydet();
+}
+
+export function aksesuarAl(id: Aksesuar) {
+  const a = AKSESUARLAR.find((x) => x.id === id);
+  if (!a || durum.acikAksesuarlar.includes(id) || durum.para < a.fiyat) return;
+  guncelle({ para: durum.para - a.fiyat, acikAksesuarlar: [...durum.acikAksesuarlar, id] });
+  aksesuarDegistir(id);
+}
+
+// Tak / çıkar. Başa yalnız bir şey takılır (bandana ya da kasket).
+export function aksesuarDegistir(id: Aksesuar) {
+  if (!durum.acikAksesuarlar.includes(id)) return;
+  const takili = durum.calisan.aksesuarlar;
+  let yeni: Aksesuar[];
+  if (takili.includes(id)) yeni = takili.filter((x) => x !== id);
+  else {
+    const basaMi = AKSESUARLAR.find((x) => x.id === id)?.bas;
+    yeni = [...takili.filter((x) => !(basaMi && AKSESUARLAR.find((y) => y.id === x)?.bas)), id];
+  }
+  guncelle({ calisan: { ...durum.calisan, aksesuarlar: yeni } });
+  kaydet();
+}
+
+function calisaniOku(k: Partial<Kayit>): Pick<Durum, 'calisan' | 'acikOnlukler' | 'acikAksesuarlar'> {
+  const c = (k.calisan ?? {}) as Partial<CalisanGorunumu>;
+  const acikOnlukler = [
+    ...new Set([
+      ...ONLUKLER.filter((o) => o.fiyat === 0).map((o) => o.id),
+      ...(Array.isArray(k.acikOnlukler) ? k.acikOnlukler.filter((x) => ONLUKLER.some((o) => o.id === x)) : []),
+    ]),
+  ];
+  const acikAksesuarlar = Array.isArray(k.acikAksesuarlar) ? k.acikAksesuarlar.filter((x) => AKSESUARLAR.some((a) => a.id === x)) : [];
+  return {
+    acikOnlukler,
+    acikAksesuarlar,
+    calisan: {
+      ad: typeof c.ad === 'string' ? c.ad.slice(0, AD_EN_UZUN) : '',
+      ten: typeof c.ten === 'number' && TENLER[c.ten] ? c.ten : VARSAYILAN_CALISAN.ten,
+      sac: SAC_MODELLERI.includes(c.sac as never) ? (c.sac as CalisanGorunumu['sac']) : VARSAYILAN_CALISAN.sac,
+      sacRengi: typeof c.sacRengi === 'number' && SAC_RENKLERI[c.sacRengi] ? c.sacRengi : VARSAYILAN_CALISAN.sacRengi,
+      onluk: typeof c.onluk === 'string' && acikOnlukler.includes(c.onluk) ? c.onluk : VARSAYILAN_CALISAN.onluk,
+      aksesuarlar: Array.isArray(c.aksesuarlar) ? c.aksesuarlar.filter((x) => acikAksesuarlar.includes(x)) : [],
+    },
+  };
+}

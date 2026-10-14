@@ -20,15 +20,17 @@ işletme oyunu. Oyuncu tezgahın arkasında dondurmayı kendi eliyle hazırlar.
 
 | Konu | Değer |
 |---|---|
-| Kamera | **İki sabit kamera:** dükkânın izometrik genel görünümü + sipariş gelince tezgahın arkasından birinci şahıs yakın plan. Aralarında yumuşak geçiş. **Oyuncu yürümez**, serbest kamera yok |
+| Kamera | **İki sabit kamera:** dükkânın izometrik genel görünümü + sipariş gelince tezgahın arkasından birinci şahıs yakın plan. Aralarında yumuşak geçiş. **Oyuncu yürümez.** Genel görünümde yakınlaştırma var; serbest dönme yalnız duraklatıp "Dükkânı gez"de (13 Ekim) |
 | 3B | Gerçek 3B modeller, **sabit açılar** |
-| Stil | Low-poly, pastel tonlar, yumuşak ışık. Sakin, dinlendirici; kaybetme ve sert ceza yok |
+| Stil | Low-poly, yumuşak ışık; logo renkleri (mor, sarı) öne çıkar. Sakin, dinlendirici; kaybetme yok, para cezası yok (çok bekleyen müşteri gidip sıfır yıldız verebilir, 13 Ekim) |
 | Platform | **Telefon önce.** Dokunmatik birincil kontrol; fare de çalışır. Mağaza ve PC paketi sonra |
 | Teknoloji | Vite + TypeScript + React + **Three.js** (React Three Fiber). Oyun tarayıcıda çalışır |
 | Yer | Düzada, **Liman Mahallesi, iskelenin yakını** ("sahil şeridi" değil) |
 | Dönem | **2000'lerin başı** — dükkânın açılış yılları |
-| Oyuncu | **İsimsiz.** Oyuncuya ad, yüz, geçmiş verme |
+| Oyuncu | **13 Ekim'de değişti:** tezgahın arkasında oyuncunun kişiselleştirdiği bir çalışan; sahibi ara sıra dükkânda gezer. Çalışana hikâye / geçmiş yazma (Kemal'in) |
 | Gün | Oyun içinde saat akar; dükkân kapanınca gün biter, gün sonu ekranı gelir |
+| Ekran | **Yatay** (12 Ekim). Telefon dik tutulsa da oyun yatay görünür (ekran kilidi); "yan çevir" uyarısı yok |
+| Görsel kalite | Taslak görseller (`docs/gorseller/`) temsilî ama **alt sınır**: en az o kalite. Ölçü taslak 2 |
 | Yazım | **Düzada** (ü ile). "Dūzada", "Duzada" yazılmaz |
 
 ### Kanondan bilinenler (Düzada evreni)
@@ -46,12 +48,8 @@ Burada ve belgede yazmayan bir coğrafi, tarihî ya da kurumsal bilgiyi
 
 ## Henüz kararı verilmemiş — sor, seçme
 
-- **Ekran yönü:** telefon dikey mi tutuluyor, yatay mı? İlk ekrandan önce
-  sor. (Bu karar her ekranın düzenini belirler.)
-- Bir oyun gününün gerçek süresi (öneri: 5–8 dakika).
 - İlk sürümde kaç dondurma çeşidi, kaç müşteri tipi.
 - Para modeli.
-- Oyunun adı ("Dondurmacı Kızlar" dükkânın adı; oyunun adı da bu mu?).
 - Karakter ve mekân adları — hepsi Kemal'in. Aday önerebilirsin.
 
 ## Yazı kuralı
@@ -100,7 +98,7 @@ Burada ve belgede yazmayan bir coğrafi, tarihî ya da kurumsal bilgiyi
 ## İş sırası
 
 1. **İskelet:** proje kurulumu, boş 3B sahne, telefonda açılan önizleme
-   bağlantısı. (Önce ekran yönünü sor.)
+   bağlantısı.
 2. **Tezgah yakın planı + kepçe mini oyunu:** altlık seç (külah / kap) →
    basılı tut, küvete daldır → "MÜKEMMEL" anında bırak → topu yerleştir →
    servis et. *Çekirdek bu; eğlenceli değilse dur ve Kemal'le konuş.*
