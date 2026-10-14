@@ -1311,3 +1311,213 @@ a.dugme {
   font-size: 12px;
   line-height: 1.25;
 }
+
+/* ---- Küçük arayüz (Kemal, 14 Ekim: "düğmeler inanılmaz büyük, çok fazla
+   yer kaplıyor"). Bütün düğmeler ve bilgi kutuları bir boy küçüldü. ---- */
+.dugme {
+  font-size: 14px;
+  border-width: 2px;
+  border-radius: 11px;
+  padding: 6px 12px;
+  box-shadow: 0 3px 0 var(--mor-koyu);
+}
+.dugme:active:not(:disabled) {
+  transform: translateY(2px);
+}
+.dugme-servis {
+  font-size: 16px;
+  padding: 8px 18px;
+}
+.dugme-geri {
+  font-size: 13px;
+  padding: 5px 10px;
+}
+.geri-simge {
+  font-size: 16px;
+}
+.dugme-simge {
+  padding: 6px 8px;
+}
+.dukkan-simge {
+  transform: scale(0.8);
+}
+.altlik-dugmeleri {
+  gap: 7px;
+}
+.altlik-dugmeleri .dugme:not(.dugme-simge) {
+  min-width: 64px;
+}
+.sag-dugmeler {
+  gap: 7px;
+  right: max(10px, env(safe-area-inset-right));
+  bottom: max(10px, env(safe-area-inset-bottom));
+}
+.bilgi-kutusu {
+  font-size: 14px;
+  padding: 3px 9px;
+  border-radius: 10px;
+}
+.para-simge {
+  width: 15px;
+  height: 15px;
+}
+.yildizlar {
+  font-size: 15px;
+}
+.gun-saat .duraklat-dugme {
+  width: 32px;
+  height: 32px;
+}
+.yakinlik-dugmeleri {
+  gap: 6px;
+  bottom: max(10px, env(safe-area-inset-bottom));
+}
+.yakinlik-dugmeleri .dugme {
+  width: 34px;
+  height: 34px;
+  font-size: 20px;
+}
+.ipucu {
+  top: calc(max(10px, env(safe-area-inset-top)) + 38px);
+  font-size: 13px;
+  padding: 4px 12px;
+}
+.susleme-dugmeleri {
+  top: 48px;
+  gap: 6px;
+  right: max(10px, env(safe-area-inset-right));
+}
+.susleme-dugme {
+  font-size: 12px;
+  padding: 2px 9px 2px 2px;
+  border-width: 2px;
+  box-shadow: 0 2px 0 var(--mor-koyu);
+}
+.susleme-dugme svg {
+  width: 22px;
+  height: 22px;
+}
+.esya-cip {
+  font-size: 12px;
+  padding: 5px 9px;
+}
+.dugme.egitim-gec {
+  top: calc(max(10px, env(safe-area-inset-top)) + 40px);
+  font-size: 12px;
+  padding: 3px 10px;
+}
+.bildirim {
+  font-size: 28px;
+}
+
+/* Gün başı menü şeridi (14 Ekim): alt ortada tek parça */
+.menu-seridi {
+  position: absolute;
+  left: 50%;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 14px;
+  background: var(--mor-koyu);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.2);
+}
+.menu-dugme {
+  font: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  min-width: 58px;
+  padding: 4px 8px 3px;
+  border: none;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--yazi);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.menu-dugme svg {
+  width: 20px;
+  height: 20px;
+  color: var(--sari);
+}
+.menu-dugme:active {
+  background: var(--mor);
+}
+.balon-adlar {
+  font-size: 9px;
+  max-width: 90px;
+}
+.ekran-ayari {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  justify-content: center;
+}
+.ekran-ayari input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--mor);
+}
+
+/* Mola penceresi iki sütun: solda düğmeler, sağda ayarlar (ekrana sığsın) */
+.gun-sonu.duraklat-menu {
+  width: min(620px, 100%);
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  grid-template-areas:
+    'logo ses'
+    'baslik ses'
+    'devam ses'
+    'gez ekran'
+    'egitim ekran';
+  align-content: start;
+  column-gap: 18px;
+  row-gap: 8px;
+  padding: 12px 16px 14px;
+}
+.duraklat-menu > .baslik-logo {
+  grid-area: logo;
+  height: 30px;
+  margin: 0 auto;
+}
+.duraklat-menu > h2 {
+  grid-area: baslik;
+  font-size: 20px;
+}
+.duraklat-menu > .dugme-yeni-gun {
+  grid-area: devam;
+  margin: 0;
+}
+.duraklat-menu > .dugme:not(.dugme-yeni-gun) {
+  grid-area: gez;
+}
+.duraklat-menu > .ses-ayari {
+  grid-area: ses;
+  align-self: center;
+}
+.duraklat-menu > .ekran-ayari {
+  grid-area: ekran;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+.duraklat-menu > .gel-bag {
+  grid-area: egitim;
+  align-self: center;
+}
+.ekran-satir {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 13px;
+}
+.ses-ayari .gel-not {
+  font-size: 12px;
+  margin: 0;
+}

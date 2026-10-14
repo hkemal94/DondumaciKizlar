@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ekranAyariniYaz, useEkranAyari } from './ekranAyari';
 import { devamEt, duraklat, duraklatilabilir, egitimiYenidenGoster, gezmeyeBasla, gezmeyiBitir, useDurum } from '../oyun/durum';
 import { m, type MetinAnahtari } from '../metinler';
 import { logoAdresi } from '../sahne/logo';
@@ -22,6 +23,7 @@ export function DuraklatDugmesi() {
 export function DuraklatMenusu() {
   const durum = useDurum();
   const [ses, setSes] = useState(sesAyariniOku);
+  const ekran = useEkranAyari();
   if (!durum.duraklatildi || durum.gezme) return null;
   const degistir = (yeni: SesAyari) => {
     setSes(yeni);
@@ -54,6 +56,17 @@ export function DuraklatMenusu() {
             </label>
           ))}
           <p className="gel-not">{m('ses.not')}</p>
+        </div>
+        {/* Ekran ayarları (Kemal, 14 Ekim): etiketleri gizle */}
+        <div className="ekran-ayari">
+          <label className="ekran-satir">
+            <input type="checkbox" checked={ekran.kuvetEtiketi} onChange={(e) => ekranAyariniYaz({ kuvetEtiketi: e.target.checked })} />
+            <span>{m('ekran.kuvetEtiketi')}</span>
+          </label>
+          <label className="ekran-satir">
+            <input type="checkbox" checked={ekran.balonAdlari} onChange={(e) => ekranAyariniYaz({ balonAdlari: e.target.checked })} />
+            <span>{m('ekran.balonAdlari')}</span>
+          </label>
         </div>
         {/* Ayarlar ekranı gelene kadar burada (Kemal, 14 Ekim) */}
         <button

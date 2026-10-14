@@ -40,6 +40,8 @@ import { CESITLER } from '../oyun/kuvetler';
 import { balon } from '../sahne/Musteriler';
 import { Gelistir } from './Gelistir';
 import { VitrinEkrani } from './VitrinEkrani';
+import { MenuSeridi } from './MenuSeridi';
+import { useEkranAyari } from './ekranAyari';
 import { EgitimEli, egitimHedefi } from './EgitimEli';
 import { CalisanAdi, CalisanEkrani } from './CalisanEkrani';
 import { dukkanDonusu, ekrandaKaydir, ortala, yakinlikDegistir } from '../sahne/kameraKarisimi';
@@ -262,6 +264,7 @@ function TepsiGostergesi() {
 
 function SiparisBalonu() {
   const durum = useDurum();
+  const ekran = useEkranAyari();
   const musteri = ondekiMusteri(durum);
   return (
     <div
@@ -278,7 +281,7 @@ function SiparisBalonu() {
             {musteri.siparis.ikinci && <SiparisResmi siparis={musteri.siparis.ikinci} />}
           </div>
           {/* Çeşitlerin adları: çok çeşit olunca renkler karışmasın */}
-          <div className="balon-adlar">{siparisAdlari(musteri.siparis)}</div>
+          {ekran.balonAdlari && <div className="balon-adlar">{siparisAdlari(musteri.siparis)}</div>}
           {/* Sabır çubuğu: işlem yapılınca dolar, beklerken azalır */}
           {sabirOrani(durum) !== null && (
             <div className="sabir" aria-hidden>
@@ -579,37 +582,28 @@ export function Arayuz() {
               </button>
             </>
           ) : durum.hazirlik ? (
-            // Gün başlamadan: dükkâna bak, alışveriş yap, yerleştir, hazır olunca başla
-            <>
-              <button className="dugme" onClick={() => setGelistirAcik(true)}>
-                {m('gelistir.dugme')}
-              </button>
-              <button
-                className="dugme"
-                data-egitim="vitrin"
-                onClick={() => {
-                  setVitrinAcik(true);
-                  egitimGor('vitrin');
-                }}
-              >
-                {m('vitrin.dugme')}
-              </button>
-              <button className="dugme" onClick={yerlestirmeyiAc}>
-                {m('yerlestir.dugme')}
-              </button>
-              <button className="dugme" onClick={() => setCalisanAcik(true)}>
-                {m('calisan.dugme')}
-              </button>
-              <button className="dugme dugme-servis" onClick={guneBasla}>
-                {m('gunBasi.basla')}
-              </button>
-            </>
+            // Gün başlamadan: işler alttaki menü şeridinde, sağda yalnız "Güne başla"
+            <button className="dugme dugme-servis" onClick={guneBasla}>
+              {m('gunBasi.basla')}
+            </button>
           ) : (
             <button className={`dugme dugme-servis ${musteri ? 'dikkat' : ''}`} data-egitim="tezgah" onClick={() => kameraSec('tezgah')}>
               {m('kamera.tezgah')}
             </button>
           )}
         </div>
+      )}
+      {!tezgahta && durum.hazirlik && !durum.yerlestirme && !durum.gunSonu && !calisanAcik && (
+        <MenuSeridi
+          sec={(is) => {
+            if (is === 'gelistir') setGelistirAcik(true);
+            else if (is === 'vitrin') {
+              setVitrinAcik(true);
+              egitimGor('vitrin');
+            } else if (is === 'yerlestir') yerlestirmeyiAc();
+            else setCalisanAcik(true);
+          }}
+        />
       )}
       {gelistirAcik && durum.hazirlik && <Gelistir kapat={() => setGelistirAcik(false)} />}
       {calisanAcik && durum.hazirlik && <CalisanEkrani kapat={() => setCalisanAcik(false)} />}
