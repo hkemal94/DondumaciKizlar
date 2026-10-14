@@ -7,6 +7,10 @@ import {
   gorunusAnahtari,
   gorunusSecenegi,
   gorunusuOku,
+  tabelaAnahtari,
+  tabelalariOku,
+  TABELALAR,
+  type Tabela,
   type Gorunus,
   type GorunusGrubu,
 } from './gorunus';
@@ -243,6 +247,8 @@ export interface Durum {
   gorunus: Gorunus;
   acikGorunusler: string[];
   gorunusDenemesi: Partial<Gorunus>;
+  tabelalar: Tabela[]; // takılı tabelalar (C3)
+  tabelaDenemesi: Tabela | null; // alınmadan denenen (kaydedilmez)
   // Eğitim (Kemal, 14 Ekim): görülen el işaretleri (kayıtta saklanır)
   egitimGoruldu: EgitimAdi[];
   // Duraklatma menüsü (Kemal, 13 Ekim): saat ve müşteriler durur
@@ -375,6 +381,8 @@ let durum: Durum = {
   gorunus: { ...BASLANGIC_GORUNUSU },
   acikGorunusler: [...BASLANGIC_ACIK_GORUNUSLER],
   gorunusDenemesi: {},
+  tabelalar: [],
+  tabelaDenemesi: null,
   egitimGoruldu: [],
   duraklatildi: false,
   gezme: false,
@@ -1823,6 +1831,7 @@ interface Kayit {
   acikAksesuarlar: Aksesuar[];
   gorunus?: Gorunus;
   acikGorunusler?: string[];
+  tabelalar?: Tabela[];
   egitimGoruldu: EgitimAdi[];
 }
 
@@ -1860,6 +1869,7 @@ function kaydet() {
     acikAksesuarlar: durum.acikAksesuarlar,
     gorunus: durum.gorunus,
     acikGorunusler: durum.acikGorunusler,
+    tabelalar: durum.tabelalar,
     egitimGoruldu: durum.egitimGoruldu,
   };
   try {
@@ -2139,6 +2149,8 @@ function durumuSifirla() {
     gorunus: { ...BASLANGIC_GORUNUSU },
     acikGorunusler: [...BASLANGIC_ACIK_GORUNUSLER],
     gorunusDenemesi: {},
+  tabelalar: [],
+  tabelaDenemesi: null,
     egitimGoruldu: [],
     dakika: 0,
     acik: true,
@@ -2296,9 +2308,45 @@ function calisaniOku(k: Partial<Kayit>): Pick<Durum, 'calisan' | 'acikOnlukler' 
 }
 
 // ---- Dükkânın görünüşü (C paketi, belge 0.11) ----
-function gorunusuKayittanOku(k: Partial<Kayit>): Pick<Durum, 'gorunus' | 'acikGorunusler' | 'gorunusDenemesi'> {
+function gorunusuKayittanOku(
+  k: Partial<Kayit>,
+): Pick<Durum, 'gorunus' | 'acikGorunusler' | 'gorunusDenemesi' | 'tabelalar' | 'tabelaDenemesi'> {
   const acikGorunusler = acikGorunusleriOku(k.acikGorunusler);
-  return { acikGorunusler, gorunus: gorunusuOku(k.gorunus, acikGorunusler), gorunusDenemesi: {} };
+  return {
+    acikGorunusler,
+    gorunus: gorunusuOku(k.gorunus, acikGorunusler),
+    gorunusDenemesi: {},
+    tabelalar: tabelalariOku(k.tabelalar, acikGorunusler),
+    tabelaDenemesi: null,
+  };
+}
+
+// ---- Tabelalar (C3) ----
+export function tabelaAcikMi(id: Tabela, d: Durum = durum) {
+  return d.acikGorunusler.includes(tabelaAnahtari(id));
+}
+// Sahnede görünen tabelalar: takılılar ve denenen
+export function gorunenTabelalar(d: Durum = durum): Tabela[] {
+  return d.tabelaDenemesi && !d.tabelalar.includes(d.tabelaDenemesi) ? [...d.tabelalar, d.tabelaDenemesi] : d.tabelalar;
+}
+// Dokununca: alınmışsa takılır / çıkarılır, alınmamışsa denenir (bir daha dokununca deneme biter)
+export function tabelaSec(id: Tabela) {
+  if (tabelaAcikMi(id)) {
+    const tabelalar = durum.tabelalar.includes(id) ? durum.tabelalar.filter((t) => t !== id) : [...durum.tabelalar, id];
+    guncelle({ tabelalar, tabelaDenemesi: null });
+    kaydet();
+  } else guncelle({ tabelaDenemesi: durum.tabelaDenemesi === id ? null : id });
+}
+export function tabelaAl(id: Tabela) {
+  const t = TABELALAR.find((x) => x.id === id);
+  if (!t || tabelaAcikMi(id) || durum.para < t.fiyat) return;
+  guncelle({
+    para: durum.para - t.fiyat,
+    acikGorunusler: [...durum.acikGorunusler, tabelaAnahtari(id)],
+    tabelalar: [...durum.tabelalar, id],
+    tabelaDenemesi: null,
+  });
+  kaydet();
 }
 
 // Sahnede görünen: seçili görünüş, üstüne denenen
@@ -2336,5 +2384,5 @@ export function gorunusAl(g: GorunusGrubu, id: string) {
 
 // Mağaza kapanınca denenen ama alınmayan her şey eski hâline döner
 export function gorunusDenemesiniBitir() {
-  if (Object.keys(durum.gorunusDenemesi).length) guncelle({ gorunusDenemesi: {} });
+  if (Object.keys(durum.gorunusDenemesi).length || durum.tabelaDenemesi) guncelle({ gorunusDenemesi: {}, tabelaDenemesi: null });
 }

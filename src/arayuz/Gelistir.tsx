@@ -33,9 +33,12 @@ import {
   gorunusAl,
   gorunusDenemesiniBitir,
   gorunusSec,
+  tabelaAcikMi,
+  tabelaAl,
+  tabelaSec,
   type FiyatSeviyesi,
 } from '../oyun/durum';
-import { DIS_GRUPLAR, GORUNUS_GRUPLARI, GORUNUS_SECENEKLERI, type GorunusGrubu, type GorunusSecenegi } from '../oyun/gorunus';
+import { DIS_GRUPLAR, GORUNUS_GRUPLARI, GORUNUS_SECENEKLERI, TABELALAR, type GorunusGrubu, type GorunusSecenegi } from '../oyun/gorunus';
 import { dukkanKaydirma, duvarlar, ekrandaKaydir } from '../sahne/kameraKarisimi';
 import { CESITLER, FIYAT_ARALIGI, makulFiyat } from '../oyun/kuvetler';
 import { EN_YUKSEK_ISIK, ESYALAR, ISIK_SEVIYELERI, type Esya } from '../oyun/dekorasyon';
@@ -146,7 +149,7 @@ function FiyatEkrani() {
 }
 
 // Seçeneğin küçük örneği: düz renk, iki renkli şerit ya da zemin deseni
-function GorunusOrnegi({ s }: { s: GorunusSecenegi }) {
+function GorunusOrnegi({ s }: { s: Pick<GorunusSecenegi, 'renk' | 'ikinciRenk' | 'desen'> }) {
   const b = s.ikinciRenk;
   const arka = !b
     ? s.renk
@@ -163,12 +166,7 @@ function GorunusOrnegi({ s }: { s: GorunusSecenegi }) {
 // Görünüş (C paketi, belge 0.11): dokununca dükkân hemen öyle görünür (deneme);
 // beğenilirse "Al". Panel küçülür, dükkân arkada görünür ve döndürülebilir.
 function GorunusEkrani() {
-  const durum = useDurum();
-  const [grup, setGrup] = useState<GorunusGrubu>('disBoya');
-  const gecerli = gecerliGorunus(durum);
-  const secili = gecerli[grup];
-  const s = GORUNUS_SECENEKLERI[grup].find((x) => x.id === secili)!;
-  const denemede = !gorunusAcikMi(grup, secili, durum);
+  const [grup, setGrup] = useState<GorunusGrubu | 'tabela'>('disBoya');
   // Panel sağda: dükkân soldaki boşlukta ortalansın; çıkınca kamera eski yerine
   useEffect(() => {
     const eski = { ...dukkanKaydirma };
@@ -181,17 +179,30 @@ function GorunusEkrani() {
   }, []);
   // Dış seçeneklerde duvarlar kapanır (dışarıdan bakılır), içtekilerde yarım
   useEffect(() => {
-    duvarlar.mod = DIS_GRUPLAR.includes(grup) ? 'kapali' : 'kesit';
+    duvarlar.mod = grup === 'tabela' || DIS_GRUPLAR.includes(grup) ? 'kapali' : 'kesit';
   }, [grup]);
   return (
     <div className="gorunus">
       <div className="gorunus-gruplar" role="tablist">
-        {GORUNUS_GRUPLARI.map((g) => (
+        {[...GORUNUS_GRUPLARI, 'tabela' as const].map((g) => (
           <button key={g} role="tab" aria-selected={grup === g} className={`cip ${grup === g ? 'secili' : ''}`} onClick={() => setGrup(g)}>
             {m(`gorunus.${g}` as MetinAnahtari)}
           </button>
         ))}
       </div>
+      {grup === 'tabela' ? <TabelaSecimi /> : <GrupSecimi grup={grup} />}
+    </div>
+  );
+}
+
+// Tek seçimli gruplar: boya, çerçeve, tente, zemin, çatı
+function GrupSecimi({ grup }: { grup: GorunusGrubu }) {
+  const durum = useDurum();
+  const secili = gecerliGorunus(durum)[grup];
+  const s = GORUNUS_SECENEKLERI[grup].find((x) => x.id === secili)!;
+  const denemede = !gorunusAcikMi(grup, secili, durum);
+  return (
+    <>
       <div className="gorunus-secenekler">
         {GORUNUS_SECENEKLERI[grup].map((x) => {
           const acik = gorunusAcikMi(grup, x.id, durum);
@@ -220,7 +231,52 @@ function GorunusEkrani() {
           <span className="gel-aciklama">{m('gorunus.not')}</span>
         )}
       </div>
-    </div>
+    </>
+  );
+}
+
+// Tabelalar (C3): birden çok takılır; alınana dokununca takılır / çıkar
+function TabelaSecimi() {
+  const durum = useDurum();
+  const deneme = durum.tabelaDenemesi;
+  const denenen = TABELALAR.find((t) => t.id === deneme);
+  return (
+    <>
+      <div className="gorunus-secenekler">
+        {TABELALAR.map((t) => {
+          const acik = tabelaAcikMi(t.id, durum);
+          const takili = durum.tabelalar.includes(t.id);
+          return (
+            <button
+              key={t.id}
+              className={`gorunus-kart ${takili || deneme === t.id ? 'secili' : ''} ${acik ? '' : 'kilitli'}`}
+              aria-pressed={takili}
+              onClick={() => tabelaSec(t.id)}
+            >
+              <GorunusOrnegi s={t} />
+              <span className="gorunus-ad">{m(`tabela.${t.id}` as MetinAnahtari)}</span>
+              {acik ? (
+                <span className="gel-aciklama">{m(takili ? 'tabela.takili' : 'tabela.takiliDegil')}</span>
+              ) : (
+                <Para miktar={t.fiyat} />
+              )}
+            </button>
+          );
+        })}
+      </div>
+      <div className="gorunus-alt">
+        {denenen ? (
+          <>
+            <span className="gel-aciklama">{m('gorunus.deneniyor')}</span>
+            <button className="dugme gel-al" disabled={durum.para < denenen.fiyat} onClick={() => tabelaAl(denenen.id)}>
+              {m('gelistir.al')} <Para miktar={denenen.fiyat} />
+            </button>
+          </>
+        ) : (
+          <span className="gel-aciklama">{m('tabela.not')}</span>
+        )}
+      </div>
+    </>
   );
 }
 

@@ -2,7 +2,7 @@ import { Suspense, useLayoutEffect } from 'react';
 import { Canvas, events, useFrame, useThree, type RootState } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import { durumuOku, istasyonX, saatDakikasi } from '../oyun/durum';
-import { gezmeSaati, gokRenkleri } from './gokRenkleri';
+import { gezmeSaati, gokRenkleri, tabelaIsigi } from './gokRenkleri';
 import * as THREE from 'three';
 import { Disari } from './Disari';
 import { parselCoz, parselSiniri } from '../oyun/dekorasyon';
@@ -184,6 +184,8 @@ function Isiklar() {
     const aksam = THREE.MathUtils.smoothstep(saat, 16.5, 20); // güneş alçalır, turuncuya döner
     const gece = THREE.MathUtils.smoothstep(saat, 20, 21.5); // gök kararır
     const batim = aksam * (1 - gece);
+    // Tabelalar güneş batarken yanar (saat ~19), sabah 7'ye doğru söner
+    tabelaIsigi.deger = Math.max(THREE.MathUtils.smoothstep(saat, 18.5, 19.5), 1 - THREE.MathUtils.smoothstep(saat, 6, 7));
 
     isik.color.copy(OGLE).lerp(AKSAM, aksam);
     isik.intensity = (2.6 - aksam * 1.2) * (1 - gece) + gece * 0.25;

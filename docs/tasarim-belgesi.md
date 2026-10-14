@@ -324,7 +324,7 @@ Sims gibi: dükkânın dışı ve içi oyuncunun zevkine göre. Geliştir'de yen
 | İç duvar | Ayrı seçilir; paletten 6–8 renk |
 | Çerçeve ve tente | Pencere / kapı çerçevesi ve tente rengi ayrı ayrı seçilir |
 | Çatı | Kiremit eğimli çatı, düz teras çatı + korkuluk, ahşap çatı / pergola, tente renkleri. Yapıldı (C2): Görünüş → Çatı'da dört seçenek; bugünkü düz dam baştan açık. Kiremitte sırt dükkân boyunca uzanır, her arazi karesinin kendi damı olur; pergola ön cephenin üstünden terasa 2,4 m uzanır |
-| Tabelalar | Çatı tabelası, kaldırımda direk tabela, pencerede neon, iskele girişinde kemer. Yazı: dükkânın adı. Işıklılar akşam kendiliğinden yanar, sabah söner |
+| Tabelalar | Çatı tabelası, kaldırımda direk tabela, pencerede neon, iskele girişinde kemer. Yazı: dükkânın adı. Işıklılar akşam kendiliğinden yanar, sabah söner. Yapıldı (C3): Görünüş → Tabela; birden çok takılır, alınana dokununca takılır / çıkar. Çatı tabelası en öndeki sıranın ortasında, direk tabela iskelenin sağında kaldırımda, neon ön cephenin ortasına yakın bir camda ("DONDURMA" + külah), kemer iskelenin girişinde. Yeni ışık kaynağı yok (telefon); yalnız parlayan yüzeyler, saat ~19'da yanar, sabah 7'ye doğru söner |
 | İç zemin | Ahşap tonları, damalı fayans, mozaik / karo, terrazzo / beton cila |
 | Halı ve tablo | Eşya gibi yerleşir (halı yere, tablo bir duvar parçasına); taşınır, döndürülür, depoya kalkar |
 | Tablolarda | Soyut renk desenleri, dondurma çizimleri, deniz / tekne siluetleri (Düzada'ya özel bir yer çizilmez), boş çerçeve (Kemal sonra doldurur). İleride reklam alınabilir |

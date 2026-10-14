@@ -389,5 +389,14 @@
   "gorunus.cati.duz": "Düz dam",
   "gorunus.cati.teras": "Teras",
   "gorunus.cati.kiremit": "Kiremit",
-  "gorunus.cati.pergola": "Ahşap + pergola"
+  "gorunus.cati.pergola": "Ahşap + pergola",
+  "gorunus.tabela": "Tabela",
+  "tabela.cati": "Çatı tabelası",
+  "tabela.direk": "Direk tabela",
+  "tabela.neon": "Pencerede neon",
+  "tabela.kemer": "İskele kemeri",
+  "tabela.neonYazi": "DONDURMA",
+  "tabela.takili": "Takılı",
+  "tabela.takiliDegil": "Kapalı",
+  "tabela.not": "Birden çok tabela takabilirsin; alınana dokununca takılır ya da çıkar. Işıklılar akşam kendiliğinden yanar."
 }
