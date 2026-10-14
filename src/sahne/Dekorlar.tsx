@@ -1,6 +1,7 @@
-import { hucreAcik, hucreDolu, hucreyeKoy, useDurum, yerlesimiKaldir } from '../oyun/durum';
+import { hucreAcik, hucreDolu, hucreUygun, hucreyeKoy, useDurum, yerlesimiKaldir } from '../oyun/durum';
 import { HUCRELER, KARE_BOYU, YAN_ZEMIN, type Esya } from '../oyun/dekorasyon';
 import { renk } from './renkler';
+import { Bank, Bisiklet, CicekKasasi, CopKutusu, Flama, IsikliTabela, KaraTahta, KulahFiguru, SokakLambasi } from './DisSusler';
 
 // Dekorasyon (belge bölüm 4; 13 Ekim): ışıklandırma seviyeleri ve
 // oyuncunun kareli zemine yerleştirdiği taşınabilir eşyalar.
@@ -109,6 +110,15 @@ function TekSaksi() {
 function EsyaModeli({ esya }: { esya: Esya }) {
   if (esya === 'saksi') return <TekSaksi />;
   if (esya === 'masa') return <Masa olcek={0.85} />;
+  if (esya === 'bank') return <Bank />;
+  if (esya === 'karaTahta') return <KaraTahta />;
+  if (esya === 'isikliTabela') return <IsikliTabela />;
+  if (esya === 'kulahFiguru') return <KulahFiguru />;
+  if (esya === 'flama') return <Flama />;
+  if (esya === 'cicekKasasi') return <CicekKasasi />;
+  if (esya === 'bisiklet') return <Bisiklet />;
+  if (esya === 'copKutusu') return <CopKutusu />;
+  if (esya === 'sokakLambasi') return <SokakLambasi />;
   return (
     <group>
       <Masa olcek={0.85} />
@@ -186,6 +196,7 @@ function Kareler() {
       {HUCRELER.map((h, i) => {
         const acik = hucreAcik(i, durum);
         if (hucreDolu(i, durum) || (acik && !durum.seciliEsya)) return null;
+        if (acik && !hucreUygun(i, durum.seciliEsya, durum)) return null; // dışarıya özel eşya içeri konmaz
         return (
           <mesh key={i} position={[h.x, h.ic ? 0.02 : 0.08, h.z]} rotation={[-Math.PI / 2, 0, 0]}>
             <planeGeometry args={[KARE_BOYU * (acik ? 0.9 : 0.8), KARE_BOYU * (acik ? 0.9 : 0.8)]} />
@@ -204,6 +215,7 @@ function Kareler() {
           let enKisa = KARE_BOYU * 0.85;
           HUCRELER.forEach((h, i) => {
             if (!hucreAcik(i)) return; // alınmamış alana konmaz
+            if (!hucreDolu(i) && !hucreUygun(i, durum.seciliEsya)) return;
             const d = Math.hypot(h.x - e.point.x, h.z - e.point.z);
             if (d < enKisa) {
               enKisa = d;

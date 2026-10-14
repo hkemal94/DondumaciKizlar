@@ -701,13 +701,19 @@ export function hucreAcik(hucre: number, d: Durum = durum) {
   return !!h && (!h.bolge || d.acikBolgeler.includes(h.bolge));
 }
 
+// Seçili eşya bu kareye konabilir mi: dışarıya özel eşyalar dükkânın içine konmaz
+export function hucreUygun(hucre: number, esya: Esya | null, d: Durum = durum) {
+  if (!hucreAcik(hucre, d)) return false;
+  return !(HUCRELER[hucre].ic && ESYALAR.find((e) => e.id === esya)?.disari);
+}
+
 export function hucreDolu(hucre: number, d: Durum = durum) {
   return d.yerlesim.some((y) => y.hucre === hucre);
 }
 
 export function hucreyeKoy(hucre: number) {
   const e = durum.seciliEsya;
-  if (!durum.yerlestirme || !e || depodaki(e) <= 0 || hucreDolu(hucre) || !hucreAcik(hucre)) return;
+  if (!durum.yerlestirme || !e || depodaki(e) <= 0 || hucreDolu(hucre) || !hucreUygun(hucre, e)) return;
   const kalan = depodaki(e) - 1;
   guncelle({
     yerlesim: [...durum.yerlesim, { esya: e, hucre }],

@@ -161,20 +161,24 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
               <p className="gel-not">{m('dekor.alanNot')}</p>
 
               {/* Taşınabilir eşyalar: alınır, depoya gider */}
-              <div className="gel-baslik">{m('dekor.tasinabilir')}</div>
-              <div className="gel-izgara">
-                {ESYALAR.map((e) => (
-                  <div key={e.id} className="gel-kart">
-                    <span className="gel-ad">
-                      {m(`esya.${e.id}` as MetinAnahtari)}
-                      <span className="gel-aciklama"> · {m('dekor.depoda', { sayi: depodaki(e.id, durum) })}</span>
-                    </span>
-                    <button className="dugme gel-al" disabled={durum.para < e.fiyat} onClick={() => esyaAl(e.id)}>
-                      {m('gelistir.al')} <Para miktar={e.fiyat} />
-                    </button>
+              {(['oturma', 'dis'] as const).map((grup) => (
+                <div key={grup}>
+                  <div className="gel-baslik">{m(`dekor.${grup}`)}</div>
+                  <div className="gel-izgara">
+                    {ESYALAR.filter((e) => e.grup === grup).map((e) => (
+                      <div key={e.id} className="gel-kart">
+                        <span className="gel-ad">
+                          {m(`esya.${e.id}` as MetinAnahtari)}
+                          <span className="gel-aciklama"> · {m('dekor.depoda', { sayi: depodaki(e.id, durum) })}</span>
+                        </span>
+                        <button className="dugme gel-al" disabled={durum.para < e.fiyat} onClick={() => esyaAl(e.id)}>
+                          {m('gelistir.al')} <Para miktar={e.fiyat} />
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
               <p className="gel-not">{m('dekor.etki')}</p>
             </div>
           )}

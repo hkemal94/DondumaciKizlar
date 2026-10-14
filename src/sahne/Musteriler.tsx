@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { durumuOku, musteriTezgahaVardi, musteriyiKaldir, ondekiMusteri, useDurum, type Durum, type Musteri } from '../oyun/durum';
 import { HUCRELER } from '../oyun/dekorasyon';
+import { BANK_OTURAKLARI } from './DisSusler';
 import { KAPI_X } from './Dukkan';
 import { renk } from './renkler';
 
@@ -131,7 +132,7 @@ function Govde({ g, oturuyor = false }: { g: Gorunum; oturuyor?: boolean }) {
 }
 
 // ---- Masalarda oturma (Kemal, 14 Ekim) ----
-// Mutlu giden müşterinin bir kısmı boş bir sandalye varsa oturur, yer, gider.
+// Mutlu giden müşterinin bir kısmı boş bir sandalye ya da bank varsa oturur, yer, gider.
 // Hangi sandalyenin dolu olduğu yalnız sahnede tutulur (kayda girmez).
 const OTURMA_OLASILIGI = 0.6;
 const OTURMA_SURESI: [number, number] = [10, 16]; // saniye
@@ -152,10 +153,19 @@ const doluKoltuklar = new Map<string, number>(); // anahtar → müşteri
 function bosKoltuk(d: Durum): Koltuk | null {
   const bos: Koltuk[] = [];
   for (const y of d.yerlesim) {
-    if (y.esya !== 'masa' && y.esya !== 'semsiyeliMasa') continue;
+    if (y.esya !== 'masa' && y.esya !== 'semsiyeliMasa' && y.esya !== 'bank') continue;
     const h = HUCRELER[y.hucre];
     if (!h || h.arkada) continue;
     const yan: 0 | 1 | -1 = !h.ic && h.z > -2.6 ? (h.x > 0 ? 1 : -1) : 0;
+    if (y.esya === 'bank') {
+      // Bankta iki kişi yan yana, denize bakar
+      for (const ox of BANK_OTURAKLARI) {
+        const anahtar = `${y.hucre}:${ox}`;
+        if (doluKoltuklar.has(anahtar)) continue;
+        bos.push({ anahtar, yer: new THREE.Vector3(h.x + ox, h.ic ? 0 : 0.06, h.z + 0.02), bakis: Math.PI, ic: h.ic, yan });
+      }
+      continue;
+    }
     for (const taraf of [1, -1]) {
       const anahtar = `${y.hucre}:${taraf}`;
       if (doluKoltuklar.has(anahtar)) continue;
