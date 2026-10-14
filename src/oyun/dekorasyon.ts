@@ -2,12 +2,35 @@
 // seviyeli) ve taşınabilir eşyalar (alınır, depoya gider, kareli zemine
 // elle yerleştirilir). Fiyatlar ve etkiler geçici.
 
-export type Esya = 'masa' | 'semsiyeliMasa' | 'saksi';
+export type Esya =
+  | 'masa'
+  | 'semsiyeliMasa'
+  | 'saksi'
+  | 'bank'
+  | 'karaTahta'
+  | 'isikliTabela'
+  | 'kulahFiguru'
+  | 'flama'
+  | 'cicekKasasi'
+  | 'bisiklet'
+  | 'copKutusu'
+  | 'sokakLambasi';
 
-export const ESYALAR: { id: Esya; fiyat: number }[] = [
-  { id: 'saksi', fiyat: 60 },
-  { id: 'masa', fiyat: 200 },
-  { id: 'semsiyeliMasa', fiyat: 320 },
+// grup: mağazadaki başlık. disari: yalnız dükkânın dışına konur (14 Ekim:
+// "özellikle dükkân dışı için tabela benzeri ürünler").
+export const ESYALAR: { id: Esya; fiyat: number; grup: 'oturma' | 'dis'; disari?: boolean }[] = [
+  { id: 'saksi', fiyat: 60, grup: 'oturma' },
+  { id: 'masa', fiyat: 200, grup: 'oturma' },
+  { id: 'semsiyeliMasa', fiyat: 320, grup: 'oturma', disari: true },
+  { id: 'bank', fiyat: 140, grup: 'oturma', disari: true },
+  { id: 'copKutusu', fiyat: 50, grup: 'dis', disari: true },
+  { id: 'cicekKasasi', fiyat: 80, grup: 'dis', disari: true },
+  { id: 'karaTahta', fiyat: 90, grup: 'dis', disari: true },
+  { id: 'flama', fiyat: 110, grup: 'dis', disari: true },
+  { id: 'sokakLambasi', fiyat: 160, grup: 'dis', disari: true },
+  { id: 'bisiklet', fiyat: 180, grup: 'dis', disari: true },
+  { id: 'isikliTabela', fiyat: 260, grup: 'dis', disari: true },
+  { id: 'kulahFiguru', fiyat: 380, grup: 'dis', disari: true },
 ];
 
 // Işıklandırma seviyeleri: 1 fenerler, 2 asma ampuller, 3 ışıklı şerit.
