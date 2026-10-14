@@ -1,4 +1,5 @@
-import { useLayoutEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Canvas, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { EsyaModeli } from './Dekorlar';
@@ -31,7 +32,34 @@ function Cerceve({ esya }: { esya: Esya }) {
   );
 }
 
-export function Onizleme({ esya }: { esya: Esya }) {
+// Model önizlemesi (#model=karakterler/character-female-a): Kemal seçsin diye
+function Model({ yol }: { yol: string }) {
+  const [sahne, setSahne] = useState<THREE.Object3D | null>(null);
+  const { camera } = useThree();
+  useEffect(() => {
+    new GLTFLoader().load(`${import.meta.env.BASE_URL}modeller/${yol}.glb`, (g) => {
+      const karistirici = new THREE.AnimationMixer(g.scene);
+      const bekle = g.animations.find((a) => a.name === 'idle');
+      if (bekle) {
+        karistirici.clipAction(bekle).play();
+        karistirici.update(0.4);
+      }
+      setSahne(g.scene);
+    });
+  }, [yol]);
+  useLayoutEffect(() => {
+    if (!sahne) return;
+    sahne.updateWorldMatrix(true, true);
+    const kutu = new THREE.Box3().setFromObject(sahne);
+    const merkez = kutu.getCenter(new THREE.Vector3());
+    const y = kutu.getSize(new THREE.Vector3()).y;
+    camera.position.copy(merkez).add(new THREE.Vector3(0.35, 0.15, 1).normalize().multiplyScalar(y * 2.3));
+    camera.lookAt(merkez);
+  }, [sahne, camera]);
+  return sahne ? <primitive object={sahne} /> : null;
+}
+
+export function Onizleme({ esya, model }: { esya?: Esya; model?: string }) {
   return (
     <Canvas
       className="onizleme"
@@ -42,7 +70,7 @@ export function Onizleme({ esya }: { esya: Esya }) {
       <ambientLight intensity={1.2} />
       <hemisphereLight args={['#fff4e2', '#b98d6a', 1.1]} />
       <directionalLight position={[-4, 8, -6]} intensity={2.2} />
-      <Cerceve esya={esya} />
+      {model ? <Model yol={model} /> : esya && <Cerceve esya={esya} />}
     </Canvas>
   );
 }
