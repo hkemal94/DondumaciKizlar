@@ -1521,3 +1521,139 @@ a.dugme {
   font-size: 12px;
   margin: 0;
 }
+
+/* Resimli eşya kartları (14 Ekim) */
+.esya-izgara {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 6px;
+}
+.esya-kart {
+  font: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 4px 4px 5px;
+  border-radius: 12px;
+  border: 2px solid rgba(78, 36, 112, 0.25);
+  background: #fff;
+  color: var(--mor-koyu);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.esya-kart:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.esya-kart:active:not(:disabled) {
+  transform: translateY(1px);
+  border-color: var(--mor);
+}
+.esya-kart img {
+  width: 64px;
+  height: 64px;
+}
+.esya-kart-ad {
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
+}
+.esya-kart-alt {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+.esya-kart-alt .para-simge {
+  width: 12px;
+  height: 12px;
+}
+.esya-kart .esya-sayi {
+  background: var(--sari);
+  color: var(--mor-koyu);
+  font-weight: 800;
+  font-size: 11px;
+}
+/* Alındı penceresi: Yerleştir / Alışverişe devam et */
+.alindi-zemin {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(40, 20, 60, 0.35);
+}
+.alindi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 16px 12px;
+  border-radius: 18px;
+  background: var(--krem);
+  border: 3px solid var(--mor-koyu);
+  box-shadow: 0 5px 0 var(--mor-koyu);
+  color: var(--mor-koyu);
+  max-width: 320px;
+  text-align: center;
+}
+.alindi img {
+  width: 84px;
+  height: 84px;
+}
+.alindi h3 {
+  margin: 0;
+  font-size: 17px;
+  color: var(--mor);
+}
+.alindi p {
+  margin: 0;
+  font-size: 13px;
+}
+.alindi-dugmeler {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+/* Pencereler daha az yer kaplasın */
+.gelistir {
+  padding: 8px 14px 10px;
+  gap: 6px;
+}
+.gel-ust .baslik-logo {
+  height: 28px;
+}
+.gel-ust h2 {
+  font-size: 18px;
+}
+.gel-sekmeler button {
+  font-size: 13px;
+  padding: 4px 12px;
+  border-width: 2px;
+}
+.gel-baslik {
+  font-size: 14px;
+}
+.gel-kart {
+  padding: 4px 8px;
+}
+.gel-ad {
+  font-size: 14px;
+}
+.dugme.gel-al {
+  font-size: 12px;
+  padding: 3px 8px;
+}
+.esya-cip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.esya-cip-resim {
+  width: 24px;
+  height: 24px;
+  margin: -4px 0;
+}

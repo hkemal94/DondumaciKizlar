@@ -574,6 +574,7 @@ export function Arayuz() {
                   className={`dugme esya-cip ${durum.seciliEsya === e.id ? 'secili' : ''}`}
                   onClick={() => esyaSec(e.id)}
                 >
+                  <img className="esya-cip-resim" src={`${import.meta.env.BASE_URL}gorseller/esyalar/${e.id}.webp`} alt="" aria-hidden />
                   {m(`esya.${e.id}` as MetinAnahtari)} <span className="esya-sayi">{depodaki(e.id, durum)}</span>
                 </button>
               ))}

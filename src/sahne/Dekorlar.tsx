@@ -107,7 +107,7 @@ function TekSaksi() {
   );
 }
 
-function EsyaModeli({ esya }: { esya: Esya }) {
+export function EsyaModeli({ esya }: { esya: Esya }) {
   if (esya === 'saksi') return <TekSaksi />;
   if (esya === 'masa') return <Masa olcek={0.85} />;
   if (esya === 'bank') return <Bank />;
