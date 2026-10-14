@@ -33,7 +33,7 @@ const BAS_ADAYLARI = [0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11];
 // Modeller ~0,78 birim boyunda; oyundaki insanlar ~1,6 m
 export const KARAKTER_OLCEGI = 1.55;
 
-export type Aksesuar = 'yok' | 'gozluk' | 'gunesGozlugu' | 'hasirSapka';
+export type KarakterAksesuari = 'gozluk' | 'gunesGozlugu' | 'hasirSapka' | 'kasket' | 'bandana' | 'kupe';
 
 export interface Varyant {
   govde: number; // TABANLAR sırası
@@ -43,7 +43,7 @@ export interface Varyant {
   ust: string;
   alt: string;
   ayakkabi: string;
-  aksesuar: Aksesuar;
+  aksesuarlar: KarakterAksesuari[];
 }
 
 // Rol: 0 ten, 1 saç, 2 üst, 3 alt, 4 ayakkabı, 5 dokunulmaz (göz, ağız, gözlük…)
@@ -240,11 +240,51 @@ function hasirSapka() {
   return g;
 }
 
+const altin = new THREE.MeshStandardMaterial({ color: '#f2c14e', metalness: 0.6, roughness: 0.3 });
+
+function aksesuarKur(ak: KarakterAksesuari, tepe: number, yuklu: Awaited<ReturnType<typeof karakterleriYukle>>) {
+  if (ak === 'gozluk' || ak === 'gunesGozlugu') {
+    const g = (ak === 'gozluk' ? yuklu.gozluk : yuklu.gunesGozlugu).clone();
+    g.position.set(0, 0.115, 0.13);
+    return g;
+  }
+  if (ak === 'hasirSapka') {
+    const g = hasirSapka();
+    g.position.set(0, tepe - 0.035, -0.01);
+    return g;
+  }
+  const g = new THREE.Group();
+  if (ak === 'kasket') {
+    // Mor kasket, sarı siper (çalışanın aksesuarı)
+    const kubbe = new THREE.Mesh(new THREE.SphereGeometry(0.235, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#7a3fa8', roughness: 0.8 }));
+    const siper = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.015, 0.16), new THREE.MeshStandardMaterial({ color: '#ffc928', roughness: 0.8 }));
+    siper.position.set(0, 0.005, 0.24);
+    g.add(kubbe, siper);
+    g.position.set(0, tepe - 0.1, 0);
+  } else if (ak === 'bandana') {
+    const bant = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.242, 0.242, 0.06, 14, 1, true),
+      new THREE.MeshStandardMaterial({ color: '#e8574f', roughness: 0.8, side: THREE.DoubleSide }),
+    );
+    bant.rotation.x = 0.12;
+    g.add(bant);
+    g.position.set(0, tepe - 0.11, 0);
+  } else {
+    for (const x of [-0.235, 0.235]) {
+      const k = new THREE.Mesh(new THREE.SphereGeometry(0.022, 8, 6), altin);
+      k.position.set(x, 0.1, 0.01);
+      g.add(k);
+    }
+  }
+  return g;
+}
+
 export interface Karakter {
   kok: THREE.Object3D;
   karistirici: THREE.AnimationMixer;
   eylemler: Record<string, THREE.AnimationAction>;
   sagEl: THREE.Object3D | null;
+  govdeKemigi: THREE.Object3D | null; // önlük gibi gövdeye takılanlar için
 }
 
 export function karakterKur(v: Varyant, yuklu: Awaited<ReturnType<typeof karakterleriYukle>>): Karakter {
@@ -264,19 +304,20 @@ export function karakterKur(v: Varyant, yuklu: Awaited<ReturnType<typeof karakte
     m.castShadow = true;
     m.frustumCulled = false;
   });
-  // Aksesuar başa bağlanır
-  if (basKemigi && v.aksesuar !== 'yok') {
-    const a = v.aksesuar === 'hasirSapka' ? hasirSapka() : (v.aksesuar === 'gozluk' ? yuklu.gozluk : yuklu.gunesGozlugu).clone();
-    // Baş kemiği modelde ~0,343 yükseklikte; şapka başın tepesine oturur
-    if (v.aksesuar === 'hasirSapka') a.position.set(0, basTaban.basTepesi - BAS_KEMIGI_Y - 0.035, -0.01);
-    else a.position.set(0, 0.13, 0.035);
-    (basKemigi as THREE.Object3D).add(a);
+  // Aksesuarlar başa bağlanır (baş kemiği modelde ~0,343 yükseklikte)
+  if (basKemigi) {
+    const tepe = basTaban.basTepesi - BAS_KEMIGI_Y;
+    for (const ak of v.aksesuarlar) (basKemigi as THREE.Object3D).add(aksesuarKur(ak, tepe, yuklu));
   }
   kok.scale.setScalar(KARAKTER_OLCEGI);
   const karistirici = new THREE.AnimationMixer(kok);
   const eylemler: Record<string, THREE.AnimationAction> = {};
   for (const a of govdeTaban.animasyonlar) eylemler[a.name] = karistirici.clipAction(a);
-  return { kok, karistirici, eylemler, sagEl };
+  let govdeKemigi: THREE.Object3D | null = null;
+  kok.traverse((o) => {
+    if (o.name === 'torso') govdeKemigi = o;
+  });
+  return { kok, karistirici, eylemler, sagEl, govdeKemigi };
 }
 
 // Tohumdan (müşteri numarası) her seferinde aynı varyant
@@ -302,6 +343,6 @@ export function rastgeleVaryant(tohum: number): Varyant {
     ust: sec(UST_RENKLERI),
     alt: sec(ALT_RENKLERI),
     ayakkabi: sec(AYAKKABI_RENKLERI),
-    aksesuar: aks < 0.15 ? 'hasirSapka' : aks < 0.25 ? 'gunesGozlugu' : aks < 0.32 ? 'gozluk' : 'yok',
+    aksesuarlar: aks < 0.15 ? ['hasirSapka'] : aks < 0.25 ? ['gunesGozlugu'] : aks < 0.32 ? ['gozluk'] : aks < 0.38 ? ['kupe'] : [],
   };
 }

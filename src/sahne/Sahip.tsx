@@ -3,7 +3,8 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { calismaSaatleri, durumuOku } from '../oyun/durum';
 import { KAPI_X } from './Dukkan';
-import { renk } from './renkler';
+import { KenneyKarakter, type Hareket } from './KenneyKarakter';
+import type { Varyant } from './karakterler';
 
 // Dükkânın sahibi (Kemal, 13 Ekim: "arada dükkânda gezsin"). Kanondaki kadın;
 // adı ve görünüşü yok — buradaki görünüş GEÇİCİ (mor elbise, topuz saç),
@@ -35,6 +36,19 @@ function gezintiYolu(donus: 1 | -1): Nokta[] {
   ];
 }
 
+// Görünüş GEÇİCİ (Kemal belirleyecek): mor elbise, topuz, küpe — müşterilerle
+// aynı Kenney parçalarından (14 Ekim)
+const SAHIP: Varyant = {
+  govde: 3,
+  bas: 3,
+  ten: '#e3b08a',
+  sac: '#3a2a22',
+  ust: '#7a3fa8',
+  alt: '#4e2470',
+  ayakkabi: '#2a2830',
+  aksesuarlar: ['kupe'],
+};
+
 export function Sahip() {
   const ref = useRef<THREE.Group>(null);
   const icRef = useRef<THREE.Group>(null);
@@ -43,8 +57,9 @@ export function Sahip() {
   const yol = useRef<Nokta[]>([]);
   const bekleme = useRef(0);
   const hedef = useMemo(() => new THREE.Vector3(), []);
+  const hareket = useRef<Hareket>('dur');
 
-  useFrame(({ clock }, dt) => {
+  useFrame((_, dt) => {
     const g = ref.current;
     const ic = icRef.current;
     if (!g || !ic) return;
@@ -92,59 +107,14 @@ export function Sahip() {
         if (yol.current.length === 0) g.visible = false; // iskeleden çıktı
       }
     }
-    const t = clock.elapsedTime;
-    ic.position.y = yuruyor ? Math.abs(Math.sin(t * 8)) * 0.035 : Math.sin(t * 1.5) * 0.005;
+    hareket.current = yuruyor ? 'yuru' : 'dur';
+    ic.position.y = 0;
   });
 
-  const ten = '#e3b08a';
-  const sac = '#3a2a22';
   return (
     <group ref={ref} visible={false}>
       <group ref={icRef}>
-        {/* Elbise */}
-        <mesh position={[0, 0.62, 0]} castShadow>
-          <cylinderGeometry args={[0.16, 0.3, 0.9, 8]} />
-          <meshStandardMaterial color={renk.mor} roughness={0.8} flatShading />
-        </mesh>
-        <mesh position={[0, 1.13, 0]} castShadow>
-          <cylinderGeometry args={[0.15, 0.17, 0.22, 8]} />
-          <meshStandardMaterial color={renk.mor} roughness={0.8} flatShading />
-        </mesh>
-        {[-0.08, 0.08].map((x) => (
-          <mesh key={x} position={[x, 0.1, 0]}>
-            <boxGeometry args={[0.07, 0.2, 0.08]} />
-            <meshStandardMaterial color={ten} roughness={0.8} />
-          </mesh>
-        ))}
-        {[-0.22, 0.22].map((x) => (
-          <mesh key={x} position={[x, 0.98, 0]} rotation={[0, 0, x > 0 ? 0.1 : -0.1]}>
-            <boxGeometry args={[0.07, 0.48, 0.08]} />
-            <meshStandardMaterial color={ten} roughness={0.8} flatShading />
-          </mesh>
-        ))}
-        <mesh position={[0, 1.43, 0]} castShadow>
-          <icosahedronGeometry args={[0.13, 1]} />
-          <meshStandardMaterial color={ten} roughness={0.8} flatShading />
-        </mesh>
-        {[-0.045, 0.045].map((x) => (
-          <mesh key={x} position={[x, 1.45, 0.12]}>
-            <sphereGeometry args={[0.015, 6, 4]} />
-            <meshStandardMaterial color="#2a1d17" />
-          </mesh>
-        ))}
-        <mesh position={[0, 1.48, -0.02]} scale={[1.08, 0.85, 1.08]}>
-          <sphereGeometry args={[0.135, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2]} />
-          <meshStandardMaterial color={sac} roughness={0.9} flatShading />
-        </mesh>
-        <mesh position={[0, 1.6, -0.1]}>
-          <icosahedronGeometry args={[0.08, 0]} />
-          <meshStandardMaterial color={sac} roughness={0.9} flatShading />
-        </mesh>
-        {/* Sarı eşarp: logo rengi */}
-        <mesh position={[0, 1.27, 0]} rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[0.13, 0.03, 6, 12]} />
-          <meshStandardMaterial color={renk.sari} roughness={0.8} />
-        </mesh>
+        <KenneyKarakter varyant={SAHIP} hareket={hareket} />
       </group>
     </group>
   );
