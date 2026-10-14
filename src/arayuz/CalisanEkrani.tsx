@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { aksesuarAl, aksesuarDegistir, calisaniDegistir, onlukAl, useDurum } from '../oyun/durum';
 import { AD_EN_UZUN, AKSESUARLAR, ONLUKLER, SAC_MODELLERI, SAC_RENKLERI, TENLER } from '../oyun/calisan';
 import { m, type MetinAnahtari } from '../metinler';
+import { logoAdresi } from '../sahne/logo';
 import { odak } from '../sahne/kameraKarisimi';
 import { calisanEtiketi } from '../sahne/Calisan';
 
@@ -30,6 +31,7 @@ export function CalisanEkrani({ kapat }: { kapat: () => void }) {
   return (
     <div className="calisan-panel" role="dialog" aria-labelledby="calisan-baslik">
       <div className="gel-ust">
+        <img className="baslik-logo" src={logoAdresi('yazi')} alt="" aria-hidden />
         <h2 id="calisan-baslik">{m('calisan.baslik')}</h2>
         <Para miktar={durum.para} />
       </div>

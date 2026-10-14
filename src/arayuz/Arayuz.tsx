@@ -35,6 +35,7 @@ import {
   useDurum,
 } from '../oyun/durum';
 import { m, type MetinAnahtari } from '../metinler';
+import { logoAdresi } from '../sahne/logo';
 import { CESITLER } from '../oyun/kuvetler';
 import { balon } from '../sahne/Musteriler';
 import { Gelistir } from './Gelistir';
@@ -357,6 +358,7 @@ function GunSonu() {
   return (
     <div className="gun-sonu-zemin">
       <div className="gun-sonu" role="dialog" aria-labelledby="gun-sonu-baslik">
+        <img className="baslik-logo" src={logoAdresi('yazi')} alt="" aria-hidden />
         <h2 id="gun-sonu-baslik">{m('gunSonu.baslik', { gun: durum.gun })}</h2>
         <dl>
           {satirlar.map(([ad, deger]) => (

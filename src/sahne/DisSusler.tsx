@@ -2,65 +2,15 @@ import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { renk } from './renkler';
-import { m } from '../metinler';
+import { logoDokusu, LOGO_DOSYALARI } from './logo';
 
 // Dükkânın dışı için süsler (Kemal, 14 Ekim: "tabela benzeri ürünler").
 // Kodla çizilmiş geçici parçalar. Hepsi ön yüzünü denize / kameraya
-// (−z) çevirir. Işıklı tabelada dükkânın adı var (14 Ekim); kara tahtada
-// yazı yok, yalnız dondurma çizimleri.
+// (−z) çevirir. Işıklı tabelada Kemal'in külahlı logosu var (14 Ekim);
+// kara tahtada yazı yok, yalnız dondurma çizimleri.
 
 const DEMIR = '#3d3a45';
 const TOP_RENKLERI = ['#ff6f7d', '#8a4b2e', '#5fd08a', '#fff0c8'];
-
-// Tabela yüzü (Kemal, 14 Ekim: "adı yazılsın"): mor zemin, solda külah,
-// sağda dükkânın adı iki satır
-let tabelaDokusuOnbellek: THREE.CanvasTexture | null = null;
-function tabelaDokusu() {
-  if (tabelaDokusuOnbellek) return tabelaDokusuOnbellek;
-  const c = document.createElement('canvas');
-  c.width = 384;
-  c.height = 176;
-  const g = c.getContext('2d')!;
-  g.fillStyle = renk.mor;
-  g.fillRect(0, 0, 384, 176);
-  g.strokeStyle = renk.sari;
-  g.lineWidth = 10;
-  g.strokeRect(9, 9, 366, 158);
-  // Külah ve iki top
-  g.fillStyle = '#d9a35b';
-  g.beginPath();
-  g.moveTo(42, 84);
-  g.lineTo(90, 84);
-  g.lineTo(66, 150);
-  g.fill();
-  g.fillStyle = TOP_RENKLERI[0];
-  g.beginPath();
-  g.arc(56, 74, 17, 0, Math.PI * 2);
-  g.fill();
-  g.fillStyle = TOP_RENKLERI[2];
-  g.beginPath();
-  g.arc(76, 72, 17, 0, Math.PI * 2);
-  g.fill();
-  g.fillStyle = TOP_RENKLERI[1];
-  g.beginPath();
-  g.arc(66, 50, 16, 0, Math.PI * 2);
-  g.fill();
-  // Ad
-  g.textAlign = 'center';
-  g.textBaseline = 'middle';
-  g.fillStyle = renk.sari;
-  const yaz = (yazi: string, y: number, boy: number) => {
-    g.font = `800 ${boy}px Poppins, system-ui, sans-serif`;
-    while (g.measureText(yazi).width > 250 && boy > 20) g.font = `800 ${(boy -= 2)}px Poppins, system-ui, sans-serif`;
-    g.fillText(yazi, 236, y);
-  };
-  yaz(m('dukkan.adUst'), 64, 50);
-  yaz(m('dukkan.adAlt'), 118, 50);
-  tabelaDokusuOnbellek = new THREE.CanvasTexture(c);
-  tabelaDokusuOnbellek.colorSpace = THREE.SRGBColorSpace;
-  tabelaDokusuOnbellek.anisotropy = 4;
-  return tabelaDokusuOnbellek;
-}
 
 // Kara tahta: ölçülü tebeşir çizimleri (külah ve toplar, yazı yok)
 let karaTahtaDokusuOnbellek: THREE.CanvasTexture | null = null;
@@ -164,23 +114,32 @@ export function KaraTahta() {
 }
 
 export function IsikliTabela() {
-  const doku = useMemo(() => tabelaDokusu(), []);
+  const doku = useMemo(() => logoDokusu('kulahli'), []);
+  const gen = 0.92;
+  const yuk = gen / LOGO_DOSYALARI.kulahli.oran;
   return (
     <group>
       <mesh position={[0, 1.2, 0]} castShadow>
         <cylinderGeometry args={[0.05, 0.07, 2.4, 6]} />
         <meshStandardMaterial color={DEMIR} roughness={0.6} />
       </mesh>
-      <group position={[0, 2.55, 0]}>
+      <group position={[0, 2.75, 0]}>
+        {/* Sarı çerçeve, mor zemin (logonun asıl zemini mor ve sarı) */}
         <mesh castShadow>
-          <boxGeometry args={[1.4, 0.68, 0.14]} />
+          <boxGeometry args={[gen + 0.14, yuk + 0.14, 0.12]} />
           <meshStandardMaterial color={renk.sari} roughness={0.6} />
         </mesh>
         {[-1, 1].map((yon) => (
-          <mesh key={yon} position={[0, 0, yon * 0.075]} rotation={[0, yon < 0 ? Math.PI : 0, 0]}>
-            <planeGeometry args={[1.32, 0.6]} />
-            <meshStandardMaterial map={doku} emissive="#ffffff" emissiveMap={doku} emissiveIntensity={0.55} />
-          </mesh>
+          <group key={yon} rotation={[0, yon < 0 ? Math.PI : 0, 0]}>
+            <mesh position={[0, 0, 0.065]}>
+              <planeGeometry args={[gen + 0.04, yuk + 0.04]} />
+              <meshStandardMaterial color={renk.mor} emissive={renk.mor} emissiveIntensity={0.35} />
+            </mesh>
+            <mesh position={[0, 0, 0.07]}>
+              <planeGeometry args={[gen, yuk]} />
+              <meshBasicMaterial map={doku} transparent toneMapped={false} />
+            </mesh>
+          </group>
         ))}
       </group>
     </group>

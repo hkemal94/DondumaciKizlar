@@ -64,3 +64,7 @@ export function duvarModunuDegistir(): DuvarModu {
 
 // Çalışanı kişiselleştirirken kamera ona yakından bakar
 export const odak = { calisan: false };
+
+// Tezgah görünümünün dikliği (Kemal, 14 Ekim): vitrin iki sıra olunca kamera
+// biraz yukarıdan bakar, küvetler büyür. 0 = tek sıra, 1 = iki sıra.
+export const tezgahDikligi = { deger: 0 };

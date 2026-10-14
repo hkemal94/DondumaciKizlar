@@ -1236,3 +1236,14 @@ a.dugme {
   opacity: 0.85;
   z-index: 31;
 }
+
+/* Pencere başlıklarında küçük logo (Kemal, 14 Ekim) */
+.baslik-logo {
+  height: 34px;
+  width: auto;
+  display: block;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
+}
+.gun-sonu > .baslik-logo {
+  margin: 0 auto 2px;
+}

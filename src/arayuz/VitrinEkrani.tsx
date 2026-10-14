@@ -1,6 +1,7 @@
 import { otomatikVitrinSec, useDurum, vitrinDegistir } from '../oyun/durum';
 import { CESITLER } from '../oyun/kuvetler';
 import { m, type MetinAnahtari } from '../metinler';
+import { logoAdresi } from '../sahne/logo';
 
 // Gün başında vitrin seçimi (Kemal, 14 Ekim): açık çeşitlerden hangileri
 // bugün küvette olacak. Elle seçilir ya da "Otomatik" denir; otomatikte her
@@ -12,6 +13,7 @@ export function VitrinEkrani({ kapat }: { kapat: () => void }) {
     <div className="gun-sonu-zemin">
       <div className="gelistir vitrin-ekrani" role="dialog" aria-labelledby="vitrin-baslik">
         <div className="gel-ust">
+          <img className="baslik-logo" src={logoAdresi('yazi')} alt="" aria-hidden />
           <h2 id="vitrin-baslik">{m('vitrin.baslik')}</h2>
           <span className="vitrin-sayi">{m('vitrin.sayi', { sayi: durum.vitrin.length, boy: durum.vitrinBoyu })}</span>
         </div>

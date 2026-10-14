@@ -5,12 +5,19 @@ import { dolumHesapla, durumuOku, useDurum, type Susleme, type Top } from '../oy
 import { CESITLER, KUVET_Y, kuvetKonumu } from '../oyun/kuvetler';
 import { renk } from './renkler';
 import { TezgahtaGorunur } from './Dukkan';
+import { tezgahDikligi } from './kameraKarisimi';
 
 // Tezgah yakın planındaki hareketli parçalar: altlık (külah / kap),
 // kepçe ve dondurma topları. Eller yok (belge 7.1: önce elsiz denenir).
 
 // Küvetlerin üstünde, solda: küvetleri kapatmasın (Kemal, 13 Ekim)
 const ALTLIK_KONUM = new THREE.Vector3(-0.52, 1.74, 0.3);
+// Vitrin iki sıra olunca kamera dikleşir; altlık küvetlerin üstüne düşmesin diye
+// sola ve biraz ileri alınır (14 Ekim)
+const ALTLIK_DIK = new THREE.Vector3(-0.75, 1.8, -0.2);
+function altlikYeri(hedef: THREE.Vector3) {
+  return hedef.lerpVectors(ALTLIK_KONUM, ALTLIK_DIK, tezgahDikligi.deger);
+}
 const KEPCE_DURUS = new THREE.Vector3(0.6, 1.46, 0.1);
 
 // Topun yarıçapı dolumla büyür; MÜKEMMEL aralığı "tam top" boyu.
@@ -173,8 +180,12 @@ function Kap() {
 // Altlığın tutulduğu yer: ileride eller gelince kalkacak.
 // Altlığın tutulduğu halka (ileride eller gelince kalkacak)
 function AltlikStandi() {
+  const ref = useRef<THREE.Group>(null);
+  useFrame(() => {
+    if (ref.current) altlikYeri(ref.current.position);
+  });
   return (
-    <group position={ALTLIK_KONUM.toArray()}>
+    <group ref={ref} position={ALTLIK_KONUM.toArray()}>
       <mesh position={[0, -0.1, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[0.05, 0.007, 6, 16]} />
         <meshStandardMaterial color={renk.vitrinMetal} roughness={0.4} metalness={0.6} />
@@ -215,6 +226,7 @@ function AltlikVeToplar() {
   const durum = useDurum();
   const ref = useRef<THREE.Group>(null);
   const servisBasladi = useRef<number | null>(null);
+  const yer = useMemo(() => new THREE.Vector3(), []);
 
   useFrame((_, dt) => {
     const g = ref.current;
@@ -224,16 +236,16 @@ function AltlikVeToplar() {
       if (servisBasladi.current === null) servisBasladi.current = performance.now();
       const t = Math.min(1, (performance.now() - servisBasladi.current) / 900);
       if (durum.servisDogru) {
-        g.position.lerpVectors(ALTLIK_KONUM, new THREE.Vector3(0, 1.45, -1.3), t);
+        g.position.lerpVectors(altlikYeri(yer), new THREE.Vector3(0, 1.45, -1.3), t);
         g.scale.setScalar(1 - t * 0.6);
       } else {
         // Yanlış sipariş: dondurma kenara bırakılır (ceza yok)
-        g.position.lerpVectors(ALTLIK_KONUM, new THREE.Vector3(-1.1, 1.2, 0.1), t);
+        g.position.lerpVectors(altlikYeri(yer), new THREE.Vector3(-1.1, 1.2, 0.1), t);
         g.scale.setScalar(1 - t);
       }
     } else {
       servisBasladi.current = null;
-      g.position.lerp(ALTLIK_KONUM, 1 - Math.exp(-dt * 12));
+      g.position.lerp(altlikYeri(yer), 1 - Math.exp(-dt * 12));
       g.scale.setScalar(1);
     }
   });
