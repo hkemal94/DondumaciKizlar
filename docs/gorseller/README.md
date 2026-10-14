@@ -9,6 +9,7 @@ Belgeyle çelişen yerde `docs/tasarim-belgesi.md` geçerli.
 | `taslak-1-izometrik-dukkan.jpg` | Dükkânın izometrik genel görünümü, müşteri sırası | 2.1, 2.2 |
 | `taslak-2-tezgah-yakin-plan.jpg` | Tezgahın arkasından yakın plan, kepçe mini oyunu | 2.3, 3 |
 | `taslak-3-yetenek-menu.jpg` | Çeşitler, tarif ağacı, fiyat ve dekorasyon menüsü | 2.4, 4 |
+| `kroki-liman.webp` | Kemal'in Düzada haritasından (KKM) dükkânın çevresi: sahil yolu, kum, T biçimli iskele, mendirek (14 Ekim). Ölçek çubuğu 100 m | 5 |
 
 ## Görsellerden alınmayacaklar
 
@@ -28,3 +29,15 @@ Belgeyle çelişen yerde `docs/tasarim-belgesi.md` geçerli.
 Not: Taslak 2'deki kalite hazır ücretsiz paketlerle (Kenney, Quaternius)
 yakalanmaz; ilk sürüm daha sade görünecek. Külah ve kepçe tutan eller hazır
 pakette yok, sonra özel model ister.
+
+## Logo (Kemal, 14 Ekim)
+
+Oyunda kullanılan dosyalar `public/gorseller/` altında:
+
+| Dosya | Ne |
+|---|---|
+| `logo-kulahli.webp` | Külahın önünde "Dondurmacı Kızlar" yazısı (saydam zemin) |
+| `logo-yazi.webp` | Yalnız yazı (saydam zemin) |
+
+Logonun renkleri kırmızı ve krem; kanonda logo renkleri mor ve sarı yazıyordu.
+Hangisinin geçerli olduğu Kemal'e soruldu.
