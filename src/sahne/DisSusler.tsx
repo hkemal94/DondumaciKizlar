@@ -2,51 +2,63 @@ import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { renk } from './renkler';
+import { m } from '../metinler';
 
 // Dükkânın dışı için süsler (Kemal, 14 Ekim: "tabela benzeri ürünler").
 // Kodla çizilmiş geçici parçalar. Hepsi ön yüzünü denize / kameraya
-// (−z) çevirir. Tabelalarda yazı yok: yalnız dondurma çizimleri.
+// (−z) çevirir. Işıklı tabelada dükkânın adı var (14 Ekim); kara tahtada
+// yazı yok, yalnız dondurma çizimleri.
 
 const DEMIR = '#3d3a45';
 const TOP_RENKLERI = ['#ff6f7d', '#8a4b2e', '#5fd08a', '#fff0c8'];
 
-// Tabela yüzü: mor zemin, ortada sarı halkanın içinde külah ve iki top
+// Tabela yüzü (Kemal, 14 Ekim: "adı yazılsın"): mor zemin, solda külah,
+// sağda dükkânın adı iki satır
 let tabelaDokusuOnbellek: THREE.CanvasTexture | null = null;
 function tabelaDokusu() {
   if (tabelaDokusuOnbellek) return tabelaDokusuOnbellek;
   const c = document.createElement('canvas');
-  c.width = 192;
-  c.height = 128;
+  c.width = 384;
+  c.height = 176;
   const g = c.getContext('2d')!;
   g.fillStyle = renk.mor;
-  g.fillRect(0, 0, 192, 128);
+  g.fillRect(0, 0, 384, 176);
   g.strokeStyle = renk.sari;
-  g.lineWidth = 8;
-  g.strokeRect(8, 8, 176, 112);
-  g.fillStyle = '#fff4d6';
-  g.beginPath();
-  g.arc(96, 64, 44, 0, Math.PI * 2);
-  g.fill();
+  g.lineWidth = 10;
+  g.strokeRect(9, 9, 366, 158);
+  // Külah ve iki top
   g.fillStyle = '#d9a35b';
   g.beginPath();
-  g.moveTo(78, 66);
-  g.lineTo(114, 66);
-  g.lineTo(96, 104);
+  g.moveTo(42, 84);
+  g.lineTo(90, 84);
+  g.lineTo(66, 150);
   g.fill();
   g.fillStyle = TOP_RENKLERI[0];
   g.beginPath();
-  g.arc(88, 58, 13, 0, Math.PI * 2);
+  g.arc(56, 74, 17, 0, Math.PI * 2);
   g.fill();
   g.fillStyle = TOP_RENKLERI[2];
   g.beginPath();
-  g.arc(104, 56, 13, 0, Math.PI * 2);
+  g.arc(76, 72, 17, 0, Math.PI * 2);
   g.fill();
   g.fillStyle = TOP_RENKLERI[1];
   g.beginPath();
-  g.arc(96, 42, 12, 0, Math.PI * 2);
+  g.arc(66, 50, 16, 0, Math.PI * 2);
   g.fill();
+  // Ad
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.fillStyle = renk.sari;
+  const yaz = (yazi: string, y: number, boy: number) => {
+    g.font = `800 ${boy}px Poppins, system-ui, sans-serif`;
+    while (g.measureText(yazi).width > 250 && boy > 20) g.font = `800 ${(boy -= 2)}px Poppins, system-ui, sans-serif`;
+    g.fillText(yazi, 236, y);
+  };
+  yaz(m('dukkan.adUst'), 64, 50);
+  yaz(m('dukkan.adAlt'), 118, 50);
   tabelaDokusuOnbellek = new THREE.CanvasTexture(c);
   tabelaDokusuOnbellek.colorSpace = THREE.SRGBColorSpace;
+  tabelaDokusuOnbellek.anisotropy = 4;
   return tabelaDokusuOnbellek;
 }
 
@@ -161,12 +173,12 @@ export function IsikliTabela() {
       </mesh>
       <group position={[0, 2.55, 0]}>
         <mesh castShadow>
-          <boxGeometry args={[1.0, 0.7, 0.14]} />
+          <boxGeometry args={[1.4, 0.68, 0.14]} />
           <meshStandardMaterial color={renk.sari} roughness={0.6} />
         </mesh>
         {[-1, 1].map((yon) => (
           <mesh key={yon} position={[0, 0, yon * 0.075]} rotation={[0, yon < 0 ? Math.PI : 0, 0]}>
-            <planeGeometry args={[0.9, 0.6]} />
+            <planeGeometry args={[1.32, 0.6]} />
             <meshStandardMaterial map={doku} emissive="#ffffff" emissiveMap={doku} emissiveIntensity={0.55} />
           </mesh>
         ))}

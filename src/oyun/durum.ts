@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 
-import { BASLANGIC_CESITLERI, CESITLER } from './kuvetler';
+import { BASLANGIC_CESITLERI, CESITLER, EN_BUYUK_VITRIN, ILK_VITRIN, VITRIN_BUYUTMELERI } from './kuvetler';
 import { BOLGELER, EN_YUKSEK_ISIK, ESYALAR, HUCRELER, ISIK_SEVIYELERI, type Bolge, type Esya } from './dekorasyon';
 import {
   AD_EN_UZUN,
@@ -99,6 +99,14 @@ export interface Durum {
   kamera: Kamera;
   // İlerleme (belge 2.4 ve 4): kayıtta saklanır
   acikCesitler: number[];
+  // Vitrin (Kemal, 14 Ekim): açık çeşitlerden hangileri bugün küvette.
+  // Müşteriler yalnız vitrindekileri ister.
+  vitrin: number[];
+  vitrinBoyu: number;
+  otomatikVitrin: boolean; // her sabah dünün en çok satanları + bir yeni
+  satislar: number[]; // bugün çeşit başına satılan top (kaydedilmez)
+  dunkuSatislar: number[];
+  enIyiOrtalama: number; // ulaşılan en yüksek memnuniyet ortalaması (özel çeşitler için)
   acikAltliklar: Altlik[];
   tepsiAcik: boolean;
   fiyatSeviyesi: FiyatSeviyesi;
@@ -170,6 +178,12 @@ let durum: Durum = {
   gunluk: bosOzet(),
   kamera: 'dukkan',
   acikCesitler: [...BASLANGIC_CESITLERI],
+  vitrin: [...BASLANGIC_CESITLERI],
+  vitrinBoyu: ILK_VITRIN,
+  otomatikVitrin: false,
+  satislar: [],
+  dunkuSatislar: [],
+  enIyiOrtalama: 0,
   acikAltliklar: ['kulah', 'kap'],
   tepsiAcik: false,
   fiyatSeviyesi: 'normal',
@@ -315,7 +329,7 @@ function rastgeleDondurma(enCokTop: number, ikiSuslemeOlabilir: boolean): Omit<S
   }
   return {
     altlik: durum.acikAltliklar[Math.floor(Math.random() * durum.acikAltliklar.length)],
-    kuvetler: Array.from({ length: sayi }, () => durum.acikCesitler[Math.floor(Math.random() * durum.acikCesitler.length)]),
+    kuvetler: Array.from({ length: sayi }, () => durum.vitrin[Math.floor(Math.random() * durum.vitrin.length)]),
     susleme,
   };
 }
@@ -444,6 +458,12 @@ export function servisEt() {
       bildirim: { tur: 'para', miktar, zaman: simdi },
       para: durum.para + miktar,
       memnuniyetler: [...durum.memnuniyetler, puan],
+      satislar: butunToplar.reduce((s, t) => {
+        const yeni = [...s];
+        yeni[t.kuvet] = (yeni[t.kuvet] ?? 0) + 1;
+        return yeni;
+      }, durum.satislar),
+      enIyiOrtalama: enIyiOrtalamaHesapla([...durum.memnuniyetler, puan]),
       gunluk: {
         musteri: durum.gunluk.musteri + 1,
         kazanc: durum.gunluk.kazanc + miktar,
@@ -468,6 +488,15 @@ export function tepsiAc() {
   if (durum.tepsiAcik || durum.para < TEPSI_FIYATI) return;
   guncelle({ para: durum.para - TEPSI_FIYATI, tepsiAcik: true });
   kaydet();
+}
+
+// Özel çeşitlerin şartı: en az 10 müşteriden sonra ulaşılan en yüksek ortalama.
+// Bir kez ulaşılan eşik geri kapanmaz (ortalama düşse de).
+const ORTALAMA_EN_AZ = 10;
+function enIyiOrtalamaHesapla(puanlar: number[]) {
+  const son = puanlar.slice(-60);
+  if (son.length < ORTALAMA_EN_AZ) return durum.enIyiOrtalama;
+  return Math.max(durum.enIyiOrtalama, son.reduce((a, b) => a + b, 0) / son.length);
 }
 
 export function ortalamaMemnuniyet(d: Durum = durum): number | null {
@@ -548,7 +577,11 @@ export function saatYazisi(d: Durum = durum) {
 export function gunSonunuKapat() {
   if (!durum.gunSonu) return;
   birikenMs = 0;
+  const dunkuSatislar = durum.satislar;
   guncelle({
+    dunkuSatislar,
+    satislar: [],
+    ...(durum.otomatikVitrin ? { vitrin: otomatikVitrin(dunkuSatislar) } : {}),
     gun: durum.gun + 1,
     dakika: 0,
     acik: true,
@@ -642,9 +675,67 @@ function gelisCarpani() {
 
 export function cesitAc(cesit: number) {
   const c = CESITLER[cesit];
-  if (!c || durum.acikCesitler.includes(cesit) || durum.para < c.fiyat) return;
-  guncelle({ para: durum.para - c.fiyat, acikCesitler: [...durum.acikCesitler, cesit] });
+  if (!c || durum.acikCesitler.includes(cesit) || durum.para < c.fiyat || !cesitAlinabilir(cesit)) return;
+  // Vitrinde yer varsa yeni çeşit hemen küvete girer
+  const yerVar = durum.vitrin.length < durum.vitrinBoyu;
+  guncelle({
+    para: durum.para - c.fiyat,
+    acikCesitler: [...durum.acikCesitler, cesit],
+    ...(yerVar ? { vitrin: [...durum.vitrin, cesit] } : {}),
+  });
   kaydet();
+}
+
+// Özel çeşitler memnuniyet ortalaması eşiğe ulaşınca satın alınabilir
+export function cesitAlinabilir(cesit: number, d: Durum = durum) {
+  const c = CESITLER[cesit];
+  return !!c && (c.yildiz === undefined || d.enIyiOrtalama >= c.yildiz);
+}
+
+// ---- Vitrin (Kemal, 14 Ekim) ----
+export function sonrakiVitrin(d: Durum = durum) {
+  return VITRIN_BUYUTMELERI.find((b) => b.boy > d.vitrinBoyu) ?? null;
+}
+
+export function vitrinBuyut() {
+  const b = sonrakiVitrin();
+  if (!b || durum.para < b.fiyat) return;
+  // Yeni yerler açık çeşitlerle dolar
+  const ekler = durum.acikCesitler.filter((c) => !durum.vitrin.includes(c)).slice(0, b.boy - durum.vitrin.length);
+  guncelle({ para: durum.para - b.fiyat, vitrinBoyu: b.boy, vitrin: [...durum.vitrin, ...ekler] });
+  kaydet();
+}
+
+// Gün başında vitrine çeşit koy / çıkar. Elle seçince otomatik kapanır.
+export function vitrinDegistir(cesit: number) {
+  if (!durum.hazirlik || !durum.acikCesitler.includes(cesit)) return;
+  if (durum.vitrin.includes(cesit)) {
+    if (durum.vitrin.length <= 1) return; // vitrin boş kalmaz
+    guncelle({ vitrin: durum.vitrin.filter((c) => c !== cesit), otomatikVitrin: false });
+  } else {
+    if (durum.vitrin.length >= durum.vitrinBoyu) return;
+    guncelle({ vitrin: [...durum.vitrin, cesit], otomatikVitrin: false });
+  }
+  kaydet();
+}
+
+export function otomatikVitrinSec(acik: boolean) {
+  guncelle({ otomatikVitrin: acik, ...(acik && durum.hazirlik ? { vitrin: otomatikVitrin(durum.dunkuSatislar) } : {}) });
+  kaydet();
+}
+
+// Otomatik vitrin: dünün en çok satanları, bir yer de her gün farklı bir çeşide
+function otomatikVitrin(satislar: number[]) {
+  const acik = durum.acikCesitler;
+  const boy = Math.min(durum.vitrinBoyu, acik.length);
+  const karisik = [...acik].sort(() => Math.random() - 0.5);
+  const satanlar = [...karisik].filter((c) => (satislar[c] ?? 0) > 0).sort((a, b) => (satislar[b] ?? 0) - (satislar[a] ?? 0));
+  const secilen = satanlar.slice(0, Math.max(0, boy - 1));
+  // Bir yeni: dün vitrinde olmayanlardan, yoksa herhangi biri
+  const yeni = karisik.find((c) => !secilen.includes(c) && !durum.vitrin.includes(c)) ?? karisik.find((c) => !secilen.includes(c));
+  if (yeni !== undefined && secilen.length < boy) secilen.push(yeni);
+  for (const c of karisik) if (secilen.length < boy && !secilen.includes(c)) secilen.push(c);
+  return secilen;
 }
 
 export function kupAc() {
@@ -749,6 +840,11 @@ interface Kayit {
   gun: number;
   memnuniyetler: number[];
   acikCesitler: number[];
+  vitrin: number[];
+  vitrinBoyu: number;
+  otomatikVitrin: boolean;
+  dunkuSatislar: number[];
+  enIyiOrtalama: number;
   acikAltliklar: Altlik[];
   tepsiAcik: boolean;
   fiyatSeviyesi: FiyatSeviyesi;
@@ -768,6 +864,11 @@ function kaydet() {
     gun: durum.gun,
     memnuniyetler: durum.memnuniyetler.slice(-60),
     acikCesitler: durum.acikCesitler,
+    vitrin: durum.vitrin,
+    vitrinBoyu: durum.vitrinBoyu,
+    otomatikVitrin: durum.otomatikVitrin,
+    dunkuSatislar: durum.dunkuSatislar,
+    enIyiOrtalama: durum.enIyiOrtalama,
     acikAltliklar: durum.acikAltliklar,
     tepsiAcik: durum.tepsiAcik,
     fiyatSeviyesi: durum.fiyatSeviyesi,
@@ -797,6 +898,7 @@ export function kaydiYukle() {
       gun: typeof k.gun === 'number' ? k.gun : 1,
       memnuniyetler: Array.isArray(k.memnuniyetler) ? k.memnuniyetler : [],
       acikCesitler: acik.length ? acik : [...BASLANGIC_CESITLERI],
+      ...vitriniOku(k, acik.length ? acik : [...BASLANGIC_CESITLERI]),
       tepsiAcik: k.tepsiAcik === true,
       acikAltliklar: Array.isArray(k.acikAltliklar) && k.acikAltliklar.includes('kup') ? ['kulah', 'kap', 'kup'] : ['kulah', 'kap'],
       fiyatSeviyesi: k.fiyatSeviyesi && k.fiyatSeviyesi in FIYAT_ETKISI ? k.fiyatSeviyesi : 'normal',
@@ -806,6 +908,33 @@ export function kaydiYukle() {
   } catch {
     // Bozuk ya da okunamayan kayıt: baştan başlanır.
   }
+}
+
+// Vitrin: 14 Ekim'den önceki kayıtta yoktu; açık çeşitlerin hepsi vitrindeydi.
+// O dükkânın vitrini küçülmesin diye boyu açık çeşit sayısına göre açılır.
+function vitrinBoyuGecerli(n: unknown): n is number {
+  return typeof n === 'number' && (n === ILK_VITRIN || VITRIN_BUYUTMELERI.some((b) => b.boy === n));
+}
+
+function eskiOrtalama(puanlar: unknown) {
+  if (!Array.isArray(puanlar) || puanlar.length < ORTALAMA_EN_AZ) return 0;
+  const son = puanlar.slice(-60).filter((p): p is number => typeof p === 'number');
+  return son.length ? son.reduce((a, b) => a + b, 0) / son.length : 0;
+}
+
+function vitriniOku(k: Partial<Kayit>, acik: number[]) {
+  const vitrinBoyu = vitrinBoyuGecerli(k.vitrinBoyu)
+    ? k.vitrinBoyu
+    : Math.min(EN_BUYUK_VITRIN, Math.max(ILK_VITRIN, acik.length + (acik.length % 2)));
+  const kayitli = Array.isArray(k.vitrin) ? k.vitrin.filter((c, i, t) => acik.includes(c) && t.indexOf(c) === i).slice(0, vitrinBoyu) : [];
+  const sayilar = (x: unknown) => (Array.isArray(x) ? x.map((n) => (typeof n === 'number' ? n : 0)) : []);
+  return {
+    vitrinBoyu,
+    vitrin: kayitli.length ? kayitli : acik.slice(0, vitrinBoyu),
+    otomatikVitrin: k.otomatikVitrin === true,
+    dunkuSatislar: sayilar(k.dunkuSatislar),
+    enIyiOrtalama: typeof k.enIyiOrtalama === 'number' ? k.enIyiOrtalama : eskiOrtalama(k.memnuniyetler),
+  };
 }
 
 function dekorasyonuOku(k: Partial<Kayit>) {
@@ -844,6 +973,12 @@ export function bastanBasla() {
     gun: 1,
     memnuniyetler: [],
     acikCesitler: [...BASLANGIC_CESITLERI],
+    vitrin: [...BASLANGIC_CESITLERI],
+    vitrinBoyu: ILK_VITRIN,
+    otomatikVitrin: false,
+    satislar: [],
+    dunkuSatislar: [],
+    enIyiOrtalama: 0,
     acikAltliklar: ['kulah', 'kap'],
     tepsiAcik: false,
     tepsi: [],

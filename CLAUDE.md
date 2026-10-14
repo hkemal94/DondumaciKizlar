@@ -48,7 +48,7 @@ Burada ve belgede yazmayan bir coğrafi, tarihî ya da kurumsal bilgiyi
 
 ## Henüz kararı verilmemiş — sor, seçme
 
-- İlk sürümde kaç dondurma çeşidi, kaç müşteri tipi.
+- Kaç müşteri tipi (çeşit: 14 Ekim'de 29 çeşit kararlaştırıldı, belge bölüm 0).
 - Para modelinin ayrıntıları (14 Ekim: makyaj paketleri satılabilir; gerisi açık).
 - Karakter ve mekân adları — hepsi Kemal'in. Aday önerebilirsin.
 
