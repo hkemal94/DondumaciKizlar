@@ -13,7 +13,9 @@ import {
   type Esya,
 } from '../oyun/dekorasyon';
 import { renk } from './renkler';
-import { Bank, Bisiklet, CicekKasasi, CopKutusu, Flama, IsikliTabela, KaraTahta, KulahFiguru, SokakLambasi } from './DisSusler';
+import { HazirModel } from './HazirModel';
+import type { Boya } from './tasarimDili';
+import { Bisiklet, CicekKasasi, Flama, IsikliTabela, KaraTahta, KulahFiguru, SokakLambasi } from './DisSusler';
 
 // Dekorasyon (belge bölüm 4; 13 Ekim): ışıklandırma seviyeleri ve
 // oyuncunun kareli zemine yerleştirdiği taşınabilir eşyalar.
@@ -38,41 +40,6 @@ function Fener({ konum }: { konum: [number, number, number] }) {
   );
 }
 
-function Masa({ olcek = 1 }: { olcek?: number }) {
-  return (
-    <group scale={olcek}>
-      <mesh position={[0, 0.72, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[0.45, 0.45, 0.05, 12]} />
-        <meshStandardMaterial color={renk.ahsapAcik} roughness={0.8} />
-      </mesh>
-      <mesh position={[0, 0.36, 0]}>
-        <cylinderGeometry args={[0.05, 0.08, 0.72, 6]} />
-        <meshStandardMaterial color={renk.ahsapKoyu} />
-      </mesh>
-      {[-0.62, 0.62].map((x) => (
-        <group key={x} position={[x, 0, 0]} rotation={[0, x > 0 ? -Math.PI / 2 : Math.PI / 2, 0]}>
-          <mesh position={[0, 0.45, 0]} castShadow>
-            <boxGeometry args={[0.42, 0.05, 0.42]} />
-            <meshStandardMaterial color={renk.mor} roughness={0.8} />
-          </mesh>
-          <mesh position={[0, 0.72, -0.19]} castShadow>
-            <boxGeometry args={[0.42, 0.5, 0.05]} />
-            <meshStandardMaterial color={renk.mor} roughness={0.8} />
-          </mesh>
-          {[-0.17, 0.17].map((a) =>
-            [-0.17, 0.17].map((b) => (
-              <mesh key={`${a}${b}`} position={[a, 0.22, b]}>
-                <boxGeometry args={[0.04, 0.45, 0.04]} />
-                <meshStandardMaterial color={renk.ahsapKoyu} />
-              </mesh>
-            )),
-          )}
-        </group>
-      ))}
-    </group>
-  );
-}
-
 function Semsiye() {
   const dilimler = 8;
   return (
@@ -91,49 +58,42 @@ function Semsiye() {
   );
 }
 
-// Tek çiçek saksısı (taşınabilir)
-function TekSaksi() {
-  const renkler = ['#ff6f7d', '#ffc928', '#9b5fc9', '#fffaf2'];
+// Hazır paketlerden eşyalar (belge 0.7): masa Tiny Treats'ten, örtüsünün
+// kareleri bizim mor; sandalyeler eski masadaki yerlerinde (müşteri oturur).
+const MASA_ORTUSU: Boya[] = [['#3f7fc0', renk.mor, 38]];
+const MINDER: Boya[] = [['#f9a39e', renk.mor, 40]];
+function KafeMasasi() {
   return (
     <group>
-      <mesh position={[0, 0.22, 0]} castShadow>
-        <cylinderGeometry args={[0.3, 0.22, 0.44, 8]} />
-        <meshStandardMaterial color="#d9825b" roughness={0.9} flatShading />
-      </mesh>
-      {Array.from({ length: 8 }, (_, i) => {
-        const a = (i / 8) * Math.PI * 2;
-        return (
-          <group key={i} position={[Math.cos(a) * 0.16, 0.5 + (i % 3) * 0.06, Math.sin(a) * 0.16]}>
-            <mesh>
-              <icosahedronGeometry args={[0.12, 0]} />
-              <meshStandardMaterial color="#6aa84f" roughness={0.9} flatShading />
-            </mesh>
-            <mesh position={[0, 0.11, 0]}>
-              <icosahedronGeometry args={[0.07, 0]} />
-              <meshStandardMaterial color={renkler[i % renkler.length]} roughness={0.7} flatShading />
-            </mesh>
-          </group>
-        );
-      })}
+      <HazirModel yol="pastane/table_round_B" ayar={{ grup: 'dukkan', yukseklik: 0.72, boya: MASA_ORTUSU }} />
+      {[-0.53, 0.53].map((x) => (
+        <HazirModel
+          key={x}
+          yol="pastane/chair"
+          ayar={{ grup: 'dukkan', yukseklik: 0.85 }}
+          konum={[x, 0, 0]}
+          donus={x > 0 ? -Math.PI / 2 : Math.PI / 2}
+        />
+      ))}
     </group>
   );
 }
 
 export function EsyaModeli({ esya }: { esya: Esya }) {
-  if (esya === 'saksi') return <TekSaksi />;
-  if (esya === 'masa') return <Masa olcek={0.85} />;
-  if (esya === 'bank') return <Bank />;
+  if (esya === 'saksi') return <HazirModel yol="mobilya/pottedPlant" ayar={{ grup: 'dukkan', yukseklik: 0.95 }} />;
+  if (esya === 'masa') return <KafeMasasi />;
+  if (esya === 'bank') return <HazirModel yol="mobilya/benchCushion" ayar={{ grup: 'dukkan', en: 1.15, boya: MINDER }} donus={Math.PI} />;
   if (esya === 'karaTahta') return <KaraTahta />;
   if (esya === 'isikliTabela') return <IsikliTabela />;
   if (esya === 'kulahFiguru') return <KulahFiguru />;
   if (esya === 'flama') return <Flama />;
   if (esya === 'cicekKasasi') return <CicekKasasi />;
   if (esya === 'bisiklet') return <Bisiklet />;
-  if (esya === 'copKutusu') return <CopKutusu />;
+  if (esya === 'copKutusu') return <HazirModel yol="mobilya/trashcan" ayar={{ grup: 'dukkan', yukseklik: 0.8 }} />;
   if (esya === 'sokakLambasi') return <SokakLambasi />;
   return (
     <group>
-      <Masa olcek={0.85} />
+      <KafeMasasi />
       <Semsiye />
     </group>
   );
