@@ -8,9 +8,9 @@ import { parcaYerleri } from '../oyun/makine';
 import { BANK_OTURAKLARI } from './DisSusler';
 import { Parcaciklar } from './Efektler';
 import { rastgeleVaryant } from './karakterler';
-import { KenneyKarakter, type Hareket } from './KenneyKarakter';
+import { InsanKarakter, type Hareket } from './InsanKarakter';
 
-// Tezgah önünde sıraya giren müşteriler (iş sırası 3). Kenney Mini Characters
+// Tezgah önünde sıraya giren müşteriler (iş sırası 3). Quaternius Ultimate Modular Women + Men (belge 0.9)
 // (CC0) üzerine her müşteri için farklı baş, gövde, renk ve aksesuar
 // (Kemal, 14 Ekim). Adları, hikâyeleri yok.
 
@@ -95,10 +95,10 @@ const OTURMA_OLASILIGI = 0.6;
 const OTURMA_SURESI: [number, number] = [10, 16]; // saniye
 const SANDALYE_ARALIGI = 0.62 * 0.85; // Dekorlar'daki masa ölçüsü
 const OTURAK_Y = 0.4; // sandalye oturağının masa zeminine göre yüksekliği
-// Kenney karakterinde oturma hareketindeki kalça yüksekliği (ölçekli) ve baş üstü
-const KENNEY_KALCA = 0.12;
-const BAS_USTU = 1.3;
-const BALON_YUKSEKLIGI = 1.05;
+// Baş üstü ve balonun yüksekliği: insanlar ~1,70 m (belge 0.9). Oturunca
+// karakter kalçası bu yüksekliğe gelecek kadar kendisi iner (InsanKarakter)
+const BAS_USTU = 1.9;
+const BALON_YUKSEKLIGI = 1.5;
 
 interface Koltuk {
   anahtar: string;
@@ -204,7 +204,7 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
       grup.rotation.y = k.bakis;
       // Kalça sandalyenin oturağına gelsin
       hareket.current = 'otur';
-      ic.position.y = OTURAK_Y - KENNEY_KALCA;
+      ic.position.y = OTURAK_Y + 0.05;
       kalanOturma.current -= dt;
       if (kalanOturma.current <= 0) {
         doluKoltuklar.delete(k.anahtar);
@@ -269,7 +269,7 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
   return (
     <group ref={ref} name={`musteri-${musteri.id}`} position={baslangic.toArray()}>
       <group ref={icRef}>
-        <KenneyKarakter varyant={varyant} hareket={hareket} />
+        <InsanKarakter varyant={varyant} hareket={hareket} />
       </group>
       {/* Sıkılıp giden müşterinin başında küçük gri bulut (14 Ekim) */}
       <group position={[0, BAS_USTU, 0]}>

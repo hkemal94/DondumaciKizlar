@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { aksesuarAl, aksesuarDegistir, calisaniDegistir, onlukAl, useDurum } from '../oyun/durum';
-import { AD_EN_UZUN, AKSESUARLAR, ONLUKLER, SAC_MODELLERI, SAC_RENKLERI, TENLER } from '../oyun/calisan';
+import { AD_EN_UZUN, AKSESUARLAR, BEDEN_SECENEKLERI, ONLUKLER, SAC_MODELLERI, SAC_RENKLERI, TENLER } from '../oyun/calisan';
 import { m, type MetinAnahtari } from '../metinler';
 import { logoAdresi } from '../sahne/logo';
 import { odak } from '../sahne/kameraKarisimi';
@@ -49,6 +49,18 @@ export function CalisanEkrani({ kapat }: { kapat: () => void }) {
             onChange={(e) => calisaniDegistir({ ad: e.target.value })}
           />
         </label>
+
+        {/* Beden (belge 0.9): oyuncu seçer */}
+        <div className="calisan-satir">
+          <span className="gel-baslik">{m('calisan.beden')}</span>
+          <div className="secenek-cipleri">
+            {BEDEN_SECENEKLERI.map((b) => (
+              <button key={b} className={`cip ${c.beden === b ? 'secili' : ''}`} onClick={() => calisaniDegistir({ beden: b })}>
+                {m(`beden.${b}` as MetinAnahtari)}
+              </button>
+            ))}
+          </div>
+        </div>
 
         <div className="calisan-satir">
           <span className="gel-baslik">{m('calisan.ten')}</span>

@@ -2260,6 +2260,7 @@ function calisaniOku(k: Partial<Kayit>): Pick<Durum, 'calisan' | 'acikOnlukler' 
     acikAksesuarlar,
     calisan: {
       ad: typeof c.ad === 'string' ? c.ad.slice(0, AD_EN_UZUN) : '',
+      beden: c.beden === 'erkek' ? 'erkek' : 'kadin',
       ten: typeof c.ten === 'number' && TENLER[c.ten] ? c.ten : VARSAYILAN_CALISAN.ten,
       sac: SAC_MODELLERI.includes(c.sac as never) ? (c.sac as CalisanGorunumu['sac']) : VARSAYILAN_CALISAN.sac,
       sacRengi: typeof c.sacRengi === 'number' && SAC_RENKLERI[c.sacRengi] ? c.sacRengi : VARSAYILAN_CALISAN.sacRengi,

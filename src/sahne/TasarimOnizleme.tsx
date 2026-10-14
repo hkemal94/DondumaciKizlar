@@ -1,4 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { InsanKarakter, type Hareket } from './InsanKarakter';
+import { HazirModel } from './HazirModel';
+import { rastgeleVaryant } from './karakterler';
 import { Canvas, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { renk } from './renkler';
@@ -127,7 +130,52 @@ export function TasarimOnizleme({ adres }: { adres: string }) {
         <meshStandardMaterial color={renk.kum} roughness={0.95} />
       </mesh>
       <gridHelper args={[80, 80, '#c9b9a3', '#d8c6a6']} position={[0, 0.002, 0]} />
-      <Dizi paket={paket} ham={ham} />
+      {paket.startsWith('insan') ? <InsanlarOnizleme /> : <Dizi paket={paket} ham={ham} />}
     </Canvas>
+  );
+}
+
+// İnsanlar (yalnız geliştirirken, belge 0.9): #tasarim=insan adresinde
+// rastgele müşteriler, aksesuarlılar ve sandalyede oturan biri
+function InsanlarOnizleme() {
+  const { camera } = useThree();
+  useEffect(() => {
+    // #tasarim=insan-yan: yalnız oturan karakter, yandan yakın
+    if (location.hash.endsWith('-yuz')) {
+      // İkinci karakterin tam önünden (gözlük ve küpe ortada mı)
+      camera.position.set(-1.52, 1.5, 1.6);
+      camera.lookAt(-1.52, 1.45, 0);
+    } else if (location.hash.endsWith('-yan')) {
+      camera.position.set(-3.6, 0.9, 2.6);
+      camera.lookAt(-3.6, 0.7, 0);
+    } else {
+      camera.position.set(0, 1.9, 7.2);
+      camera.lookAt(0, 0.95, 0);
+    }
+  }, [camera]);
+  const dur = useRef<Hareket>('dur');
+  const otur = useRef<Hareket>('otur');
+  const varyantlar = useMemo(
+    () => [3, 8, 11, 17, 22, 40].map((t, i) => ({ ...rastgeleVaryant(t), aksesuarlar: [(['gozluk', 'gunesGozlugu', 'hasirSapka', 'kupe', 'bandana', 'kasket'] as const)[i]] })),
+    [],
+  );
+  return (
+    <>
+      {varyantlar.map((v, i) => (
+        <group key={i} position={[(i - 2.6) * 0.95, 0, 0]}>
+          <InsanKarakter varyant={v} hareket={dur} />
+        </group>
+      ))}
+      {/* Yandan: oturma duruşu */}
+      <group position={[-3.6, 0.45, 0]} rotation={[0, Math.PI / 2, 0]}>
+        <InsanKarakter varyant={rastgeleVaryant(9)} hareket={otur} />
+      </group>
+      <group position={[2.9, 0, 0]} rotation={[0, -Math.PI / 2, 0]}>
+        <HazirModel yol="pastane/chair" ayar={{ grup: 'dukkan', yukseklik: 0.85 }} donus={Math.PI} />
+        <group position={[0, 0.45, 0]}>
+          <InsanKarakter varyant={rastgeleVaryant(5)} hareket={otur} />
+        </group>
+      </group>
+    </>
   );
 }

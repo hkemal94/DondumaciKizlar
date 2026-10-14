@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { durumuOku, makineDolumu, pismeOrani, useDurum, yardimciCalisiyor } from '../oyun/durum';
 import { ICECEKLER, ICECEK_RENGI, parcaYerleri, type Icecek, type ParcaYeri, type Yardimci } from '../oyun/makine';
 import { renk } from './renkler';
-import { KenneyKarakter, type Hareket } from './KenneyKarakter';
+import { InsanKarakter, type Hareket } from './InsanKarakter';
 import { rastgeleVaryant } from './karakterler';
 
 // Tezgah parçaları (belge 0.5, 0.6): tezgah bölümünün uçlarına eklenen waffle
@@ -307,8 +307,8 @@ function YardimciKarakter({ y, x }: { y: Yardimci; x: number }) {
     hareket.current = yardimciCalisiyor(y.id) ? 'calis' : 'dur';
   });
   return (
-    <group position={[x, 0.12, 0.75]} rotation={[0, Math.PI, 0]} scale={1.18}>
-      <KenneyKarakter varyant={varyant} hareket={hareket} />
+    <group position={[x, 0, 0.75]} rotation={[0, Math.PI, 0]}>
+      <InsanKarakter varyant={varyant} hareket={hareket} />
     </group>
   );
 }
