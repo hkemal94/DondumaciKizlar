@@ -450,37 +450,50 @@ function UstBilgi() {
   );
 }
 
-// Genel görünümde kamera (Kemal, 14 Ekim: "360 döndürme ve aşağı yukarı
-// bakma, her yerde"): tek parmak döndürür (sağa sola) ve eğer (aşağı yukarı);
-// iki parmak kaydırır, sıkıştır / aç yakınlaştırır. Farede sol tuş döndürür,
-// sağ tuş kaydırır, tekerlek yakınlaştırır.
+// Genel görünümde kamera (Kemal, 14 Ekim, alışılmış harita düzeni):
+// - tek parmak: kaydırır (açı değişmez, dükkândan uzaklaşamaz)
+// - iki parmak açıp kapama: yakınlaştırır (sınırlı, yumuşak)
+// - iki parmağı çevirmek: dükkânın çevresinde döndürür
+// - iki parmakla birlikte yukarı aşağı sürüklemek: eğer
+// İki parmakta hareketler karışmasın diye: hangi hareket önce belirgin
+// olursa o parmaklar kalkana dek yalnız o çalışır.
+// Farede sol tuş kaydırır, sağ tuş döndürür (sağa sola) ve eğer (yukarı
+// aşağı), tekerlek yakınlaştırır.
+type IkiParmak = 'bekliyor' | 'yakinlik' | 'donme' | 'egim';
+const KARAR_ESIGI = 14; // piksel: bundan küçük kıpırtı karar verdirmez
+
 function useYakinlastirma(etkin: boolean) {
   useEffect(() => {
     if (!etkin) return;
     const parmaklar = new Map<number, { x: number; y: number }>();
-    let oncekiAralik = 0;
     let onceki: { x: number; y: number } | null = null;
     let sagTus = false;
+    // İki parmak: başlangıçtaki ve bir önceki aralık, açı, orta nokta
+    let ikiParmak: IkiParmak = 'bekliyor';
+    let ilk = { aralik: 0, aci: 0, orta: { x: 0, y: 0 } };
+    let son = { aralik: 0, aci: 0, orta: { x: 0, y: 0 } };
     // Oyun dik telefonda çevrilmiş olabilir: ekrandaki noktayı oyunun yatay ekranına çevir
-    const oyunda = (p: { x: number; y: number }) =>
-      window.matchMedia('(orientation: portrait)').matches ? { x: p.y, y: window.innerWidth - p.x } : p;
-    const ekranYuksekligi = () => (window.matchMedia('(orientation: portrait)').matches ? window.innerWidth : window.innerHeight);
-    const orta = () => {
+    const dik = () => window.matchMedia('(orientation: portrait)').matches;
+    const oyunda = (p: { x: number; y: number }) => (dik() ? { x: p.y, y: window.innerWidth - p.x } : p);
+    const ekranYuksekligi = () => (dik() ? window.innerWidth : window.innerHeight);
+    const ikiParmakOlc = () => {
       const [a, b] = [...parmaklar.values()].map(oyunda);
-      return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      return {
+        aralik: Math.hypot(a.x - b.x, a.y - b.y),
+        aci: Math.atan2(b.y - a.y, b.x - a.x),
+        orta: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 },
+      };
     };
-    const aralik = () => {
-      const [a, b] = [...parmaklar.values()];
-      return Math.hypot(a.x - b.x, a.y - b.y);
-    };
+    // Açı farkını -π..π aralığına getirir (tam tur atlamasın)
+    const aciFarki = (a: number, b: number) => Math.atan2(Math.sin(a - b), Math.cos(a - b));
     const bas = (e: PointerEvent) => {
       // Panel, düğme ya da yazı kutusunun üstünde başlayan kaydırma görüntüyü oynatmaz
       if ((e.target as HTMLElement | null)?.closest('button, input, .calisan-panel, .gelistir, .gun-sonu')) return;
       parmaklar.set(e.pointerId, { x: e.clientX, y: e.clientY });
       sagTus = e.pointerType === 'mouse' && e.button === 2;
       if (parmaklar.size === 2) {
-        oncekiAralik = aralik();
-        onceki = orta();
+        ikiParmak = 'bekliyor';
+        ilk = son = ikiParmakOlc();
       } else onceki = oyunda({ x: e.clientX, y: e.clientY });
     };
     const oynat = (e: PointerEvent) => {
@@ -490,22 +503,34 @@ function useYakinlastirma(etkin: boolean) {
         const simdi = oyunda({ x: e.clientX, y: e.clientY });
         const dx = simdi.x - onceki.x;
         const dy = simdi.y - onceki.y;
-        if (sagTus) ekrandaKaydir(dx, dy, ekranYuksekligi());
-        else dondur(-dx * 0.008, dy * 0.006);
+        if (sagTus) dondur(-dx * 0.008, dy * 0.006);
+        else ekrandaKaydir(dx, dy, ekranYuksekligi());
         onceki = simdi;
       }
-      if (parmaklar.size === 2 && onceki) {
-        const simdi = orta();
-        ekrandaKaydir(simdi.x - onceki.x, simdi.y - onceki.y, ekranYuksekligi());
-        onceki = simdi;
-        const yeni = aralik();
-        if (oncekiAralik > 0) yakinlikDegistir(oncekiAralik / yeni); // parmaklar açılınca yaklaşır
-        oncekiAralik = yeni;
+      if (parmaklar.size === 2) {
+        const simdi = ikiParmakOlc();
+        if (ikiParmak === 'bekliyor') {
+          // Başlangıçtan bu yana her hareketin piksel olarak büyüklüğü; en büyüğü kazanır
+          const acilma = Math.abs(simdi.aralik - ilk.aralik);
+          const cevrilme = Math.abs(aciFarki(simdi.aci, ilk.aci)) * (simdi.aralik / 2);
+          const surukleme = Math.abs(simdi.orta.y - ilk.orta.y);
+          const enBuyuk = Math.max(acilma, cevrilme, surukleme);
+          if (enBuyuk >= KARAR_ESIGI) {
+            ikiParmak = enBuyuk === acilma ? 'yakinlik' : enBuyuk === cevrilme ? 'donme' : 'egim';
+          }
+        } else if (ikiParmak === 'yakinlik' && simdi.aralik > 0) {
+          yakinlikDegistir(son.aralik / simdi.aralik); // parmaklar açılınca yaklaşır
+        } else if (ikiParmak === 'donme') {
+          dondur(aciFarki(simdi.aci, son.aci), 0); // parmaklar dönünce dükkân da onlarla döner
+        } else if (ikiParmak === 'egim') {
+          dondur(0, (simdi.orta.y - son.orta.y) * 0.006); // aşağı sürükleyince yukarıdan bakar
+        }
+        son = simdi;
       }
     };
     const kaldir = (e: PointerEvent) => {
       parmaklar.delete(e.pointerId);
-      oncekiAralik = 0;
+      ikiParmak = 'bekliyor';
       // Bir parmak kalırsa oradan yeniden başlar (zıplamasın)
       const kalan = [...parmaklar.values()][0];
       onceki = kalan ? oyunda(kalan) : null;
