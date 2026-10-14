@@ -95,14 +95,15 @@ export const VITRIN_BUYUTMELERI = [
   { boy: 8, fiyat: 600 },
   { boy: 10, fiyat: 1000 },
   { boy: 12, fiyat: 1500 },
-  // İkinci vitrin parçasıyla (belge 0.5)
+];
+export const EN_BUYUK_VITRIN = 12;
+// İkinci vitrin (0.5) kaldırıldı (0.6): o zaman alınmış 14–20 küvet büyütmelerinin parası geri verilir
+export const ESKI_VITRIN_BUYUTMELERI = [
   { boy: 14, fiyat: 1800 },
   { boy: 16, fiyat: 2200 },
   { boy: 18, fiyat: 2600 },
   { boy: 20, fiyat: 3000 },
 ];
-export const EN_BUYUK_VITRIN = 20;
-export const ILK_VITRIN_SINIRI = 12; // ana vitrine sığan; fazlası ikinci vitrinde
 
 export const KUVET_Y = 1.0; // küvet ağzının yüksekliği
 export const KUVET_Z = -0.62; // vitrinin ortası
@@ -147,15 +148,4 @@ export function kuvetKonumu(cesit: number, vitrin: number[]) {
 export function vitrinGenisligi(sayi: number) {
   const n = siradakiSayi(sayi);
   return n * (sayi > 6 ? ikiSiraAraligi(n) : kuvetAraligi(n)) + 0.34;
-}
-
-// Küvetin yeri, ikinci vitrin hesaba katılarak (belge 0.5): ilk 12 ana
-// vitrinde, fazlası tezgah bölümünün ortasına göre ikinciX'teki vitrinde
-export function kuvetYeri(cesit: number, vitrin: number[], ikinciX: number | null) {
-  const i = vitrin.indexOf(cesit);
-  if (i >= ILK_VITRIN_SINIRI && ikinciX !== null) {
-    const k = kuvetKonumu(cesit, vitrin.slice(ILK_VITRIN_SINIRI));
-    return { ...k, x: k.x + ikinciX, ikinci: true };
-  }
-  return { ...kuvetKonumu(cesit, vitrin.slice(0, ILK_VITRIN_SINIRI)), ikinci: false };
 }

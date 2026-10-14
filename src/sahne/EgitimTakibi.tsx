@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { durumuOku, ikinciVitrinX } from '../oyun/durum';
-import { KUVET_Y, kuvetYeri } from '../oyun/kuvetler';
+import { durumuOku } from '../oyun/durum';
+import { KUVET_Y, kuvetKonumu } from '../oyun/kuvetler';
 import { EL_BOYU, egitimEli } from '../arayuz/EgitimEli';
 import { tezgahOfseti } from './kameraKarisimi';
 
@@ -18,7 +18,7 @@ export function EgitimTakibi() {
       oge.style.opacity = '0';
       return;
     }
-    const k = kuvetYeri(egitimEli.kuvet, d.vitrin, ikinciVitrinX(d));
+    const k = kuvetKonumu(egitimEli.kuvet, d.vitrin);
     v.set(k.x + tezgahOfseti.x, KUVET_Y + 0.06, k.z + tezgahOfseti.z).project(camera);
     const y = ((1 - v.y) / 2) * size.height;
     oge.style.transform = `translate(${((v.x + 1) / 2) * size.width}px, ${y}px)`;

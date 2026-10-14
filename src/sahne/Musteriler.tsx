@@ -236,7 +236,7 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
         }
       }
     } else {
-      // Kendi sırasındaki yeri (dondurma ana sırada, waffle / limonata servis noktasında)
+      // Kendi sırasındaki yeri (dondurma ana sırada, waffle / içecek servis noktasında)
       const kuyruk = kuyrugu(m.urun);
       const sira = siradakiler(d, kuyruk).findIndex((x) => x.id === m.id);
       siraYeri(sira, hedef, kuyruk);

@@ -1,8 +1,8 @@
 import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { dolumHesapla, durumuOku, ikinciVitrinX, useDurum, type Susleme, type Top } from '../oyun/durum';
-import { CESITLER, KUVET_Y, kuvetYeri } from '../oyun/kuvetler';
+import { dolumHesapla, durumuOku, useDurum, type Susleme, type Top } from '../oyun/durum';
+import { CESITLER, KUVET_Y, kuvetKonumu } from '../oyun/kuvetler';
 import { renk } from './renkler';
 import { TezgahtaGorunur } from './Dukkan';
 import { tezgahDikligi } from './kameraKarisimi';
@@ -307,7 +307,7 @@ function Kepce() {
     if (d.asama === 'dolduruyor' && d.kepceKuvet !== null) {
       // Küvete daldır: aşağı inip hafifçe ileri geri sürüklenir
       const dolum = dolumHesapla(performance.now());
-      const yer = kuvetYeri(d.kepceKuvet, d.vitrin, ikinciVitrinX(d));
+      const yer = kuvetKonumu(d.kepceKuvet, d.vitrin);
       const k = { x: yer.x, renk: CESITLER[d.kepceKuvet].renk };
       hedef.set(k.x + Math.sin(clock.elapsedTime * 5) * 0.05 * yer.olcekZ, KUVET_Y + 0.07, yer.z + 0.08 * yer.olcekZ);
       topBoyu = dolum;

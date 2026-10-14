@@ -1,10 +1,13 @@
 import { useSyncExternalStore } from 'react';
 
-import { BASLANGIC_CESITLERI, CESITLER, EN_BUYUK_VITRIN, FIYAT_ARALIGI, ILK_VITRIN, ILK_VITRIN_SINIRI, makulFiyat, VITRIN_BUYUTMELERI } from './kuvetler';
+import { BASLANGIC_CESITLERI, CESITLER, EN_BUYUK_VITRIN, ESKI_VITRIN_BUYUTMELERI, FIYAT_ARALIGI, ILK_VITRIN, makulFiyat, VITRIN_BUYUTMELERI } from './kuvetler';
 import {
   EN_COK_YARDIMCI,
   ISTASYONLAR,
-  LIMONATA_FIYATI,
+  EN_COK_ICECEK,
+  ICECEKLER,
+  ICECEK_FIYATI,
+  IKINCI_VITRIN_IADESI,
   MAKINE_MUKEMMEL_EKI,
   MAKINE_SUSLEME_FIYATI,
   MUTFAK_FIYATI,
@@ -25,6 +28,7 @@ import {
   type ParcaTipi,
   type Pisme,
   type TezgahParcasi,
+  type Icecek,
   type WaffleSusleme,
   type Yardimci,
 } from './makine';
@@ -133,7 +137,7 @@ export interface Musteri {
   mutlu: boolean;
   gelisTarafi: 1 | -1; // iskelenin hangi ucundan geldi (1 = sağ, -1 = sol)
   gidisTarafi: 1 | -1;
-  // Belge 0.5: dondurma ana sıradan; waffle ve limonata ikinci servis noktasından
+  // Belge 0.5: dondurma ana sıradan; waffle ve içecek ikinci servis noktasından
   urun: Istasyon;
   makine: MakineSiparisi;
   vardi: boolean; // sıradaki yerine (tezgaha) vardı
@@ -228,22 +232,21 @@ export interface Durum {
   adaylar: Yardimci[]; // işe alma ekranındaki adaylar (kaydedilmez)
   yardimciIsleri: Record<number, { musteri: number; bitis: number }>; // yardımcı → elindeki sipariş (oyun dakikası)
   makine: MakineDurumu;
-  vitrinOdak: 0 | 1; // dondurma istasyonunda kamera ikinci vitrine bakıyor mu
-  makineFiyatlari: { waffle: number; limonata: number }; // oyuncunun koyduğu fiyat
+  makineFiyatlari: { waffle: number; icecek: number }; // oyuncunun koyduğu fiyat
 }
 
-// Waffle ve limonata yapımı (belge 0.5)
-export type MakineAsamasi = 'bos' | 'dokuluyor' | 'pisiyor' | 'acildi' | 'doluyor' | 'doldu' | 'servis';
+// Waffle yapımı (belge 0.5) ve içecek standı (0.6)
+export type MakineAsamasi = 'bos' | 'dokuluyor' | 'pisiyor' | 'acildi' | 'servis';
 export interface MakineDurumu {
   asama: MakineAsamasi;
   basladi: number; // basılı tutma / pişme başlangıcı (ms)
   sonuc: Sonuc | null; // hamur ya da bardak dolumu
   pisme: Pisme | null;
   susleme: WaffleSusleme[];
-  buz: boolean;
+  icecekler: Icecek[]; // içecek standında dolaptan alınanlar
 }
 function bosMakine(): MakineDurumu {
-  return { asama: 'bos', basladi: 0, sonuc: null, pisme: null, susleme: [], buz: false };
+  return { asama: 'bos', basladi: 0, sonuc: null, pisme: null, susleme: [], icecekler: [] };
 }
 
 // Yazısız el işaretli eğitim: ilk sipariş üç adım, sonra ilk kez görülenler
@@ -331,8 +334,7 @@ let durum: Durum = {
   adaylar: [],
   yardimciIsleri: {},
   makine: bosMakine(),
-  vitrinOdak: 0,
-  makineFiyatlari: { waffle: WAFFLE_FIYATI, limonata: LIMONATA_FIYATI },
+  makineFiyatlari: { waffle: WAFFLE_FIYATI, icecek: ICECEK_FIYATI },
   insaat: false,
   seciliParsel: null,
   yerlestirme: false,
@@ -531,7 +533,7 @@ export function ondekiMusteri(d: Durum = durum): Musteri | undefined {
 }
 
 // ---- İstasyonlar (belge 0.5) ----
-// Bir istasyon kurulu mu: dondurma hep; waffle ve limonata makinesi ve
+// Bir istasyon kurulu mu: dondurma hep; waffle makinesi / içecek standı ve
 // ikinci servis noktası tezgahta takılıysa
 export function istasyonKurulu(ist: Istasyon, d: Durum = durum) {
   if (ist === 'dondurma') return true;
@@ -556,10 +558,16 @@ function rastgeleUrun(): Istasyon {
   return acik[0] ?? 'dondurma';
 }
 
+// Waffle: 0–3 süsleme, gruplardan serbestçe (belge 0.6); içecek: 1–3 kutu, aynısı olabilir
 function rastgeleMakineSiparisi(): MakineSiparisi {
+  const z = Math.random();
+  const kac = z < 0.2 ? 0 : z < 0.6 ? 1 : z < 0.9 ? 2 : 3;
+  const karisik = [...WAFFLE_SUSLEMELERI].sort(() => Math.random() - 0.5);
+  const y = Math.random();
+  const icecekSayisi = Math.min(EN_COK_ICECEK, y < 0.65 ? 1 : y < 0.95 ? 2 : 3);
   return {
-    susleme: Math.random() < 0.6 ? WAFFLE_SUSLEMELERI[Math.floor(Math.random() * WAFFLE_SUSLEMELERI.length)] : null,
-    buz: Math.random() < 0.5,
+    susleme: karisik.slice(0, kac),
+    icecekler: Array.from({ length: icecekSayisi }, () => ICECEKLER[Math.floor(Math.random() * ICECEKLER.length)]),
   };
 }
 
@@ -886,7 +894,7 @@ export function guneBasla() {
 
 function gunuBaslat() {
   birikenMs = 0;
-  guncelle({ istasyonSecimi: false, makine: bosMakine(), yardimciIsleri: {}, vitrinOdak: 0 });
+  guncelle({ istasyonSecimi: false, makine: bosMakine(), yardimciIsleri: {} });
   guncelle({ hazirlik: false, sonrakiGelis: 0, yerlestirme: false, seciliEsya: null });
   kaydet();
 }
@@ -1022,14 +1030,8 @@ export function cesitAlinabilir(cesit: number, d: Durum = durum) {
 }
 
 // ---- Vitrin (Kemal, 14 Ekim) ----
-// 12'den fazla küvet için ikinci vitrin parçası gerekir (belge 0.5)
 export function sonrakiVitrin(d: Durum = durum) {
-  const b = VITRIN_BUYUTMELERI.find((x) => x.boy > d.vitrinBoyu) ?? null;
-  if (b && b.boy > ILK_VITRIN_SINIRI && !parcaTakiliMi('vitrin2', d)) return null;
-  return b;
-}
-export function ikinciVitrinGerek(d: Durum = durum) {
-  return d.vitrinBoyu >= ILK_VITRIN_SINIRI && !parcaTakiliMi('vitrin2', d) && VITRIN_BUYUTMELERI.some((x) => x.boy > d.vitrinBoyu);
+  return VITRIN_BUYUTMELERI.find((x) => x.boy > d.vitrinBoyu) ?? null;
 }
 
 export function vitrinBuyut() {
@@ -1467,9 +1469,9 @@ export function istasyonSeciminiKapat() {
   guncelle({ istasyonSecimi: false });
 }
 
-// ---- Waffle ve limonata (belge 0.5) ----
+// ---- Waffle (belge 0.5) ve içecek standı (0.6) ----
 export function makineDolumu(simdi: number, d: Durum = durum) {
-  if (d.makine.asama !== 'dokuluyor' && d.makine.asama !== 'doluyor') return 0;
+  if (d.makine.asama !== 'dokuluyor') return 0;
   const t = ((simdi - d.makine.basladi) / DOLUM_SURESI) % 2;
   return t <= 1 ? t : 2 - t;
 }
@@ -1482,27 +1484,30 @@ function makineGuncelle(m: Partial<MakineDurumu>) {
   guncelle({ makine: { ...durum.makine, ...m } });
 }
 
-// Ana düğme basılı tutulunca: hamur dökülür ya da bardak dolar
+// Ana düğme basılı tutulunca hamur dökülür
 export function makineBas() {
   if (durum.kamera !== 'tezgah' || !ondekiMusteri()) return;
   if (durum.istasyon === 'waffle' && durum.makine.asama === 'bos') {
     islemYapildi();
     makineGuncelle({ asama: 'dokuluyor', basladi: performance.now() });
-  } else if (durum.istasyon === 'limonata' && durum.makine.asama === 'bos') {
-    islemYapildi();
-    makineGuncelle({ asama: 'doluyor', basladi: performance.now() });
   }
 }
 
 export function makineBirak() {
-  const a = durum.makine.asama;
-  if (a !== 'dokuluyor' && a !== 'doluyor') return;
+  if (durum.makine.asama !== 'dokuluyor') return;
   islemYapildi();
   const sonuc = sonucBul(makineDolumu(performance.now()));
-  // Hamur dökülünce kapak kapanır, pişme başlar; bardak dolunca buz sırası
-  if (a === 'dokuluyor') makineGuncelle({ asama: 'pisiyor', sonuc, basladi: performance.now() });
-  else makineGuncelle({ asama: 'doldu', sonuc });
+  // Hamur dökülünce kapak kapanır, pişme başlar
+  makineGuncelle({ asama: 'pisiyor', sonuc, basladi: performance.now() });
   guncelle({ bildirim: { tur: 'top', sonuc, zaman: performance.now() } });
+}
+
+// İçecek standı: dolaptan bir içecek al (en çok 3; aynısı birden çok olabilir)
+export function icecekAl(i: Icecek) {
+  if (durum.istasyon !== 'icecek' || durum.makine.asama === 'servis' || !ondekiMusteri()) return;
+  if (durum.makine.icecekler.length >= EN_COK_ICECEK) return;
+  islemYapildi();
+  makineGuncelle({ icecekler: [...durum.makine.icecekler, i] });
 }
 
 // Waffle makinesinin kapağını aç: altın sarıda açmak en iyisi
@@ -1521,12 +1526,6 @@ export function waffleSusle(s: WaffleSusleme) {
   makineGuncelle({ susleme: var_ ? durum.makine.susleme.filter((x) => x !== s) : [...durum.makine.susleme, s] });
 }
 
-export function limonataBuz() {
-  if (durum.makine.asama !== 'doldu') return;
-  islemYapildi();
-  makineGuncelle({ buz: !durum.makine.buz });
-}
-
 // Baştan: yapılanı kenara koy (ceza yok)
 export function makineSifirla() {
   if (durum.makine.asama === 'servis') return;
@@ -1535,35 +1534,36 @@ export function makineSifirla() {
 }
 
 export function makineServisHazir(d: Durum = durum) {
-  return !!ondekiMusteri(d) && ((d.istasyon === 'waffle' && d.makine.asama === 'acildi') || (d.istasyon === 'limonata' && d.makine.asama === 'doldu'));
+  return !!ondekiMusteri(d) && ((d.istasyon === 'waffle' && d.makine.asama === 'acildi') || (d.istasyon === 'icecek' && d.makine.asama === 'bos' && d.makine.icecekler.length > 0));
 }
 
 const PISME_PUANI: Record<Pisme, number> = { altin: 5, soluk: 3, yanik: 2 };
 
-// Waffle ve limonatanın fiyatı: oyuncunun koyduğu × genel fiyat seviyesi
-export const MAKINE_FIYAT_ARALIGI: Record<'waffle' | 'limonata', [number, number]> = { waffle: [3, 14], limonata: [1, 8] };
-function makineFiyatiGecerli(u: 'waffle' | 'limonata', f: unknown) {
+// Waffle ve içeceğin fiyatı: oyuncunun koyduğu × genel fiyat seviyesi
+export type MakineUrunu = 'waffle' | 'icecek';
+export const MAKINE_FIYAT_ARALIGI: Record<MakineUrunu, [number, number]> = { waffle: [3, 14], icecek: [1, 6] };
+function makineFiyatiGecerli(u: MakineUrunu, f: unknown) {
   const [en, enCok] = MAKINE_FIYAT_ARALIGI[u];
   return typeof f === 'number' && Number.isInteger(f) && f >= en && f <= enCok ? f : null;
 }
-export function makineSatisFiyati(u: 'waffle' | 'limonata', d: Durum = durum) {
+export function makineSatisFiyati(u: MakineUrunu, d: Durum = durum) {
   return Math.max(1, Math.round(d.makineFiyatlari[u] * FIYAT_ETKISI[d.fiyatSeviyesi].fiyat));
 }
-export function makineFiyatiSec(u: 'waffle' | 'limonata', f: number) {
+export function makineFiyatiSec(u: MakineUrunu, f: number) {
   const g = makineFiyatiGecerli(u, f);
   if (g !== null) guncelle({ makineFiyatlari: { ...durum.makineFiyatlari, [u]: g } });
 }
 
 // Makine ürününün fiyatı ve memnuniyeti
 function makineSonucu(urun: Istasyon, m: MakineDurumu, istenen: MakineSiparisi) {
-  const dolumPuani = SONUC_PUANI[m.sonuc ?? 'kucuk'];
   if (urun === 'waffle') {
+    const dolumPuani = SONUC_PUANI[m.sonuc ?? 'kucuk'];
     const puan = (dolumPuani + PISME_PUANI[m.pisme ?? 'soluk']) / 2;
     const mukemmel = m.sonuc === 'mukemmel' && m.pisme === 'altin';
-    return { puan, miktar: makineSatisFiyati('waffle') + (istenen.susleme ? MAKINE_SUSLEME_FIYATI : 0) + (mukemmel ? MAKINE_MUKEMMEL_EKI : 0), mukemmel };
+    return { puan, miktar: makineSatisFiyati('waffle') + istenen.susleme.length * MAKINE_SUSLEME_FIYATI + (mukemmel ? MAKINE_MUKEMMEL_EKI : 0), mukemmel };
   }
-  const mukemmel = m.sonuc === 'mukemmel';
-  return { puan: dolumPuani, miktar: makineSatisFiyati('limonata') + (mukemmel ? MAKINE_MUKEMMEL_EKI : 0), mukemmel };
+  // İçecek: doğru verildiyse tam memnuniyet; tanesi fiyat
+  return { puan: 5, miktar: makineSatisFiyati('icecek') * istenen.icecekler.length, mukemmel: false };
 }
 
 function musteriyiUgurla(id: number, miktar: number, puan: number, mukemmel: boolean, ek: Partial<Durum> = {}) {
@@ -1589,16 +1589,10 @@ export function makineServisEt() {
   islemYapildi();
   const simdi = performance.now();
   const m = durum.makine;
-  // Süsleme ya da buz tutmuyorsa hatırlatılır, ürün kenara gitmez
-  if (musteri.urun === 'waffle') {
-    const istenen = musteri.makine.susleme ? [musteri.makine.susleme] : [];
-    const eksik = istenen.filter((x) => !m.susleme.includes(x));
-    const fazla = m.susleme.filter((x) => !istenen.includes(x));
-    if (eksik.length || fazla.length) {
-      guncelle({ bildirim: { tur: 'yanlis', zaman: simdi } });
-      return;
-    }
-  } else if (m.buz !== musteri.makine.buz) {
+  // Süsleme ya da içecekler tutmuyorsa hatırlatılır, ürün kenara gitmez
+  const ayni = (a: string[], b: string[]) => a.length === b.length && [...a].sort().join() === [...b].sort().join();
+  const tutuyor = musteri.urun === 'waffle' ? ayni(m.susleme, musteri.makine.susleme) : ayni(m.icecekler, musteri.makine.icecekler);
+  if (!tutuyor) {
     guncelle({ bildirim: { tur: 'yanlis', zaman: simdi } });
     return;
   }
@@ -1645,8 +1639,8 @@ function yardimciDongusu() {
         y.istasyon === 'dondurma'
           ? on.siparis.kuvetler.reduce((t, c) => t + satisFiyati(c), 0) + on.siparis.susleme.length * SUSLEME_FIYATI
           : y.istasyon === 'waffle'
-            ? makineSatisFiyati('waffle') + (on.makine.susleme ? MAKINE_SUSLEME_FIYATI : 0)
-            : makineSatisFiyati('limonata');
+            ? makineSatisFiyati('waffle') + on.makine.susleme.length * MAKINE_SUSLEME_FIYATI
+            : makineSatisFiyati('icecek') * on.makine.icecekler.length;
       musteriyiUgurla(on.id, miktar, puan, false, { yardimciIsleri: isler });
     }
   }
@@ -1682,20 +1676,10 @@ export function yardimciCikar(id: number) {
 }
 
 // ---- Tezgah parçaları (belge 0.5) ----
-// İkinci vitrinin tezgah bölümünün ortasına göre yeri (yoksa null)
-export function ikinciVitrinX(d: Durum = durum) {
-  return parcaYerleri(d.tezgah, d.tezgahParcalari).find((p) => p.tur === 'vitrin2')?.x ?? null;
-}
-
 // Oyuncunun istasyonunun tezgah bölümüne göre yeri: kamera ve çalışan oraya gider
 export function istasyonX(d: Durum = durum) {
-  if (d.istasyon === 'dondurma') return d.vitrinOdak ? (ikinciVitrinX(d) ?? 0) : 0;
+  if (d.istasyon === 'dondurma') return 0;
   return parcaYerleri(d.tezgah, d.tezgahParcalari).find((p) => p.tur === d.istasyon)?.x ?? 0;
-}
-
-export function vitrinOdakDegistir() {
-  if (ikinciVitrinX() === null || durum.vitrin.length <= ILK_VITRIN_SINIRI) return;
-  guncelle({ vitrinOdak: durum.vitrinOdak ? 0 : 1 });
 }
 
 export function parcaTakiliMi(tur: ParcaTipi, d: Durum = durum) {
@@ -1734,11 +1718,7 @@ export function parcaEkle(tur: ParcaTipi, yan: 1 | -1) {
 
 export function parcaCikar(tur: ParcaTipi) {
   if (!durum.insaat) return;
-  const kalan = durum.tezgahParcalari.filter((p) => p.tur !== tur);
-  // İkinci vitrin çıkınca vitrin 12 küvete iner (fazlası sabah seçilir)
-  const ek: Partial<Durum> =
-    tur === 'vitrin2' ? { vitrinBoyu: Math.min(durum.vitrinBoyu, ILK_VITRIN_SINIRI), vitrin: durum.vitrin.slice(0, ILK_VITRIN_SINIRI) } : {};
-  tezgahiKoy(durum.tezgah, { tezgahParcalari: kalan, ...ek });
+  tezgahiKoy(durum.tezgah, { tezgahParcalari: durum.tezgahParcalari.filter((p) => p.tur !== tur) });
 }
 
 // ---- Mutfak (belge 0.5) ----
@@ -1793,7 +1773,7 @@ interface Kayit {
   mutfakParseller?: string[];
   yardimcilar?: Yardimci[];
   istasyon?: Istasyon;
-  makineFiyatlari?: { waffle: number; limonata: number };
+  makineFiyatlari?: { waffle: number; icecek?: number };
   dekorlar?: string[]; // eski kayıt (13 Ekim öncesi)
   calisan: CalisanGorunumu;
   acikOnlukler: string[];
@@ -1849,7 +1829,7 @@ export function kaydiYukle() {
     const k = JSON.parse(ham) as Partial<Kayit>;
     const acik = Array.isArray(k.acikCesitler) ? k.acikCesitler.filter((i) => CESITLER[i]) : [];
     guncelle({
-      para: typeof k.para === 'number' ? k.para : 0,
+      para: (typeof k.para === 'number' ? k.para : 0) + eskiParcaIadesi(k),
       gun: typeof k.gun === 'number' ? k.gun : 1,
       memnuniyetler: Array.isArray(k.memnuniyetler) ? k.memnuniyetler : [],
       acikCesitler: acik.length ? acik : [...BASLANGIC_CESITLERI],
@@ -1870,6 +1850,8 @@ export function kaydiYukle() {
           ? [...EGITIMLER]
           : [],
     });
+    // Eski parçaların parası geri verildiyse hemen kaydedilir (bir kez verilsin)
+    if (eskiParcaIadesi(k) > 0) kaydet();
   } catch {
     // Bozuk ya da okunamayan kayıt: baştan başlanır.
   }
@@ -1887,13 +1869,27 @@ function eskiOrtalama(puanlar: unknown) {
   return son.length ? son.reduce((a, b) => a + b, 0) / son.length : 0;
 }
 
+// 0.5'ten kalan kayıtlar (belge 0.6): ikinci vitrin ve 12'den büyük vitrin
+// büyütmelerinin parası geri verilir
+function eskiParcaIadesi(k: Partial<Kayit>) {
+  const parcalar = [...(Array.isArray(k.sahipParcalar) ? k.sahipParcalar : []), ...(Array.isArray(k.tezgahParcalari) ? k.tezgahParcalari.map((p) => p?.tur) : [])] as string[];
+  let iade = parcalar.includes('vitrin2') ? IKINCI_VITRIN_IADESI : 0;
+  if (typeof k.vitrinBoyu === 'number') for (const b of ESKI_VITRIN_BUYUTMELERI) if (b.boy <= k.vitrinBoyu) iade += b.fiyat;
+  return iade;
+}
+// Eski adlar: limonata sebili → içecek standı
+function eskiAd<T extends string>(x: T): T {
+  return (x === ('limonata' as T) ? 'icecek' : x) as T;
+}
+
 function vitriniOku(k: Partial<Kayit>, acik: number[]) {
-  // 12'den fazlası ikinci vitrin parçası takılıysa (belge 0.5)
-  const ikinciVitrin = Array.isArray(k.tezgahParcalari) && k.tezgahParcalari.some((p) => p?.tur === 'vitrin2');
-  const vitrinBoyu = Math.min(
-    ikinciVitrin ? EN_BUYUK_VITRIN : ILK_VITRIN_SINIRI,
-    vitrinBoyuGecerli(k.vitrinBoyu) ? k.vitrinBoyu : Math.max(ILK_VITRIN, acik.length + (acik.length % 2)),
-  );
+  // İkinci vitrin kaldırıldı (belge 0.6): en çok 12
+  const vitrinBoyu =
+    typeof k.vitrinBoyu === 'number' && k.vitrinBoyu > EN_BUYUK_VITRIN
+      ? EN_BUYUK_VITRIN
+      : vitrinBoyuGecerli(k.vitrinBoyu)
+        ? k.vitrinBoyu
+        : Math.min(EN_BUYUK_VITRIN, Math.max(ILK_VITRIN, acik.length + (acik.length % 2)));
   const kayitli = Array.isArray(k.vitrin) ? k.vitrin.filter((c, i, t) => acik.includes(c) && t.indexOf(c) === i).slice(0, vitrinBoyu) : [];
   const sayilar = (x: unknown) => (Array.isArray(x) ? x.map((n) => (typeof n === 'number' ? n : 0)) : []);
   return {
@@ -1946,14 +1942,16 @@ function dekorasyonuOku(k: Partial<Kayit>) {
     ? k.mutfakParseller.filter((p): p is string => typeof p === 'string' && kapali.includes(p) && parselCoz(p).j >= 1)
     : [];
   // Tezgah parçaları: bilinen türler, her biri bir kez; alınmış sayılırlar
-  const sahipParcalar = Array.isArray(k.sahipParcalar) ? k.sahipParcalar.filter((p): p is ParcaTipi => PARCA_TIPLERI.includes(p)) : [];
+  const sahipParcalar = Array.isArray(k.sahipParcalar) ? k.sahipParcalar.map(eskiAd).filter((p): p is ParcaTipi => PARCA_TIPLERI.includes(p)) : [];
   const tezgahParcalari: TezgahParcasi[] = [];
   if (Array.isArray(k.tezgahParcalari))
-    for (const p of k.tezgahParcalari)
+    for (const ham of k.tezgahParcalari) {
+      const p = ham && { ...ham, tur: eskiAd(ham.tur) };
       if (p && PARCA_TIPLERI.includes(p.tur) && (p.yan === 1 || p.yan === -1) && !tezgahParcalari.some((x) => x.tur === p.tur)) {
         tezgahParcalari.push({ tur: p.tur, yan: p.yan });
         if (!sahipParcalar.includes(p.tur)) sahipParcalar.push(p.tur);
       }
+    }
   const deneme: Durum = { ...durum, parseller: [...parseller], kapaliParseller: kapali, duvarParcalari, mutfakParseller, tezgahParcalari, yerlesim: [] };
   let tezgah: TezgahYeri =
     t && [t.c, t.r, t.boy].every((n) => Number.isInteger(n)) && t.boy <= tezgahAlinanBoy && tezgahUygun(t, deneme) ? { c: t.c, r: t.r, boy: t.boy } : { ...BASLANGIC_TEZGAHI };
@@ -1966,11 +1964,13 @@ function dekorasyonuOku(k: Partial<Kayit>) {
   // Yardımcılar
   const yardimcilar: Yardimci[] = Array.isArray(k.yardimcilar)
     ? k.yardimcilar
+        .map((y) => y && { ...y, yetenek: eskiAd(y.yetenek) })
         .filter((y) => y && typeof y.ad === 'string' && ISTASYONLAR.includes(y.yetenek) && [1, 2, 3].includes(y.hiz))
         .slice(0, EN_COK_YARDIMCI)
         .map((y, i) => ({ id: typeof y.id === 'number' ? y.id : i + 1, ad: y.ad.slice(0, AD_EN_UZUN), tohum: Number(y.tohum) || 0, yetenek: y.yetenek, hiz: y.hiz, istasyon: null }))
     : [];
-  const istasyon: Istasyon = k.istasyon && ISTASYONLAR.includes(k.istasyon) && istasyonKurulu(k.istasyon, deneme) ? k.istasyon : 'dondurma';
+  const kayitliIstasyon = k.istasyon ? eskiAd(k.istasyon) : undefined;
+  const istasyon: Istasyon = kayitliIstasyon && ISTASYONLAR.includes(kayitliIstasyon) && istasyonKurulu(kayitliIstasyon, deneme) ? kayitliIstasyon : 'dondurma';
   // Konmuş eşyalar. Yeni kayıtta köşe birim ("c,r") ve yön; eski kayıtlarda
   // (sıra numarası ya da "i,j:a,b") eşyanın eski yerine en yakın sığdığı
   // yere taşınır, sığmazsa depoya döner. Eşyanın durduğu kare oyuncunundur.
@@ -2025,7 +2025,7 @@ function dekorasyonuOku(k: Partial<Kayit>) {
     istasyon,
     makineFiyatlari: {
       waffle: makineFiyatiGecerli('waffle', k.makineFiyatlari?.waffle) ?? WAFFLE_FIYATI,
-      limonata: makineFiyatiGecerli('limonata', k.makineFiyatlari?.limonata) ?? LIMONATA_FIYATI,
+      icecek: makineFiyatiGecerli('icecek', k.makineFiyatlari?.icecek) ?? ICECEK_FIYATI,
     },
   };
 }
@@ -2071,8 +2071,7 @@ export function bastanBasla() {
     adaylar: [],
     yardimciIsleri: {},
     makine: bosMakine(),
-    vitrinOdak: 0,
-    makineFiyatlari: { waffle: WAFFLE_FIYATI, limonata: LIMONATA_FIYATI },
+    makineFiyatlari: { waffle: WAFFLE_FIYATI, icecek: ICECEK_FIYATI },
     insaat: false,
     seciliParsel: null,
     yerlestirme: false,

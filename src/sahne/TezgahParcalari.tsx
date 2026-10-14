@@ -1,15 +1,14 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { durumuOku, makineDolumu, pismeOrani, useDurum, yardimciCalisiyor } from '../oyun/durum';
-import { parcaYerleri, type ParcaYeri, type Yardimci } from '../oyun/makine';
+import { ICECEKLER, ICECEK_RENGI, parcaYerleri, type Icecek, type ParcaYeri, type Yardimci } from '../oyun/makine';
 import { renk } from './renkler';
-import { Vitrin } from './Dukkan';
 import { KenneyKarakter, type Hareket } from './KenneyKarakter';
 import { rastgeleVaryant } from './karakterler';
 
-// Tezgah parçaları (belge 0.5): tezgah bölümünün uçlarına eklenen waffle
-// makinesi, limonata sebili, ikinci vitrin, ikinci servis noktası ve köşe.
+// Tezgah parçaları (belge 0.5, 0.6): tezgah bölümünün uçlarına eklenen waffle
+// makinesi, içecek standı, ikinci servis noktası ve köşe.
 // Tezgah bölümünün içinde çizilir (bölümle birlikte taşınır). Kodla çizilmiş
 // geçici parçalar.
 
@@ -31,6 +30,78 @@ function ParcaTezgahi({ en }: { en: number }) {
       <Kutu konum={[0, 0.45, 1.68]} boyut={[en - 0.06, 0.9, 0.55]} renkAdi={renk.ahsapOrta} />
       <Kutu konum={[0, 0.92, 1.68]} boyut={[en, 0.05, 0.62]} renkAdi={renk.tezgahUst} puruz={0.6} />
     </group>
+  );
+}
+
+// Waffle'ın üstündeki süslemeler: her biri kendi adıyla bir grup; birden
+// çoğu aynı anda görünebilsin diye ayrı yerlerde (belge 0.6)
+const CIKOLATA_RENGI: Record<string, string> = { sutluCikolata: '#7b4a2a', bitterCikolata: '#3b1f12', beyazCikolata: '#f3e6cf' };
+function Taneler({ ad, renkAdi, sayi, r, yaricap, aci = 0, yukseklik = 0.02 }: { ad: string; renkAdi: string; sayi: number; r: number; yaricap: number; aci?: number; yukseklik?: number }) {
+  return (
+    <group name={ad}>
+      {Array.from({ length: sayi }, (_, i) => (
+        <mesh key={i} position={[Math.cos(aci + (i * Math.PI * 2) / sayi) * yaricap, yukseklik, Math.sin(aci + (i * Math.PI * 2) / sayi) * yaricap]}>
+          <sphereGeometry args={[r, 6, 5]} />
+          <meshStandardMaterial color={renkAdi} flatShading />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+function Dilimler({ ad, renkAdi, ic, aci }: { ad: string; renkAdi: string; ic: string; aci: number }) {
+  return (
+    <group name={ad}>
+      {[0, 1, 2].map((i) => (
+        <group key={i} position={[Math.cos(aci + i * 2.1) * 0.1, 0.02, Math.sin(aci + i * 2.1) * 0.1]}>
+          <mesh>
+            <cylinderGeometry args={[0.035, 0.035, 0.012, 10]} />
+            <meshStandardMaterial color={renkAdi} />
+          </mesh>
+          <mesh position={[0, 0.007, 0]}>
+            <cylinderGeometry args={[0.015, 0.015, 0.002, 8]} />
+            <meshStandardMaterial color={ic} />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  );
+}
+function WaffleSusleri() {
+  return (
+    <>
+      {/* Çikolatalar: üst üste binmesin diye farklı genişlikte halkalar */}
+      {(['sutluCikolata', 'bitterCikolata', 'beyazCikolata'] as const).map((ad, i) => (
+        <mesh key={ad} name={ad} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.002 + i * 0.002, 0]}>
+          <ringGeometry args={[0.04 + i * 0.045, 0.07 + i * 0.045, 12]} />
+          <meshStandardMaterial color={CIKOLATA_RENGI[ad]} roughness={0.35} side={THREE.DoubleSide} />
+        </mesh>
+      ))}
+      <Taneler ad="cilek" renkAdi="#e2384b" sayi={3} r={0.032} yaricap={0.11} aci={0.3} />
+      <Dilimler ad="muz" renkAdi="#fbf0b5" ic="#e6d27a" aci={1.2} />
+      <Dilimler ad="kivi" renkAdi="#7cbf3a" ic="#2f2a1f" aci={2.2} />
+      <Taneler ad="bogurtlen" renkAdi="#3b1d4a" sayi={4} r={0.024} yaricap={0.06} aci={0.8} />
+      <Taneler ad="findik" renkAdi="#9a6233" sayi={6} r={0.014} yaricap={0.135} aci={0.1} yukseklik={0.012} />
+      <group name="renkliSeker">
+        {Array.from({ length: 12 }, (_, i) => (
+          <mesh key={i} position={[Math.cos(i * 1.7) * 0.12 * ((i % 3) / 3 + 0.4), 0.012, Math.sin(i * 1.7) * 0.12 * ((i % 3) / 3 + 0.4)]} rotation={[0, i, 0]}>
+            <boxGeometry args={[0.025, 0.006, 0.006]} />
+            <meshStandardMaterial color={['#ff6f7d', '#ffc928', '#5fd08a', '#7ec8e8', '#9b5fc9'][i % 5]} />
+          </mesh>
+        ))}
+      </group>
+      <group name="hindistanCevizi">
+        {Array.from({ length: 10 }, (_, i) => (
+          <mesh key={i} position={[Math.cos(i * 2.3) * 0.1 * ((i % 4) / 4 + 0.3), 0.01, Math.sin(i * 2.3) * 0.1 * ((i % 4) / 4 + 0.3)]} rotation={[0, i, 0.3]}>
+            <boxGeometry args={[0.02, 0.004, 0.01]} />
+            <meshStandardMaterial color="#fffaf0" />
+          </mesh>
+        ))}
+      </group>
+      <mesh name="pudra" rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0015, 0]}>
+        <circleGeometry args={[0.17, 10]} />
+        <meshStandardMaterial color="#ffffff" transparent opacity={0.55} />
+      </mesh>
+    </>
   );
 }
 
@@ -76,24 +147,9 @@ function WaffleMakinesi() {
       <mesh ref={waffle} position={[0, 0.14, 0]} material={malzeme}>
         <cylinderGeometry args={[0.19, 0.19, 0.035, 8]} />
       </mesh>
-      {/* Süslemeler (adları süsleme adlarıyla aynı) */}
+      {/* Süslemeler (adları süsleme adlarıyla aynı; belge 0.6) */}
       <group ref={susler} position={[0, 0.165, 0]} visible={false}>
-        <mesh name="cikolata" rotation={[-Math.PI / 2, 0, 0]}>
-          <circleGeometry args={[0.15, 8]} />
-          <meshStandardMaterial color="#4a2614" roughness={0.4} />
-        </mesh>
-        <group name="cilek">
-          {[0, 1, 2, 3].map((i) => (
-            <mesh key={i} position={[Math.cos(i * 1.6) * 0.09, 0.02, Math.sin(i * 1.6) * 0.09]}>
-              <sphereGeometry args={[0.035, 6, 5]} />
-              <meshStandardMaterial color="#e2384b" flatShading />
-            </mesh>
-          ))}
-        </group>
-        <mesh name="pudra" rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.004, 0]}>
-          <circleGeometry args={[0.13, 8]} />
-          <meshStandardMaterial color="#ffffff" transparent opacity={0.7} />
-        </mesh>
+        <WaffleSusleri />
       </group>
       {/* Kapak: arka kenarından açılır */}
       <group ref={kapak} position={[0, 0.12, 0.28]}>
@@ -104,68 +160,83 @@ function WaffleMakinesi() {
   );
 }
 
-// Limonata sebili: cam kavanozda limonata, musluk, altında bardak
-function LimonataSebili() {
-  const sivi = useRef<THREE.Mesh>(null);
-  const buzlar = useRef<THREE.Group>(null);
-  const bardak = useRef<THREE.Group>(null);
+// İçecek standı (belge 0.6): tezgahın üstünde camı çalışana dönük soğutucu
+// dolap; içinde her içecekten bir sıra kutu / şişe. Alınanlar müşteri
+// tarafında tezgahın önüne dizilir.
+function IcecekKutusu({ i, sise = false }: { i: Icecek; sise?: boolean }) {
+  return sise ? (
+    <group>
+      <mesh position={[0, 0.07, 0]}>
+        <cylinderGeometry args={[0.03, 0.032, 0.14, 8]} />
+        <meshStandardMaterial color={ICECEK_RENGI[i]} roughness={0.3} />
+      </mesh>
+      <mesh position={[0, 0.16, 0]}>
+        <cylinderGeometry args={[0.012, 0.025, 0.05, 8]} />
+        <meshStandardMaterial color={ICECEK_RENGI[i]} roughness={0.3} />
+      </mesh>
+    </group>
+  ) : (
+    <group>
+      <mesh position={[0, 0.06, 0]}>
+        <cylinderGeometry args={[0.032, 0.032, 0.12, 10]} />
+        <meshStandardMaterial color={ICECEK_RENGI[i]} roughness={0.35} metalness={0.2} />
+      </mesh>
+      <mesh position={[0, 0.122, 0]}>
+        <cylinderGeometry args={[0.028, 0.032, 0.006, 10]} />
+        <meshStandardMaterial color="#c9d0d6" metalness={0.5} roughness={0.3} />
+      </mesh>
+    </group>
+  );
+}
+
+function IcecekStandi() {
+  const alinanlar = useRef<THREE.Group>(null);
+  const [icindekiler, setIcindekiler] = useState<Icecek[]>([]);
   useFrame(() => {
     const d = durumuOku();
-    const m = d.makine;
-    const benim = d.istasyon === 'limonata';
-    if (bardak.current) bardak.current.visible = benim && m.asama !== 'bos';
-    if (!sivi.current) return;
-    const dolum = m.asama === 'doluyor' ? makineDolumu(performance.now(), d) : m.sonuc === 'mukemmel' ? 0.71 : m.sonuc === 'iyi' ? 0.6 : m.sonuc === 'buyuk' ? 1 : 0.4;
-    const h = Math.max(0.001, Math.min(1, dolum)) * 0.17;
-    sivi.current.scale.y = h / 0.17;
-    sivi.current.position.y = 0.01 + h / 2;
-    if (buzlar.current) buzlar.current.visible = benim && m.buz;
+    const liste = d.istasyon === 'icecek' ? d.makine.icecekler : [];
+    if (liste.join() !== icindekiler.join()) setIcindekiler(liste);
   });
   return (
-    // Musluk ve bardak çalışana dönük: yakın planda kavanoz bardağı kapatmasın
-    <group position={[0, 0.97, -0.62]} rotation={[0, Math.PI, 0]}>
-      {/* Ayak ve kavanoz */}
-      <Kutu konum={[0, 0.12, 0.08]} boyut={[0.34, 0.24, 0.3]} renkAdi={renk.mor} />
-      <mesh position={[0, 0.5, 0.08]}>
-        <cylinderGeometry args={[0.17, 0.17, 0.5, 12]} />
-        <meshPhysicalMaterial color={renk.cam} transparent opacity={0.3} roughness={0.05} />
-      </mesh>
-      <mesh position={[0, 0.45, 0.08]}>
-        <cylinderGeometry args={[0.155, 0.155, 0.38, 12]} />
-        <meshStandardMaterial color="#f7e36a" transparent opacity={0.85} />
-      </mesh>
-      {/* Kavanozdaki limon dilimleri */}
-      {[0, 1, 2].map((i) => (
-        <mesh key={i} position={[Math.cos(i * 2.1) * 0.08, 0.38 + i * 0.09, 0.08 + Math.sin(i * 2.1) * 0.08]} rotation={[0.4, i, 0]}>
-          <cylinderGeometry args={[0.05, 0.05, 0.012, 10]} />
-          <meshStandardMaterial color="#ffe14d" />
+    <group>
+      {/* Dolap: arkası (müşteri tarafı) mor, çalışana dönük cam kapak */}
+      <group position={[0, 0.97, -0.62]}>
+        {/* Gövde: arka, yanlar ve taban (içi boş, kutular camın ardından görünsün) */}
+        <Kutu konum={[0, 0.32, -0.22]} boyut={[1.1, 0.64, 0.06]} renkAdi={renk.mor} />
+        {[-0.53, 0.53].map((x) => (
+          <Kutu key={x} konum={[x, 0.32, 0.02]} boyut={[0.04, 0.64, 0.5]} renkAdi={renk.mor} />
+        ))}
+        <Kutu konum={[0, 0.02, 0.02]} boyut={[1.1, 0.04, 0.5]} renkAdi={renk.mor} />
+        <Kutu konum={[0, 0.32, -0.18]} boyut={[1.02, 0.56, 0.02]} renkAdi="#eef6fb" />
+        {[0.2, 0.46].map((y) => (
+          <Kutu key={y} konum={[0, y - 0.04, 0.05]} boyut={[1.0, 0.015, 0.4]} renkAdi="#c9d0d6" />
+        ))}
+        {ICECEKLER.map((i, n) =>
+          [0, 1].map((raf) => (
+            <group key={`${i}${raf}`} position={[-0.4 + n * 0.2, raf ? 0.42 : 0.16, 0.12]}>
+              <IcecekKutusu i={i} sise={raf === 1} />
+            </group>
+          )),
+        )}
+        <mesh position={[0, 0.32, 0.26]}>
+          <boxGeometry args={[1.04, 0.58, 0.02]} />
+          <meshPhysicalMaterial color={renk.cam} transparent opacity={0.22} roughness={0.05} />
         </mesh>
-      ))}
-      <Kutu konum={[0, 0.2, -0.1]} boyut={[0.06, 0.05, 0.12]} renkAdi="#c9d0d6" puruz={0.3} />
-      {/* Bardak ve dolan limonata */}
-      <group ref={bardak} position={[0, 0.0, -0.16]}>
-        <mesh position={[0, 0.095, 0]}>
-          <cylinderGeometry args={[0.065, 0.055, 0.19, 12, 1, true]} />
-          <meshPhysicalMaterial color={renk.cam} transparent opacity={0.35} roughness={0.05} side={THREE.DoubleSide} />
-        </mesh>
-        <mesh ref={sivi} position={[0, 0.05, 0]}>
-          <cylinderGeometry args={[0.058, 0.052, 0.17, 12]} />
-          <meshStandardMaterial color="#f7e36a" />
-        </mesh>
-        <group ref={buzlar}>
-          {[0, 1, 2].map((i) => (
-            <mesh key={i} position={[Math.cos(i * 2) * 0.025, 0.16, Math.sin(i * 2) * 0.025]} rotation={[i, i * 0.7, 0]}>
-              <boxGeometry args={[0.035, 0.035, 0.035]} />
-              <meshPhysicalMaterial color="#e8f7ff" transparent opacity={0.8} roughness={0.1} />
-            </mesh>
-          ))}
-        </group>
+        <Kutu konum={[0, 0.66, 0]} boyut={[1.12, 0.05, 0.52]} renkAdi={renk.sari} />
+      </group>
+      {/* Alınan içecekler: tezgahın önünde müşteriye doğru */}
+      <group ref={alinanlar} position={[0.75, 0.97, -0.75]}>
+        {icindekiler.map((i, n) => (
+          <group key={n} position={[0, 0, n * 0.12 - 0.1]}>
+            <IcecekKutusu i={i} />
+          </group>
+        ))}
       </group>
     </group>
   );
 }
 
-// İkinci servis noktası: kasa ve waffle / limon resimli küçük pano
+// İkinci servis noktası: kasa ve waffle / içecek resimli küçük pano
 function ServisNoktasi() {
   return (
     <group>
@@ -213,18 +284,11 @@ function Parca({ p }: { p: ParcaYeri }) {
     <group position={[p.x, 0, 0]}>
       {p.tur === 'kose' ? (
         <Kose yan={p.yan} />
-      ) : p.tur === 'vitrin2' ? (
-        <>
-          <Vitrin ikinci />
-          {/* Vitrinin iki yanında dar tezgah ve arkada dolap */}
-          <Kutu konum={[0, 0.45, 1.68]} boyut={[p.en - 0.06, 0.9, 0.55]} renkAdi={renk.ahsapOrta} />
-          <Kutu konum={[0, 0.92, 1.68]} boyut={[p.en, 0.05, 0.62]} renkAdi={renk.tezgahUst} puruz={0.6} />
-        </>
       ) : (
         <>
           <ParcaTezgahi en={p.en} />
           {p.tur === 'waffle' && <WaffleMakinesi />}
-          {p.tur === 'limonata' && <LimonataSebili />}
+          {p.tur === 'icecek' && <IcecekStandi />}
           {p.tur === 'servis' && <ServisNoktasi />}
         </>
       )}

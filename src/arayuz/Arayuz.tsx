@@ -45,7 +45,7 @@ import { balon } from '../sahne/Musteriler';
 import { Gelistir } from './Gelistir';
 import { VitrinEkrani } from './VitrinEkrani';
 import { MenuSeridi } from './MenuSeridi';
-import { IstasyonSecimi, MakineDugmeleri, MakineGostergesi, MakineSiparisResmi, VitrinOdakDugmesi, YardimciEkrani, makineIpucu } from './MakineArayuzu';
+import { IstasyonSecimi, MakineDugmeleri, MakineGostergesi, MakineSiparisResmi, YardimciEkrani, makineIpucu, makineSiparisAdlari } from './MakineArayuzu';
 import { InsaatPaneli } from './InsaatPaneli';
 import { AcilisEkrani } from './AcilisEkrani';
 import { AyarlarEkrani } from './AyarlarEkrani';
@@ -342,7 +342,7 @@ function SiparisBalonu() {
                 {musteri.siparis.ikinci && <SiparisResmi siparis={musteri.siparis.ikinci} />}
               </>
             ) : (
-              // Waffle ya da limonata (belge 0.5)
+              // Waffle ya da içecek (belge 0.5, 0.6)
               <MakineSiparisResmi musteri={musteri} />
             )}
           </div>
@@ -353,13 +353,7 @@ function SiparisBalonu() {
               <div className="balon-adlar">
                 {musteri.urun === 'dondurma'
                   ? siparisAdlari(musteri.siparis)
-                  : [
-                      m(`urun.${musteri.urun}` as MetinAnahtari),
-                      musteri.urun === 'waffle' && musteri.makine.susleme ? m(`waffle.${musteri.makine.susleme}` as MetinAnahtari) : null,
-                      musteri.urun === 'limonata' && musteri.makine.buz ? m('makine.buz') : null,
-                    ]
-                      .filter(Boolean)
-                      .join(' · ')}
+                  : makineSiparisAdlari(musteri)}
               </div>
             )}
             {/* Sabır çubuğu: işlem yapılınca dolar, beklerken azalır */}
@@ -654,7 +648,7 @@ export function Arayuz() {
       {/* Eğitim eli varken yazılı ipucu çıkmaz (yazısız eğitim) */}
       {ipucu && !calisanAcik && !egitimHedefi(durum, vitrinAcik) && <div className="ipucu">{suslemeHatirlatmasi(durum) ?? m(ipucu)}</div>}
       {tezgahta && durum.asama === 'dolduruyor' && <Gosterge />}
-      {tezgahta && makinede && ['dokuluyor', 'doluyor', 'pisiyor'].includes(durum.makine.asama) && <MakineGostergesi />}
+      {tezgahta && makinede && ['dokuluyor', 'pisiyor'].includes(durum.makine.asama) && <MakineGostergesi />}
       <Bildirim />
       <JetonUcusu />
       <SuslemeDugmeleri />
@@ -675,7 +669,6 @@ export function Arayuz() {
             <button className="dugme dugme-simge" aria-label={m('kamera.dukkan')} title={m('kamera.dukkan')} onClick={() => kameraSec('dukkan')}>
               <span className="dukkan-simge" aria-hidden />
             </button>
-            <VitrinOdakDugmesi />
             {durum.acikAltliklar.map((a) => (
               <button
                 key={a}
