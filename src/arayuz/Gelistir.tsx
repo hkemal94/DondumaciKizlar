@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import {
   bastanBasla,
+  butunFiyatlariSec,
+  cesitFiyati,
+  cesitFiyatiSec,
+  fiyatlariKaydet,
+  istekDurumu,
+  makulFiyatlaraDon,
+  satisFiyati,
   cesitAlinabilir,
   sonrakiVitrin,
   vitrinBuyut,
@@ -17,11 +24,10 @@ import {
   kupAc,
   TEPSI_FIYATI,
   tepsiAc,
-  TOP_FIYATI,
   useDurum,
   type FiyatSeviyesi,
 } from '../oyun/durum';
-import { CESITLER } from '../oyun/kuvetler';
+import { CESITLER, FIYAT_ARALIGI, makulFiyat } from '../oyun/kuvetler';
 import { BOLGELER, EN_YUKSEK_ISIK, ESYALAR, ISIK_SEVIYELERI } from '../oyun/dekorasyon';
 import { m, type MetinAnahtari } from '../metinler';
 import { logoAdresi } from '../sahne/logo';
@@ -36,6 +42,69 @@ function Para({ miktar }: { miktar: number }) {
     <span className="gel-para">
       <span className="para-simge" aria-hidden /> {miktar}
     </span>
+  );
+}
+
+// Fiyat (Kemal, 14 Ekim): genel seviye kalır; her çeşidin kendi fiyat çubuğu
+// ve hepsini birden ayarlayan çubuk. Pahalı çeşit daha seyrek istenir.
+function FiyatEkrani() {
+  const durum = useDurum();
+  const fiyatlar = durum.acikCesitler.map((c) => cesitFiyati(c, durum));
+  const hepsiAyni = fiyatlar.every((f) => f === fiyatlar[0]);
+  const ortalama = Math.round(fiyatlar.reduce((a, b) => a + b, 0) / Math.max(1, fiyatlar.length));
+  const cubuk = (deger: number, degistir: (f: number) => void, etiket: string) => (
+    <input
+      type="range"
+      className="fiyat-cubugu"
+      min={FIYAT_ARALIGI[0]}
+      max={FIYAT_ARALIGI[1]}
+      value={deger}
+      aria-label={etiket}
+      onChange={(e) => degistir(Number(e.target.value))}
+      onPointerUp={fiyatlariKaydet}
+      onKeyUp={fiyatlariKaydet}
+    />
+  );
+  return (
+    <div className="gel-liste">
+      <div className="gel-baslik">{m('fiyat.genel')}</div>
+      <div className="fiyat-seviyeleri">
+        {(Object.keys(FIYAT_ETKISI) as FiyatSeviyesi[]).map((f) => (
+          <button key={f} className={`gel-secenek ${durum.fiyatSeviyesi === f ? 'secili' : ''}`} onClick={() => fiyatSec(f)}>
+            <span className="gel-ad">{m(`fiyat.${f}` as MetinAnahtari)}</span>
+            <span className="gel-aciklama">{m(`fiyat.${f}.etki` as MetinAnahtari)}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="gel-baslik">{m('fiyat.cesitler')}</div>
+      {/* Toplu çubuk: hepsine aynı fiyat */}
+      <div className="fiyat-satir fiyat-hepsi">
+        <span className="gel-ad">{m('fiyat.hepsi')}</span>
+        {cubuk(ortalama, butunFiyatlariSec, m('fiyat.hepsi'))}
+        <span className="fiyat-deger">{hepsiAyni ? ortalama : m('fiyat.karisik')}</span>
+        <button className="gel-bag" onClick={makulFiyatlaraDon}>
+          {m('fiyat.makul')}
+        </button>
+      </div>
+      {durum.acikCesitler.map((c) => {
+        const istek = istekDurumu(c, durum);
+        return (
+          <div key={c} className="fiyat-satir">
+            <span className="gel-renk" style={{ background: CESITLER[c].renk }} aria-hidden />
+            <span className="gel-ad">{m(`cesit.${CESITLER[c].ad}` as MetinAnahtari)}</span>
+            {cubuk(cesitFiyati(c, durum), (f) => cesitFiyatiSec(c, f), m(`cesit.${CESITLER[c].ad}` as MetinAnahtari))}
+            <span className="fiyat-deger">
+              <span className="para-simge" aria-hidden /> {satisFiyati(c, durum)}
+            </span>
+            <span className={`fiyat-istek ${istek}`} title={m('fiyat.makulDeger', { fiyat: makulFiyat(c) })}>
+              {m(`fiyat.istek.${istek}` as MetinAnahtari)}
+            </span>
+          </div>
+        );
+      })}
+      <p className="gel-not">{m('fiyat.not')}</p>
+    </div>
   );
 }
 
@@ -135,19 +204,7 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
             </div>
           )}
 
-          {sekme === 'fiyat' && (
-            <div className="gel-liste">
-              {(Object.keys(FIYAT_ETKISI) as FiyatSeviyesi[]).map((f) => (
-                <button key={f} className={`gel-secenek ${durum.fiyatSeviyesi === f ? 'secili' : ''}`} onClick={() => fiyatSec(f)}>
-                  <span className="gel-ad">{m(`fiyat.${f}` as MetinAnahtari)}</span>
-                  <span className="gel-aciklama">
-                    {m('fiyat.top', { fiyat: Math.round(TOP_FIYATI * FIYAT_ETKISI[f].fiyat) })} ·{' '}
-                    {m(`fiyat.${f}.etki` as MetinAnahtari)}
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
+          {sekme === 'fiyat' && <FiyatEkrani />}
 
           {sekme === 'dekorasyon' && (
             <div className="gel-liste">

@@ -75,6 +75,16 @@ export const CESITLER: Cesit[] = [
   { renk: '#7a4a2a', ad: 'kestane', fiyat: 600, yildiz: 4.75 },
 ];
 
+// Çeşit başına fiyat (Kemal, 14 Ekim): oyuncu her çeşidin top fiyatını ayrı
+// ya da hepsini birden ayarlar. "Makul" fiyattan pahalıya çıkan çeşit daha
+// seyrek istenir; çok pahalıysa müşteri biraz daha az memnun olur. Özel
+// çeşitlerin makul fiyatı yüksek. Sayılar geçici.
+export const FIYAT_ARALIGI: [number, number] = [5, 25];
+export function makulFiyat(cesit: number) {
+  const y = CESITLER[cesit]?.yildiz;
+  return y === undefined ? 10 : y >= 4.75 ? 16 : y >= 4.5 ? 14 : 12;
+}
+
 export const BASLANGIC_CESITLERI = CESITLER.map((c, i) => (c.fiyat === 0 ? i : -1)).filter((i) => i >= 0);
 
 // Vitrin (Kemal, 14 Ekim): 4 küvetle başlar, parayla 12'ye büyür.

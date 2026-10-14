@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 
-import { BASLANGIC_CESITLERI, CESITLER, EN_BUYUK_VITRIN, ILK_VITRIN, VITRIN_BUYUTMELERI } from './kuvetler';
+import { BASLANGIC_CESITLERI, CESITLER, EN_BUYUK_VITRIN, FIYAT_ARALIGI, ILK_VITRIN, makulFiyat, VITRIN_BUYUTMELERI } from './kuvetler';
 import { BOLGELER, EN_YUKSEK_ISIK, ESYALAR, HUCRELER, ISIK_SEVIYELERI, type Bolge, type Esya } from './dekorasyon';
 import {
   AD_EN_UZUN,
@@ -110,6 +110,7 @@ export interface Durum {
   acikAltliklar: Altlik[];
   tepsiAcik: boolean;
   fiyatSeviyesi: FiyatSeviyesi;
+  cesitFiyatlari: number[]; // oyuncunun koyduğu top fiyatı (boşsa makul fiyat)
   // Dekorasyon: ışık seviyesi, depodaki eşyalar, yere konmuş eşyalar
   isikSeviyesi: number;
   acikBolgeler: Bolge[];
@@ -193,6 +194,7 @@ let durum: Durum = {
   acikAltliklar: ['kulah', 'kap'],
   tepsiAcik: false,
   fiyatSeviyesi: 'normal',
+  cesitFiyatlari: [],
   isikSeviyesi: 0,
   acikBolgeler: [],
   depo: {},
@@ -320,12 +322,22 @@ export function geriAl() {
 // Sayılar geçici: fiyat, gelme aralığı ve sıra uzunluğu denemeyle ayarlanacak.
 export const EN_COK_SIRA = 4;
 export const GELIS_ARALIGI: [number, number] = [5000, 9000]; // ms
-export const TOP_FIYATI = 10;
 export const MUKEMMEL_EKI = 5;
 export const IYI_EKI = 2;
 export const MUSTERI_GORUNUM_SAYISI = 4;
 
 let sonId = 0;
+
+// Pahalı çeşit daha seyrek istenir: ağırlık (makul / fiyat)²
+function agirlikliCesit() {
+  const agirliklar = durum.vitrin.map((c) => Math.pow(makulFiyat(c) / cesitFiyati(c), 2));
+  let z = Math.random() * agirliklar.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < durum.vitrin.length; i++) {
+    z -= agirliklar[i];
+    if (z <= 0) return durum.vitrin[i];
+  }
+  return durum.vitrin[durum.vitrin.length - 1];
+}
 
 function rastgeleDondurma(enCokTop: number, ikiSuslemeOlabilir: boolean): Omit<Siparis, 'ikinci'> {
   const z = Math.random();
@@ -339,7 +351,7 @@ function rastgeleDondurma(enCokTop: number, ikiSuslemeOlabilir: boolean): Omit<S
   }
   return {
     altlik: durum.acikAltliklar[Math.floor(Math.random() * durum.acikAltliklar.length)],
-    kuvetler: Array.from({ length: sayi }, () => durum.vitrin[Math.floor(Math.random() * durum.vitrin.length)]),
+    kuvetler: Array.from({ length: sayi }, () => agirlikliCesit()),
     susleme,
   };
 }
@@ -421,7 +433,7 @@ export function tepsiyeKoy() {
 
 function urunFiyati(u: Urun) {
   return (
-    u.toplar.reduce((t, top) => t + topFiyati() + (top.sonuc === 'mukemmel' ? MUKEMMEL_EKI : top.sonuc === 'iyi' ? IYI_EKI : 0), 0) +
+    u.toplar.reduce((t, top) => t + satisFiyati(top.kuvet) + (top.sonuc === 'mukemmel' ? MUKEMMEL_EKI : top.sonuc === 'iyi' ? IYI_EKI : 0), 0) +
     u.susleme.length * SUSLEME_FIYATI +
     (u.altlik === 'kup' ? KUP_EKI : 0)
   );
@@ -463,7 +475,9 @@ export function servisEt() {
     const miktar = verilen.reduce((t, u) => t + urunFiyati(u), 0);
     const butunToplar = verilen.flatMap((u) => u.toplar);
     const hamPuan = butunToplar.reduce((t, top) => t + SONUC_PUANI[top.sonuc], 0) / butunToplar.length;
-    const puan = Math.max(1, hamPuan - FIYAT_ETKISI[durum.fiyatSeviyesi].memnuniyet);
+    // Makulün %20'sinden fazla pahalı çeşitler memnuniyeti biraz düşürür
+    const pahalilik = butunToplar.reduce((t, top) => t + Math.min(1, Math.max(0, (cesitFiyati(top.kuvet) / makulFiyat(top.kuvet) - 1.2) * 1.5)), 0) / butunToplar.length;
+    const puan = Math.max(1, hamPuan - FIYAT_ETKISI[durum.fiyatSeviyesi].memnuniyet - pahalilik);
     const id = musteri.id;
     guncelle({
       asama: 'servis',
@@ -705,8 +719,44 @@ export const FIYAT_ETKISI: Record<FiyatSeviyesi, { fiyat: number; gelis: number;
 const ESYA_ETKISI = 0.04;
 const ISIK_ETKISI = 0.06;
 
-export function topFiyati(d: Durum = durum) {
-  return Math.round(TOP_FIYATI * FIYAT_ETKISI[d.fiyatSeviyesi].fiyat);
+// Oyuncunun koyduğu fiyat (genel seviyeden önce) ve müşterinin ödediği
+export function cesitFiyati(cesit: number, d: Durum = durum) {
+  return d.cesitFiyatlari[cesit] ?? makulFiyat(cesit);
+}
+
+export function satisFiyati(cesit: number, d: Durum = durum) {
+  return Math.round(cesitFiyati(cesit, d) * FIYAT_ETKISI[d.fiyatSeviyesi].fiyat);
+}
+
+// Çeşidin ne kadar istendiği: 'cok' | 'olagan' | 'az' (ekranda gösterilir)
+export function istekDurumu(cesit: number, d: Durum = durum) {
+  const oran = cesitFiyati(cesit, d) / makulFiyat(cesit);
+  return oran <= 0.85 ? 'cok' : oran <= 1.2 ? 'olagan' : 'az';
+}
+
+const fiyatSiniri = (f: number) => Math.round(Math.min(FIYAT_ARALIGI[1], Math.max(FIYAT_ARALIGI[0], f)));
+
+export function cesitFiyatiSec(cesit: number, fiyat: number) {
+  const yeni = [...durum.cesitFiyatlari];
+  yeni[cesit] = fiyatSiniri(fiyat);
+  guncelle({ cesitFiyatlari: yeni });
+}
+
+// Toplu: açık çeşitlerin hepsine aynı fiyat
+export function butunFiyatlariSec(fiyat: number) {
+  const yeni = [...durum.cesitFiyatlari];
+  for (const c of durum.acikCesitler) yeni[c] = fiyatSiniri(fiyat);
+  guncelle({ cesitFiyatlari: yeni });
+}
+
+// Her çeşit kendi makul fiyatına döner
+export function makulFiyatlaraDon() {
+  guncelle({ cesitFiyatlari: [] });
+  kaydet();
+}
+
+export function fiyatlariKaydet() {
+  kaydet();
 }
 
 // Hafta sonu daha kalabalık (Kemal, 13 Ekim): müşteriler daha sık gelir
@@ -893,6 +943,7 @@ interface Kayit {
   acikAltliklar: Altlik[];
   tepsiAcik: boolean;
   fiyatSeviyesi: FiyatSeviyesi;
+  cesitFiyatlari: (number | null)[];
   isikSeviyesi: number;
   acikBolgeler: Bolge[];
   depo: Partial<Record<Esya, number>>;
@@ -918,6 +969,7 @@ function kaydet() {
     acikAltliklar: durum.acikAltliklar,
     tepsiAcik: durum.tepsiAcik,
     fiyatSeviyesi: durum.fiyatSeviyesi,
+    cesitFiyatlari: durum.cesitFiyatlari,
     isikSeviyesi: durum.isikSeviyesi,
     acikBolgeler: durum.acikBolgeler,
     depo: durum.depo,
@@ -949,6 +1001,10 @@ export function kaydiYukle() {
       tepsiAcik: k.tepsiAcik === true,
       acikAltliklar: Array.isArray(k.acikAltliklar) && k.acikAltliklar.includes('kup') ? ['kulah', 'kap', 'kup'] : ['kulah', 'kap'],
       fiyatSeviyesi: k.fiyatSeviyesi && k.fiyatSeviyesi in FIYAT_ETKISI ? k.fiyatSeviyesi : 'normal',
+      // JSON boş yerleri null yazar: null = makul fiyat
+      cesitFiyatlari: Array.isArray(k.cesitFiyatlari)
+        ? k.cesitFiyatlari.map((f) => (typeof f === 'number' ? fiyatSiniri(f) : undefined)) as number[]
+        : [],
       ...dekorasyonuOku(k),
       ...calisaniOku(k),
       // 14 Ekim'den önce oynanmış kayıtta eğitim görülmüş sayılır (istenirse mola menüsünden açılır)
@@ -1036,6 +1092,7 @@ export function bastanBasla() {
     tepsiAcik: false,
     tepsi: [],
     fiyatSeviyesi: 'normal',
+    cesitFiyatlari: [],
     isikSeviyesi: 0,
     acikBolgeler: [],
     depo: {},
