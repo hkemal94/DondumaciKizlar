@@ -3,9 +3,11 @@ import * as THREE from 'three';
 import { useDurum } from '../oyun/durum';
 import { PARSEL, parselAnahtari, parselCoz, parselSiniri } from '../oyun/dekorasyon';
 import { renk } from './renkler';
+import { HazirModel } from './HazirModel';
 
 // Açık mutfak (belge 0.5): fayans zemin, dükkânla arasında duvar yok, alçak
-// bir sınır. Depo şimdilik yalnız görüntü: raflar, buzdolabı, kasalar.
+// bir sınır. Depo şimdilik yalnız görüntü: raflar, buzdolabı, kasalar
+// (buzdolabı ve kasalar hazır paketten, belge 0.7).
 
 function fayansDokusu() {
   const c = document.createElement('canvas');
@@ -52,16 +54,16 @@ function DepoSusleri() {
           [-0.5, 0, 0.5].map((x, j) => <Kutu key={`${y}${x}`} konum={[x, y + 0.13, 0]} boyut={[0.3, 0.22, 0.3]} renkAdi={kasaRenkleri[(i + j) % 4]} />),
         )}
       </group>
-      {/* Buzdolabı */}
-      <group position={[0.7, 0, 0]}>
-        <Kutu konum={[0, 0.95, 0]} boyut={[0.8, 1.9, 0.6]} renkAdi="#eef2f5" />
-        <Kutu konum={[0, 1.25, -0.31]} boyut={[0.76, 0.02, 0.02]} renkAdi="#b9c1c8" />
-        <Kutu konum={[0.3, 1.0, -0.32]} boyut={[0.04, 0.4, 0.04]} renkAdi="#9aa3ab" />
-      </group>
-      {/* Yerde kasalar */}
-      {[0, 1].map((i) => (
-        <Kutu key={i} konum={[1.5, 0.18 + i * 0.36, -0.1]} boyut={[0.5, 0.34, 0.4]} renkAdi={i ? renk.sari : renk.mor} />
-      ))}
+      {/* Buzdolabı (KayKit, belge 0.7): nane yeşili, önü dükkâna dönük */}
+      <HazirModel
+        yol="mutfak/fridge_A"
+        ayar={{ grup: 'dukkan', yukseklik: 1.9, boya: [['#3ad7a7', '#a8eccf', 30], ['#19927f', '#7fc4a6', 30]] }}
+        konum={[0.7, 0, 0]}
+        donus={Math.PI}
+      />
+      {/* Yerde üst üste kasalar (KayKit) */}
+      <HazirModel yol="mutfak/crate" ayar={{ grup: 'dukkan', yukseklik: 0.4 }} konum={[1.5, 0, -0.1]} donus={Math.PI} />
+      <HazirModel yol="mutfak/crate" ayar={{ grup: 'dukkan', yukseklik: 0.4 }} konum={[1.5, 0.4, -0.1]} donus={Math.PI + 0.2} />
     </group>
   );
 }
