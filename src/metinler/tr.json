@@ -384,5 +384,10 @@
   "gorunus.zemin.mozaik": "Mozaik",
   "gorunus.zemin.karo": "Pişmiş karo",
   "gorunus.zemin.terrazzo": "Terrazzo",
-  "gorunus.zemin.cila": "Cilalı beton"
+  "gorunus.zemin.cila": "Cilalı beton",
+  "gorunus.cati": "Çatı",
+  "gorunus.cati.duz": "Düz dam",
+  "gorunus.cati.teras": "Teras",
+  "gorunus.cati.kiremit": "Kiremit",
+  "gorunus.cati.pergola": "Ahşap + pergola"
 }

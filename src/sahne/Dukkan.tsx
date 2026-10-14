@@ -68,6 +68,7 @@ function useGorunusRenkleri() {
     cerceve: gorunusSecenegi('cerceve', g.cerceve).renk,
     tente: [tente.renk, tente.ikinciRenk ?? tente.renk] as const,
     zemin: gorunusSecenegi('zemin', g.zemin),
+    cati: gorunusSecenegi('cati', g.cati),
   };
 }
 
@@ -256,6 +257,128 @@ function DuvarParcasi({ k, tur }: { k: Kenar; tur: ParcaTuru }) {
 // Kapalı alanın ortası: kesik duvarlar hangi yüzün kameraya döndüğüne buna göre bakar
 const DUKKAN_ORTASI = new THREE.Vector3(0, 0, -0.4);
 
+// ---- Çatı (C2, belge 0.11): düz dam, teras + korkuluk, kiremit, ahşap + pergola ----
+// Her arazi karesi kendi damını taşır; kiremitte sırt dükkân boyunca (x) uzanır.
+const KIREMIT_YUKSEKLIGI = 1.3;
+const PERGOLA_DERINLIGI = 2.4;
+
+// Kiremit sıraları: dokunun bir birimi 1 m, üç sıra
+let kiremitDokusu: THREE.CanvasTexture | null = null;
+function kiremitSiralari() {
+  if (kiremitDokusu) return kiremitDokusu;
+  const c = document.createElement('canvas');
+  c.width = c.height = 64;
+  const g = c.getContext('2d')!;
+  g.fillStyle = '#fff';
+  g.fillRect(0, 0, 64, 64);
+  g.fillStyle = 'rgba(0,0,0,0.22)';
+  for (let y = 0; y < 64; y += 64 / 3) g.fillRect(0, y, 64, 3);
+  for (let n = 0; n < 3; n++) for (let x = (n % 2) * 8; x < 64; x += 16) g.fillRect(x, (n * 64) / 3, 2, 64 / 3);
+  kiremitDokusu = new THREE.CanvasTexture(c);
+  kiremitDokusu.wrapS = kiremitDokusu.wrapT = THREE.RepeatWrapping;
+  kiremitDokusu.colorSpace = THREE.SRGBColorSpace;
+  return kiremitDokusu;
+}
+
+// Üçgen kesitli dam: kesit (z, y) düzleminde, x boyunca uzar
+function kiremitGeometrisi() {
+  const yari = PARSEL / 2 + 0.3;
+  const sekil = new THREE.Shape();
+  sekil.moveTo(-yari, 0);
+  sekil.lineTo(yari, 0);
+  sekil.lineTo(0, KIREMIT_YUKSEKLIGI);
+  sekil.closePath();
+  const g = new THREE.ExtrudeGeometry(sekil, { depth: PARSEL + 0.02, bevelEnabled: false });
+  g.translate(0, 0, -(PARSEL + 0.02) / 2);
+  g.rotateY(Math.PI / 2);
+  return g;
+}
+
+function CatiParseli({ ox, oz }: { ox: number; oz: number }) {
+  const { cati, dis } = useGorunusRenkleri();
+  const geo = useMemo(kiremitGeometrisi, []);
+  if (cati.id === 'kiremit')
+    return (
+      <group position={[ox, TAVAN + 0.05, oz]}>
+        <mesh geometry={geo} castShadow>
+          {/* 0: üçgen uçlar (dış boya), 1: eğimli yüzler (kiremit) */}
+          <meshStandardMaterial attach="material-0" color={dis} roughness={0.85} />
+          <meshStandardMaterial attach="material-1" color={cati.renk} map={kiremitSiralari()} roughness={0.75} flatShading />
+        </mesh>
+        <Kutu konum={[0, KIREMIT_YUKSEKLIGI + 0.02, 0]} boyut={[PARSEL + 0.02, 0.1, 0.16]} renkAdi={cati.ikinciRenk!} golgeVer={false} />
+      </group>
+    );
+  // Düz dam, teras ve ahşap: düz döşeme ve sacak
+  const sacak = cati.id === 'duz' ? renk.mor : cati.id === 'teras' ? '#f7f3ea' : renk.ahsapKoyu;
+  return (
+    <group>
+      <Kutu konum={[ox, TAVAN + 0.1, oz]} boyut={[PARSEL + 0.25, 0.12, PARSEL + 0.25]} renkAdi={sacak} golgeVer={false} golgeAl={false} />
+      <Kutu konum={[ox, TAVAN + 0.2, oz]} boyut={[PARSEL + 0.1, 0.08, PARSEL + 0.1]} renkAdi={cati.ikinciRenk!} golgeVer={false} golgeAl={false} />
+      {cati.id === 'pergola' &&
+        // Ahşap döşeme: tahta çizgileri
+        [-1.5, -0.5, 0.5, 1.5].map((dz) => (
+          <Kutu key={dz} konum={[ox, TAVAN + 0.245, oz + dz]} boyut={[PARSEL + 0.1, 0.01, 0.05]} renkAdi={renk.ahsapOrta} golgeVer={false} golgeAl={false} />
+        ))}
+      {cati.id === 'teras' &&
+        // Teras: pişmiş karo döşeme
+        <Kutu konum={[ox, TAVAN + 0.245, oz]} boyut={[PARSEL - 0.2, 0.01, PARSEL - 0.2]} renkAdi={cati.renk} golgeVer={false} golgeAl={false} />}
+    </group>
+  );
+}
+
+// Damın kenarları: terasta korkuluk, pergolada öne uzanan ahşap kirişler
+function CatiKenarlari({ kenarlar }: { kenarlar: Kenar[] }) {
+  const { cati } = useGorunusRenkleri();
+  if (cati.id === 'teras')
+    return (
+      <group>
+        {kenarlar.map((k) => {
+          const { x, z } = kenarYeri(k);
+          return (
+            <group key={kenarAnahtari(k)} position={[x, TAVAN + 0.25, z]} rotation={[0, DONUS[k.y], 0]}>
+              <Kutu konum={[-0.5, 0.45, 0.08]} boyut={[0.07, 0.9, 0.07]} renkAdi="#f7f3ea" golgeVer={false} />
+              <Kutu konum={[0, 0.9, 0.08]} boyut={[1.06, 0.07, 0.1]} renkAdi="#f7f3ea" golgeVer={false} />
+              {[-0.25, 0, 0.25].map((bx) => (
+                <Kutu key={bx} konum={[bx, 0.42, 0.08]} boyut={[0.035, 0.84, 0.035]} renkAdi="#f7f3ea" golgeVer={false} />
+              ))}
+            </group>
+          );
+        })}
+      </group>
+    );
+  if (cati.id === 'pergola') {
+    const onler = kenarlar.filter((k) => k.y === 'g');
+    const onAnahtarlari = new Set(onler.map((k) => `${k.c},${k.r}`));
+    return (
+      <group>
+        {onler.map((k) => {
+            const { x, z } = kenarYeri(k);
+            const d = PERGOLA_DERINLIGI;
+            // Sıranın sağ ucu: kapanış kirişi ve direği
+            const sagUc = !onAnahtarlari.has(`${k.c + 1},${k.r}`);
+            return (
+              <group key={kenarAnahtari(k)} position={[x, 0, z]}>
+                {/* Kiriş, iki birimde bir direk, üstte çıtalar */}
+                <Kutu konum={[-0.5, TAVAN + 0.05, -d / 2]} boyut={[0.1, 0.18, d]} renkAdi={renk.ahsapOrta} />
+                {k.c % 2 === 0 && <Kutu konum={[-0.5, (TAVAN + 0.05) / 2, -d + 0.06]} boyut={[0.12, TAVAN + 0.05, 0.12]} renkAdi={renk.ahsapOrta} />}
+                {sagUc && (
+                  <>
+                    <Kutu konum={[0.5, TAVAN + 0.05, -d / 2]} boyut={[0.1, 0.18, d]} renkAdi={renk.ahsapOrta} />
+                    <Kutu konum={[0.5, (TAVAN + 0.05) / 2, -d + 0.06]} boyut={[0.12, TAVAN + 0.05, 0.12]} renkAdi={renk.ahsapOrta} />
+                  </>
+                )}
+                {[0.6, 1.2, 1.8, 2.3].map((dz) => (
+                  <Kutu key={dz} konum={[0, TAVAN + 0.18, -dz]} boyut={[1.06, 0.07, 0.07]} renkAdi={renk.ahsapAcik} />
+                ))}
+              </group>
+            );
+          })}
+      </group>
+    );
+  }
+  return null;
+}
+
 // İç zemin (belge 0.11): seçilen desen bir arazi karesini kaplar
 function IcZemin({ konum }: { konum: [number, number, number] }) {
   const { zemin } = useGorunusRenkleri();
@@ -303,9 +426,8 @@ function Odalar() {
               {[-1.2, 0.8].map((dz) => (
                 <Kutu key={dz} konum={[ox, TAVAN - 0.12, oz + dz]} boyut={[PARSEL, 0.16, 0.2]} renkAdi={renk.ahsapOrta} golgeVer={false} />
               ))}
-              {/* Damın dış yüzü ve saçak: dışarıdan bakınca görünür */}
-              <Kutu konum={[ox, TAVAN + 0.1, oz]} boyut={[PARSEL + 0.25, 0.12, PARSEL + 0.25]} renkAdi={renk.mor} golgeVer={false} golgeAl={false} />
-              <Kutu konum={[ox, TAVAN + 0.2, oz]} boyut={[PARSEL + 0.1, 0.08, PARSEL + 0.1]} renkAdi="#e9d6bd" golgeVer={false} golgeAl={false} />
+              {/* Damın dış yüzü: oyuncunun seçtiği çatı (belge 0.11) */}
+              <CatiParseli ox={ox} oz={oz} />
             </Tavan>
           </group>
         );
@@ -313,6 +435,9 @@ function Odalar() {
       {kenarlar.map((k) => (
         <DuvarParcasi key={kenarAnahtari(k)} k={k} tur={parcaTuru(k, duvarParcalari)} />
       ))}
+      <Tavan>
+        <CatiKenarlari kenarlar={kenarlar} />
+      </Tavan>
       {arkaDuvar(-2) && (
         <KesikDuvar yon={[0, 1]}>
           <MenuPanosu />
