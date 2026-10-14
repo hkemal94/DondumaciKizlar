@@ -1,6 +1,6 @@
 import { useMemo, useRef, type ReactNode } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { duvarlar, kameraKarisimi, tezgahOfsetiniGuncelle } from './kameraKarisimi';
+import { gecerliDuvarModu, kameraKarisimi, tezgahOfsetiniGuncelle } from './kameraKarisimi';
 import {
   PARSEL,
   Z0,
@@ -84,9 +84,10 @@ function KesikDuvar({ yon, children }: { yon: [number, number]; children: ReactN
       ref.current.visible = true;
       return;
     }
-    // Gezerken duvar seçeneği: duvarsızda hepsi kalkar, kapalıda hepsi yerinde
-    if (durumuOku().gezme && duvarlar.mod !== 'kesit') {
-      ref.current.visible = duvarlar.mod === 'kapali';
+    // Duvar düğmesi (belge 0.8): açıkta (duvarsız) hepsi kalkar, kapalıda hepsi yerinde
+    const mod = gecerliDuvarModu();
+    if (mod !== 'kesit') {
+      ref.current.visible = mod === 'kapali';
       return;
     }
     kameraYonu.copy(camera.position).sub(DUKKAN_ORTASI);
@@ -100,7 +101,7 @@ function Tavan({ children }: { children: ReactNode }) {
   const ref = useRef<THREE.Group>(null);
   useFrame(() => {
     if (!ref.current) return;
-    const kapali = durumuOku().gezme && duvarlar.mod === 'kapali';
+    const kapali = gecerliDuvarModu() === 'kapali';
     ref.current.visible = kameraKarisimi.deger < 0.12 || kapali;
   });
   return <group ref={ref}>{children}</group>;

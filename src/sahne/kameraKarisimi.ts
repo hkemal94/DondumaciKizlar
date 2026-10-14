@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { tezgahKaymasi, type TezgahYeri } from '../oyun/dekorasyon';
+import { durumuOku } from '../oyun/durum';
 
 // Kameranın hangi görünümde olduğu: 0 = tezgah, 1 = dükkânın genel görünümü.
 // Geçiş sırasında aradaki değerleri alır. Sahnedeki parçalar (tavan, kepçe…)
@@ -85,10 +86,16 @@ export function ekrandaKaydir(dxPiksel: number, dyPiksel: number, ekranYukseklig
   kaydir((-sx * dxPiksel + ix * dyPiksel) * olcek, (-sz * dxPiksel + iz * dyPiksel) * olcek);
 }
 
-// Gezerken duvarlar (Kemal, 13 Ekim): kesit (bakılan yöne dönükler kalkar),
-// duvarsız (hepsi kalkar), kapalı (hepsi ve tavan yerinde, dışarıdan bakılır)
+// Duvarlar (Kemal, 13 Ekim; 14 Ekim gece genel görünüme de geldi, belge 0.8):
+// kesit = yarım (kameraya bakanlar kalkar), duvarsız = açık (hepsi kalkar),
+// kapalı (hepsi ve tavan yerinde, dışarıdan bakılır)
 export type DuvarModu = 'kesit' | 'duvarsiz' | 'kapali';
 export const duvarlar: { mod: DuvarModu } = { mod: 'kesit' };
+// İnşaatta ve eşya yerleştirirken içerisi görünsün: kapalı seçiliyse yarım sayılır
+export function gecerliDuvarModu(): DuvarModu {
+  const d = durumuOku();
+  return duvarlar.mod === 'kapali' && (d.insaat || d.yerlestirme) ? 'kesit' : duvarlar.mod;
+}
 export function duvarModunuDegistir(): DuvarModu {
   duvarlar.mod = duvarlar.mod === 'kesit' ? 'duvarsiz' : duvarlar.mod === 'duvarsiz' ? 'kapali' : 'kesit';
   return duvarlar.mod;

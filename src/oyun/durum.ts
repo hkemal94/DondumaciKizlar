@@ -90,6 +90,10 @@ import {
   type Aksesuar,
   type CalisanGorunumu,
 } from './calisan';
+import { DENEME_KAYDI } from './denemeDukkani';
+// Geliştirme jetonu (belge 0.8): oyun yayınlanana kadar her açılışta para
+// en az bu kadar olur. Yayından önce 0 yapılır.
+export const GELISTIRME_JETONU = 10000;
 
 // Oyunun durumu: kepçe mini oyunu (belge bölüm 3: altlık → kepçe →
 // yerleştir → servis) ve müşteri sırası (iş sırası 3).
@@ -152,7 +156,17 @@ export type Bildirim =
   | { tur: 'pisme'; pisme: Pisme; zaman: number }
   | { tur: 'susleme'; eksik: Susleme[]; fazla: Susleme[]; zaman: number };
 
+// Haber şeridinde geçen bir haber: metin anahtarı ve içine konan değerler
+export interface Haber {
+  anahtar: string;
+  degerler?: Record<string, string | number>;
+  zaman: number;
+}
+const EN_COK_HABER = 5;
+
 export interface Durum {
+  // Haber şeridi (belge 0.8): son haberler, en yenisi başta; kaydedilmez
+  haberler: Haber[];
   asama: Asama;
   altlik: Altlik | null;
   toplar: Top[];
@@ -292,10 +306,11 @@ let durum: Durum = {
   kepceKuvet: null,
   dolumBasladi: 0,
   bildirim: null,
+  haberler: [],
   servisDogru: false,
   musteriler: [],
   sonrakiGelis: 0,
-  para: 0,
+  para: GELISTIRME_JETONU,
   memnuniyetler: [],
   gun: 1,
   dakika: 0,
@@ -697,6 +712,7 @@ export function servisEt() {
       servisDogru: true,
       tepsi: [],
       bildirim: { tur: 'para', miktar, bahsis, zaman: simdi },
+      haberler: bahsis > 0 ? [{ anahtar: 'haber.bahsis', degerler: { miktar: bahsis, seri }, zaman: simdi }, ...durum.haberler].slice(0, EN_COK_HABER) : durum.haberler,
       mukemmelSeri: seri,
       para: durum.para + miktar,
       memnuniyetler: [...durum.memnuniyetler, puan],
@@ -892,7 +908,12 @@ export function guneBasla() {
   gunuBaslat();
 }
 
+export function haberVer(anahtar: string, degerler?: Haber['degerler']) {
+  guncelle({ haberler: [{ anahtar, degerler, zaman: performance.now() }, ...durum.haberler].slice(0, EN_COK_HABER) });
+}
+
 function gunuBaslat() {
+  haberVer('haber.gunBasladi', { gun: durum.gun });
   birikenMs = 0;
   guncelle({ istasyonSecimi: false, makine: bosMakine(), yardimciIsleri: {} });
   guncelle({ hazirlik: false, sonrakiGelis: 0, yerlestirme: false, seciliEsya: null });
@@ -944,6 +965,7 @@ function sabirKontrol() {
     musteriler: durum.musteriler.map((m) => (m.id === id ? { ...m, hal: 'gidiyor', mutlu: false } : m)),
     bildirim: { tur: 'sikildi', zaman: performance.now() },
   });
+  haberVer('haber.sikildi');
   window.setTimeout(() => {
     if (!ondekiMusteri()) kameraSec('dukkan');
   }, 1600);
@@ -1744,6 +1766,10 @@ export function mutfaktanCikar(anahtar: string) {
 // İlerleme bu tarayıcıda saklanır (para, gün, açılan çeşitler, fiyat,
 // dekorasyon). Tarayıcı izin vermezse oyun kayıtsız çalışır.
 const KAYIT_ANAHTARI = 'dondurmaci-kizlar-kayit-1';
+// Deneme dükkânı (belge 0.8) ayrı yuvada durur; oyuncunun kaydına dokunmaz
+const DENEME_ANAHTARI = 'dondurmaci-kizlar-deneme-1';
+let kayitAnahtari = KAYIT_ANAHTARI;
+
 
 interface Kayit {
   para: number;
@@ -1816,7 +1842,7 @@ function kaydet() {
     egitimGoruldu: durum.egitimGoruldu,
   };
   try {
-    localStorage.setItem(KAYIT_ANAHTARI, JSON.stringify(k));
+    localStorage.setItem(kayitAnahtari, JSON.stringify(k));
   } catch {
     // Kayıt yapılamadı (gizli pencere vb.); oyun devam eder.
   }
@@ -1824,8 +1850,11 @@ function kaydet() {
 
 export function kaydiYukle() {
   try {
-    const ham = localStorage.getItem(KAYIT_ANAHTARI);
-    if (!ham) return;
+    const ham = localStorage.getItem(kayitAnahtari);
+    if (!ham) {
+      guncelle({ para: Math.max(durum.para, GELISTIRME_JETONU) });
+      return;
+    }
     const k = JSON.parse(ham) as Partial<Kayit>;
     const acik = Array.isArray(k.acikCesitler) ? k.acikCesitler.filter((i) => CESITLER[i]) : [];
     guncelle({
@@ -1852,6 +1881,7 @@ export function kaydiYukle() {
     });
     // Eski parçaların parası geri verildiyse hemen kaydedilir (bir kez verilsin)
     if (eskiParcaIadesi(k) > 0) kaydet();
+    if (durum.para < GELISTIRME_JETONU) guncelle({ para: GELISTIRME_JETONU });
   } catch {
     // Bozuk ya da okunamayan kayıt: baştan başlanır.
   }
@@ -2033,13 +2063,17 @@ function dekorasyonuOku(k: Partial<Kayit>) {
 // Baştan başla: kaydı siler, her şeyi ilk güne döndürür.
 export function bastanBasla() {
   try {
-    localStorage.removeItem(KAYIT_ANAHTARI);
+    localStorage.removeItem(kayitAnahtari);
   } catch {
     // yok sayılır
   }
+  durumuSifirla();
+}
+
+function durumuSifirla() {
   birikenMs = 0;
   guncelle({
-    para: 0,
+    para: GELISTIRME_JETONU,
     gun: 1,
     memnuniyetler: [],
     acikCesitler: [...BASLANGIC_CESITLERI],
@@ -2102,6 +2136,42 @@ export function bastanBasla() {
 // Açılış ekranında Oyna'ya basılınca oyun (gün başı) görünür
 export function acilisiKapat() {
   guncelle({ acilis: false });
+}
+
+// Açılış ekranı (belge 0.8): Yeni oyun / Devam et / Deneme dükkânı
+export function kayitVar() {
+  try {
+    return localStorage.getItem(KAYIT_ANAHTARI) !== null;
+  } catch {
+    return false;
+  }
+}
+export function kayittanDevamEt() {
+  kayitAnahtari = KAYIT_ANAHTARI;
+  durumuSifirla();
+  kaydiYukle();
+  acilisiKapat();
+}
+export function yeniOyun() {
+  kayitAnahtari = KAYIT_ANAHTARI;
+  bastanBasla();
+  acilisiKapat();
+}
+// Deneme dükkânı her açılışta hazır kayıttan baştan kurulur
+export function denemeDukkani() {
+  kayitAnahtari = DENEME_ANAHTARI;
+  durumuSifirla();
+  try {
+    localStorage.setItem(DENEME_ANAHTARI, JSON.stringify(DENEME_KAYDI));
+  } catch {
+    // Tarayıcı izin vermezse deneme dükkânı açılmaz; oyun ilk günle sürer
+  }
+  kaydiYukle();
+  haberVer('haber.deneme');
+  acilisiKapat();
+}
+export function denemedeMi() {
+  return kayitAnahtari === DENEME_ANAHTARI;
 }
 
 export function duraklatilabilir(d: Durum = durum) {

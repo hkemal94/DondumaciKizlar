@@ -359,6 +359,42 @@ body,
 }
 
 /* ---- Gün ve saat (4. adım) ---- */
+/* Haber şeridi (belge 0.8): saat ile jeton arasında sürekli kayar */
+.haber-seridi {
+  position: absolute;
+  top: max(10px, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(36vw, 340px);
+  height: 34px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: rgba(255, 248, 232, 0.94);
+  border: 2px solid var(--mor);
+  color: var(--mor-koyu);
+  font-size: 14px;
+  font-weight: 600;
+  pointer-events: none;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.haber-kayan {
+  display: flex;
+  width: max-content;
+  height: 100%;
+  align-items: center;
+  animation: haber-kay linear infinite;
+}
+.haber-kayan span {
+  padding-right: 48px;
+  white-space: nowrap;
+}
+@keyframes haber-kay {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .haber-kayan { animation: none; }
+}
 .gun-saat {
   position: absolute;
   top: max(10px, env(safe-area-inset-top));
@@ -1763,7 +1799,7 @@ a.dugme {
 .acilis-dugmeler {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   min-width: 170px;
 }
 .acilis-dugmeler .dugme {
@@ -1773,6 +1809,20 @@ a.dugme {
 .dugme.acilis-oyna {
   font-size: 24px;
   padding: 12px 18px;
+}
+/* Deneme dükkânı (belge 0.8): yayına kadar duran, geliştirme için */
+.dugme.acilis-deneme {
+  font-size: 15px;
+  background: #fff3d6;
+  color: var(--mor-koyu);
+}
+.acilis-soru {
+  margin: 0;
+  max-width: 220px;
+  color: #fff;
+  font-size: 16px;
+  line-height: 1.35;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 /* Ayarlar ekranı */
