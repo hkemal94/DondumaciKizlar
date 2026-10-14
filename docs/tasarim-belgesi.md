@@ -195,6 +195,17 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | 3b ile ilişki | Tek parça kalabilir; ileride gelecek modüler tezgah parçaları (köşe, süsleme, makine…) yanına eklenebilecek biçimde |
 | Ne zaman | **Bu adımda.** Bugünkü 8×4 dükkânda yer yok; kısaltınca yana kayabilir, duvar adımıyla kapalı alan büyüyünce her yöne taşınır |
 
+### 0.4 Duvar, pencere, kapı (Kemal, 14 Ekim gece soru turu)
+
+| Konu | Karar |
+|---|---|
+| Duvar parçaları | Her duvar **1 m'lik parçalardan** oluşur. İnşaat'ta parçaya dokununca: düz duvar / pencere / kapı (kapı yalnız ön, yani denize bakan duvarda). Yan yana pencereler geniş bir cam gibi birleşir |
+| Başlangıç | Yan duvarların (sağ, sol) ortasında **2 m pencere** hazır gelir; eski kayıtlarda da (Kemal: "sağ sol duvarlar çok kapalı yapıyor dükkânı"). Ön duvar eskisi gibi cam vitrin, arka duvar düz |
+| Pencere ücreti | 1 m pencere **40** (geçici); düz duvara geri çevirmek bedava |
+| Duvar ör / yık | Kare başına **150 / 50** (geçici; Kemal "daha ucuz" seçti). Yıkımda para geri gelmez. Duvar örülünce içeriye uymayan dış eşyalar depoya döner; içerinin zemini koyu ahşap |
+| İkinci kapı | **Her zaman** alınabilir, **250** (geçici); ilk kapı bedava. Kapı düz duvara geri çevrilebilir, ama en az bir kapı kalır. Müşteri tezgaha yakın olan kapıdan girer |
+| Sıra | Her kapalı kare sıraya yer ekler (0.2) |
+
 ## 1. Oyunun özeti ve vizyonu
 
 ### 1.1 Tek cümlelik özet
@@ -403,6 +414,7 @@ Uygulamada **olan**:
 | Bütün karakterler aynı parçalardan (**taslak**) | Bitti (14 Ekim). Kemal: "Tüm karakterler aynı assetlerden üretilsin bir fark olmasın. Bunu şimdilik taslak olarak kabul edeceğim, daha sonra revize ederiz, pek beğenmedim". Çalışan ve sahip de müşterilerle aynı Kenney parçalarından. Çalışan ekranındaki seçimler sürer: saç biçimi → baş modeli, ten ve saç rengi, önlük gövdenin üstünde, aksesuarlar (gözlük, güneş gözlüğü, hasır şapka, kasket, bandana, küpe). Sahip geçici: mor kıyafet, topuz, küpe. **Hepsi taslak; Kemal sonra yeniden ele alacak** |
 | Büyüme 1. adım: kareler + İnşaat modu | Bitti (14 Ekim). Arazi 4×4 m karelere bölündü (yana 10'ar sütun, arkaya 2 sıra; sınır şimdilik bu). Başta dükkânın içi ve kapının önü. Gün başı menüsünde **İnşaat**: kamera önden ve üstten bakar, kareler yeşil / sarı / gri; kareye dokununca yeri ve fiyatı, sarıysa "Al". Fiyat ön teras 250, dükkân sırası 200, arka 150; iskele tarafı %15 pahalı; her alımda %20 artar (geçici sayılar). Alınan yan / arka kareye ahşap zemin döşenir, Yerleştir'de kareleri açılır. Yürüyüş yolu deniz tarafına alındı (taş yol); kapının önü müşteri yolu olarak boş kalır. Arazi büyüdükçe genel görünüm geri çekilir. Eski "Alanlar" Geliştir'den kalktı; eski kayıtlarda alınan alanlar ve eşyaların durduğu yerler karelere taşınır |
 | Ölçü düzeni + tezgah bölümü (0.3) | Bitti (14 Ekim gece). Her şey 1 m'lik birimle: 4×4 m kare, içi 16 eşya yeri. Dükkân 8×4 m (arka duvar 0,45 m öne geldi; tezgah bölümü ve içindekiler 0,4 m öne alındı). Terasın ve alınan karelerin tahtaları 1 m, tam metrelerde, aynı hizada. Eşyalar boyuna göre 1×1 / 2×1 / 2×2, Yerleştir'de "Çevir". Tezgah bölümü İnşaat'ta seçilir (mor): ok tuşlarıyla 1 m taşınır, 4–16 m uzar / kısalır (her yeni metre 80, geçici); yakın plan, çalışan, hazırlama ve müşteri sırası onunla gider; altında kalan eşya depoya döner. Bugünkü 8×4 dükkânda yalnız kısaltıp yana kaydırmak mümkün; asıl taşıma duvar adımıyla açılır |
+| Büyüme 2. adım: duvar, pencere, kapı (0.4) | Bitti (14 Ekim gece). İnşaat'ta alınmış açık kareye "Duvar ör" (150), kapalı kareye "Duvarı yık" (50); kapalı alan tek parça kalır, tezgah bölümü ve en az bir kapı korunur. Duvarlar 1 m'lik parçalar; duvarların üstündeki şeride dokununca düz duvar / pencere (40) / kapı (ikincisinden 250, yalnız ön duvarda). Ön duvar kendiliğinden cam vitrin (tente ve ampullerle), yanlarda başta 2 m pencere. Öne kare katılınca kapı aynı sütunda öne kayar. Müşteri tezgaha en yakın kapıdan girer; her yeni kapalı kare sıraya bir kişi ekler; kapının önünden yola giden şerit boş kalır. Duvar örülünce dışarıya özel eşyalar depoya döner |
 | Açılış ekranı + Ayarlar | Bitti (14 Ekim). Ses, ekran (etiketler), eğitimi yeniden göster, dil (İngilizce gelince), baştan başla Ayarlar'da; mola menüsünde yalnız Devam et, Dükkânı gez, Ayarlar |
 | Efektler (kıvılcım, serpinti, sıkılan müşteride bulut, kasaya uçan jeton) + bahşiş + yatay balon | Bitti (14 Ekim). Bahşiş: arka arkaya 3. mükemmel servisten başlar (+2, +4… en çok +10), gün sonunda ayrı satır. Uçan jetonlar test ortamında görüntülenemedi; telefonda bakılacak |
 | Küçük düğmeler, gün başı menü şeridi, küçük etiketler + ekran ayarı (mola menüsünde), resimli eşya kartları, "Şimdi yerleştir / Alışverişe devam et" | Bitti (14 Ekim). Eşya resimleri `public/gorseller/esyalar/`; yeni eşya eklenince adresin sonuna `#onizleme=<eşya>` yazılıp çekilir |

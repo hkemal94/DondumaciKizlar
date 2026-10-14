@@ -3,7 +3,8 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { renk } from './renkler';
 import { gokRenkleri } from './gokRenkleri';
-import { YURUYUS_Z } from '../oyun/dekorasyon';
+import { PARSEL, YURUYUS_Z, Z0, parselAnahtari } from '../oyun/dekorasyon';
+import { useDurum } from '../oyun/durum';
 
 // Dükkânın penceresinden görünen dış dünya: gök, deniz, tepeler,
 // iskele, tekneler, önündeki ahşap teras. Hepsi kodla çizilmiş
@@ -197,12 +198,16 @@ const TERAS_UCU = 46;
 const ISKELE_ACIKLIGI: [number, number] = [-12.4, -9.6];
 
 function Teras() {
+  const { kapaliParseller } = useDurum();
   const tahtalar = [];
-  // Tahtalar 1 m geniş, tam metrelerde: alınan karelerin ahşabıyla aynı hizada (belge 0.3)
+  // Tahtalar 1 m geniş, tam metrelerde: alınan karelerin ahşabıyla aynı hizada (belge 0.3).
+  // Ön terastaki kare duvarla kapatılınca (belge 0.4) tahta o karenin önünde biter.
   for (let x = -TERAS_UCU; x < TERAS_UCU; x++) {
+    const kapali = kapaliParseller.includes(parselAnahtari(Math.floor(x / PARSEL), -1));
+    const arka = kapali ? Z0 - PARSEL : -2.4;
     tahtalar.push(
-      <mesh key={x} position={[x + 0.5, 0, -5.4]} receiveShadow>
-        <boxGeometry args={[0.96, 0.12, 6]} />
+      <mesh key={x} position={[x + 0.5, 0, (-8.4 + arka) / 2]} receiveShadow>
+        <boxGeometry args={[0.96, 0.12, arka + 8.4]} />
         <meshStandardMaterial color={((x % 2) + 2) % 2 ? renk.ahsapAcik : renk.ahsapOrta} roughness={0.9} />
       </mesh>,
     );

@@ -1,7 +1,19 @@
 import { useMemo, useRef, type ReactNode } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { duvarlar, kameraKarisimi, tezgahOfsetiniGuncelle } from './kameraKarisimi';
-import { PARSEL, Z0 } from '../oyun/dekorasyon';
+import {
+  PARSEL,
+  Z0,
+  kenarAnahtari,
+  kenarYeri,
+  parcaTuru,
+  parselCoz,
+  parselSiniri,
+  sinirKenarlari,
+  type Kenar,
+  type ParcaTuru,
+  type Yon,
+} from '../oyun/dekorasyon';
 import * as THREE from 'three';
 import { renk } from './renkler';
 import { CESITLER, kuvetKonumu, vitrinGenisligi } from '../oyun/kuvetler';
@@ -13,14 +25,11 @@ import { durumuOku, kuveteBas, useDurum } from '../oyun/durum';
 // Dükkânın içi, tezgahın arkasından görünen hâli (birinci şahıs yakın plan).
 // Kodla çizilmiş geçici parçalar; asıl modeller sonra gelecek.
 
-const PENCERE_Z = Z0; // pencere duvarının yeri
 const ESIK = 1.05; // pencerenin alt kenarı
 const PENCERE_UST = 2.75;
 const TAVAN = 3.25;
-// Dükkân 8×4 m (belge 0.3): ön duvar Z0, arka duvar 4 m geride
+// Başlangıçtaki dükkânın arka duvarı (menü panosu ve logo bunun üstünde)
 const ARKA_Z = Z0 + PARSEL;
-const DERINLIK = ARKA_Z - PENCERE_Z;
-const ORTA_Z = (PENCERE_Z + ARKA_Z) / 2;
 
 function Kutu({
   konum,
@@ -47,70 +56,9 @@ function Kutu({
 
 // Kapı: pencere duvarının sol ucunda, terasa açılır (Kemal, 13 Ekim:
 // "müşterilerin girişi için bir kapı lazım"). Müşteriler buradan girip çıkar.
-export const KAPI_X = -3.4;
-const KAPI_SOL = -3.95;
-const KAPI_SAG = -2.85;
 const KAPI_UST = 2.15;
 
-function PencereDuvari() {
-  const kalinlik = 0.18;
-  const z = PENCERE_Z;
-  return (
-    <group>
-      {/* Eşiğin altı: dikey ahşap tahtalar (kapının olduğu yerde yok) */}
-      {Array.from({ length: 20 }, (_, i) => -3.8 + i * 0.4)
-        .filter((x) => x - 0.2 >= KAPI_SAG - 0.01)
-        .map((x, i) => (
-          <Kutu key={x} konum={[x, ESIK / 2, z + (i % 2) * 0.01]} boyut={[0.39, ESIK, kalinlik]} renkAdi={i % 2 ? renk.ahsapAcik : '#b98a5f'} />
-        ))}
-      {/* Pencerenin üstü */}
-      <Kutu konum={[0, (PENCERE_UST + TAVAN) / 2, z]} boyut={[8, TAVAN - PENCERE_UST, kalinlik]} renkAdi={renk.duvar} golgeVer={false} />
-      {/* Sağ yan duvar parçası */}
-      <Kutu konum={[3.65, 1.6, z]} boyut={[0.7, 3.2, kalinlik]} renkAdi={renk.duvar} golgeVer={false} />
-      {/* Kapının üstü */}
-      <Kutu konum={[(KAPI_SOL + KAPI_SAG) / 2, (KAPI_UST + PENCERE_UST) / 2, z]} boyut={[KAPI_SAG - KAPI_SOL + 0.1, PENCERE_UST - KAPI_UST, kalinlik]} renkAdi={renk.duvar} golgeVer={false} />
-      {/* Kapı kasası (mor) ve açık duran kapı kanadı */}
-      {[KAPI_SOL, KAPI_SAG].map((x) => (
-        <Kutu key={x} konum={[x, KAPI_UST / 2, z]} boyut={[0.1, KAPI_UST, 0.24]} renkAdi={renk.pencereCerceve} golgeVer={false} />
-      ))}
-      <Kutu konum={[(KAPI_SOL + KAPI_SAG) / 2, KAPI_UST, z]} boyut={[KAPI_SAG - KAPI_SOL + 0.1, 0.1, 0.24]} renkAdi={renk.pencereCerceve} golgeVer={false} />
-      <group position={[KAPI_SOL + 0.05, 0, z + 0.05]} rotation={[0, -1.35, 0]}>
-        <Kutu konum={[0.45, KAPI_UST / 2 - 0.03, 0]} boyut={[0.9, KAPI_UST - 0.08, 0.05]} renkAdi={renk.mor} golgeVer={false} />
-        <mesh position={[0.45, 1.25, 0.03]}>
-          <boxGeometry args={[0.6, 0.8, 0.02]} />
-          <meshPhysicalMaterial color={renk.cam} transparent opacity={0.4} roughness={0.05} />
-        </mesh>
-        <Kutu konum={[0.78, 1.0, 0.05]} boyut={[0.04, 0.2, 0.04]} renkAdi={renk.sari} golgeVer={false} />
-      </group>
-      {/* Pencere çerçevesi ve kayıtları */}
-      {[KAPI_SAG + 0.1, -1.1, 1.1, 3.25].map((x) => (
-        <Kutu key={x} konum={[x, (ESIK + PENCERE_UST) / 2, z + 0.02]} boyut={[0.14, PENCERE_UST - ESIK, 0.22]} renkAdi={renk.pencereCerceve} golgeVer={false} />
-      ))}
-      <Kutu konum={[(KAPI_SAG + 3.8) / 2, ESIK, z + 0.08]} boyut={[3.8 - KAPI_SAG, 0.08, 0.5]} renkAdi={renk.ahsapOrta} golgeVer={false} />
-      <Kutu konum={[(KAPI_SAG + 3.35) / 2, PENCERE_UST, z + 0.02]} boyut={[3.35 - KAPI_SAG, 0.14, 0.22]} renkAdi={renk.pencereCerceve} golgeVer={false} />
-    </group>
-  );
-}
 
-// Pencerenin dışındaki çizgili tente: logo renkleri mor ve sarı (tonlar taslak).
-function Tente() {
-  const seritler = [];
-  const sayi = 14;
-  const genislik = 7.2 / sayi;
-  for (let i = 0; i < sayi; i++) {
-    seritler.push(
-      <mesh key={i} position={[-3.6 + genislik * (i + 0.5), 0, 0]} castShadow>
-        <boxGeometry args={[genislik, 0.04, 1.1]} />
-        <meshStandardMaterial color={i % 2 ? renk.sari : renk.mor} roughness={0.9} />
-      </mesh>,
-    );
-  }
-  return (
-    <group position={[0, PENCERE_UST + 0.12, PENCERE_Z - 0.55]} rotation={[0.32, 0, 0]}>
-      {seritler}
-    </group>
-  );
-}
 
 // Dükkânın genel görünümünde (yukarıdan) tavan ve öndeki duvar kalkar;
 // bebek evi gibi içi görünür. Tezgah görünümünde yerlerine gelir.
@@ -125,7 +73,6 @@ export function TezgahtaGorunur({ children }: { children: ReactNode }) {
 // Bebek evi kesiti: genel görünümde kameraya dönük duvarlar kalkar, ötekiler
 // kalır. Dükkân gezilirken (döndürünce) hangi duvarın kalkacağı değişir.
 // Tezgah görünümünde bütün duvarlar yerinde.
-const DUKKAN_ORTASI = new THREE.Vector3(0, 0, -0.3);
 function KesikDuvar({ yon, children }: { yon: [number, number]; children: ReactNode }) {
   const ref = useRef<THREE.Group>(null);
   const kameraYonu = useMemo(() => new THREE.Vector3(), []);
@@ -157,55 +104,193 @@ function Tavan({ children }: { children: ReactNode }) {
   return <group ref={ref}>{children}</group>;
 }
 
-function Odalar() {
+// ---- Kapalı alan: zemin, duvar parçaları, tavan (belge 0.4) ----
+// Duvarlar 1 m'lik parçalar: düz duvar, pencere ya da kapı. Ön (denize
+// bakan) parçalar kendiliğinden cam vitrin, üstlerinde tente ve ampuller.
+
+// Bir duvar parçası; yerel x boyunca 1 m, dışa bakan yüz yerel −z
+const PARCA_BOY = 1.1; // köşelerde boşluk kalmasın diye biraz taşar
+
+function DuzDuvar() {
+  return <Kutu konum={[0, 1.6, 0]} boyut={[PARCA_BOY, 3.3, 0.1]} renkAdi={renk.duvar} golgeVer={false} />;
+}
+
+function PencereParcasi({ on, c }: { on: boolean; c: number }) {
   return (
     <group>
-      {/* Zemin */}
-      <Kutu konum={[0, -0.05, ORTA_Z]} boyut={[8, 0.1, DERINLIK]} renkAdi={renk.ahsapKoyu} golgeVer={false} />
-      {/* Duvarlar: genel görünümde kameraya dönük olanlar kalkar */}
-      <KesikDuvar yon={[1, 0]}>
-        <Kutu konum={[4, 1.6, ORTA_Z]} boyut={[0.1, 3.3, DERINLIK]} renkAdi={renk.duvar} golgeVer={false} />
+      {/* Eşiğin altı: önde dikey ahşap tahtalar, yanlarda duvar */}
+      {on ? (
+        [-0.25, 0.25].map((x, i) => (
+          <Kutu key={x} konum={[x, ESIK / 2, i * 0.01]} boyut={[0.49, ESIK, 0.18]} renkAdi={(c + i) % 2 ? renk.ahsapAcik : '#b98a5f'} />
+        ))
+      ) : (
+        <Kutu konum={[0, ESIK / 2, 0]} boyut={[PARCA_BOY, ESIK, 0.1]} renkAdi={renk.duvar} golgeVer={false} />
+      )}
+      {/* Pencerenin üstü */}
+      <Kutu konum={[0, (PENCERE_UST + TAVAN + 0.05) / 2, 0]} boyut={[PARCA_BOY, TAVAN + 0.05 - PENCERE_UST, 0.1]} renkAdi={renk.duvar} golgeVer={false} />
+      {/* Cam */}
+      <mesh position={[0, (ESIK + PENCERE_UST) / 2, 0]}>
+        <boxGeometry args={[1, PENCERE_UST - ESIK, 0.02]} />
+        <meshPhysicalMaterial color={renk.cam} transparent opacity={0.18} roughness={0.05} />
+      </mesh>
+      {/* Çerçeve: kenar kaydı, eşik ve üst kayıt */}
+      <Kutu konum={[-0.5, (ESIK + PENCERE_UST) / 2, 0.02]} boyut={[0.08, PENCERE_UST - ESIK, 0.2]} renkAdi={renk.pencereCerceve} golgeVer={false} />
+      <Kutu konum={[0, ESIK, 0.06]} boyut={[1.04, 0.08, on ? 0.5 : 0.24]} renkAdi={renk.ahsapOrta} golgeVer={false} />
+      <Kutu konum={[0, PENCERE_UST, 0.02]} boyut={[1.04, 0.12, 0.2]} renkAdi={renk.pencereCerceve} golgeVer={false} />
+    </group>
+  );
+}
+
+function KapiParcasi() {
+  const sol = -0.45;
+  const sag = 0.45;
+  return (
+    <group>
+      {/* Kapının üstü */}
+      <Kutu konum={[0, (KAPI_UST + TAVAN + 0.05) / 2, 0]} boyut={[PARCA_BOY, TAVAN + 0.05 - KAPI_UST, 0.1]} renkAdi={renk.duvar} golgeVer={false} />
+      {/* Kapı kasası (mor) ve açık duran kapı kanadı */}
+      {[sol, sag].map((x) => (
+        <Kutu key={x} konum={[x, KAPI_UST / 2, 0]} boyut={[0.1, KAPI_UST, 0.24]} renkAdi={renk.pencereCerceve} golgeVer={false} />
+      ))}
+      <Kutu konum={[0, KAPI_UST, 0]} boyut={[sag - sol + 0.1, 0.1, 0.24]} renkAdi={renk.pencereCerceve} golgeVer={false} />
+      <group position={[sol + 0.05, 0, 0.05]} rotation={[0, -1.35, 0]}>
+        <Kutu konum={[0.4, KAPI_UST / 2 - 0.03, 0]} boyut={[0.8, KAPI_UST - 0.08, 0.05]} renkAdi={renk.mor} golgeVer={false} />
+        <mesh position={[0.4, 1.25, 0.03]}>
+          <boxGeometry args={[0.55, 0.8, 0.02]} />
+          <meshPhysicalMaterial color={renk.cam} transparent opacity={0.4} roughness={0.05} />
+        </mesh>
+        <Kutu konum={[0.7, 1.0, 0.05]} boyut={[0.04, 0.2, 0.04]} renkAdi={renk.sari} golgeVer={false} />
+      </group>
+    </group>
+  );
+}
+
+// Ön parçaların dışındaki tente şeridi (mor-sarı) ve içerideki ampuller
+function TenteParcasi() {
+  return (
+    <group position={[0, PENCERE_UST + 0.12, -0.55]} rotation={[0.32, 0, 0]}>
+      {[-0.25, 0.25].map((x, i) => (
+        <mesh key={x} position={[x, 0, 0]} castShadow>
+          <boxGeometry args={[0.5, 0.04, 1.1]} />
+          <meshStandardMaterial color={i % 2 ? renk.sari : renk.mor} roughness={0.9} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function AmpulParcasi() {
+  return (
+    <group>
+      {[-0.25, 0.25].map((x) => (
+        <mesh key={x} position={[x, PENCERE_UST - 0.2, 0.2]}>
+          <sphereGeometry args={[0.045, 8, 6]} />
+          <meshStandardMaterial color="#fff3c4" emissive="#ffd98a" emissiveIntensity={1.6} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+const DONUS: Record<Yon, number> = { g: 0, k: Math.PI, b: Math.PI / 2, d: -Math.PI / 2 };
+
+function DuvarParcasi({ k, tur }: { k: Kenar; tur: ParcaTuru }) {
+  const { x, z, nx, nz } = kenarYeri(k);
+  const on = k.y === 'g';
+  return (
+    <group position={[x, 0, z]} rotation={[0, DONUS[k.y], 0]}>
+      {/* Duvar genel görünümde kameraya dönükse kalkar; yerinde alçak bir dip kalır */}
+      <KesikDuvar yon={[nx, nz]}>
+        {tur === 'duvar' ? <DuzDuvar /> : tur === 'pencere' ? <PencereParcasi on={on} c={k.c} /> : <KapiParcasi />}
+        {on && <TenteParcasi />}
+        {on && tur === 'pencere' && <AmpulParcasi />}
       </KesikDuvar>
-      <KesikDuvar yon={[0, 1]}>
-        <Kutu konum={[0, 1.6, ARKA_Z]} boyut={[8.1, 3.3, 0.1]} renkAdi={renk.duvar} golgeVer={false} />
-        <MenuPanosu />
-        <LogoLevhasi tur="yazi" genislik={1.5} konum={[1.25, 2.25, ARKA_Z - 0.07]} donuk={Math.PI} />
-      </KesikDuvar>
-      <KesikDuvar yon={[-1, 0]}>
-        <Kutu konum={[-4, 1.6, ORTA_Z]} boyut={[0.1, 3.3, DERINLIK]} renkAdi={renk.duvar} golgeVer={false} />
-      </KesikDuvar>
-      <Tavan>
-        {/* Tavan */}
-        <Kutu konum={[0, TAVAN, ORTA_Z]} boyut={[8, 0.1, DERINLIK]} renkAdi={renk.ahsapAcik} golgeVer={false} golgeAl={false} />
-        {/* Tavan kirişleri */}
-        {[-1.6, 0.2].map((z) => (
-          <Kutu key={z} konum={[0, TAVAN - 0.12, z]} boyut={[8, 0.16, 0.2]} renkAdi={renk.ahsapOrta} golgeVer={false} />
-        ))}
-        {/* Damın dış yüzü ve saçak: dışarıdan bakınca görünür */}
-        <Kutu konum={[0, TAVAN + 0.1, ORTA_Z]} boyut={[8.5, 0.12, DERINLIK + 0.5]} renkAdi={renk.mor} golgeVer={false} golgeAl={false} />
-        <Kutu konum={[0, TAVAN + 0.2, ORTA_Z]} boyut={[8.2, 0.08, DERINLIK + 0.2]} renkAdi="#e9d6bd" golgeVer={false} golgeAl={false} />
-      </Tavan>
-      {/* Kesik duvar dipleri: duvar kalkınca yerinde alçak bir dip kalır */}
-      <Kutu konum={[4, 0.18, ORTA_Z]} boyut={[0.14, 0.36, DERINLIK]} renkAdi={renk.duvar} golgeVer={false} />
-      <Kutu konum={[0, 0.18, ARKA_Z]} boyut={[8.14, 0.36, 0.14]} renkAdi={renk.duvar} golgeVer={false} />
-      <Kutu konum={[-4, 0.18, ORTA_Z]} boyut={[0.14, 0.36, DERINLIK]} renkAdi={renk.duvar} golgeVer={false} />
-      <Kutu konum={[(KAPI_SAG + 4.07) / 2, 0.18, PENCERE_Z]} boyut={[4.07 - KAPI_SAG, 0.36, 0.2]} renkAdi={renk.ahsapAcik} golgeVer={false} />
-      {/* Genel görünümde kapının yeri: zeminde mor eşik */}
-      <Kutu konum={[(KAPI_SOL + KAPI_SAG) / 2, 0.02, PENCERE_Z]} boyut={[KAPI_SAG - KAPI_SOL, 0.04, 0.3]} renkAdi={renk.mor} golgeVer={false} />
+      {tur === 'kapi' ? (
+        // Genel görünümde kapının yeri: zeminde mor eşik
+        <Kutu konum={[0, 0.02, 0]} boyut={[0.9, 0.04, 0.3]} renkAdi={renk.mor} golgeVer={false} />
+      ) : (
+        <Kutu konum={[0, 0.18, 0]} boyut={[PARCA_BOY, 0.36, 0.14]} renkAdi={on ? renk.ahsapAcik : renk.duvar} golgeVer={false} />
+      )}
+    </group>
+  );
+}
+
+// Kapalı alanın ortası: kesik duvarlar hangi yüzün kameraya döndüğüne buna göre bakar
+const DUKKAN_ORTASI = new THREE.Vector3(0, 0, -0.4);
+
+function Odalar() {
+  const { kapaliParseller, duvarParcalari } = useDurum();
+  const kenarlar = useMemo(() => sinirKenarlari(kapaliParseller), [kapaliParseller]);
+  let solX = Infinity, sagX = -Infinity, onZ = Infinity, arkaZ = -Infinity;
+  for (const p of kapaliParseller) {
+    const { i, j } = parselCoz(p);
+    const s = parselSiniri(i, j);
+    solX = Math.min(solX, s.solX);
+    sagX = Math.max(sagX, s.sagX);
+    onZ = Math.min(onZ, s.onZ);
+    arkaZ = Math.max(arkaZ, s.arkaZ);
+  }
+  DUKKAN_ORTASI.set((solX + sagX) / 2, 0, (onZ + arkaZ) / 2);
+  // Arka duvardaki menü panosu ve logo: o parçalar düz duvar olarak durdukça
+  const arkaDuvar = (c: number) => {
+    const k: Kenar = { c, r: PARSEL - 1, y: 'k' };
+    return kenarlar.some((x) => kenarAnahtari(x) === kenarAnahtari(k)) && parcaTuru(k, duvarParcalari) === 'duvar';
+  };
+  // Ön cephedeki logo: 0. sütunun en öndeki camının üstünde
+  const onLogo = kenarlar.filter((k) => k.y === 'g' && k.c === 0 && parcaTuru(k, duvarParcalari) === 'pencere').sort((a, b) => a.r - b.r)[0];
+  return (
+    <group>
+      {kapaliParseller.map((p) => {
+        const { i, j } = parselCoz(p);
+        const s = parselSiniri(i, j);
+        const ox = (s.solX + s.sagX) / 2;
+        const oz = (s.onZ + s.arkaZ) / 2;
+        return (
+          <group key={p}>
+            {/* İç zemin: koyu ahşap */}
+            <Kutu konum={[ox, -0.05, oz]} boyut={[PARSEL, 0.1, PARSEL]} renkAdi={renk.ahsapKoyu} golgeVer={false} />
+            <Tavan>
+              <Kutu konum={[ox, TAVAN, oz]} boyut={[PARSEL, 0.1, PARSEL]} renkAdi={renk.ahsapAcik} golgeVer={false} golgeAl={false} />
+              {[-1.2, 0.8].map((dz) => (
+                <Kutu key={dz} konum={[ox, TAVAN - 0.12, oz + dz]} boyut={[PARSEL, 0.16, 0.2]} renkAdi={renk.ahsapOrta} golgeVer={false} />
+              ))}
+              {/* Damın dış yüzü ve saçak: dışarıdan bakınca görünür */}
+              <Kutu konum={[ox, TAVAN + 0.1, oz]} boyut={[PARSEL + 0.25, 0.12, PARSEL + 0.25]} renkAdi={renk.mor} golgeVer={false} golgeAl={false} />
+              <Kutu konum={[ox, TAVAN + 0.2, oz]} boyut={[PARSEL + 0.1, 0.08, PARSEL + 0.1]} renkAdi="#e9d6bd" golgeVer={false} golgeAl={false} />
+            </Tavan>
+          </group>
+        );
+      })}
+      {kenarlar.map((k) => (
+        <DuvarParcasi key={kenarAnahtari(k)} k={k} tur={parcaTuru(k, duvarParcalari)} />
+      ))}
+      {arkaDuvar(-2) && (
+        <KesikDuvar yon={[0, 1]}>
+          <MenuPanosu />
+        </KesikDuvar>
+      )}
+      {arkaDuvar(1) && (
+        <KesikDuvar yon={[0, 1]}>
+          <LogoLevhasi tur="yazi" genislik={1.5} konum={[1.25, 2.25, ARKA_Z - 0.07]} donuk={Math.PI} />
+        </KesikDuvar>
+      )}
+      {onLogo && (
+        <KesikDuvar yon={[0, -1]}>
+          <LogoLevhasi tur="yazi" genislik={0.8} konum={[0.6, (PENCERE_UST + TAVAN) / 2 + 0.02, Z0 + onLogo.r - 0.1]} donuk={Math.PI} />
+        </KesikDuvar>
+      )}
       {/* Dükkânın etrafındaki taş kaldırım; derzler arazi karelerinin sınırında (4 m) */}
       <mesh position={[0, -0.12, 4.6]} receiveShadow>
         <boxGeometry args={[92, 0.1, 14.4]} />
         <meshStandardMaterial color="#d9c9ad" roughness={1} />
       </mesh>
-      {Array.from({ length: 23 }, (_, n) => (n - 11) * 4)
-        .filter((x) => Math.abs(x) > 4)
-        .map((x) => (
-          <mesh key={x} position={[x, -0.065, 4.6]}>
-            <boxGeometry args={[0.06, 0.01, 14.4]} />
-            <meshStandardMaterial color="#c4b293" />
-          </mesh>
-        ))}
-      {[6.05, 10.05].map((z) => (
+      {Array.from({ length: 23 }, (_, n) => (n - 11) * 4).map((x) => (
+        <mesh key={x} position={[x, -0.065, 4.6]}>
+          <boxGeometry args={[0.06, 0.01, 14.4]} />
+          <meshStandardMaterial color="#c4b293" />
+        </mesh>
+      ))}
+      {[Z0 + PARSEL, Z0 + 2 * PARSEL, Z0 + 3 * PARSEL].map((z) => (
         <mesh key={z} position={[0, -0.065, z]}>
           <boxGeometry args={[92, 0.01, 0.06]} />
           <meshStandardMaterial color="#c4b293" />
@@ -214,6 +299,7 @@ function Odalar() {
     </group>
   );
 }
+
 
 // Tezgah bölümü (belge 0.3): vitrinli tezgah, arka tezgah, çalışan ve
 // hazırlama tek parça; taşınınca hep birlikte kayar. İçindekiler bölümün
@@ -356,21 +442,6 @@ function MenuPanosu() {
   );
 }
 
-// Pencere üstünde asılı küçük ampuller: sıcak hava.
-function Ampuller() {
-  const ampuller = [];
-  for (let i = 0; i < 13; i++) {
-    const x = -3 + i * 0.5;
-    const sarkma = Math.sin((i / 12) * Math.PI) * 0.18;
-    ampuller.push(
-      <mesh key={i} position={[x, PENCERE_UST - 0.12 - sarkma, PENCERE_Z + 0.2]}>
-        <sphereGeometry args={[0.045, 8, 6]} />
-        <meshStandardMaterial color="#fff3c4" emissive="#ffd98a" emissiveIntensity={1.6} />
-      </mesh>,
-    );
-  }
-  return <group>{ampuller}</group>;
-}
 
 // Küvetteki dondurma: engebeli, basık bir tümsek.
 function DondurmaYuzeyi({ renkAdi, tohum }: { renkAdi: string; tohum: number }) {
@@ -558,14 +629,6 @@ export function Dukkan() {
   return (
     <group>
       <Odalar />
-      {/* Dükkânın önü (pencere duvarı): genel görünümde kamera önden baktığı için kalkar */}
-      <KesikDuvar yon={[0, -1]}>
-        <PencereDuvari />
-        {/* Ön cephe: pencerenin üstündeki bantta logo */}
-        <LogoLevhasi tur="yazi" genislik={0.8} konum={[0.6, (PENCERE_UST + TAVAN) / 2 + 0.02, PENCERE_Z - 0.1]} donuk={Math.PI} />
-        <Tente />
-        <Ampuller />
-      </KesikDuvar>
       <TezgahGrubu>
         <Tezgah />
         <ArkaTezgah />
