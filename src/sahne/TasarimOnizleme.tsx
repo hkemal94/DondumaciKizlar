@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { InsanKarakter, type Hareket } from './InsanKarakter';
 import { HazirModel } from './HazirModel';
 import { rastgeleVaryant } from './karakterler';
+import { Disari } from './Disari';
 import { Canvas, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { renk } from './renkler';
@@ -130,7 +131,7 @@ export function TasarimOnizleme({ adres }: { adres: string }) {
         <meshStandardMaterial color={renk.kum} roughness={0.95} />
       </mesh>
       <gridHelper args={[80, 80, '#c9b9a3', '#d8c6a6']} position={[0, 0.002, 0]} />
-      {paket.startsWith('insan') ? <InsanlarOnizleme /> : <Dizi paket={paket} ham={ham} />}
+      {paket.startsWith('liman') ? <LimanKusbakisi /> : paket.startsWith('insan') ? <InsanlarOnizleme /> : <Dizi paket={paket} ham={ham} />}
     </Canvas>
   );
 }
@@ -178,4 +179,22 @@ function InsanlarOnizleme() {
       </group>
     </>
   );
+}
+
+// Liman kuşbakışı (yalnız geliştirirken, belge 0.10): #tasarim=liman
+function LimanKusbakisi() {
+  const { camera } = useThree();
+  useEffect(() => {
+    // #tasarim=liman-yakin: dükkânın üstünden
+    if (location.hash.endsWith('-yakin')) {
+      camera.position.set(0, 90, 20);
+      camera.lookAt(0, 0, -10);
+    } else {
+      camera.position.set(0, 620, 160);
+      camera.lookAt(0, 0, -40);
+    }
+    (camera as THREE.PerspectiveCamera).far = 2000;
+    camera.updateProjectionMatrix();
+  }, [camera]);
+  return <Disari />;
 }
