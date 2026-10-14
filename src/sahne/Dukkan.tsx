@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { renk } from './renkler';
 import { CESITLER, kuvetKonumu, vitrinGenisligi } from '../oyun/kuvetler';
 import { m, type MetinAnahtari } from '../metinler';
+import { useEkranAyari } from '../arayuz/ekranAyari';
 import { logoDokusu, LOGO_DOSYALARI, type LogoTuru } from './logo';
 import { durumuOku, kuveteBas, useDurum } from '../oyun/durum';
 
@@ -397,19 +398,19 @@ function KuvetEtiketi({ cesit, arkada }: { cesit: number; arkada: boolean }) {
   if (arkada)
     return (
       <group position={[0, 0, -0.13]}>
-        <mesh position={[0, 0.13, -0.01]}>
-          <cylinderGeometry args={[0.008, 0.008, 0.26, 4]} />
+        <mesh position={[0, 0.1, -0.01]}>
+          <cylinderGeometry args={[0.008, 0.008, 0.2, 4]} />
           <meshStandardMaterial color="#b9c0c6" />
         </mesh>
-        <mesh position={[0, 0.27, 0]} rotation={[-0.25, 0, 0]}>
-          <planeGeometry args={[0.5, 0.14]} />
+        <mesh position={[0, 0.21, 0]} rotation={[-0.25, 0, 0]}>
+          <planeGeometry args={[0.34, 0.095]} />
           <meshBasicMaterial map={doku} toneMapped={false} />
         </mesh>
       </group>
     );
   return (
-    <mesh position={[0, 0.06, 0.25]} rotation={[-0.5, 0, 0]}>
-      <planeGeometry args={[0.5, 0.14]} />
+    <mesh position={[0, 0.05, 0.25]} rotation={[-0.5, 0, 0]}>
+      <planeGeometry args={[0.34, 0.095]} />
       <meshBasicMaterial map={doku} toneMapped={false} />
     </mesh>
   );
@@ -419,6 +420,7 @@ function KuvetEtiketi({ cesit, arkada }: { cesit: number; arkada: boolean }) {
 // sıra), üstünde cam siper. Küvete basılı tutunca kepçe dalar.
 function Vitrin() {
   const { vitrin } = useDurum();
+  const { kuvetEtiketi } = useEkranAyari();
   const VITRIN_GENISLIGI = vitrinGenisligi(vitrin.length);
   return (
     <group position={[0, 0, -0.62]}>
@@ -449,7 +451,7 @@ function Vitrin() {
               </mesh>
             </group>
             <group position={[0, 0, k.arkada ? 0 : (k.olcekZ - 1) * 0.25]} scale={[k.olcekX, k.olcekX, 1]}>
-              <KuvetEtiketi cesit={cesit} arkada={k.arkada} />
+              {kuvetEtiketi && <KuvetEtiketi cesit={cesit} arkada={k.arkada} />}
             </group>
           </group>
         );

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import {
   bastanBasla,
+  esyaSec,
+  yerlestirmeyiAc,
   butunFiyatlariSec,
   cesitFiyati,
   cesitFiyatiSec,
@@ -28,7 +30,7 @@ import {
   type FiyatSeviyesi,
 } from '../oyun/durum';
 import { CESITLER, FIYAT_ARALIGI, makulFiyat } from '../oyun/kuvetler';
-import { BOLGELER, EN_YUKSEK_ISIK, ESYALAR, ISIK_SEVIYELERI } from '../oyun/dekorasyon';
+import { BOLGELER, EN_YUKSEK_ISIK, ESYALAR, ISIK_SEVIYELERI, type Esya } from '../oyun/dekorasyon';
 import { m, type MetinAnahtari } from '../metinler';
 import { logoAdresi } from '../sahne/logo';
 
@@ -36,6 +38,11 @@ import { logoAdresi } from '../sahne/logo';
 // dekorasyon. Gün sonu ekranından açılır. Sayılar geçici (belge 7.4).
 
 type Sekme = 'cesitler' | 'fiyat' | 'dekorasyon';
+
+// Mağaza resmi: public/gorseller/esyalar/ (oyundaki modelden çekildi; Onizleme.tsx)
+function esyaResmi(e: Esya) {
+  return `${import.meta.env.BASE_URL}gorseller/esyalar/${e}.webp`;
+}
 
 function Para({ miktar }: { miktar: number }) {
   return (
@@ -112,9 +119,37 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
   const durum = useDurum();
   const [sekme, setSekme] = useState<Sekme>('cesitler');
   const [silmeOnayi, setSilmeOnayi] = useState(false);
+  const [alinan, setAlinan] = useState<Esya | null>(null);
 
   return (
     <div className="gun-sonu-zemin">
+      {/* Eşya alınınca: hemen yerleştir ya da alışverişe devam et (Kemal, 14 Ekim) */}
+      {alinan && (
+        <div className="alindi-zemin">
+          <div className="alindi" role="dialog" aria-labelledby="alindi-baslik">
+            <img src={esyaResmi(alinan)} alt="" aria-hidden />
+            <h3 id="alindi-baslik">{m('alindi.baslik', { ad: m(`esya.${alinan}` as MetinAnahtari) })}</h3>
+            <p>{m('alindi.depoda', { sayi: depodaki(alinan, durum) })}</p>
+            <div className="alindi-dugmeler">
+              <button className="dugme" onClick={() => setAlinan(null)}>
+                {m('alindi.devam')}
+              </button>
+              <button
+                className="dugme dugme-servis"
+                onClick={() => {
+                  const e = alinan;
+                  setAlinan(null);
+                  kapat();
+                  yerlestirmeyiAc();
+                  esyaSec(e);
+                }}
+              >
+                {m('alindi.yerlestir')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="gelistir" role="dialog" aria-labelledby="gelistir-baslik">
         <div className="gel-ust">
           <img className="baslik-logo" src={logoAdresi('yazi')} alt="" aria-hidden />
@@ -252,17 +287,25 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
               {(['oturma', 'dis'] as const).map((grup) => (
                 <div key={grup}>
                   <div className="gel-baslik">{m(`dekor.${grup}`)}</div>
-                  <div className="gel-izgara">
+                  {/* Resimli kartlar (Kemal, 14 Ekim): eşyanın oyundaki modelinden küçük resim */}
+                  <div className="esya-izgara">
                     {ESYALAR.filter((e) => e.grup === grup).map((e) => (
-                      <div key={e.id} className="gel-kart">
-                        <span className="gel-ad">
-                          {m(`esya.${e.id}` as MetinAnahtari)}
-                          <span className="gel-aciklama"> · {m('dekor.depoda', { sayi: depodaki(e.id, durum) })}</span>
+                      <button
+                        key={e.id}
+                        className="esya-kart"
+                        disabled={durum.para < e.fiyat}
+                        onClick={() => {
+                          esyaAl(e.id);
+                          setAlinan(e.id);
+                        }}
+                      >
+                        <img src={esyaResmi(e.id)} alt="" aria-hidden />
+                        <span className="esya-kart-ad">{m(`esya.${e.id}` as MetinAnahtari)}</span>
+                        <span className="esya-kart-alt">
+                          <Para miktar={e.fiyat} />
+                          {depodaki(e.id, durum) > 0 && <span className="esya-sayi">{depodaki(e.id, durum)}</span>}
                         </span>
-                        <button className="dugme gel-al" disabled={durum.para < e.fiyat} onClick={() => esyaAl(e.id)}>
-                          {m('gelistir.al')} <Para miktar={e.fiyat} />
-                        </button>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </div>
