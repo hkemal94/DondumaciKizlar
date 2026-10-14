@@ -155,6 +155,28 @@ Taslakla çelişen yerde bu bölüm geçerli.
 - Gün başında **İnşaat modu**: dükkâna üstten bakılır, dilimler renkli görünür.
 - Dilime dokununca seçenekler ve fiyat çıkar: Al / Duvar ör / Mutfağa kat / Tezgah parçası koy.
 
+### 0.2 Büyüme soru turu 2 (Kemal, 14 Ekim akşam)
+
+0.1'i şu cevaplar netleştirir; çelişirse **bunlar geçerli**.
+
+| Konu | Karar |
+|---|---|
+| Ön teras | Yol deniz tarafına kayar. **Ön teras da satın alınır**: başta yalnız dükkânın içi ve kapının önü açık |
+| Arazi biçimi | **Kare kare** (~4×4 m). Her kare ayrı alınır |
+| Alma sırası | Yalnız sahip olunan yere **komşu** kare alınır; arada boşluk kalmaz |
+| Kamera | Dükkân büyüdükçe genel görünüm **kendiliğinden geri çekilir**; yakınlaştırma yine oyuncuda |
+| İnşaat modu | **Yalnız gün başında** (müşteri yokken) |
+| Renkler | Trafik ışığı: alınmış **yeşil**, alınabilir **sarı**, alınamaz **gri** |
+| Duvar örülünce | İçeriye uymayan dış eşyalar **depoya döner**; içe uyanlar yerinde kalır |
+| Kapı | Bugünkü kapı yerinde kalır. Ön duvar yeterince uzayınca (ör. 3 kare) **ikinci kapı** alınabilir; müşteri yakın olandan girer |
+| Fiyat ölçüsü | **Bugünkü gibi**: ilk kare ~150–250, her alımda biraz artar; ön / iskele tarafı pahalı, arka ucuz |
+| Duvarı yıkmak | **Ücretli**, duvara ödenen para geri gelmez |
+| Eski "Alanlar" | Eski alınan yerin üstüne düşen kareler oyuncunun olur, eşyalar yerinde kalır |
+| Boş mutfak | Fayans zemin, boş; makine ve depo geldikçe dolar |
+| Uzun sıra | **Duvarla birlikte**: her kapalı kare sıraya yer ekler |
+| İç masalar | Müşteriler dış masalar gibi iç masalara da oturur |
+| İş sırası | 1) Kareler + yol denize + İnşaat modu + Al → 2) Duvar ör / yık + uzun sıra + ikinci kapı → 3) Mutfağa kat → sonra 3b (tezgah parçaları, istasyonlar, makineler, yardımcı). Her adım ayrı PR |
+
 ## 1. Oyunun özeti ve vizyonu
 
 ### 1.1 Tek cümlelik özet
