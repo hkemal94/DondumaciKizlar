@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { birimIcMi, dukkanKapilari, durumuOku, kapaliParseller, musteriTezgahaVardi, musteriyiKaldir, ondekiMusteri, useDurum, type Durum, type Musteri } from '../oyun/durum';
+import { birimIcMi, dukkanKapilari, durumuOku, kapaliParseller, kuyrugu, musteriVardi, siradakiler, type Kuyruk, musteriTezgahaVardi, musteriyiKaldir, ondekiMusteri, useDurum, type Durum, type Musteri } from '../oyun/durum';
 import { PARSEL, YURUYUS_Z, Z0, birimCoz, esyaOrtasi, kenarYeri, parselCoz } from '../oyun/dekorasyon';
 import { tezgahOfseti } from './kameraKarisimi';
+import { parcaYerleri } from '../oyun/makine';
 import { BANK_OTURAKLARI } from './DisSusler';
 import { Parcaciklar } from './Efektler';
 import { rastgeleVaryant } from './karakterler';
@@ -61,7 +62,16 @@ function yoldanKoltuga(yer: THREE.Vector3, d: Durum): THREE.Vector3[] {
 
 // Sıra tezgah bölümüyle birlikte kayar (belge 0.3). Öndeki tezgahın
 // ortasında; ötekiler kapalı alanın daha geniş kalan yanına doğru dizilir.
-function siraYeri(sira: number, hedef: THREE.Vector3) {
+function siraYeri(sira: number, hedef: THREE.Vector3, kuyruk: Kuyruk = 'ana') {
+  // İkinci servis noktasının sırası (belge 0.5): parçanın önünde, dışa doğru dizilir
+  if (kuyruk === 'servis') {
+    const d = durumuOku();
+    const p = parcaYerleri(d.tezgah, d.tezgahParcalari).find((x) => x.tur === 'servis');
+    const x = p ? p.x : 0;
+    const yon = p ? p.yan : 1;
+    hedef.set(x + yon * 0.82 * sira, 0, ON_YER.z - (sira ? 0.23 + 0.04 * sira : 0));
+    return hedef.add(tezgahOfseti);
+  }
   if (sira === 0) hedef.copy(ON_YER);
   else {
     let sol = Infinity;
@@ -226,8 +236,15 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
         }
       }
     } else {
-      const sira = d.musteriler.filter((x) => x.hal === 'sirada').findIndex((x) => x.id === m.id);
-      siraYeri(sira, hedef);
+      // Kendi sırasındaki yeri (dondurma ana sırada, waffle / limonata servis noktasında)
+      const kuyruk = kuyrugu(m.urun);
+      const sira = siradakiler(d, kuyruk).findIndex((x) => x.id === m.id);
+      siraYeri(sira, hedef, kuyruk);
+      // Sıranın başında yerine varınca: yardımcı servis edebilir, oyuncununsa kamera tezgaha geçer
+      if (sira === 0 && m.hal === 'sirada' && grup.position.distanceTo(hedef) < 0.15) {
+        if (!m.vardi) musteriVardi(m.id);
+        if (ondekiMusteri(d)?.id === m.id) musteriTezgahaVardi(m.id);
+      }
     }
 
     // Yürüyüş: dışarıda biraz daha hızlı, içeride yavaş; gittiği yöne döner
@@ -278,15 +295,15 @@ function BalonTakibi() {
       return;
     }
     nesne.getWorldPosition(v);
-    // Yalnız yerine varınca göster
-    const vardi = v.distanceTo(ON_YER) < 0.15;
-    if (vardi) musteriTezgahaVardi(m.id);
+    // Yalnız yerine varınca göster (varışı müşterinin kendisi bildirir)
+    const vardi = m.vardi;
     // Başın sağı: balon buradan aşağı doğru açılır (üstteki ipucu yazısıyla çakışmasın)
     v.x += 0.3;
     v.y += BALON_YUKSEKLIGI;
     v.project(camera);
-    const x = ((v.x + 1) / 2) * size.width;
-    const y = ((1 - v.y) / 2) * size.height;
+    // Müşteri ekranın dışında kalsa da (ör. oyuncu makinedeyken) balon kenarda görünür
+    const x = Math.min(size.width - 170, Math.max(20, ((v.x + 1) / 2) * size.width));
+    const y = Math.min(size.height - 140, Math.max(50, ((1 - v.y) / 2) * size.height));
     oge.style.transform = `translate(${x}px, ${y}px)`;
     oge.style.opacity = vardi ? '1' : '0';
   });

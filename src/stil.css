@@ -1856,3 +1856,137 @@ a.dugme {
   height: 34px;
   font-size: 14px;
 }
+
+/* ---- Belge 0.5: makineler, istasyon seçimi, yardımcılar, tezgah parçaları ---- */
+.insaat-parcalar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 150px;
+  overflow: auto;
+}
+.insaat-parca {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 12px;
+}
+.insaat-parca > span:first-child {
+  flex: 1;
+}
+.insaat-parca .dugme-simge {
+  width: 30px;
+  height: 30px;
+  font-size: 12px;
+}
+.makine-susler {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.susleme-simge {
+  width: 26px;
+  height: 20px;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+.makine-bas {
+  touch-action: none;
+  user-select: none;
+}
+.istasyon-secimi {
+  max-width: min(620px, 96%);
+  max-height: 94%;
+  overflow: auto;
+  padding: 10px 14px;
+}
+.istasyon-secimi h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+.istasyon-kartlar {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 6px 0;
+}
+.istasyon-kart {
+  font: inherit;
+  width: 31%;
+  min-width: 120px;
+  padding: 6px;
+  font-size: 13px;
+  border-radius: 14px;
+  border: 3px solid var(--mor-koyu);
+  background: #fffaf0;
+  color: var(--mor-koyu);
+  font-weight: 800;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+.istasyon-kart.secili {
+  background: var(--sari);
+}
+.istasyon-kart:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.istasyon-kart small {
+  font-weight: 600;
+  font-size: 10px;
+}
+.istasyon-simge {
+  width: 32px;
+  height: 32px;
+}
+.istasyon-yardimcilar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+.yardimci-cip {
+  font-size: 12px;
+  padding: 4px 10px;
+}
+.yardimci-hiz {
+  color: #e2a400;
+  letter-spacing: 1px;
+}
+.yardimci-hiz .sonuk {
+  color: #cbbfd6;
+}
+.yardimci-ekrani {
+  max-width: min(600px, 94%);
+  max-height: 92%;
+  overflow: auto;
+  text-align: left;
+}
+.yardimci-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.yardimci-kart {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 6px 10px;
+  border: 2px solid #e8dcef;
+  border-radius: 12px;
+  background: #fffaf0;
+  font-size: 13px;
+}
+.yardimci-ad {
+  font: inherit;
+  width: 120px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 2px solid var(--mor);
+}

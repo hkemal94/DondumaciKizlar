@@ -45,6 +45,7 @@ import { balon } from '../sahne/Musteriler';
 import { Gelistir } from './Gelistir';
 import { VitrinEkrani } from './VitrinEkrani';
 import { MenuSeridi } from './MenuSeridi';
+import { IstasyonSecimi, MakineDugmeleri, MakineGostergesi, MakineSiparisResmi, VitrinOdakDugmesi, YardimciEkrani, makineIpucu } from './MakineArayuzu';
 import { InsaatPaneli } from './InsaatPaneli';
 import { AcilisEkrani } from './AcilisEkrani';
 import { AyarlarEkrani } from './AyarlarEkrani';
@@ -112,6 +113,10 @@ function Bildirim() {
   if (bildirim.tur === 'top') {
     yazi = m(`sonuc.${bildirim.sonuc}` as MetinAnahtari);
     sinif = bildirim.sonuc;
+  } else if (bildirim.tur === 'pisme') {
+    // Waffle'ın pişmesi (belge 0.5)
+    yazi = m(`pisme.${bildirim.pisme}` as MetinAnahtari);
+    sinif = bildirim.pisme === 'altin' ? 'mukemmel' : bildirim.pisme === 'soluk' ? 'kucuk' : 'buyuk';
   } else if (bildirim.tur === 'para') yazi = `+${bildirim.miktar}`;
   else if (bildirim.tur === 'susleme') {
     // Hangi süsleme eksik ya da fazla: adıyla söylenir
@@ -257,7 +262,7 @@ function suslemeHatirlatmasi(durum: ReturnType<typeof useDurum>): string | null 
 // Sağ kenardaki sütun: Geri al ve (top varken) süslemeler
 function SuslemeDugmeleri() {
   const durum = useDurum();
-  if (durum.kamera !== 'tezgah') return null;
+  if (durum.kamera !== 'tezgah' || durum.istasyon !== 'dondurma') return null;
   return (
     <div className="susleme-dugmeleri">
       <button className="dugme dugme-geri" data-egitim="geriAl" disabled={!geriAlinabilir(durum)} onClick={geriAl}>
@@ -331,13 +336,32 @@ function SiparisBalonu() {
         <div className={`balon-ic ${durum.bildirim?.tur === 'susleme' ? 'hatirlat' : ''}`}>
           {/* Bir ya da iki dondurma (tepsi), yan yana */}
           <div className="balon-dondurmalar">
-            <SiparisResmi siparis={musteri.siparis} />
-            {musteri.siparis.ikinci && <SiparisResmi siparis={musteri.siparis.ikinci} />}
+            {musteri.urun === 'dondurma' ? (
+              <>
+                <SiparisResmi siparis={musteri.siparis} />
+                {musteri.siparis.ikinci && <SiparisResmi siparis={musteri.siparis.ikinci} />}
+              </>
+            ) : (
+              // Waffle ya da limonata (belge 0.5)
+              <MakineSiparisResmi musteri={musteri} />
+            )}
           </div>
           {/* Yatay balon (Kemal, 14 Ekim): sağda adlar, sabır ve süsleme rozetleri */}
           <div className="balon-sag">
             {/* Çeşitlerin adları: çok çeşit olunca renkler karışmasın */}
-            {ekran.balonAdlari && <div className="balon-adlar">{siparisAdlari(musteri.siparis)}</div>}
+            {ekran.balonAdlari && (
+              <div className="balon-adlar">
+                {musteri.urun === 'dondurma'
+                  ? siparisAdlari(musteri.siparis)
+                  : [
+                      m(`urun.${musteri.urun}` as MetinAnahtari),
+                      musteri.urun === 'waffle' && musteri.makine.susleme ? m(`waffle.${musteri.makine.susleme}` as MetinAnahtari) : null,
+                      musteri.urun === 'limonata' && musteri.makine.buz ? m('makine.buz') : null,
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
+              </div>
+            )}
             {/* Sabır çubuğu: işlem yapılınca dolar, beklerken azalır */}
             {sabirOrani(durum) !== null && (
               <div className="sabir" aria-hidden>
@@ -351,7 +375,7 @@ function SiparisBalonu() {
               </div>
             )}
             {/* İstenen süsleme ayrıca rozet olarak: gözden kaçmasın */}
-            {musteri.siparis.susleme.length + (musteri.siparis.ikinci?.susleme.length ?? 0) > 0 && (
+            {musteri.urun === 'dondurma' && musteri.siparis.susleme.length + (musteri.siparis.ikinci?.susleme.length ?? 0) > 0 && (
               <div className="balon-rozetler">
                 {[...musteri.siparis.susleme, ...(musteri.siparis.ikinci?.susleme ?? [])].map((s, i) => (
                   <svg key={i} viewBox="0 0 30 30" className="balon-rozet" aria-label={m(`susleme.${s}` as MetinAnahtari)}>
@@ -413,6 +437,8 @@ function GunSonu() {
     [m('gunSonu.kazanc'), <><span className="para-simge" aria-hidden /> {g.kazanc}</>],
     [m('gunSonu.mukemmel'), g.mukemmel],
     ...(g.bahsis > 0 ? ([[m('gunSonu.bahsis'), <><span className="para-simge" aria-hidden /> {g.bahsis}</>]] as [string, React.ReactNode][]) : []),
+    // Yardımcıların yevmiyesi (belge 0.5)
+    ...(g.yevmiye > 0 ? ([[m('gunSonu.yevmiye'), <><span className="para-simge" aria-hidden /> −{g.yevmiye}</>]] as [string, React.ReactNode][]) : []),
     [m('gunSonu.memnuniyet'), <Yildizlar puan={ortalama} />],
     [m('gunSonu.toplam'), <><span className="para-simge" aria-hidden /> {durum.para}</>],
   ];
@@ -566,6 +592,7 @@ export function Arayuz() {
   const [calisanAcik, setCalisanAcik] = useState(false);
   const [vitrinAcik, setVitrinAcik] = useState(false);
   const [ayarlarAcik, setAyarlarAcik] = useState(false);
+  const [yardimciAcik, setYardimciAcik] = useState(false);
   useYakinlastirma(durum.kamera === 'dukkan');
 
   // Parmak ekranın neresinde kalkarsa kalksın kepçe bırakılır.
@@ -614,6 +641,9 @@ export function Arayuz() {
   if (!tezgahta && durum.insaat) ipucu = durum.seciliParsel ? null : 'insaat.ipucu';
   else if (!tezgahta && durum.yerlestirme) ipucu = ESYALAR.some((e) => depodaki(e.id, durum) > 0) || durum.seciliEsya ? 'yerlestir.ipucu' : 'yerlestir.bos';
   else if (!tezgahta) ipucu = durum.hazirlik ? 'ipucu.hazirlik' : musteri ? 'ipucu.siparisVar' : durum.acik ? 'ipucu.musteriYok' : null;
+  // Makine istasyonunda (belge 0.5)
+  const makinede = durum.istasyon !== 'dondurma';
+  if (tezgahta && makinede) ipucu = makineIpucu(durum) ?? (musteri ? null : durum.acik ? 'ipucu.musteriYok' : null);
 
   return (
     <div className="arayuz">
@@ -624,17 +654,28 @@ export function Arayuz() {
       {/* Eğitim eli varken yazılı ipucu çıkmaz (yazısız eğitim) */}
       {ipucu && !calisanAcik && !egitimHedefi(durum, vitrinAcik) && <div className="ipucu">{suslemeHatirlatmasi(durum) ?? m(ipucu)}</div>}
       {tezgahta && durum.asama === 'dolduruyor' && <Gosterge />}
+      {tezgahta && makinede && ['dokuluyor', 'doluyor', 'pisiyor'].includes(durum.makine.asama) && <MakineGostergesi />}
       <Bildirim />
       <JetonUcusu />
       <SuslemeDugmeleri />
       <TepsiGostergesi />
 
-      {tezgahta ? (
+      {tezgahta && makinede ? (
         <>
           <div className="altlik-dugmeleri">
             <button className="dugme dugme-simge" aria-label={m('kamera.dukkan')} title={m('kamera.dukkan')} onClick={() => kameraSec('dukkan')}>
               <span className="dukkan-simge" aria-hidden />
             </button>
+          </div>
+          <MakineDugmeleri />
+        </>
+      ) : tezgahta ? (
+        <>
+          <div className="altlik-dugmeleri">
+            <button className="dugme dugme-simge" aria-label={m('kamera.dukkan')} title={m('kamera.dukkan')} onClick={() => kameraSec('dukkan')}>
+              <span className="dukkan-simge" aria-hidden />
+            </button>
+            <VitrinOdakDugmesi />
             {durum.acikAltliklar.map((a) => (
               <button
                 key={a}
@@ -711,7 +752,7 @@ export function Arayuz() {
           )}
         </div>
       )}
-      {!tezgahta && durum.hazirlik && !durum.yerlestirme && !durum.insaat && !durum.gunSonu && !calisanAcik && (
+      {!tezgahta && durum.hazirlik && !durum.yerlestirme && !durum.insaat && !durum.gunSonu && !calisanAcik && !durum.istasyonSecimi && !yardimciAcik && (
         <MenuSeridi
           sec={(is) => {
             if (is === 'gelistir') setGelistirAcik(true);
@@ -719,6 +760,7 @@ export function Arayuz() {
               setVitrinAcik(true);
               egitimGor('vitrin');
             } else if (is === 'yerlestir') yerlestirmeyiAc();
+            else if (is === 'yardimci') setYardimciAcik(true);
             else if (is === 'insaat') {
               insaataBasla();
               insaatKamerasi();
@@ -735,6 +777,8 @@ export function Arayuz() {
       {ayarlarAcik && <AyarlarEkrani kapat={() => setAyarlarAcik(false)} egitimSonrasi={devamEt} />}
 
       <GunSonu />
+      <IstasyonSecimi />
+      {yardimciAcik && durum.hazirlik && <YardimciEkrani kapat={() => setYardimciAcik(false)} />}
     </div>
   );
 }

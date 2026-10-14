@@ -5,6 +5,14 @@ import {
   duvarYik,
   duvarYikilabilir,
   insaattanCik,
+  mutfagaKat,
+  mutfagaKatilabilir,
+  mutfakMi,
+  mutfaktanCikar,
+  parcaCikar,
+  parcaEkle,
+  parcaEklenebilir,
+  parcaTakiliMi,
   parcaDegistir,
   parcaSecenekleri,
   terasMi,
@@ -22,6 +30,7 @@ import {
 } from '../oyun/durum';
 import { DUVAR_FIYATI, YIKIM_FIYATI, parcaTuru, parselCoz, type Kenar } from '../oyun/dekorasyon';
 import { ortala } from '../sahne/kameraKarisimi';
+import { MUTFAK_FIYATI, MUTFAK_GERI_FIYATI, PARCA_BILGI, PARCA_TIPLERI } from '../oyun/makine';
 
 // İnşaat modunun paneli (belge 0.2–0.4): seçilen karenin yeri, durumu,
 // fiyatı; "Al", "Duvar ör / yık"; duvar parçası; tezgah bölümü. Mutfak
@@ -69,6 +78,39 @@ export function InsaatPaneli() {
             {m('insaat.kisalt')}
           </button>
         </div>
+        {/* Tezgah parçaları (belge 0.5): sol ya da sağ uca ekle, çıkar */}
+        <span className="insaat-yer">{m('insaat.parcalar')}</span>
+        <div className="insaat-parcalar">
+          {PARCA_TIPLERI.map((tur) => {
+            const takili = parcaTakiliMi(tur, durum);
+            const fiyat = durum.sahipParcalar.includes(tur) ? 0 : PARCA_BILGI[tur].fiyat;
+            return (
+              <div key={tur} className="insaat-parca">
+                <span>{m(`insaat.parca.${tur}` as MetinAnahtari)}</span>
+                {takili ? (
+                  <button className="dugme gel-kucuk" onClick={() => parcaCikar(tur)}>
+                    {m('insaat.cikar')}
+                  </button>
+                ) : (
+                  <>
+                    {/* İnşaat önden bakar: ekranın solu +x (sağ uç), sağı −x */}
+                    <button className="dugme dugme-simge" aria-label={m('insaat.parcaSola')} disabled={!parcaEklenebilir(tur, 1, durum)} onClick={() => parcaEkle(tur, 1)}>
+                      ◀
+                    </button>
+                    <button className="dugme dugme-simge" aria-label={m('insaat.parcaSaga')} disabled={!parcaEklenebilir(tur, -1, durum)} onClick={() => parcaEkle(tur, -1)}>
+                      ▶
+                    </button>
+                    {fiyat > 0 && (
+                      <span className="gel-para">
+                        <span className="para-simge" aria-hidden /> {fiyat}
+                      </span>
+                    )}
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </>
     );
   } else if (secili?.startsWith('duvar:')) {
@@ -110,10 +152,25 @@ export function InsaatPaneli() {
           {m(sira)}
           {i < 0 && j !== 0 ? ` · ${m('insaat.iskeleTarafi')}` : ''}
         </span>
-        {durum.kapaliParseller.includes(secili) ? (
-          // Kapalı alan: duvarı yıkılıp açık alana çevrilebilir (belge 0.2, 0.4)
+        {mutfakMi(secili, durum) ? (
+          // Mutfak (belge 0.5): yeniden dükkâna çevrilebilir
+          <>
+            <span className="insaat-durum">{m('insaat.mutfak')}</span>
+            <button className="dugme gel-al" disabled={durum.para < MUTFAK_GERI_FIYATI} onClick={() => mutfaktanCikar(secili)}>
+              {m('insaat.dukkanaCevir')} <span className="para-simge" aria-hidden /> {MUTFAK_GERI_FIYATI}
+            </button>
+          </>
+        ) : durum.kapaliParseller.includes(secili) ? (
+          // Kapalı alan: duvarı yıkılıp açık alana çevrilebilir (belge 0.2, 0.4); arkadaysa mutfağa katılabilir
           <>
             <span className="insaat-durum">{m('insaat.kapali')}</span>
+            {mutfagaKatilabilir(secili, durum) ? (
+              <button className="dugme gel-al" disabled={durum.para < MUTFAK_FIYATI} onClick={() => mutfagaKat(secili)}>
+                {m('insaat.mutfagaKat')} <span className="para-simge" aria-hidden /> {MUTFAK_FIYATI}
+              </button>
+            ) : (
+              j >= 1 && <span className="insaat-durum">{m('insaat.mutfakOlmaz')}</span>
+            )}
             {duvarYikilabilir(secili, durum) ? (
               <button className="dugme gel-al" disabled={durum.para < YIKIM_FIYATI} onClick={() => duvarYik(secili)}>
                 {m('insaat.duvarYik')} <span className="para-simge" aria-hidden /> {YIKIM_FIYATI}

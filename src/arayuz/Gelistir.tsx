@@ -11,6 +11,10 @@ import {
   satisFiyati,
   cesitAlinabilir,
   sonrakiVitrin,
+  MAKINE_FIYAT_ARALIGI,
+  makineFiyatiSec,
+  makineSatisFiyati,
+  ikinciVitrinGerek,
   vitrinBuyut,
   cesitAc,
   DENEME,
@@ -108,6 +112,28 @@ function FiyatEkrani() {
           </div>
         );
       })}
+      {/* Waffle ve limonata (belge 0.5): makine alındıysa */}
+      {(['waffle', 'limonata'] as const)
+        .filter((u) => durum.sahipParcalar.includes(u))
+        .map((u) => (
+          <div key={u} className="fiyat-satir">
+            <span className="gel-ad">{m(`urun.${u}` as MetinAnahtari)}</span>
+            <input
+              type="range"
+              className="fiyat-cubugu"
+              min={MAKINE_FIYAT_ARALIGI[u][0]}
+              max={MAKINE_FIYAT_ARALIGI[u][1]}
+              value={durum.makineFiyatlari[u]}
+              aria-label={m(`urun.${u}` as MetinAnahtari)}
+              onChange={(e) => makineFiyatiSec(u, Number(e.target.value))}
+              onPointerUp={fiyatlariKaydet}
+              onKeyUp={fiyatlariKaydet}
+            />
+            <span className="fiyat-deger">
+              <span className="para-simge" aria-hidden /> {makineSatisFiyati(u, durum)}
+            </span>
+          </div>
+        ))}
       <p className="gel-not">{m('fiyat.not')}</p>
     </div>
   );
@@ -190,7 +216,7 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
                     {m('gelistir.al')} <Para miktar={sonrakiVitrin(durum)!.fiyat} />
                   </button>
                 ) : (
-                  <span className="gel-durum">{m('vitrin.enBuyuk')}</span>
+                  <span className="gel-durum">{ikinciVitrinGerek(durum) ? m('vitrin.ikinciGerek') : m('vitrin.enBuyuk')}</span>
                 )}
               </div>
               {CESITLER.map((c, i) => {

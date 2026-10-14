@@ -1,6 +1,33 @@
 import { useSyncExternalStore } from 'react';
 
-import { BASLANGIC_CESITLERI, CESITLER, EN_BUYUK_VITRIN, FIYAT_ARALIGI, ILK_VITRIN, makulFiyat, VITRIN_BUYUTMELERI } from './kuvetler';
+import { BASLANGIC_CESITLERI, CESITLER, EN_BUYUK_VITRIN, FIYAT_ARALIGI, ILK_VITRIN, ILK_VITRIN_SINIRI, makulFiyat, VITRIN_BUYUTMELERI } from './kuvetler';
+import {
+  EN_COK_YARDIMCI,
+  ISTASYONLAR,
+  LIMONATA_FIYATI,
+  MAKINE_MUKEMMEL_EKI,
+  MAKINE_SUSLEME_FIYATI,
+  MUTFAK_FIYATI,
+  MUTFAK_GERI_FIYATI,
+  PARCA_BILGI,
+  PARCA_TIPLERI,
+  PISME_SURESI,
+  WAFFLE_FIYATI,
+  WAFFLE_SUSLEMELERI,
+  YARDIMCI_FIYATI,
+  YEVMIYE,
+  adayUret,
+  parcaYerleri,
+  pismeBul,
+  yardimciSuresi,
+  type Istasyon,
+  type MakineSiparisi,
+  type ParcaTipi,
+  type Pisme,
+  type TezgahParcasi,
+  type WaffleSusleme,
+  type Yardimci,
+} from './makine';
 import {
   BASLANGIC_PARCALARI,
   BASLANGIC_PARSELLERI,
@@ -106,6 +133,10 @@ export interface Musteri {
   mutlu: boolean;
   gelisTarafi: 1 | -1; // iskelenin hangi ucundan geldi (1 = sağ, -1 = sol)
   gidisTarafi: 1 | -1;
+  // Belge 0.5: dondurma ana sıradan; waffle ve limonata ikinci servis noktasından
+  urun: Istasyon;
+  makine: MakineSiparisi;
+  vardi: boolean; // sıradaki yerine (tezgaha) vardı
 }
 
 export type Bildirim =
@@ -114,6 +145,7 @@ export type Bildirim =
   | { tur: 'yanlis'; zaman: number }
   | { tur: 'sikildi'; zaman: number }
   | { tur: 'ikiDondurma'; zaman: number }
+  | { tur: 'pisme'; pisme: Pisme; zaman: number }
   | { tur: 'susleme'; eksik: Susleme[]; fazla: Susleme[]; zaman: number };
 
 export interface Durum {
@@ -186,6 +218,32 @@ export interface Durum {
   gezme: boolean; // duraklatıp dükkânı gezme (döndürme, yakınlaştırma, fotoğraf)
   mukemmelSeri: number; // arka arkaya bütün topları MÜKEMMEL servis (bahşiş için)
   acilis: boolean; // açılış ekranı (logo, Oyna, Ayarlar) gösteriliyor
+  // ---- Belge 0.5: istasyonlar, makineler, parçalar, mutfak, yardımcılar ----
+  istasyon: Istasyon; // oyuncunun bugünkü istasyonu
+  istasyonSecimi: boolean; // güne başlarken istasyon seçim ekranı açık
+  tezgahParcalari: TezgahParcasi[];
+  sahipParcalar: ParcaTipi[]; // bir kez alınmış parçalar (çıkarıp yeniden eklemek bedava)
+  mutfakParseller: string[];
+  yardimcilar: Yardimci[];
+  adaylar: Yardimci[]; // işe alma ekranındaki adaylar (kaydedilmez)
+  yardimciIsleri: Record<number, { musteri: number; bitis: number }>; // yardımcı → elindeki sipariş (oyun dakikası)
+  makine: MakineDurumu;
+  vitrinOdak: 0 | 1; // dondurma istasyonunda kamera ikinci vitrine bakıyor mu
+  makineFiyatlari: { waffle: number; limonata: number }; // oyuncunun koyduğu fiyat
+}
+
+// Waffle ve limonata yapımı (belge 0.5)
+export type MakineAsamasi = 'bos' | 'dokuluyor' | 'pisiyor' | 'acildi' | 'doluyor' | 'doldu' | 'servis';
+export interface MakineDurumu {
+  asama: MakineAsamasi;
+  basladi: number; // basılı tutma / pişme başlangıcı (ms)
+  sonuc: Sonuc | null; // hamur ya da bardak dolumu
+  pisme: Pisme | null;
+  susleme: WaffleSusleme[];
+  buz: boolean;
+}
+function bosMakine(): MakineDurumu {
+  return { asama: 'bos', basladi: 0, sonuc: null, pisme: null, susleme: [], buz: false };
 }
 
 // Yazısız el işaretli eğitim: ilk sipariş üç adım, sonra ilk kez görülenler
@@ -208,10 +266,11 @@ export interface GunlukOzet {
   mukemmel: number;
   bahsis: number;
   puanlar: number[];
+  yevmiye: number;
 }
 
 function bosOzet(): GunlukOzet {
-  return { musteri: 0, kazanc: 0, mukemmel: 0, bahsis: 0, puanlar: [] };
+  return { musteri: 0, kazanc: 0, mukemmel: 0, bahsis: 0, puanlar: [], yevmiye: 0 };
 }
 
 // Gösterge ayarları
@@ -263,6 +322,17 @@ let durum: Durum = {
   duvarParcalari: { ...BASLANGIC_PARCALARI },
   tezgah: { ...BASLANGIC_TEZGAHI },
   tezgahAlinanBoy: BASLANGIC_TEZGAHI.boy,
+  istasyon: 'dondurma',
+  istasyonSecimi: false,
+  tezgahParcalari: [],
+  sahipParcalar: [],
+  mutfakParseller: [],
+  yardimcilar: [],
+  adaylar: [],
+  yardimciIsleri: {},
+  makine: bosMakine(),
+  vitrinOdak: 0,
+  makineFiyatlari: { waffle: WAFFLE_FIYATI, limonata: LIMONATA_FIYATI },
   insaat: false,
   seciliParsel: null,
   yerlestirme: false,
@@ -339,6 +409,7 @@ export function kuveteBas(kuvet: number) {
 // Parmak kalkınca top doğrudan külaha / kaba iner; ikinci dokunuş yok
 // (iPhone denemesi, Kemal 13 Ekim).
 export function birak() {
+  makineBirak();
   if (durum.asama !== 'dolduruyor' || durum.kepceKuvet === null) return;
   islemYapildi();
   const dolum = dolumHesapla(performance.now());
@@ -390,6 +461,7 @@ export function geriAl() {
 // ---- Müşteri sırası (iş sırası 3) ----
 // Sayılar geçici: fiyat, gelme aralığı ve sıra uzunluğu denemeyle ayarlanacak.
 export const EN_COK_SIRA = 4;
+export const SERVIS_SIRASI = 3; // ikinci servis noktasının sırası
 // Kapalı alan büyüdükçe sıra uzar: başlangıçtaki iki kareden sonra her kare bir kişi (belge 0.2)
 export function enCokSira(d: Durum = durum) {
   return EN_COK_SIRA + Math.max(0, d.kapaliParseller.length - DUKKAN_PARSELLERI.length);
@@ -444,17 +516,68 @@ export function musteriyiKaldir(id: number) {
   guncelle({ musteriler: durum.musteriler.filter((m) => m.id !== id) });
 }
 
+export type Kuyruk = 'ana' | 'servis';
+export function kuyrugu(urun: Istasyon): Kuyruk {
+  return urun === 'dondurma' ? 'ana' : 'servis';
+}
+export function siradakiler(d: Durum, k: Kuyruk) {
+  return d.musteriler.filter((m) => m.hal === 'sirada' && kuyrugu(m.urun) === k);
+}
+
+// Oyuncunun baktığı müşteri: kendi istasyonunun sırasında öndeki ve onun ürününü isteyen
 export function ondekiMusteri(d: Durum = durum): Musteri | undefined {
-  return d.musteriler.find((m) => m.hal === 'sirada');
+  const m = siradakiler(d, kuyrugu(d.istasyon))[0];
+  return m && m.urun === d.istasyon ? m : undefined;
+}
+
+// ---- İstasyonlar (belge 0.5) ----
+// Bir istasyon kurulu mu: dondurma hep; waffle ve limonata makinesi ve
+// ikinci servis noktası tezgahta takılıysa
+export function istasyonKurulu(ist: Istasyon, d: Durum = durum) {
+  if (ist === 'dondurma') return true;
+  const takili = (t: ParcaTipi) => d.tezgahParcalari.some((p) => p.tur === t);
+  return takili(ist) && takili('servis');
+}
+
+// Bugün açık istasyonlar: oyuncunun ve yardımcılarınki
+export function acikIstasyonlar(d: Durum = durum): Istasyon[] {
+  const liste = [d.istasyon, ...d.yardimcilar.map((y) => y.istasyon).filter((i): i is Istasyon => i !== null)];
+  return ISTASYONLAR.filter((i) => liste.includes(i) && istasyonKurulu(i, d));
+}
+
+function rastgeleUrun(): Istasyon {
+  const acik = acikIstasyonlar();
+  const agirlik = (i: Istasyon) => (i === 'dondurma' ? 3 : 1.5);
+  let z = Math.random() * acik.reduce((t, i) => t + agirlik(i), 0);
+  for (const i of acik) {
+    z -= agirlik(i);
+    if (z <= 0) return i;
+  }
+  return acik[0] ?? 'dondurma';
+}
+
+function rastgeleMakineSiparisi(): MakineSiparisi {
+  return {
+    susleme: Math.random() < 0.6 ? WAFFLE_SUSLEMELERI[Math.floor(Math.random() * WAFFLE_SUSLEMELERI.length)] : null,
+    buz: Math.random() < 0.5,
+  };
 }
 
 // Oyun döngüsü bunu yarım saniyede bir çağırır: sıra boşsa müşteri gelir.
 export function musteriDongusu(simdi: number) {
   const siradaki = durum.musteriler.filter((m) => m.hal === 'sirada').length;
   if (!durum.acik || durum.gunSonu || durum.hazirlik || durum.duraklatildi) return; // kapanınca, gün başlamadan ve duraklatınca müşteri gelmez
-  if (siradaki >= enCokSira() || simdi < durum.sonrakiGelis) return;
+  if (simdi < durum.sonrakiGelis) return;
+  // Ürün: açık istasyonlardan biri; her sıranın kendi sınırı var
+  const egitimde = ilkSiparisEgitimi();
+  const urun: Istasyon = egitimde ? 'dondurma' : rastgeleUrun();
+  const sinir = kuyrugu(urun) === 'ana' ? enCokSira() : SERVIS_SIRASI;
+  if (siradakiler(durum, kuyrugu(urun)).length >= sinir) {
+    guncelle({ sonrakiGelis: simdi + 1500 });
+    return;
+  }
   // İlk sipariş eğitimi: yalnız bir müşteri gelir, siparişi tek toplu külah
-  const egitim = ilkSiparisEgitimi();
+  const egitim = egitimde;
   if (egitim && durum.musteriler.length > 0) return;
   const [en, enCok] = GELIS_ARALIGI;
   // Sıra boşken ilk müşteri hemen gelsin. Fiyat ve dekorasyon müşteri
@@ -471,6 +594,9 @@ export function musteriDongusu(simdi: number) {
         mutlu: false,
         gelisTarafi: Math.random() < 0.5 ? 1 : -1,
         gidisTarafi: Math.random() < 0.5 ? 1 : -1,
+        urun,
+        makine: rastgeleMakineSiparisi(),
+        vardi: false,
       },
     ],
     sonrakiGelis: simdi + bekle,
@@ -573,6 +699,7 @@ export function servisEt() {
       }, durum.satislar),
       enIyiOrtalama: enIyiOrtalamaHesapla([...durum.memnuniyetler, puan]),
       gunluk: {
+        ...durum.gunluk,
         musteri: durum.gunluk.musteri + 1,
         kazanc: durum.gunluk.kazanc + miktar,
         mukemmel: durum.gunluk.mukemmel + butunToplar.filter((t) => t.sonuc === 'mukemmel').length,
@@ -680,6 +807,7 @@ let birikenMs = 0;
 // Oyun döngüsü her turda geçen süreyi verir.
 export function zamanIlerlet(gecenMs: number) {
   if (durum.gunSonu || durum.hazirlik || durum.duraklatildi) return;
+  yardimciDongusu();
   // İlk sipariş eğitiminde müşteri gelince saat (ve sabır) durur
   if (ilkSiparisEgitimi() && durum.musteriler.some((m) => m.hal === 'sirada')) return;
   if (durum.acik) {
@@ -697,7 +825,12 @@ export function zamanIlerlet(gecenMs: number) {
   // Kapandıktan sonra saat durur; sıradakilerin sabrı da azalmaz
   // Kapandı: sıradakilere servis bitince gün sonu ekranı
   const bekleyen = durum.musteriler.some((m) => m.hal === 'sirada');
-  if (!bekleyen && durum.asama === 'altlikSec') guncelle({ gunSonu: true });
+  if (!bekleyen && durum.asama === 'altlikSec') {
+    // Yardımcıların yevmiyesi (belge 0.5): para 0'ın altına inmez, ceza yok
+    const yevmiye = Math.min(durum.para, durum.yardimcilar.length * YEVMIYE);
+    guncelle({ gunSonu: true, para: durum.para - yevmiye, gunluk: { ...durum.gunluk, yevmiye } });
+    kaydet();
+  }
 }
 
 // Günün saati, dakika olarak (gece yarısından sonra 24*60'ı geçer)
@@ -739,9 +872,21 @@ export function gunSonunuKapat() {
   kaydet();
 }
 
+// Güne başla: makine istasyonu ya da yardımcı varsa önce istasyon seçilir (belge 0.5)
 export function guneBasla() {
   if (!durum.hazirlik) return;
+  const secimGerek = ISTASYONLAR.some((i) => i !== 'dondurma' && istasyonKurulu(i)) || durum.yardimcilar.length > 0;
+  if (secimGerek && !durum.istasyonSecimi) {
+    istasyonSec(istasyonKurulu(durum.istasyon) ? durum.istasyon : 'dondurma');
+    guncelle({ istasyonSecimi: true });
+    return;
+  }
+  gunuBaslat();
+}
+
+function gunuBaslat() {
   birikenMs = 0;
+  guncelle({ istasyonSecimi: false, makine: bosMakine(), yardimciIsleri: {}, vitrinOdak: 0 });
   guncelle({ hazirlik: false, sonrakiGelis: 0, yerlestirme: false, seciliEsya: null });
   kaydet();
 }
@@ -751,6 +896,14 @@ export function guneBasla() {
 // sıra boşalınca dükkânın genel görünümüne döner. Oyuncu düğmeyle de geçer.
 export function kameraSec(kamera: Kamera) {
   if (durum.kamera !== kamera) guncelle({ kamera });
+}
+
+// Müşteri sıradaki yerine (tezgaha) varınca sahne bunu çağırır. Yardımcılar
+// yalnız varmış müşteriye servis eder.
+export function musteriVardi(id: number) {
+  const m = durum.musteriler.find((x) => x.id === id);
+  if (!m || m.vardi) return;
+  guncelle({ musteriler: durum.musteriler.map((x) => (x.id === id ? { ...x, vardi: true } : x)) });
 }
 
 let sonKarsilanan = 0;
@@ -869,8 +1022,14 @@ export function cesitAlinabilir(cesit: number, d: Durum = durum) {
 }
 
 // ---- Vitrin (Kemal, 14 Ekim) ----
+// 12'den fazla küvet için ikinci vitrin parçası gerekir (belge 0.5)
 export function sonrakiVitrin(d: Durum = durum) {
-  return VITRIN_BUYUTMELERI.find((b) => b.boy > d.vitrinBoyu) ?? null;
+  const b = VITRIN_BUYUTMELERI.find((x) => x.boy > d.vitrinBoyu) ?? null;
+  if (b && b.boy > ILK_VITRIN_SINIRI && !parcaTakiliMi('vitrin2', d)) return null;
+  return b;
+}
+export function ikinciVitrinGerek(d: Durum = durum) {
+  return d.vitrinBoyu >= ILK_VITRIN_SINIRI && !parcaTakiliMi('vitrin2', d) && VITRIN_BUYUTMELERI.some((x) => x.boy > d.vitrinBoyu);
 }
 
 export function vitrinBuyut() {
@@ -1025,9 +1184,14 @@ export function dukkanKapilari(d: Durum = durum) {
 // kapının içindeki birim, tezgah bölümü ve önündeki müşteri sırası
 export function birimEngelli(c: number, r: number, d: Durum = durum) {
   if (dukkanKapilari(d).some((k) => k.c === c && r >= SATIR_EN_AZ * PARSEL && r <= k.r)) return true;
-  const t = d.tezgah;
-  if (c >= t.c && c < t.c + t.boy && r >= t.r && r < t.r + TEZGAH_DERINLIGI) return true;
-  return siraBirimiMi(t, c, r);
+  // Mutfağa eşya konmaz (belge 0.5)
+  if (d.mutfakParseller.includes(birimParseli(c, r))) return true;
+  const { govde } = tezgahHepBirimleri(d.tezgah, d.tezgahParcalari);
+  if (govde.some((b) => b.c === c && b.r === r)) return true;
+  // İkinci servis noktasının önündeki sıra
+  const servis = parcaYerleri(d.tezgah, d.tezgahParcalari).find((p) => p.tur === 'servis');
+  if (servis && r === d.tezgah.r - 1 && c >= servis.c && c < servis.c + servis.en) return true;
+  return siraBirimiMi(d.tezgah, c, r);
 }
 
 export function birimDolu(c: number, r: number, d: Durum = durum, haric?: Yerlesim) {
@@ -1192,17 +1356,18 @@ export function parcaDegistir(anahtar: string, tur: ParcaTuru) {
 // ---- Tezgah bölümü: taşıma ve boy (belge 0.3) ----
 // Tezgah ve önündeki sıra tamamen kapalı alanda olmalı; kapının içindeki
 // birim boş kalmalı.
-export function tezgahUygun(t: TezgahYeri, d: Durum = durum) {
+export function tezgahUygun(t: TezgahYeri, d: Durum = durum, parcalar: TezgahParcasi[] = d.tezgahParcalari) {
   if (t.boy < TEZGAH_EN_KISA || t.boy > TEZGAH_EN_UZUN) return false;
-  const { govde, sira } = tezgahBirimleri(t);
+  const { govde, sira } = tezgahHepBirimleri(t, parcalar);
   const kapiIci = dukkanKapilari(d);
   if (govde.some((b) => kapiIci.some((k) => k.c === b.c && k.r === b.r))) return false;
-  return [...govde, ...sira].every((b) => birimIcMi(b.c, b.r, d));
+  // Kapalı alanın içinde, mutfağın dışında (belge 0.5)
+  return [...govde, ...sira].every((b) => birimIcMi(b.c, b.r, d) && !d.mutfakParseller.includes(birimParseli(b.c, b.r)));
 }
 
 // Yeni yerin altında kalan eşyalar depoya döner
 function tezgahiKoy(t: TezgahYeri, ek: Partial<Durum> = {}) {
-  const sonra = { ...durum, tezgah: t };
+  const sonra = { ...durum, ...ek, tezgah: t };
   const kalan: Yerlesim[] = [];
   const depo = { ...durum.depo };
   for (const y of durum.yerlesim) {
@@ -1262,6 +1427,339 @@ export function fiyatSec(f: FiyatSeviyesi) {
   kaydet();
 }
 
+// ======== Belge 0.5: istasyonlar, makineler, parçalar, mutfak, yardımcılar ========
+
+// ---- İstasyon seçimi (güne başlarken) ----
+// Oyuncu bir istasyon seçer; yardımcılar boş kalan kurulu istasyonlara,
+// önce iyi oldukları yere dağılır. Ekranda yardımcıya dokununca yeri değişir.
+export function istasyonSec(ist: Istasyon) {
+  if (!istasyonKurulu(ist)) return;
+  const bos = ISTASYONLAR.filter((i) => i !== ist && istasyonKurulu(i));
+  const yardimcilar = durum.yardimcilar.map((y) => ({ ...y, istasyon: null as Istasyon | null }));
+  // Önce yeteneğine uyan, sonra kalan
+  for (const tur of [true, false])
+    for (const y of yardimcilar) {
+      if (y.istasyon) continue;
+      const yer = bos.find((i) => !yardimcilar.some((z) => z.istasyon === i) && (!tur || i === y.yetenek));
+      if (yer) y.istasyon = yer;
+    }
+  guncelle({ istasyon: ist, yardimcilar });
+}
+
+// Yardımcıya dokununca sıradaki boş istasyona geçer (ya da dinlenir)
+export function yardimciYeriniDegistir(id: number) {
+  const y = durum.yardimcilar.find((x) => x.id === id);
+  if (!y) return;
+  const secenekler: (Istasyon | null)[] = [
+    ...ISTASYONLAR.filter((i) => istasyonKurulu(i) && i !== durum.istasyon && !durum.yardimcilar.some((z) => z.id !== id && z.istasyon === i)),
+    null,
+  ];
+  const sonraki = secenekler[(secenekler.indexOf(y.istasyon) + 1) % secenekler.length] ?? null;
+  guncelle({ yardimcilar: durum.yardimcilar.map((x) => (x.id === id ? { ...x, istasyon: sonraki } : x)) });
+}
+
+export function istasyonlaBasla() {
+  if (!durum.istasyonSecimi) return;
+  gunuBaslat();
+}
+
+export function istasyonSeciminiKapat() {
+  guncelle({ istasyonSecimi: false });
+}
+
+// ---- Waffle ve limonata (belge 0.5) ----
+export function makineDolumu(simdi: number, d: Durum = durum) {
+  if (d.makine.asama !== 'dokuluyor' && d.makine.asama !== 'doluyor') return 0;
+  const t = ((simdi - d.makine.basladi) / DOLUM_SURESI) % 2;
+  return t <= 1 ? t : 2 - t;
+}
+export function pismeOrani(simdi: number, d: Durum = durum) {
+  if (d.makine.asama !== 'pisiyor') return 0;
+  return Math.min(1.15, (simdi - d.makine.basladi) / PISME_SURESI);
+}
+
+function makineGuncelle(m: Partial<MakineDurumu>) {
+  guncelle({ makine: { ...durum.makine, ...m } });
+}
+
+// Ana düğme basılı tutulunca: hamur dökülür ya da bardak dolar
+export function makineBas() {
+  if (durum.kamera !== 'tezgah' || !ondekiMusteri()) return;
+  if (durum.istasyon === 'waffle' && durum.makine.asama === 'bos') {
+    islemYapildi();
+    makineGuncelle({ asama: 'dokuluyor', basladi: performance.now() });
+  } else if (durum.istasyon === 'limonata' && durum.makine.asama === 'bos') {
+    islemYapildi();
+    makineGuncelle({ asama: 'doluyor', basladi: performance.now() });
+  }
+}
+
+export function makineBirak() {
+  const a = durum.makine.asama;
+  if (a !== 'dokuluyor' && a !== 'doluyor') return;
+  islemYapildi();
+  const sonuc = sonucBul(makineDolumu(performance.now()));
+  // Hamur dökülünce kapak kapanır, pişme başlar; bardak dolunca buz sırası
+  if (a === 'dokuluyor') makineGuncelle({ asama: 'pisiyor', sonuc, basladi: performance.now() });
+  else makineGuncelle({ asama: 'doldu', sonuc });
+  guncelle({ bildirim: { tur: 'top', sonuc, zaman: performance.now() } });
+}
+
+// Waffle makinesinin kapağını aç: altın sarıda açmak en iyisi
+export function waffleAc() {
+  if (durum.makine.asama !== 'pisiyor') return;
+  islemYapildi();
+  const pisme = pismeBul(pismeOrani(performance.now()));
+  makineGuncelle({ asama: 'acildi', pisme });
+  guncelle({ bildirim: { tur: 'pisme', pisme, zaman: performance.now() } });
+}
+
+export function waffleSusle(s: WaffleSusleme) {
+  if (durum.makine.asama !== 'acildi') return;
+  islemYapildi();
+  const var_ = durum.makine.susleme.includes(s);
+  makineGuncelle({ susleme: var_ ? durum.makine.susleme.filter((x) => x !== s) : [...durum.makine.susleme, s] });
+}
+
+export function limonataBuz() {
+  if (durum.makine.asama !== 'doldu') return;
+  islemYapildi();
+  makineGuncelle({ buz: !durum.makine.buz });
+}
+
+// Baştan: yapılanı kenara koy (ceza yok)
+export function makineSifirla() {
+  if (durum.makine.asama === 'servis') return;
+  islemYapildi();
+  guncelle({ makine: bosMakine() });
+}
+
+export function makineServisHazir(d: Durum = durum) {
+  return !!ondekiMusteri(d) && ((d.istasyon === 'waffle' && d.makine.asama === 'acildi') || (d.istasyon === 'limonata' && d.makine.asama === 'doldu'));
+}
+
+const PISME_PUANI: Record<Pisme, number> = { altin: 5, soluk: 3, yanik: 2 };
+
+// Waffle ve limonatanın fiyatı: oyuncunun koyduğu × genel fiyat seviyesi
+export const MAKINE_FIYAT_ARALIGI: Record<'waffle' | 'limonata', [number, number]> = { waffle: [3, 14], limonata: [1, 8] };
+function makineFiyatiGecerli(u: 'waffle' | 'limonata', f: unknown) {
+  const [en, enCok] = MAKINE_FIYAT_ARALIGI[u];
+  return typeof f === 'number' && Number.isInteger(f) && f >= en && f <= enCok ? f : null;
+}
+export function makineSatisFiyati(u: 'waffle' | 'limonata', d: Durum = durum) {
+  return Math.max(1, Math.round(d.makineFiyatlari[u] * FIYAT_ETKISI[d.fiyatSeviyesi].fiyat));
+}
+export function makineFiyatiSec(u: 'waffle' | 'limonata', f: number) {
+  const g = makineFiyatiGecerli(u, f);
+  if (g !== null) guncelle({ makineFiyatlari: { ...durum.makineFiyatlari, [u]: g } });
+}
+
+// Makine ürününün fiyatı ve memnuniyeti
+function makineSonucu(urun: Istasyon, m: MakineDurumu, istenen: MakineSiparisi) {
+  const dolumPuani = SONUC_PUANI[m.sonuc ?? 'kucuk'];
+  if (urun === 'waffle') {
+    const puan = (dolumPuani + PISME_PUANI[m.pisme ?? 'soluk']) / 2;
+    const mukemmel = m.sonuc === 'mukemmel' && m.pisme === 'altin';
+    return { puan, miktar: makineSatisFiyati('waffle') + (istenen.susleme ? MAKINE_SUSLEME_FIYATI : 0) + (mukemmel ? MAKINE_MUKEMMEL_EKI : 0), mukemmel };
+  }
+  const mukemmel = m.sonuc === 'mukemmel';
+  return { puan: dolumPuani, miktar: makineSatisFiyati('limonata') + (mukemmel ? MAKINE_MUKEMMEL_EKI : 0), mukemmel };
+}
+
+function musteriyiUgurla(id: number, miktar: number, puan: number, mukemmel: boolean, ek: Partial<Durum> = {}) {
+  guncelle({
+    para: durum.para + miktar,
+    memnuniyetler: [...durum.memnuniyetler, puan],
+    enIyiOrtalama: enIyiOrtalamaHesapla([...durum.memnuniyetler, puan]),
+    gunluk: {
+      ...durum.gunluk,
+      musteri: durum.gunluk.musteri + 1,
+      kazanc: durum.gunluk.kazanc + miktar,
+      mukemmel: durum.gunluk.mukemmel + (mukemmel ? 1 : 0),
+      puanlar: [...durum.gunluk.puanlar, puan],
+    },
+    musteriler: durum.musteriler.map((m) => (m.id === id ? { ...m, hal: 'gidiyor', mutlu: true } : m)),
+    ...ek,
+  });
+}
+
+export function makineServisEt() {
+  const musteri = ondekiMusteri();
+  if (!musteri || !makineServisHazir()) return;
+  islemYapildi();
+  const simdi = performance.now();
+  const m = durum.makine;
+  // Süsleme ya da buz tutmuyorsa hatırlatılır, ürün kenara gitmez
+  if (musteri.urun === 'waffle') {
+    const istenen = musteri.makine.susleme ? [musteri.makine.susleme] : [];
+    const eksik = istenen.filter((x) => !m.susleme.includes(x));
+    const fazla = m.susleme.filter((x) => !istenen.includes(x));
+    if (eksik.length || fazla.length) {
+      guncelle({ bildirim: { tur: 'yanlis', zaman: simdi } });
+      return;
+    }
+  } else if (m.buz !== musteri.makine.buz) {
+    guncelle({ bildirim: { tur: 'yanlis', zaman: simdi } });
+    return;
+  }
+  const { puan, miktar, mukemmel } = makineSonucu(musteri.urun, m, musteri.makine);
+  const p = Math.max(1, puan - FIYAT_ETKISI[durum.fiyatSeviyesi].memnuniyet);
+  musteriyiUgurla(musteri.id, miktar, p, mukemmel, {
+    makine: { ...m, asama: 'servis' },
+    bildirim: { tur: 'para', miktar, bahsis: 0, zaman: simdi },
+  });
+  window.setTimeout(() => {
+    guncelle({ makine: bosMakine() });
+    if (!ondekiMusteri()) kameraSec('dukkan');
+  }, 1100);
+}
+
+// ---- Yardımcıların işi (belge 0.5) ----
+// Kendi istasyonunun sırasında öndeki, varmış ve o ürünü isteyen müşteriye
+// servis eder; süre oyun dakikasıyla, hızına ve yeteneğine göre.
+function yardimciDongusu() {
+  let isler = durum.yardimciIsleri;
+  let degisti = false;
+  for (const y of durum.yardimcilar) {
+    if (!y.istasyon || y.istasyon === durum.istasyon || !istasyonKurulu(y.istasyon)) continue;
+    const on = siradakiler(durum, kuyrugu(y.istasyon))[0];
+    const is = isler[y.id];
+    if (is && (!on || on.id !== is.musteri)) {
+      // Müşteri gitti (ör. sıkıldı): iş bırakılır
+      isler = { ...isler };
+      delete isler[y.id];
+      degisti = true;
+      continue;
+    }
+    if (!on || on.urun !== y.istasyon || !on.vardi) continue;
+    if (!is) {
+      isler = { ...isler, [y.id]: { musteri: on.id, bitis: durum.dakika + yardimciSuresi(y, y.istasyon) } };
+      degisti = true;
+    } else if (durum.dakika >= is.bitis) {
+      isler = { ...isler };
+      delete isler[y.id];
+      degisti = true;
+      // Yardımcının işi: puan hızına göre 3,5–4,5; dondurmada bir top fiyatı kadar
+      const puan = 3 + y.hiz * 0.5;
+      const miktar =
+        y.istasyon === 'dondurma'
+          ? on.siparis.kuvetler.reduce((t, c) => t + satisFiyati(c), 0) + on.siparis.susleme.length * SUSLEME_FIYATI
+          : y.istasyon === 'waffle'
+            ? makineSatisFiyati('waffle') + (on.makine.susleme ? MAKINE_SUSLEME_FIYATI : 0)
+            : makineSatisFiyati('limonata');
+      musteriyiUgurla(on.id, miktar, puan, false, { yardimciIsleri: isler });
+    }
+  }
+  if (degisti) guncelle({ yardimciIsleri: isler });
+}
+
+// Yardımcı şu an bir sipariş hazırlıyor mu (sahnede çalışma hareketi için)
+export function yardimciCalisiyor(id: number, d: Durum = durum) {
+  return !!d.yardimciIsleri[id];
+}
+
+// ---- Yardımcı işe alma ----
+export function adaylariGetir() {
+  guncelle({ adaylar: [0, 1, 2].map((n) => adayUret(Date.now() + n)) });
+}
+export function yardimciAlinabilir(d: Durum = durum) {
+  return d.yardimcilar.length < EN_COK_YARDIMCI && d.para >= YARDIMCI_FIYATI;
+}
+export function yardimciAl(adayId: number, ad: string) {
+  const aday = durum.adaylar.find((a) => a.id === adayId);
+  const temiz = ad.trim().slice(0, AD_EN_UZUN);
+  if (!aday || !temiz || !yardimciAlinabilir()) return;
+  guncelle({
+    para: durum.para - YARDIMCI_FIYATI,
+    yardimcilar: [...durum.yardimcilar, { ...aday, ad: temiz, istasyon: null }],
+    adaylar: [],
+  });
+  kaydet();
+}
+export function yardimciCikar(id: number) {
+  guncelle({ yardimcilar: durum.yardimcilar.filter((y) => y.id !== id) });
+  kaydet();
+}
+
+// ---- Tezgah parçaları (belge 0.5) ----
+// İkinci vitrinin tezgah bölümünün ortasına göre yeri (yoksa null)
+export function ikinciVitrinX(d: Durum = durum) {
+  return parcaYerleri(d.tezgah, d.tezgahParcalari).find((p) => p.tur === 'vitrin2')?.x ?? null;
+}
+
+// Oyuncunun istasyonunun tezgah bölümüne göre yeri: kamera ve çalışan oraya gider
+export function istasyonX(d: Durum = durum) {
+  if (d.istasyon === 'dondurma') return d.vitrinOdak ? (ikinciVitrinX(d) ?? 0) : 0;
+  return parcaYerleri(d.tezgah, d.tezgahParcalari).find((p) => p.tur === d.istasyon)?.x ?? 0;
+}
+
+export function vitrinOdakDegistir() {
+  if (ikinciVitrinX() === null || durum.vitrin.length <= ILK_VITRIN_SINIRI) return;
+  guncelle({ vitrinOdak: durum.vitrinOdak ? 0 : 1 });
+}
+
+export function parcaTakiliMi(tur: ParcaTipi, d: Durum = durum) {
+  return d.tezgahParcalari.some((p) => p.tur === tur);
+}
+
+// Tezgah bölümü + parçalarının gövde birimleri ve sıraların birimleri
+export function tezgahHepBirimleri(t: TezgahYeri, parcalar: TezgahParcasi[]) {
+  const { govde, sira } = tezgahBirimleri(t);
+  for (const p of parcaYerleri(t, parcalar))
+    for (let a = 0; a < p.en; a++) {
+      for (let b = 0; b < TEZGAH_DERINLIGI; b++) govde.push({ c: p.c + a, r: t.r + b });
+      if (p.tur === 'servis') sira.push({ c: p.c + a, r: t.r - 1 });
+    }
+  return { govde, sira };
+}
+
+export function parcaEklenebilir(tur: ParcaTipi, yan: 1 | -1, d: Durum = durum) {
+  if (parcaTakiliMi(tur, d)) return false;
+  // Köşe bir ucun en dışında durur: köşeden sonra o yana parça eklenmez
+  if (d.tezgahParcalari.some((p) => p.tur === 'kose' && p.yan === yan)) return false;
+  const fiyat = d.sahipParcalar.includes(tur) ? 0 : PARCA_BILGI[tur].fiyat;
+  if (d.para < fiyat) return false;
+  return tezgahUygun(d.tezgah, d, [...d.tezgahParcalari, { tur, yan }]);
+}
+
+export function parcaEkle(tur: ParcaTipi, yan: 1 | -1) {
+  if (!durum.insaat || !parcaEklenebilir(tur, yan)) return;
+  const fiyat = durum.sahipParcalar.includes(tur) ? 0 : PARCA_BILGI[tur].fiyat;
+  tezgahiKoy(durum.tezgah, {
+    para: durum.para - fiyat,
+    sahipParcalar: durum.sahipParcalar.includes(tur) ? durum.sahipParcalar : [...durum.sahipParcalar, tur],
+    tezgahParcalari: [...durum.tezgahParcalari, { tur, yan }],
+  });
+}
+
+export function parcaCikar(tur: ParcaTipi) {
+  if (!durum.insaat) return;
+  const kalan = durum.tezgahParcalari.filter((p) => p.tur !== tur);
+  // İkinci vitrin çıkınca vitrin 12 küvete iner (fazlası sabah seçilir)
+  const ek: Partial<Durum> =
+    tur === 'vitrin2' ? { vitrinBoyu: Math.min(durum.vitrinBoyu, ILK_VITRIN_SINIRI), vitrin: durum.vitrin.slice(0, ILK_VITRIN_SINIRI) } : {};
+  tezgahiKoy(durum.tezgah, { tezgahParcalari: kalan, ...ek });
+}
+
+// ---- Mutfak (belge 0.5) ----
+export function mutfakMi(anahtar: string, d: Durum = durum) {
+  return d.mutfakParseller.includes(anahtar);
+}
+export function mutfagaKatilabilir(anahtar: string, d: Durum = durum) {
+  if (!d.kapaliParseller.includes(anahtar) || mutfakMi(anahtar, d) || parselCoz(anahtar).j < 1) return false;
+  // Tezgah bölümü, parçaları ve sıraları mutfağa gelmez
+  const sonra: Durum = { ...d, mutfakParseller: [...d.mutfakParseller, anahtar] };
+  return tezgahUygun(d.tezgah, sonra);
+}
+export function mutfagaKat(anahtar: string) {
+  if (!durum.insaat || !mutfagaKatilabilir(anahtar) || durum.para < MUTFAK_FIYATI) return;
+  yapiyiDegistir({ mutfakParseller: [...durum.mutfakParseller, anahtar] }, MUTFAK_FIYATI);
+}
+export function mutfaktanCikar(anahtar: string) {
+  if (!durum.insaat || !mutfakMi(anahtar) || durum.para < MUTFAK_GERI_FIYATI) return;
+  yapiyiDegistir({ mutfakParseller: durum.mutfakParseller.filter((p) => p !== anahtar) }, MUTFAK_GERI_FIYATI);
+}
+
 // ---- Kayıt ----
 // İlerleme bu tarayıcıda saklanır (para, gün, açılan çeşitler, fiyat,
 // dekorasyon). Tarayıcı izin vermezse oyun kayıtsız çalışır.
@@ -1290,6 +1788,12 @@ interface Kayit {
   tezgahAlinanBoy?: number;
   kapaliParseller?: string[];
   duvarParcalari?: Record<string, ParcaTuru>;
+  tezgahParcalari?: TezgahParcasi[];
+  sahipParcalar?: ParcaTipi[];
+  mutfakParseller?: string[];
+  yardimcilar?: Yardimci[];
+  istasyon?: Istasyon;
+  makineFiyatlari?: { waffle: number; limonata: number };
   dekorlar?: string[]; // eski kayıt (13 Ekim öncesi)
   calisan: CalisanGorunumu;
   acikOnlukler: string[];
@@ -1318,6 +1822,12 @@ function kaydet() {
     tezgahAlinanBoy: durum.tezgahAlinanBoy,
     kapaliParseller: durum.kapaliParseller,
     duvarParcalari: durum.duvarParcalari,
+    tezgahParcalari: durum.tezgahParcalari,
+    sahipParcalar: durum.sahipParcalar,
+    mutfakParseller: durum.mutfakParseller,
+    yardimcilar: durum.yardimcilar,
+    istasyon: durum.istasyon,
+    makineFiyatlari: durum.makineFiyatlari,
     depo: durum.depo,
     yerlesim: durum.yerlesim,
     calisan: durum.calisan,
@@ -1378,9 +1888,12 @@ function eskiOrtalama(puanlar: unknown) {
 }
 
 function vitriniOku(k: Partial<Kayit>, acik: number[]) {
-  const vitrinBoyu = vitrinBoyuGecerli(k.vitrinBoyu)
-    ? k.vitrinBoyu
-    : Math.min(EN_BUYUK_VITRIN, Math.max(ILK_VITRIN, acik.length + (acik.length % 2)));
+  // 12'den fazlası ikinci vitrin parçası takılıysa (belge 0.5)
+  const ikinciVitrin = Array.isArray(k.tezgahParcalari) && k.tezgahParcalari.some((p) => p?.tur === 'vitrin2');
+  const vitrinBoyu = Math.min(
+    ikinciVitrin ? EN_BUYUK_VITRIN : ILK_VITRIN_SINIRI,
+    vitrinBoyuGecerli(k.vitrinBoyu) ? k.vitrinBoyu : Math.max(ILK_VITRIN, acik.length + (acik.length % 2)),
+  );
   const kayitli = Array.isArray(k.vitrin) ? k.vitrin.filter((c, i, t) => acik.includes(c) && t.indexOf(c) === i).slice(0, vitrinBoyu) : [];
   const sayilar = (x: unknown) => (Array.isArray(x) ? x.map((n) => (typeof n === 'number' ? n : 0)) : []);
   return {
@@ -1428,10 +1941,36 @@ function dekorasyonuOku(k: Partial<Kayit>) {
   // Tezgah bölümü
   const t = k.tezgah;
   const tezgahAlinanBoy = typeof k.tezgahAlinanBoy === 'number' ? Math.min(TEZGAH_EN_UZUN, Math.max(BASLANGIC_TEZGAHI.boy, k.tezgahAlinanBoy)) : BASLANGIC_TEZGAHI.boy;
-  const deneme: Durum = { ...durum, parseller: [...parseller], kapaliParseller: kapali, duvarParcalari, yerlesim: [] };
-  const tezgah: TezgahYeri =
+  // Mutfak (belge 0.5): kapalı alanda, arka sıralarda
+  const mutfakParseller = Array.isArray(k.mutfakParseller)
+    ? k.mutfakParseller.filter((p): p is string => typeof p === 'string' && kapali.includes(p) && parselCoz(p).j >= 1)
+    : [];
+  // Tezgah parçaları: bilinen türler, her biri bir kez; alınmış sayılırlar
+  const sahipParcalar = Array.isArray(k.sahipParcalar) ? k.sahipParcalar.filter((p): p is ParcaTipi => PARCA_TIPLERI.includes(p)) : [];
+  const tezgahParcalari: TezgahParcasi[] = [];
+  if (Array.isArray(k.tezgahParcalari))
+    for (const p of k.tezgahParcalari)
+      if (p && PARCA_TIPLERI.includes(p.tur) && (p.yan === 1 || p.yan === -1) && !tezgahParcalari.some((x) => x.tur === p.tur)) {
+        tezgahParcalari.push({ tur: p.tur, yan: p.yan });
+        if (!sahipParcalar.includes(p.tur)) sahipParcalar.push(p.tur);
+      }
+  const deneme: Durum = { ...durum, parseller: [...parseller], kapaliParseller: kapali, duvarParcalari, mutfakParseller, tezgahParcalari, yerlesim: [] };
+  let tezgah: TezgahYeri =
     t && [t.c, t.r, t.boy].every((n) => Number.isInteger(n)) && t.boy <= tezgahAlinanBoy && tezgahUygun(t, deneme) ? { c: t.c, r: t.r, boy: t.boy } : { ...BASLANGIC_TEZGAHI };
+  if (!tezgahUygun(tezgah, deneme)) {
+    // Parçalar sığmıyorsa çıkarılır (alınmış kalırlar, yeniden eklenebilir)
+    deneme.tezgahParcalari = [];
+    if (!tezgahUygun(tezgah, deneme)) tezgah = { ...BASLANGIC_TEZGAHI };
+  }
   deneme.tezgah = tezgah;
+  // Yardımcılar
+  const yardimcilar: Yardimci[] = Array.isArray(k.yardimcilar)
+    ? k.yardimcilar
+        .filter((y) => y && typeof y.ad === 'string' && ISTASYONLAR.includes(y.yetenek) && [1, 2, 3].includes(y.hiz))
+        .slice(0, EN_COK_YARDIMCI)
+        .map((y, i) => ({ id: typeof y.id === 'number' ? y.id : i + 1, ad: y.ad.slice(0, AD_EN_UZUN), tohum: Number(y.tohum) || 0, yetenek: y.yetenek, hiz: y.hiz, istasyon: null }))
+    : [];
+  const istasyon: Istasyon = k.istasyon && ISTASYONLAR.includes(k.istasyon) && istasyonKurulu(k.istasyon, deneme) ? k.istasyon : 'dondurma';
   // Konmuş eşyalar. Yeni kayıtta köşe birim ("c,r") ve yön; eski kayıtlarda
   // (sıra numarası ya da "i,j:a,b") eşyanın eski yerine en yakın sığdığı
   // yere taşınır, sığmazsa depoya döner. Eşyanın durduğu kare oyuncunundur.
@@ -1470,7 +2009,25 @@ function dekorasyonuOku(k: Partial<Kayit>) {
     if (k.dekorlar.includes('semsiye')) depo.semsiyeliMasa = (depo.semsiyeliMasa ?? 0) + 1;
     if (k.dekorlar.includes('cicekler')) depo.saksi = (depo.saksi ?? 0) + 3;
   }
-  return { isikSeviyesi, depo, yerlesim: deneme.yerlesim, parseller: [...parseller], tezgah, tezgahAlinanBoy, kapaliParseller: kapali, duvarParcalari };
+  return {
+    isikSeviyesi,
+    depo,
+    yerlesim: deneme.yerlesim,
+    parseller: [...parseller],
+    tezgah,
+    tezgahAlinanBoy,
+    kapaliParseller: kapali,
+    duvarParcalari,
+    mutfakParseller,
+    tezgahParcalari: deneme.tezgahParcalari,
+    sahipParcalar,
+    yardimcilar,
+    istasyon,
+    makineFiyatlari: {
+      waffle: makineFiyatiGecerli('waffle', k.makineFiyatlari?.waffle) ?? WAFFLE_FIYATI,
+      limonata: makineFiyatiGecerli('limonata', k.makineFiyatlari?.limonata) ?? LIMONATA_FIYATI,
+    },
+  };
 }
 
 // Baştan başla: kaydı siler, her şeyi ilk güne döndürür.
@@ -1505,6 +2062,17 @@ export function bastanBasla() {
     duvarParcalari: { ...BASLANGIC_PARCALARI },
     tezgah: { ...BASLANGIC_TEZGAHI },
     tezgahAlinanBoy: BASLANGIC_TEZGAHI.boy,
+    istasyon: 'dondurma',
+    istasyonSecimi: false,
+    tezgahParcalari: [],
+    sahipParcalar: [],
+    mutfakParseller: [],
+    yardimcilar: [],
+    adaylar: [],
+    yardimciIsleri: {},
+    makine: bosMakine(),
+    vitrinOdak: 0,
+    makineFiyatlari: { waffle: WAFFLE_FIYATI, limonata: LIMONATA_FIYATI },
     insaat: false,
     seciliParsel: null,
     yerlestirme: false,

@@ -16,9 +16,11 @@ import {
 } from '../oyun/dekorasyon';
 import * as THREE from 'three';
 import { renk } from './renkler';
-import { CESITLER, kuvetKonumu, vitrinGenisligi } from '../oyun/kuvetler';
+import { CESITLER, ILK_VITRIN_SINIRI, kuvetKonumu, vitrinGenisligi } from '../oyun/kuvetler';
 import { m, type MetinAnahtari } from '../metinler';
 import { useEkranAyari } from '../arayuz/ekranAyari';
+import { TezgahParcalari } from './TezgahParcalari';
+import { Mutfak } from './Mutfak';
 import { logoDokusu, LOGO_DOSYALARI, type LogoTuru } from './logo';
 import { durumuOku, kuveteBas, useDurum } from '../oyun/durum';
 
@@ -528,12 +530,15 @@ function KuvetEtiketi({ cesit, arkada }: { cesit: number; arkada: boolean }) {
 
 // Vitrin: oyuncunun seçtiği çeşitlerin küvetleri (4–12; 6'dan fazlası iki
 // sıra), üstünde cam siper. Küvete basılı tutunca kepçe dalar.
-function Vitrin() {
-  const { vitrin } = useDurum();
+// Vitrin: ana vitrin ilk 12 küveti taşır; ikinci vitrin (belge 0.5) fazlasını
+export function Vitrin({ ikinci = false, x = 0 }: { ikinci?: boolean; x?: number }) {
+  const durum = useDurum();
   const { kuvetEtiketi } = useEkranAyari();
-  const VITRIN_GENISLIGI = vitrinGenisligi(vitrin.length);
+  const tumu = durum.vitrin;
+  const vitrin = ikinci ? tumu.slice(ILK_VITRIN_SINIRI) : tumu.slice(0, ILK_VITRIN_SINIRI);
+  const VITRIN_GENISLIGI = Math.max(1.2, vitrinGenisligi(vitrin.length));
   return (
-    <group position={[0, 0, -0.62]}>
+    <group position={[x, 0, -0.62]}>
       {/* Vitrin gövdesi */}
       <Kutu konum={[0, 0.48, 0]} boyut={[VITRIN_GENISLIGI, 0.96, 0.9]} renkAdi={renk.vitrinMetal} puruz={0.5} />
       {/* Vitrinin müşteri tarafı: logo renklerinde şerit */}
@@ -607,7 +612,7 @@ function Yiginlar({ vitrin }: { vitrin: number }) {
 
 function Tezgah() {
   const { vitrin, tezgah } = useDurum();
-  const VITRIN_GENISLIGI = vitrinGenisligi(vitrin.length);
+  const VITRIN_GENISLIGI = vitrinGenisligi(Math.min(vitrin.length, ILK_VITRIN_SINIRI));
   const TOPLAM = tezgah.boy - 0.2; // duvardan duvara değil, bölümün boyu kadar
   return (
     <group>
@@ -629,10 +634,12 @@ export function Dukkan() {
   return (
     <group>
       <Odalar />
+      <Mutfak />
       <TezgahGrubu>
         <Tezgah />
         <ArkaTezgah />
         <BolumSaksilari />
+        <TezgahParcalari />
       </TezgahGrubu>
     </group>
   );
