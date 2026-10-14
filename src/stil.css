@@ -359,7 +359,7 @@ body,
 }
 
 /* ---- Gün ve saat (4. adım) ---- */
-/* Haber şeridi (belge 0.8): saat ile jeton arasında sürekli kayar */
+/* Haber şeridi (belge 0.8): yeni haber gelince 3 kez geçer, sonra kaybolur */
 .haber-seridi {
   position: absolute;
   top: max(10px, env(safe-area-inset-top));
@@ -382,7 +382,7 @@ body,
   width: max-content;
   height: 100%;
   align-items: center;
-  animation: haber-kay linear infinite;
+  animation: haber-kay linear;
 }
 .haber-kayan span {
   padding-right: 48px;
