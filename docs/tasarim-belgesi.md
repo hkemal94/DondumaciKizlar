@@ -93,6 +93,7 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Satın alınca (14 Ekim) | Eşya alınınca küçük bir ekran çıkar: **Yerleştir** ya da **Alışverişe devam et**. Devam edilirse eşya depoya gider, sonra istenince yerleştirilir |
 | Tezgah küvetleri (14 Ekim) | Çok küvette dokunma alanları küçük kalıyordu. Vitrin **yanlara genişler**, tezgah kamerası **biraz dikleşir**; iki sıra kalır, küvetler büyür, düğmeler kenarlara çekilir |
 | Oyun hissi (14 Ekim) | Parçacık efektleri **orta, sakin**: mükemmel topta kısa kıvılcım, doğru serviste kasaya uçan birkaç jeton, süslemede serpinti, sıkılan müşteride küçük bulut. Ekran sarsma yok. **Titreşim yok** |
+| Yatay sipariş balonu (Kemal, 14 Ekim) | Balon uzayıp küvet etiketlerinin üstüne biniyordu: yatay olur (solda dondurma resmi, sağda adlar ve sabır çubuğu). 5. paketle birlikte |
 | Bahşiş (14 Ekim) | Arka arkaya mükemmel servislerde müşteri küçük **bahşiş** bırakır; seri bozulunca ceza yok, sessizce sıfırlanır |
 | Yardımcı çalışan (14 Ekim) | Parayla bir **yardımcı çalışan** alınabilecek (ör. masaları toplar, waffle makinesine bakar). **Assetlerden sonra**, makinelerle birlikte tasarlanır |
 | Açılış ekranı ve Ayarlar (14 Ekim) | Açılışta arkada dükkânın sakin görünümü, önde **logo**, **Oyna** ve **Ayarlar**. Logo dosyasını **Kemal gönderecek**. Ayarlar: müzik ve ses, eğitimi yeniden göster, baştan başla (onaylı), dil (İngilizce gelince), **ekran ayarları**: küvet etiketlerini ve sipariş balonundaki çeşit adlarını gösterme / gizleme (Kemal, 14 Ekim) |
@@ -103,7 +104,7 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Büyüme (14 Ekim) | Soru turuyla planlandı: aşağıda **bölüm 0.1**. Bugünkü "Alanlar" satın alması bu planla değişecek. **Assetlerden sonra** yapılır |
 | Arayüz sıkışık (Kemal, 14 Ekim, telefon görüntüleriyle) | "Düğmeler inanılmaz büyük, çok fazla yer kaplıyor. Menü sistemi yok, her şey ortada." Düğmeler küçülecek; gün başı düğmeleri (Dükkânı geliştir, Vitrin, Yerleştir, Çalışan) tek bir menü düzeninde toplanacak; tezgahta altlık, süsleme, Geri al, Servis et daha az yer kaplayacak. 4. maddeyle (resimli menüler) birlikte ele alınır |
 | Etiket boyu (Kemal, 14 Ekim) | Küvetlerdeki ad kartları ve sipariş balonundaki çeşit adları "inanılmaz büyük": küçülecek. Ayarlar'daki ekran ayarlarından ikisi de kapatılabilecek |
-| İş sırası (14 Ekim) | 1. Eğitim → 2. Tezgah küvetleri (vitrin yanlara, kamera dik) → 3. Çeşit başına fiyat ekranı → 3b. Etiketleri küçült → 4. Menü sistemi + küçük düğmeler + resimli menüler + "Yerleştir / devam et" ekranı → 5. Efektler + bahşiş → 6. Açılış ekranı + Ayarlar (logo gelince) → 7. Assetler (önce karakterler) → 8. Makineler + yardımcı çalışan → 9. Büyüme yapısı |
+| İş sırası (14 Ekim) | 1. Eğitim → 2. Tezgah küvetleri (vitrin yanlara, kamera dik) → 3. Çeşit başına fiyat ekranı → 3b. Etiketleri küçült → 4. Menü sistemi + küçük düğmeler + resimli menüler + "Yerleştir / devam et" ekranı → 5. Efektler + bahşiş + yatay balon → 6. Açılış ekranı + Ayarlar (logo gelince) → 7. Assetler (önce karakterler) → 8. Makineler + yardımcı çalışan → 9. Büyüme yapısı |
 | Masalarda oturan müşteriler | (Kemal, 14 Ekim: "misafirler arada varsa masalara otursun") Dondurmasını alıp mutlu giden müşterilerin bir kısmı boş bir masa varsa oturup yer, sonra iskeleden gider. Tezgahın arkasındaki köşelere konan masalara oturulmaz |
 | Sonraki iş sırası (14 Ekim) | 1. Alanlar + masalarda oturan müşteriler → 2. Dükkân dışı için tabela benzeri yeni dekorasyon ürünleri (market zayıf kaldı) → 3. Çok çeşit dondurma (Türkiye'de 20 çeşit olağan): çeşitler zamanla açılır, vitrine sınırlı küvet sığar, **her sabah vitrine hangi çeşitlerin gireceği seçilir** (önerildi, onay bekliyor) → 4. **Kış paketi:** dükkân tatlıcı / kafe olur, kışın yalnız **sıcak çikolata** istenir; makyaj paketi olarak satılabilir |
 | Topların sırası | Kural değil: yalnız altlık, çeşitler ve top sayısı tutmalı (13 Ekim) |
@@ -357,6 +358,7 @@ Uygulamada **olan**:
 | 29 çeşit, vitrin (4–12) ve günlük seçim, tabelada ad | Bitti (14 Ekim); çeşit başına fiyat sonraki parça |
 | Yazısız eğitim (ilk sipariş + süsleme, tepsi, vitrin) | Bitti (14 Ekim). "Eğitimi yeniden göster" Ayarlar gelene kadar mola menüsünde |
 | Çeşit başına fiyat ekranı | Bitti (14 Ekim) |
+| Efektler (kıvılcım, serpinti, sıkılan müşteride bulut, kasaya uçan jeton) + bahşiş + yatay balon | Bitti (14 Ekim). Bahşiş: arka arkaya 3. mükemmel servisten başlar (+2, +4… en çok +10), gün sonunda ayrı satır. Uçan jetonlar test ortamında görüntülenemedi; telefonda bakılacak |
 | Küçük düğmeler, gün başı menü şeridi, küçük etiketler + ekran ayarı (mola menüsünde), resimli eşya kartları, "Şimdi yerleştir / Alışverişe devam et" | Bitti (14 Ekim). Eşya resimleri `public/gorseller/esyalar/`; yeni eşya eklenince adresin sonuna `#onizleme=<eşya>` yazılıp çekilir |
 | Tezgah küvetleri büyüdü (iki sırada vitrin yanlara, kamera dik) + logo (tabela, arka duvar, ön cephe, pencere başlıkları) | Bitti (14 Ekim) |
 

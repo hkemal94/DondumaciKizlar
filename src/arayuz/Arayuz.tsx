@@ -119,6 +119,53 @@ function Bildirim() {
     <div key={bildirim.zaman} className={`bildirim bildirim-${sinif}`}>
       {bildirim.tur === 'para' && <span className="para-simge" aria-hidden />}
       {yazi}
+      {bildirim.tur === 'para' && bildirim.bahsis > 0 && <span className="bildirim-bahsis">{m('sonuc.bahsis', { miktar: bildirim.bahsis })}</span>}
+    </div>
+  );
+}
+
+// Doğru serviste kasaya uçan jetonlar (14 Ekim): ekranın ortasından
+// sağ üstteki para kutusuna 3 jeton süzülür.
+function JetonUcusu() {
+  const { bildirim } = useDurum();
+  const [ucus, setUcus] = useState<{ zaman: number; dx: number; dy: number; x: number; y: number } | null>(null);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (bildirim?.tur !== 'para') return;
+    const kok = ref.current?.parentElement;
+    const kasa = kok?.querySelector<HTMLElement>('[data-kasa]');
+    if (!kok || !kasa) return;
+    // Kasanın arayüzdeki yeri (ekran çevrilse de doğru)
+    let x = kasa.offsetWidth * 0.2;
+    let y = kasa.offsetHeight / 2;
+    for (let e: HTMLElement | null = kasa; e && e !== kok; e = e.offsetParent as HTMLElement | null) {
+      x += e.offsetLeft;
+      y += e.offsetTop;
+    }
+    const bx = kok.offsetWidth / 2;
+    const by = kok.offsetHeight * 0.42;
+    setUcus({ zaman: bildirim.zaman, x: bx, y: by, dx: x - bx, dy: y - by });
+    const z = window.setTimeout(() => setUcus(null), 1100);
+    return () => window.clearTimeout(z);
+  }, [bildirim]);
+  return (
+    <div ref={ref} className="jeton-katmani" aria-hidden>
+      {ucus &&
+        [0, 1, 2].map((i) => (
+          <span
+            key={`${ucus.zaman}-${i}`}
+            className="ucan-jeton para-simge"
+            style={
+              {
+                left: ucus.x + (i - 1) * 18,
+                top: ucus.y,
+                '--dx': `${ucus.dx - (i - 1) * 18}px`,
+                '--dy': `${ucus.dy}px`,
+                animationDelay: `${0.12 + i * 0.09}s`,
+              } as React.CSSProperties
+            }
+          />
+        ))}
     </div>
   );
 }
@@ -280,31 +327,34 @@ function SiparisBalonu() {
             <SiparisResmi siparis={musteri.siparis} />
             {musteri.siparis.ikinci && <SiparisResmi siparis={musteri.siparis.ikinci} />}
           </div>
-          {/* Çeşitlerin adları: çok çeşit olunca renkler karışmasın */}
-          {ekran.balonAdlari && <div className="balon-adlar">{siparisAdlari(musteri.siparis)}</div>}
-          {/* Sabır çubuğu: işlem yapılınca dolar, beklerken azalır */}
-          {sabirOrani(durum) !== null && (
-            <div className="sabir" aria-hidden>
-              <div
-                className="sabir-dolu"
-                style={{
-                  width: `${(sabirOrani(durum) ?? 0) * 100}%`,
-                  background: (sabirOrani(durum) ?? 0) > 0.5 ? '#5fc06a' : (sabirOrani(durum) ?? 0) > 0.25 ? '#ffc928' : '#e8574f',
-                }}
-              />
-            </div>
-          )}
-          {/* İstenen süsleme ayrıca rozet olarak: gözden kaçmasın */}
-          {musteri.siparis.susleme.length + (musteri.siparis.ikinci?.susleme.length ?? 0) > 0 && (
-            <div className="balon-rozetler">
-              {[...musteri.siparis.susleme, ...(musteri.siparis.ikinci?.susleme ?? [])].map((s, i) => (
-                <svg key={i} viewBox="0 0 30 30" className="balon-rozet" aria-label={m(`susleme.${s}` as MetinAnahtari)}>
-                  <circle cx="15" cy="17" r="11" fill="#fff0c8" />
-                  <SuslemeIsareti tur={s} x={15} y={17} />
-                </svg>
-              ))}
-            </div>
-          )}
+          {/* Yatay balon (Kemal, 14 Ekim): sağda adlar, sabır ve süsleme rozetleri */}
+          <div className="balon-sag">
+            {/* Çeşitlerin adları: çok çeşit olunca renkler karışmasın */}
+            {ekran.balonAdlari && <div className="balon-adlar">{siparisAdlari(musteri.siparis)}</div>}
+            {/* Sabır çubuğu: işlem yapılınca dolar, beklerken azalır */}
+            {sabirOrani(durum) !== null && (
+              <div className="sabir" aria-hidden>
+                <div
+                  className="sabir-dolu"
+                  style={{
+                    width: `${(sabirOrani(durum) ?? 0) * 100}%`,
+                    background: (sabirOrani(durum) ?? 0) > 0.5 ? '#5fc06a' : (sabirOrani(durum) ?? 0) > 0.25 ? '#ffc928' : '#e8574f',
+                  }}
+                />
+              </div>
+            )}
+            {/* İstenen süsleme ayrıca rozet olarak: gözden kaçmasın */}
+            {musteri.siparis.susleme.length + (musteri.siparis.ikinci?.susleme.length ?? 0) > 0 && (
+              <div className="balon-rozetler">
+                {[...musteri.siparis.susleme, ...(musteri.siparis.ikinci?.susleme ?? [])].map((s, i) => (
+                  <svg key={i} viewBox="0 0 30 30" className="balon-rozet" aria-label={m(`susleme.${s}` as MetinAnahtari)}>
+                    <circle cx="15" cy="17" r="11" fill="#fff0c8" />
+                    <SuslemeIsareti tur={s} x={15} y={17} />
+                  </svg>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -355,6 +405,7 @@ function GunSonu() {
     [m('gunSonu.musteri'), g.musteri],
     [m('gunSonu.kazanc'), <><span className="para-simge" aria-hidden /> {g.kazanc}</>],
     [m('gunSonu.mukemmel'), g.mukemmel],
+    ...(g.bahsis > 0 ? ([[m('gunSonu.bahsis'), <><span className="para-simge" aria-hidden /> {g.bahsis}</>]] as [string, React.ReactNode][]) : []),
     [m('gunSonu.memnuniyet'), <Yildizlar puan={ortalama} />],
     [m('gunSonu.toplam'), <><span className="para-simge" aria-hidden /> {durum.para}</>],
   ];
@@ -384,7 +435,7 @@ function UstBilgi() {
   const durum = useDurum();
   return (
     <div className="ust-bilgi">
-      <div className="bilgi-kutusu">
+      <div className="bilgi-kutusu" data-kasa>
         <span className="para-simge" aria-hidden />
         <span className="para-sayi">{durum.para}</span>
       </div>
@@ -517,6 +568,7 @@ export function Arayuz() {
       {ipucu && !calisanAcik && !egitimHedefi(durum, vitrinAcik) && <div className="ipucu">{suslemeHatirlatmasi(durum) ?? m(ipucu)}</div>}
       {tezgahta && durum.asama === 'dolduruyor' && <Gosterge />}
       <Bildirim />
+      <JetonUcusu />
       <SuslemeDugmeleri />
       <TepsiGostergesi />
 

@@ -4,6 +4,9 @@ import * as THREE from 'three';
 import { durumuOku, musteriTezgahaVardi, musteriyiKaldir, ondekiMusteri, useDurum, type Durum, type Musteri } from '../oyun/durum';
 import { HUCRELER } from '../oyun/dekorasyon';
 import { BANK_OTURAKLARI } from './DisSusler';
+import { Parcaciklar } from './Efektler';
+
+const BULUT_RENKLERI = ['#9aa0a8', '#b8bec6', '#7e848c'];
 import { KAPI_X } from './Dukkan';
 import { renk } from './renkler';
 
@@ -307,6 +310,10 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
     <group ref={ref} name={`musteri-${musteri.id}`} position={baslangic.toArray()}>
       <group ref={icRef}>
         <Govde g={g} oturuyor={oturuyor} />
+      </group>
+      {/* Sıkılıp giden müşterinin başında küçük gri bulut (14 Ekim) */}
+      <group position={[0, 1.95 * g.boy, 0]}>
+        <Parcaciklar tetik={musteri.hal === 'gidiyor' && !musteri.mutlu ? 1 : 0} tur="bulut" renkler={BULUT_RENKLERI} />
       </group>
     </group>
   );
