@@ -5,11 +5,11 @@ import { renk } from './renkler';
 import { gokRenkleri } from './gokRenkleri';
 import { PARSEL, YURUYUS_Z, Z0, parselAnahtari } from '../oyun/dekorasyon';
 import { useDurum } from '../oyun/durum';
-import { HazirModel } from './HazirModel';
+import { ISKELE_ENI, Liman } from './Liman';
 
-// Dükkânın penceresinden görünen dış dünya: gök, deniz, tepeler,
-// iskele, tekneler, önündeki ahşap teras. Tekneler hazır paketten (belge
-// 0.7); öteki parçalar kodla çizilmiş geçici low-poly parçalar.
+// Dükkânın penceresinden görünen dış dünya: gök, deniz, önündeki ahşap
+// teras ve Liman (kumsal, T iskele, mendirek, mahalle, tekneler; belge 0.10,
+// Liman.tsx). Uzakta tepeler.
 
 // Aynı sahne her açılışta aynı görünsün diye tohumlu rastgele sayı.
 function tohumluRastgele(tohum: number) {
@@ -59,7 +59,7 @@ function Gok() {
 function Deniz() {
   const ref = useRef<THREE.Mesh>(null);
   const geometri = useMemo(() => {
-    const g = new THREE.PlaneGeometry(320, 180, 56, 32);
+    const g = new THREE.PlaneGeometry(1000, 700, 60, 40);
     g.rotateX(-Math.PI / 2);
     return g;
   }, []);
@@ -77,7 +77,7 @@ function Deniz() {
   });
 
   return (
-    <mesh ref={ref} geometry={geometri} position={[0, -0.9, -95]} receiveShadow>
+    <mesh ref={ref} geometry={geometri} position={[0, -0.9, -15 - 350]} receiveShadow>
       <meshStandardMaterial color={renk.denizSig} roughness={0.35} metalness={0.05} flatShading />
     </mesh>
   );
@@ -119,52 +119,12 @@ function Tepe({
   );
 }
 
-// Tekneler (belge 0.7): Kenney Watercraft Kit, tasarım diline çevrilmiş;
-// dalgada hafifçe sallanır. Mor ve sarı yok (Liman paleti).
-function Tekne({ yol, konum, en, donus = 0, faz = 0 }: { yol: string; konum: [number, number, number]; en: number; donus?: number; faz?: number }) {
-  const ref = useRef<THREE.Group>(null);
-  useFrame(({ clock }) => {
-    if (!ref.current) return;
-    const t = clock.elapsedTime + faz;
-    ref.current.position.y = konum[1] + Math.sin(t * 1.1) * 0.08;
-    ref.current.rotation.z = Math.sin(t * 0.9) * 0.04;
-  });
-  return (
-    <group ref={ref} position={konum}>
-      <HazirModel yol={yol} ayar={{ grup: 'liman', en }} donus={donus} />
-    </group>
-  );
-}
-
-// Dükkânın yakınındaki iskele (kanon: Liman, iskelenin yakını).
-function Iskele() {
-  const direkler = [];
-  for (let z = -9; z >= -34; z -= 3.2) {
-    for (const x of [-1.15, 1.15]) {
-      direkler.push(
-        <mesh key={`${x}${z}`} position={[x, -0.5, z]}>
-          <cylinderGeometry args={[0.13, 0.15, 1.6, 6]} />
-          <meshStandardMaterial color={renk.ahsapKoyu} flatShading />
-        </mesh>,
-      );
-    }
-  }
-  return (
-    <group position={[-11, 0, 0]}>
-      <mesh position={[0, 0.12, -21.5]} castShadow receiveShadow>
-        <boxGeometry args={[2.6, 0.18, 26]} />
-        <meshStandardMaterial color={renk.ahsapAcik} roughness={0.85} />
-      </mesh>
-      {direkler}
-    </group>
-  );
-}
-
 // Ahşap teras: dükkânın önünden rıhtıma kadar, iki yana uzun (dükkân
 // büyüdükçe yer kalsın). Deniz tarafında taş yürüyüş yolu (Kemal, 14 Ekim:
 // "yürüyüş yolu deniz tarafına"); iskelenin önünde korkulukta açıklık.
 const TERAS_UCU = 46;
-const ISKELE_ACIKLIGI: [number, number] = [-12.4, -9.6];
+// Korkulukta açıklık: T iskeleye giden ahşap yol (belge 0.10)
+const ISKELE_ACIKLIGI: [number, number] = [-ISKELE_ENI / 2 - 0.4, ISKELE_ENI / 2 + 0.4];
 
 function Teras() {
   const { kapaliParseller } = useDurum();
@@ -210,11 +170,6 @@ function Teras() {
           <meshStandardMaterial color="#b9a581" roughness={1} />
         </mesh>
       ))}
-      {/* Taş rıhtım: teras ile deniz arası */}
-      <mesh position={[0, -0.6, -8.6]}>
-        <boxGeometry args={[TERAS_UCU * 2, 1.2, 1.2]} />
-        <meshStandardMaterial color={renk.kaya} roughness={1} flatShading />
-      </mesh>
       {korkuluk}
       {parcalar.map(([a, b]) => (
         <group key={a}>
@@ -238,22 +193,12 @@ export function Disari() {
       <Gok />
       <Deniz />
       <Teras />
-      <Iskele />
-      {/* Uzaktaki tepeler ve kayalar */}
-      <Tepe konum={[-60, -6, -120]} olcek={[38, 18, 16]} tohum={3} />
-      <Tepe konum={[-28, -4, -135]} olcek={[26, 11, 14]} tohum={7} renkAdi={renk.tepeKoyu} />
-      <Tepe konum={[48, -7, -128]} olcek={[44, 16, 18]} tohum={11} />
-      <Tepe konum={[90, -5, -110]} olcek={[30, 12, 16]} tohum={17} renkAdi={renk.tepeKoyu} />
-      <Tepe konum={[22, -1.3, -70]} olcek={[5, 2.2, 3]} tohum={23} renkAdi={renk.kaya} />
-      <Tepe konum={[-34, -1.2, -55]} olcek={[3.5, 1.8, 2.5]} tohum={29} renkAdi={renk.kaya} />
-      {/* Tekneler */}
-      <Tekne yol="tekneler/boat-fishing-small" konum={[-5, -1.25, -42]} en={6.5} donus={0.4} faz={0} />
-      <Tekne yol="tekneler/boat-fishing-small" konum={[16, -1.25, -60]} en={7} donus={-0.9} faz={1.7} />
-      <Tekne yol="tekneler/boat-row-small" konum={[34, -1.05, -48]} en={3.6} donus={1.2} faz={3.1} />
-      <Tekne yol="tekneler/boat-row-small" konum={[-8.4, -1.05, -24]} en={3.4} donus={0.1} faz={0.6} />
-      {/* İskelenin yanında şamandıralar */}
-      <Tekne yol="tekneler/buoy" konum={[-14.5, -1.3, -30]} en={0.9} faz={2.2} />
-      <Tekne yol="tekneler/buoy" konum={[-6.5, -1.3, -36]} en={0.9} faz={4.1} />
+      <Liman />
+      {/* Mahallenin ardındaki tepeler (uzakta, sisin içinde) */}
+      <Tepe konum={[-260, -8, 330]} olcek={[120, 45, 60]} tohum={3} />
+      <Tepe konum={[-60, -10, 360]} olcek={[110, 55, 60]} tohum={7} renkAdi={renk.tepeKoyu} />
+      <Tepe konum={[170, -8, 340]} olcek={[130, 50, 60]} tohum={11} />
+      <Tepe konum={[380, -6, 300]} olcek={[90, 40, 50]} tohum={17} renkAdi={renk.tepeKoyu} />
     </group>
   );
 }

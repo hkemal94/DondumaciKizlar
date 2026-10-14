@@ -295,6 +295,24 @@ yüzünden Kemal kendi Drive'ına kopyalayıp paylaştı. Karakterler D paketind
 | Eski karakterler | Kenney Mini Characters silindi; yalnız gözlük modelleri kaldı |
 | Sona kalanlar | Ağız: basit bir gülümseme çizilecek. Önlük daha iyi biçimli olacak (şimdi düz bir levha). Saçları başlardan ayırıp ayrı seçmek (Blender). Tezgaha varınca el sallama, servisi uzanıp alma, mutlu / mutsuz ayrılış. Kıyafet değiştirme |
 
+### 0.10 Liman haritası (Kemal, 14 Ekim gece; B paketi)
+
+Kaynak: Kemal'in KKM "2D · kur" haritası (ekran görüntüsü; KKM'nin hazır
+ürettiği eski harita değil). Dondurmacı Kızlar iskelenin dibindeki kare.
+Haritadan ölçülenler oyunun yönüne çevrildi (dükkânın önü denize bakar;
+oyunda sağ = kuzeydoğu, kıyı boyunca).
+
+| Konu | Karar |
+|---|---|
+| T iskele | Dükkânın tam önünden, kıyıya dik denize uzanır: ~100 m, ucunda ~45 m T başı. Kökü kumsalın ucunda |
+| Kumsal | Dükkânla su arasında ~25 m kumsal (bugünkü rıhtım yerine); terastan iskeleye ahşap yol |
+| Mendirek | ~400 m'lik yay: sağda kıyıdan başlar, ~250 m açıkta döner, solda açık biter; liman girişi solda. Ucunda bir şey yok |
+| Yollar | Önde yürüyüş yolu (bugünkü taş yol), arkada araba yolu (~20 m geride) |
+| Yapılar | Sağda kumsalda Liman İdare Binası (~160 m) ve Liman Deposu (~210 m) |
+| Mahalle | Araba yolunun arkasında haritadaki gibi sokaklar ve alçak evler |
+| Tekneler | Limanın içinde, iskeleye bağlı; biri ara sıra liman girişinden girip çıkar. Uzaktakiler sade çizilebilir ("belli bir yerden sonra iki boyutlu") |
+| Ölçü | Gerçek ölçü |
+
 ## 1. Oyunun özeti ve vizyonu
 
 ### 1.1 Tek cümlelik özet
@@ -515,5 +533,6 @@ Uygulamada **olan**:
 | Tasarım dili oyunda: dekorasyon eşyaları (0.7, 3. adım) | Bitti (14 Ekim). Masa ve şemsiyeli masa: Tiny Treats yuvarlak masa (örtüsü mor-krem kareli) + iki ahşap sandalye (müşterinin oturduğu yerler aynı). Bank: Kenney minderli bank, minder mor. Saksı ve çöp kutusu: Kenney. Mağaza resimleri yenilendi. Tabela, külah figürü, flama, bisiklet, sokak lambası, çiçek kasası dükkâna özel olduğu için kodla çizilmiş hâliyle kaldı |
 | A paketi: test kolaylıkları ve ekran (0.8) | Bitti (14 Ekim gece). Her açılışta para en az 10.000; açılış ekranında Devam et / Yeni oyun (sorar) / Deneme dükkânı (ayrı kayıt, her açılışta baştan kurulur, `src/oyun/denemeDukkani.ts`); sol altta basılı tuttukça dönen düğme ve tek duvar düğmesi (yarım → açık → kapalı; inşaatta ve yerleştirirken kapalı yarım sayılır); üstte haber şeridi, yeni haber gelince 3 kez geçip kaybolur (ipucu + gün başladı, sıkılan müşteri, bahşiş haberleri) |
 | Karakterler (0.9) | Bitti (14 Ekim gece). Müşteri, çalışan, yardımcı, sahip Quaternius K2'ye geçti (10 karakter, 4 MB). Müşteriler 1,55–1,85 m, tezgahın üstünden görünüyor. Çalışan ekranında beden seçimi (kadın / erkek). Renk çevirmede açıklık hatası düzeltildi (palete çevrilen modeller koyu çıkıyordu). Sona kalanlar 0.9'da |
+| Liman haritası (0.10, B paketi) | Bitti (14 Ekim gece). Kemal'in KKM 2D haritasına göre: dükkânın önünde kumsal ve ~100 m T iskele, ~250 m açıkta mendirek (giriş solda), sağda kumsalda Liman İdare Binası ve Liman Deposu, arkada araba yolu ve sokaklı mahalle (sade evler, ön sırada ayrıntılı binalar), limanın içinde tekneler ve girişten girip çıkan bir tekne. Tepeler mahallenin ardına alındı (`src/sahne/Liman.tsx`). Kuşbakışı: `#tasarim=liman` |
 
 Uygulamada **olmayan** ama belgede geçenler: Kemal'in müziği (şimdilik kodla geçici ezgi), gerçek 3B modeller (hepsi kodla çizilmiş geçici parçalar), İngilizce.
