@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { devamEt, duraklat, duraklatilabilir, gezmeyeBasla, gezmeyiBitir, useDurum } from '../oyun/durum';
+import { devamEt, duraklat, duraklatilabilir, egitimiYenidenGoster, gezmeyeBasla, gezmeyiBitir, useDurum } from '../oyun/durum';
 import { m, type MetinAnahtari } from '../metinler';
 import { sesAyariniOku, sesAyariniYaz, type SesAyari } from '../ses/ses';
 import { gezmeIsigi, gezmeIsiginiDegistir } from '../sahne/gokRenkleri';
@@ -53,6 +53,16 @@ export function DuraklatMenusu() {
           ))}
           <p className="gel-not">{m('ses.not')}</p>
         </div>
+        {/* Ayarlar ekranı gelene kadar burada (Kemal, 14 Ekim) */}
+        <button
+          className="gel-bag"
+          onClick={() => {
+            egitimiYenidenGoster();
+            devamEt();
+          }}
+        >
+          {m('egitim.yeniden')}
+        </button>
       </div>
     </div>
   );

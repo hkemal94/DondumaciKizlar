@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import {
+  egitimGor,
   altlikSec,
   birak,
   dolumHesapla,
@@ -38,6 +39,7 @@ import { CESITLER } from '../oyun/kuvetler';
 import { balon } from '../sahne/Musteriler';
 import { Gelistir } from './Gelistir';
 import { VitrinEkrani } from './VitrinEkrani';
+import { EgitimEli, egitimHedefi } from './EgitimEli';
 import { CalisanAdi, CalisanEkrani } from './CalisanEkrani';
 import { dukkanDonusu, ekrandaKaydir, ortala, yakinlikDegistir } from '../sahne/kameraKarisimi';
 import { DuraklatDugmesi, DuraklatMenusu, GezmeEkrani } from './Duraklat';
@@ -201,7 +203,7 @@ function SuslemeDugmeleri() {
   if (durum.kamera !== 'tezgah') return null;
   return (
     <div className="susleme-dugmeleri">
-      <button className="dugme dugme-geri" disabled={!geriAlinabilir(durum)} onClick={geriAl}>
+      <button className="dugme dugme-geri" data-egitim="geriAl" disabled={!geriAlinabilir(durum)} onClick={geriAl}>
         <span className="geri-simge" aria-hidden>
           ↶
         </span>
@@ -210,6 +212,7 @@ function SuslemeDugmeleri() {
       {durum.toplar.length > 0 && SUSLEMELER.map((s) => (
         <button
           key={s}
+          data-egitim={`susleme-${s}`}
           className={`susleme-dugme ${durum.susleme.includes(s) ? 'eklendi' : ''} ${
             durum.bildirim?.tur === 'susleme' && durum.bildirim.eksik.includes(s) && !durum.susleme.includes(s) ? 'dikkat' : ''
           }`}
@@ -505,7 +508,8 @@ export function Arayuz() {
       <CalisanAdi />
       <UstBilgi />
       <GunSaat />
-      {ipucu && !calisanAcik && <div className="ipucu">{suslemeHatirlatmasi(durum) ?? m(ipucu)}</div>}
+      {/* Eğitim eli varken yazılı ipucu çıkmaz (yazısız eğitim) */}
+      {ipucu && !calisanAcik && !egitimHedefi(durum, vitrinAcik) && <div className="ipucu">{suslemeHatirlatmasi(durum) ?? m(ipucu)}</div>}
       {tezgahta && durum.asama === 'dolduruyor' && <Gosterge />}
       <Bildirim />
       <SuslemeDugmeleri />
@@ -520,6 +524,7 @@ export function Arayuz() {
             {durum.acikAltliklar.map((a) => (
               <button
                 key={a}
+                data-egitim={`altlik-${a}`}
                 className={`dugme ${durum.altlik === a ? 'secili' : ''}`}
                 disabled={!altlikDegisebilir(durum)}
                 onClick={() => altlikSec(a)}
@@ -531,11 +536,11 @@ export function Arayuz() {
 
           <div className="sag-dugmeler">
             {tepsiyeKoyabilir(durum) && (
-              <button className="dugme dikkat" onClick={tepsiyeKoy}>
+              <button className="dugme dikkat" data-egitim="tepsi" onClick={tepsiyeKoy}>
                 {m('tepsi.koy')}
               </button>
             )}
-            <button className="dugme dugme-servis" disabled={!servisHazir} onClick={servisEt}>
+            <button className="dugme dugme-servis" data-egitim="servis" disabled={!servisHazir} onClick={servisEt}>
               {m('servis.dugme')}
             </button>
           </div>
@@ -577,7 +582,14 @@ export function Arayuz() {
               <button className="dugme" onClick={() => setGelistirAcik(true)}>
                 {m('gelistir.dugme')}
               </button>
-              <button className="dugme" onClick={() => setVitrinAcik(true)}>
+              <button
+                className="dugme"
+                data-egitim="vitrin"
+                onClick={() => {
+                  setVitrinAcik(true);
+                  egitimGor('vitrin');
+                }}
+              >
                 {m('vitrin.dugme')}
               </button>
               <button className="dugme" onClick={yerlestirmeyiAc}>
@@ -591,7 +603,7 @@ export function Arayuz() {
               </button>
             </>
           ) : (
-            <button className={`dugme dugme-servis ${musteri ? 'dikkat' : ''}`} onClick={() => kameraSec('tezgah')}>
+            <button className={`dugme dugme-servis ${musteri ? 'dikkat' : ''}`} data-egitim="tezgah" onClick={() => kameraSec('tezgah')}>
               {m('kamera.tezgah')}
             </button>
           )}
@@ -600,6 +612,7 @@ export function Arayuz() {
       {gelistirAcik && durum.hazirlik && <Gelistir kapat={() => setGelistirAcik(false)} />}
       {calisanAcik && durum.hazirlik && <CalisanEkrani kapat={() => setCalisanAcik(false)} />}
       {vitrinAcik && durum.hazirlik && <VitrinEkrani kapat={() => setVitrinAcik(false)} />}
+      {!calisanAcik && !gelistirAcik && <EgitimEli vitrinAcik={vitrinAcik} />}
       <DuraklatMenusu />
 
       <GunSonu />

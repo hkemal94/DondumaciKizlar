@@ -11,6 +11,7 @@ import { Sahip } from './Sahip';
 import { Dukkan } from './Dukkan';
 import { Hazirlama } from './Hazirlama';
 import { Musteriler } from './Musteriler';
+import { EgitimTakibi } from './EgitimTakibi';
 import { Dekorlar } from './Dekorlar';
 import { renk } from './renkler';
 
@@ -213,6 +214,7 @@ export function Sahne() {
         <Dukkan />
         <Hazirlama />
         <Musteriler />
+        <EgitimTakibi />
         <Dekorlar />
         <Calisan />
         <Sahip />
