@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { devamEt, duraklat, duraklatilabilir, egitimiYenidenGoster, gezmeyeBasla, gezmeyiBitir, useDurum } from '../oyun/durum';
 import { m, type MetinAnahtari } from '../metinler';
+import { logoAdresi } from '../sahne/logo';
 import { sesAyariniOku, sesAyariniYaz, type SesAyari } from '../ses/ses';
 import { gezmeIsigi, gezmeIsiginiDegistir } from '../sahne/gokRenkleri';
 import { duvarlar, duvarModunuDegistir, fotograf, ortala, yakinlikDegistir } from '../sahne/kameraKarisimi';
@@ -29,6 +30,7 @@ export function DuraklatMenusu() {
   return (
     <div className="gun-sonu-zemin">
       <div className="gun-sonu duraklat-menu" role="dialog" aria-labelledby="duraklat-baslik">
+        <img className="baslik-logo" src={logoAdresi('yazi')} alt="" aria-hidden />
         <h2 id="duraklat-baslik">{m('duraklat.baslik')}</h2>
         <button className="dugme dugme-yeni-gun" onClick={devamEt}>
           {m('duraklat.devam')}

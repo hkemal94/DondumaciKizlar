@@ -5,7 +5,7 @@ import { durumuOku, saatDakikasi } from '../oyun/durum';
 import { gezmeSaati, gokRenkleri } from './gokRenkleri';
 import * as THREE from 'three';
 import { Disari } from './Disari';
-import { dukkanDonusu, dukkanKaydirma, dukkanYakinligi, fotograf, kameraKarisimi, odak } from './kameraKarisimi';
+import { dukkanDonusu, dukkanKaydirma, dukkanYakinligi, fotograf, kameraKarisimi, odak, tezgahDikligi } from './kameraKarisimi';
 import { Calisan } from './Calisan';
 import { Sahip } from './Sahip';
 import { Dukkan } from './Dukkan';
@@ -20,6 +20,8 @@ import { renk } from './renkler';
 // Ekran ne kadar geniş ya da dar olursa olsun yatayda aşağı yukarı aynı
 // alanı göstersin diye görüş açısı ekran oranına göre ayarlanır.
 const TEZGAH = { konum: new THREE.Vector3(0, 1.95, 1.5), hedef: new THREE.Vector3(0, 0.9, -4), yatay: 80 };
+// Vitrin iki sıra olunca (6'dan fazla küvet): biraz daha yukarıdan ve dik bakış
+const TEZGAH_DIK = { konum: new THREE.Vector3(0.12, 2.25, 1.3), hedef: new THREE.Vector3(0.12, 0.55, -2.9), yatay: 80 };
 // Genel görünüm dükkânın önünden (deniz / müşteri tarafı) çeker (Kemal, 13 Ekim)
 // Çalışanı kişiselleştirirken: müşteri tarafından ona yakından bakış (sağda panel olduğu için çalışan solda)
 const CALISAN_ODAGI = { konum: new THREE.Vector3(-0.6, 1.65, -2.15), hedef: new THREE.Vector3(-0.68, 1.05, 0.75) };
@@ -57,6 +59,8 @@ function KameraYoneticisi() {
   const odakKarisimi = useRef(0);
   const kayma = useRef(new THREE.Vector3());
   const dukkanHedefi = useRef(new THREE.Vector3());
+  const tezgahKonumu = useRef(new THREE.Vector3());
+  const tezgahHedefi = useRef(new THREE.Vector3());
   useFrame((_, dt) => {
     const kamera = camera as THREE.PerspectiveCamera;
     const istenen = durumuOku().kamera === 'dukkan' ? 1 : 0;
@@ -82,11 +86,15 @@ function KameraYoneticisi() {
     kayma.current.z = THREE.MathUtils.damp(kayma.current.z, dukkanKaydirma.z, 12, dt);
     dukkanKonumu.current.add(kayma.current);
     dukkanHedefi.current.copy(DUKKAN.hedef).add(kayma.current);
-    konum.current.lerpVectors(TEZGAH.konum, dukkanKonumu.current, t);
+    // Tezgah pozu: vitrin büyüyünce dikleşir
+    const dik = (tezgahDikligi.deger = THREE.MathUtils.damp(tezgahDikligi.deger, d.vitrin.length > 6 ? 1 : 0, 4, dt));
+    tezgahKonumu.current.lerpVectors(TEZGAH.konum, TEZGAH_DIK.konum, dik);
+    tezgahHedefi.current.lerpVectors(TEZGAH.hedef, TEZGAH_DIK.hedef, dik);
+    konum.current.lerpVectors(tezgahKonumu.current, dukkanKonumu.current, t);
     konum.current.y += Math.sin(t * Math.PI) * 0.8;
-    hedef.current.lerpVectors(TEZGAH.hedef, dukkanHedefi.current, t);
+    hedef.current.lerpVectors(tezgahHedefi.current, dukkanHedefi.current, t);
     const oran = size.width / size.height;
-    const fovTezgah = THREE.MathUtils.clamp(dikeyAci(TEZGAH.yatay, oran), 38, 64);
+    const fovTezgah = THREE.MathUtils.clamp(dikeyAci(THREE.MathUtils.lerp(TEZGAH.yatay, TEZGAH_DIK.yatay, dik), oran), 38, 66);
     const fovDukkan = THREE.MathUtils.clamp(dikeyAci(DUKKAN.yatay, oran), 22, 48);
     kamera.fov = THREE.MathUtils.lerp(fovTezgah, fovDukkan, t);
     // Çalışan ekranı açıksa kamera çalışana yaklaşır

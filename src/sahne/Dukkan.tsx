@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { renk } from './renkler';
 import { CESITLER, kuvetKonumu, vitrinGenisligi } from '../oyun/kuvetler';
 import { m, type MetinAnahtari } from '../metinler';
+import { logoDokusu, LOGO_DOSYALARI, type LogoTuru } from './logo';
 import { durumuOku, kuveteBas, useDurum } from '../oyun/durum';
 
 // Dükkânın içi, tezgahın arkasından görünen hâli (birinci şahıs yakın plan).
@@ -162,6 +163,7 @@ function Odalar() {
       <KesikDuvar yon={[0, 1]}>
         <Kutu konum={[0, 1.6, 2.05]} boyut={[8.1, 3.3, 0.1]} renkAdi={renk.duvar} golgeVer={false} />
         <MenuPanosu />
+        <LogoLevhasi tur="yazi" genislik={1.5} konum={[1.25, 2.25, 1.98]} donuk={Math.PI} />
       </KesikDuvar>
       <KesikDuvar yon={[-1, 0]}>
         <Kutu konum={[-4, 1.6, -0.3]} boyut={[0.1, 3.3, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
@@ -275,6 +277,23 @@ function Saksi({ konum, olcek = 1 }: { konum: [number, number, number]; olcek?: 
 }
 
 // Arka duvardaki menü panosu (taslak 1 gibi): yazısız, resimli (yazılar Kemal'in).
+// Logo levhası (Kemal, 14 Ekim): mor zemin, sarı çerçeve, ortada logo.
+// Arka duvarda (genel görünümde görünür) ve ön cephede, pencerenin üstünde.
+function LogoLevhasi({ tur, genislik, konum, donuk = 0 }: { tur: LogoTuru; genislik: number; konum: [number, number, number]; donuk?: number }) {
+  const doku = useMemo(() => logoDokusu(tur), [tur]);
+  const yukseklik = genislik / LOGO_DOSYALARI[tur].oran;
+  return (
+    <group position={konum} rotation={[0, donuk, 0]}>
+      <Kutu konum={[0, 0, 0]} boyut={[genislik + 0.22, yukseklik + 0.16, 0.05]} renkAdi={renk.sari} golgeVer={false} />
+      <Kutu konum={[0, 0, 0.03]} boyut={[genislik + 0.12, yukseklik + 0.06, 0.02]} renkAdi={renk.mor} golgeVer={false} />
+      <mesh position={[0, 0, 0.045]}>
+        <planeGeometry args={[genislik, yukseklik]} />
+        <meshBasicMaterial map={doku} transparent toneMapped={false} />
+      </mesh>
+    </group>
+  );
+}
+
 function MenuPanosu() {
   const resimler = ['#ff6f7d', '#8a4b2e', '#5fd08a', '#fff0c8'];
   return (
@@ -500,6 +519,8 @@ export function Dukkan() {
       {/* Dükkânın önü (pencere duvarı): genel görünümde kamera önden baktığı için kalkar */}
       <KesikDuvar yon={[0, -1]}>
         <PencereDuvari />
+        {/* Ön cephe: pencerenin üstündeki bantta logo */}
+        <LogoLevhasi tur="yazi" genislik={0.8} konum={[0.6, (PENCERE_UST + TAVAN) / 2 + 0.02, PENCERE_Z - 0.1]} donuk={Math.PI} />
         <Tente />
         <Ampuller />
       </KesikDuvar>

@@ -101,7 +101,7 @@ export function kuvetAraligi(sayi: number) {
 // İki sırada küvetler biraz daha sık: öndeki sıra kameraya yakın olduğu için
 // ekranda daha geniş görünür, sağdaki düğmelerin altına girmesin
 function ikiSiraAraligi(sayi: number) {
-  return Math.min(0.62, 2.0 / sayi);
+  return Math.min(0.62, 2.6 / sayi);
 }
 
 function siradakiSayi(toplam: number) {
@@ -117,7 +117,8 @@ export function kuvetKonumu(cesit: number, vitrin: number[]) {
   const arkada = ikiSira && sira < birSirada;
   const sirada = ikiSira && !arkada ? sira - birSirada : sira;
   const buSiradaki = ikiSira && !arkada ? vitrin.length - birSirada : birSirada;
-  const a = ikiSira ? ikiSiraAraligi(birSirada) : kuvetAraligi(birSirada);
+  // Öndeki sıra kameraya yakın: biraz sık dursun ki sağdaki düğmenin altına girmesin
+  const a = ikiSira ? ikiSiraAraligi(birSirada) * (arkada ? 1 : 0.9) : kuvetAraligi(birSirada);
   return {
     x: (sirada - (buSiradaki - 1) / 2) * a,
     z: KUVET_Z + (ikiSira ? (arkada ? -SIRA_ARASI : SIRA_ARASI) : 0),

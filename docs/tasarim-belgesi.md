@@ -98,8 +98,9 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Açılış ekranı ve Ayarlar (14 Ekim) | Açılışta arkada dükkânın sakin görünümü, önde **logo**, **Oyna** ve **Ayarlar**. Logo dosyasını **Kemal gönderecek**. Ayarlar: müzik ve ses, eğitimi yeniden göster, baştan başla (onaylı), dil (İngilizce gelince) |
 | Makineler (14 Ekim) | Waffle ve limonata makineleri + yardımcı çalışan **assetlerden sonra** |
 | Assetler (14 Ekim) | Önce **ücretsiz paketler** (Kenney, Quaternius; CC0). Claude indirir, yerleştirir, `docs/lisanslar.md`'ye yazar; Kemal'in bir şey yüklemesi gerekmez. **İlk karakterler** değişir (müşteriler, çalışan, sahip; yürüme ve oturma hareketleriyle) |
-| Kroki | Kemal Düzada haritasındaki dükkânın krokisini paylaşacak. Kemal'e göre bugünkü düzen zaten çok yakın; büyük değişiklik beklenmiyor |
-| Büyüme (14 Ekim) | Bugünkü alan satın alma ekranını Kemal pek beğenmedi; **kapalı alanın da büyüyebildiği** bir yapı düşünüyor. Assetlerden sonra konuşulacak |
+| Kroki | Kemal paylaştı (14 Ekim, `docs/gorseller/kroki-liman.webp`): dükkân sahil yolunun deniz tarafında, **T biçimli iskelenin karşısındaki küçük kare** (yaklaşık 15–18 m). Krokide dükkânla deniz arasında kum var; oyunda **şimdiki ahşap teras kalır** (Kemal: "şimdiki kalsın"). Bugünkü düzen zaten yakın |
+| Logo | Kemal gönderdi (14 Ekim): `public/gorseller/logo-kulahli.webp` (külahlı) ve `logo-yazi.webp` (yalnız yazı). Yazı kırmızı-krem, logonun asıl zemini **mor ve sarı**: oyunun renkleri **mor-sarı kalır**. Kullanılacak yerler: **açılış ekranı, ışıklı tabela, dükkânın ön cephesi (tentenin üstü), menü başlıkları**; yerine göre külahlı ya da yalnız yazı |
+| Büyüme (14 Ekim) | Soru turuyla planlandı: aşağıda **bölüm 0.1**. Bugünkü "Alanlar" satın alması bu planla değişecek. **Assetlerden sonra** yapılır |
 | İş sırası (14 Ekim) | 1. Eğitim → 2. Tezgah küvetleri (vitrin yanlara, kamera dik) → 3. Çeşit başına fiyat ekranı → 4. Resimli menüler + "Yerleştir / devam et" ekranı → 5. Efektler + bahşiş → 6. Açılış ekranı + Ayarlar (logo gelince) → 7. Assetler (önce karakterler) → 8. Makineler + yardımcı çalışan → 9. Büyüme yapısı |
 | Masalarda oturan müşteriler | (Kemal, 14 Ekim: "misafirler arada varsa masalara otursun") Dondurmasını alıp mutlu giden müşterilerin bir kısmı boş bir masa varsa oturup yer, sonra iskeleden gider. Tezgahın arkasındaki köşelere konan masalara oturulmaz |
 | Sonraki iş sırası (14 Ekim) | 1. Alanlar + masalarda oturan müşteriler → 2. Dükkân dışı için tabela benzeri yeni dekorasyon ürünleri (market zayıf kaldı) → 3. Çok çeşit dondurma (Türkiye'de 20 çeşit olağan): çeşitler zamanla açılır, vitrine sınırlı küvet sığar, **her sabah vitrine hangi çeşitlerin gireceği seçilir** (önerildi, onay bekliyor) → 4. **Kış paketi:** dükkân tatlıcı / kafe olur, kışın yalnız **sıcak çikolata** istenir; makyaj paketi olarak satılabilir |
@@ -107,6 +108,48 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Deneme telefonu | Elde hangisi varsa; orta seviye bir telefonda akıcı çalışmak hedef |
 
 ---
+
+## 0.1 Büyüme planı (Kemal, 14 Ekim soru turu)
+
+*Uygulamada henüz yok.* İş sırasında assetlerden sonra (madde 9). Sayılar sonra ayarlanır.
+
+**Arazi**
+- Dükkânın sağı, solu ve arkası **eşit dilimlere** (~4 m) bölünür; her dilim ayrı alınır.
+- **Üst sınır yok:** krokideki dükkân sınır değil; sağa sola boş arazi oldukça büyüme sürer.
+- Oyun **bugünkü boyutla** başlar. Dekorasyon yalnız dükkânın önündeki hizaya konur; yeni yerler satın alınır.
+- **Yürüyüş yolu deniz tarafına alınır**, böylece her dilimin önü büyür. Bir dilim alınınca önü de oyuncunun olur. Yalnız alınmış dilimlerin önü kullanılır.
+- Fiyat **her alımda artar** ve **yere göre** değişir: ön ve iskele tarafı pahalı, arka ucuz.
+
+**Aşamalar (her biri ayrı ödeme)**
+1. **Dilimi al.** Önce açık alan olur, masa ve dekorasyon konur.
+2. **Duvar ör.** Dilim kapalı alana katılır. Şimdilik **anında** olur. Oyun çıkınca bir süre konur ve hızlandırma için ödeme yapılabilir (Kemal).
+   - Pencere ve kapı kendiliğinden gelir (önde cam vitrin), sonradan değiştirilebilir.
+   - Kapalı alan **ücret ödenerek** tekrar açık alana çevrilebilir.
+3. **Mutfak (arka dilimler).** Duvarla kapatılan arka dilim, bir ödeme daha ile mutfağa katılır.
+   - Mutfak önce **yalnız alan** verir, sonra alınanlar eklenir: makineler, yardımcı çalışanın yeri, depo (vitrinden ayrı, daha çok çeşit stokta).
+
+**Kapalı alan ne işe yarar**
+- İç masalar. Kışın, paket gelince yalnız içerideki masalar kullanılır.
+- Makine yeri: waffle ve limonata makineleri.
+- Daha uzun sıra, yani daha çok müşteri.
+- İç dekorasyon: duvar süsleri, raflar, lambalar.
+
+**Tezgah**
+- Tezgah da dekorasyon gibi **modüler parçalarla** kurulur: düz, köşe, vitrinli, süsleme, makine.
+- Parçalar alınıp kapalı alanda kareye konur. Kemal'in hayali: arka duvardan gelen, **önü açık U biçimi** bir dükkân.
+- Tezgah uzayınca gelenler:
+  - daha büyük vitrin (12'den fazla küvet olabilir),
+  - **ikinci servis noktası,**
+  - ayrı süsleme ya da makine tezgahı.
+
+**İstasyonlar**
+- Tezgah yakın planı **istasyonlara** bölünür: vitrin, süsleme, makine…
+- **Sabah oyuncu bir istasyon seçer**, o gün onu oynar.
+- Yardımcı çalışan yokken öteki istasyonlar **kapalı** kalır. Yardımcılar alındıkça açılır ve **yeteneklerine göre** o istasyonlarda çalışır.
+
+**Ekran**
+- Gün başında **İnşaat modu**: dükkâna üstten bakılır, dilimler renkli görünür.
+- Dilime dokununca seçenekler ve fiyat çıkar: Al / Duvar ör / Mutfağa kat / Tezgah parçası koy.
 
 ## 1. Oyunun özeti ve vizyonu
 
@@ -311,5 +354,6 @@ Uygulamada **olan**:
 | Dış süsler (9 eşya) | Bitti (14 Ekim) |
 | 29 çeşit, vitrin (4–12) ve günlük seçim, tabelada ad | Bitti (14 Ekim); çeşit başına fiyat sonraki parça |
 | Yazısız eğitim (ilk sipariş + süsleme, tepsi, vitrin) | Bitti (14 Ekim). "Eğitimi yeniden göster" Ayarlar gelene kadar mola menüsünde |
+| Tezgah küvetleri büyüdü (iki sırada vitrin yanlara, kamera dik) + logo (tabela, arka duvar, ön cephe, pencere başlıkları) | Bitti (14 Ekim) |
 
 Uygulamada **olmayan** ama belgede geçenler: Kemal'in müziği (şimdilik kodla geçici ezgi), gerçek 3B modeller (hepsi kodla çizilmiş geçici parçalar), İngilizce.

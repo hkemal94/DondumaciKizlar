@@ -24,6 +24,7 @@ import {
 import { CESITLER } from '../oyun/kuvetler';
 import { BOLGELER, EN_YUKSEK_ISIK, ESYALAR, ISIK_SEVIYELERI } from '../oyun/dekorasyon';
 import { m, type MetinAnahtari } from '../metinler';
+import { logoAdresi } from '../sahne/logo';
 
 // Dükkânı geliştir (belge 2.4 ve 4; taslak 3): yeni çeşitler, fiyat,
 // dekorasyon. Gün sonu ekranından açılır. Sayılar geçici (belge 7.4).
@@ -47,6 +48,7 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
     <div className="gun-sonu-zemin">
       <div className="gelistir" role="dialog" aria-labelledby="gelistir-baslik">
         <div className="gel-ust">
+          <img className="baslik-logo" src={logoAdresi('yazi')} alt="" aria-hidden />
           <h2 id="gelistir-baslik">{m('gelistir.baslik')}</h2>
           <Para miktar={durum.para} />
         </div>
