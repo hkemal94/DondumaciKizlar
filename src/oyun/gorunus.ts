@@ -1,12 +1,12 @@
 // Dükkânın görünüşü (C paketi, belge 0.11; Kemal, 14 Ekim gece): dış boya,
-// iç duvar, pencere / kapı çerçevesi, tente ve iç zemin. Her seçenek bir kez
+// iç duvar, pencere / kapı çerçevesi, tente, iç zemin ve çatı. Her seçenek bir kez
 // alınır, alınanlar arasında geçiş bedava. Başlangıçtaki görünüş her grupta
 // baştan açık. Fiyatlar geçici; kilitler (gün, memnuniyet…) sonraki işler.
 
-export type GorunusGrubu = 'disBoya' | 'icBoya' | 'cerceve' | 'tente' | 'zemin';
-export const GORUNUS_GRUPLARI: GorunusGrubu[] = ['disBoya', 'icBoya', 'cerceve', 'tente', 'zemin'];
+export type GorunusGrubu = 'disBoya' | 'icBoya' | 'cerceve' | 'tente' | 'zemin' | 'cati';
+export const GORUNUS_GRUPLARI: GorunusGrubu[] = ['disBoya', 'icBoya', 'cerceve', 'tente', 'zemin', 'cati'];
 // Dışarıdan bakınca görünenler: seçilince duvarlar kapanır, içtekilerde kesit olur
-export const DIS_GRUPLAR: GorunusGrubu[] = ['disBoya', 'cerceve', 'tente'];
+export const DIS_GRUPLAR: GorunusGrubu[] = ['disBoya', 'cerceve', 'tente', 'cati'];
 
 export type ZeminDeseni = 'tahta' | 'dama' | 'mozaik' | 'karo' | 'terrazzo' | 'cila';
 
@@ -69,6 +69,13 @@ export const GORUNUS_SECENEKLERI: Record<GorunusGrubu, GorunusSecenegi[]> = {
     { id: 'terrazzo', renk: '#ece4d8', ikinciRenk: '#9a8f84', desen: 'terrazzo', fiyat: 550 },
     { id: 'cila', renk: '#c9c6c0', ikinciRenk: '#bdb9b2', desen: 'cila', fiyat: 350 },
   ],
+  // Çatı biçimi (C2): düz dam (bugünkü), teras + korkuluk, kiremit, ahşap + pergola
+  cati: [
+    { id: 'duz', renk: '#7a3fa8', ikinciRenk: '#e9d6bd', fiyat: 0 },
+    { id: 'teras', renk: '#c8705a', ikinciRenk: '#f7f3ea', fiyat: 600 },
+    { id: 'kiremit', renk: '#c8705a', ikinciRenk: '#a85a48', fiyat: 800 },
+    { id: 'pergola', renk: '#a87650', ikinciRenk: '#c99a6b', fiyat: 900 },
+  ],
 };
 
 export type Gorunus = Record<GorunusGrubu, string>;
@@ -79,6 +86,7 @@ export const BASLANGIC_GORUNUSU: Gorunus = {
   cerceve: 'mor',
   tente: 'morSari',
   zemin: 'ahsapKoyu',
+  cati: 'duz',
 };
 
 // Alınan seçenekler "grup:id" olarak saklanır

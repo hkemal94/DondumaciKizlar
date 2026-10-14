@@ -323,7 +323,7 @@ Sims gibi: dükkânın dışı ve içi oyuncunun zevkine göre. Geliştir'de yen
 | Dış boya | Paletten 6–8 hazır renk |
 | İç duvar | Ayrı seçilir; paletten 6–8 renk |
 | Çerçeve ve tente | Pencere / kapı çerçevesi ve tente rengi ayrı ayrı seçilir |
-| Çatı | Kiremit eğimli çatı, düz teras çatı + korkuluk, ahşap çatı / pergola, tente renkleri |
+| Çatı | Kiremit eğimli çatı, düz teras çatı + korkuluk, ahşap çatı / pergola, tente renkleri. Yapıldı (C2): Görünüş → Çatı'da dört seçenek; bugünkü düz dam baştan açık. Kiremitte sırt dükkân boyunca uzanır, her arazi karesinin kendi damı olur; pergola ön cephenin üstünden terasa 2,4 m uzanır |
 | Tabelalar | Çatı tabelası, kaldırımda direk tabela, pencerede neon, iskele girişinde kemer. Yazı: dükkânın adı. Işıklılar akşam kendiliğinden yanar, sabah söner |
 | İç zemin | Ahşap tonları, damalı fayans, mozaik / karo, terrazzo / beton cila |
 | Halı ve tablo | Eşya gibi yerleşir (halı yere, tablo bir duvar parçasına); taşınır, döndürülür, depoya kalkar |
