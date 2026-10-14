@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   esyaSec,
   yerlestirmeyiAc,
@@ -28,8 +28,15 @@ import {
   TEPSI_FIYATI,
   tepsiAc,
   useDurum,
+  gecerliGorunus,
+  gorunusAcikMi,
+  gorunusAl,
+  gorunusDenemesiniBitir,
+  gorunusSec,
   type FiyatSeviyesi,
 } from '../oyun/durum';
+import { DIS_GRUPLAR, GORUNUS_GRUPLARI, GORUNUS_SECENEKLERI, type GorunusGrubu, type GorunusSecenegi } from '../oyun/gorunus';
+import { dukkanKaydirma, duvarlar, ekrandaKaydir } from '../sahne/kameraKarisimi';
 import { CESITLER, FIYAT_ARALIGI, makulFiyat } from '../oyun/kuvetler';
 import { EN_YUKSEK_ISIK, ESYALAR, ISIK_SEVIYELERI, type Esya } from '../oyun/dekorasyon';
 import { m, type MetinAnahtari } from '../metinler';
@@ -38,7 +45,7 @@ import { logoAdresi } from '../sahne/logo';
 // Dükkânı geliştir (belge 2.4 ve 4; taslak 3): yeni çeşitler, fiyat,
 // dekorasyon. Gün sonu ekranından açılır. Sayılar geçici (belge 7.4).
 
-type Sekme = 'cesitler' | 'fiyat' | 'dekorasyon';
+type Sekme = 'cesitler' | 'fiyat' | 'dekorasyon' | 'gorunus';
 
 // Mağaza resmi: public/gorseller/esyalar/ (oyundaki modelden çekildi; Onizleme.tsx)
 function esyaResmi(e: Esya) {
@@ -138,13 +145,97 @@ function FiyatEkrani() {
   );
 }
 
+// Seçeneğin küçük örneği: düz renk, iki renkli şerit ya da zemin deseni
+function GorunusOrnegi({ s }: { s: GorunusSecenegi }) {
+  const b = s.ikinciRenk;
+  const arka = !b
+    ? s.renk
+    : s.desen === 'dama'
+      ? `repeating-conic-gradient(${s.renk} 0 25%, ${b} 0 50%) 0 0 / 14px 14px`
+      : s.desen === 'tahta'
+        ? `repeating-linear-gradient(0deg, ${s.renk} 0 6px, ${b} 6px 12px)`
+        : s.desen
+          ? `radial-gradient(${b} 18%, transparent 22%) 0 0 / 8px 8px, ${s.renk}`
+          : `repeating-linear-gradient(90deg, ${s.renk} 0 8px, ${b} 8px 16px)`;
+  return <span className="gorunus-ornek" style={{ background: arka }} aria-hidden />;
+}
+
+// Görünüş (C paketi, belge 0.11): dokununca dükkân hemen öyle görünür (deneme);
+// beğenilirse "Al". Panel küçülür, dükkân arkada görünür ve döndürülebilir.
+function GorunusEkrani() {
+  const durum = useDurum();
+  const [grup, setGrup] = useState<GorunusGrubu>('disBoya');
+  const gecerli = gecerliGorunus(durum);
+  const secili = gecerli[grup];
+  const s = GORUNUS_SECENEKLERI[grup].find((x) => x.id === secili)!;
+  const denemede = !gorunusAcikMi(grup, secili, durum);
+  // Panel sağda: dükkân soldaki boşlukta ortalansın; çıkınca kamera eski yerine
+  useEffect(() => {
+    const eski = { ...dukkanKaydirma };
+    const eskiMod = duvarlar.mod;
+    ekrandaKaydir(-Math.min(340, innerWidth * 0.46) / 2, 0, innerHeight);
+    return () => {
+      Object.assign(dukkanKaydirma, eski);
+      duvarlar.mod = eskiMod;
+    };
+  }, []);
+  // Dış seçeneklerde duvarlar kapanır (dışarıdan bakılır), içtekilerde yarım
+  useEffect(() => {
+    duvarlar.mod = DIS_GRUPLAR.includes(grup) ? 'kapali' : 'kesit';
+  }, [grup]);
+  return (
+    <div className="gorunus">
+      <div className="gorunus-gruplar" role="tablist">
+        {GORUNUS_GRUPLARI.map((g) => (
+          <button key={g} role="tab" aria-selected={grup === g} className={`cip ${grup === g ? 'secili' : ''}`} onClick={() => setGrup(g)}>
+            {m(`gorunus.${g}` as MetinAnahtari)}
+          </button>
+        ))}
+      </div>
+      <div className="gorunus-secenekler">
+        {GORUNUS_SECENEKLERI[grup].map((x) => {
+          const acik = gorunusAcikMi(grup, x.id, durum);
+          return (
+            <button
+              key={x.id}
+              className={`gorunus-kart ${secili === x.id ? 'secili' : ''} ${acik ? '' : 'kilitli'}`}
+              onClick={() => gorunusSec(grup, x.id)}
+            >
+              <GorunusOrnegi s={x} />
+              <span className="gorunus-ad">{m(`gorunus.${grup}.${x.id}` as MetinAnahtari)}</span>
+              {!acik && <Para miktar={x.fiyat} />}
+            </button>
+          );
+        })}
+      </div>
+      <div className="gorunus-alt">
+        {denemede ? (
+          <>
+            <span className="gel-aciklama">{m('gorunus.deneniyor')}</span>
+            <button className="dugme gel-al" disabled={durum.para < s.fiyat} onClick={() => gorunusAl(grup, secili)}>
+              {m('gelistir.al')} <Para miktar={s.fiyat} />
+            </button>
+          </>
+        ) : (
+          <span className="gel-aciklama">{m('gorunus.not')}</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function Gelistir({ kapat }: { kapat: () => void }) {
   const durum = useDurum();
   const [sekme, setSekme] = useState<Sekme>('cesitler');
   const [alinan, setAlinan] = useState<Esya | null>(null);
+  // Mağaza kapanınca ya da sekme değişince denenen ama alınmayanlar geri döner
+  useEffect(() => {
+    if (sekme !== 'gorunus') gorunusDenemesiniBitir();
+  }, [sekme]);
+  useEffect(() => gorunusDenemesiniBitir, []);
 
   return (
-    <div className="gun-sonu-zemin">
+    <div className={`gun-sonu-zemin ${sekme === 'gorunus' ? 'gelistir-gorunus' : ''}`}>
       {/* Eşya alınınca: hemen yerleştir ya da alışverişe devam et (Kemal, 14 Ekim) */}
       {alinan && (
         <div className="alindi-zemin">
@@ -189,7 +280,7 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
         </div>
 
         <div className="gel-sekmeler" role="tablist">
-          {(['cesitler', 'fiyat', 'dekorasyon'] as const).map((s) => (
+          {(['cesitler', 'fiyat', 'dekorasyon', 'gorunus'] as const).map((s) => (
             <button key={s} role="tab" aria-selected={sekme === s} className={sekme === s ? 'secili' : ''} onClick={() => setSekme(s)}>
               {m(`gelistir.${s}` as MetinAnahtari)}
             </button>
@@ -271,6 +362,8 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
           )}
 
           {sekme === 'fiyat' && <FiyatEkrani />}
+
+          {sekme === 'gorunus' && <GorunusEkrani />}
 
           {sekme === 'dekorasyon' && (
             <div className="gel-liste">

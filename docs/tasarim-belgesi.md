@@ -288,7 +288,7 @@ yüzünden Kemal kendi Drive'ına kopyalayıp paylaştı. Karakterler D paketind
 | Hangi karakterler | 10 gündelik kıyafet: kadın Casual, Formal, Worker, Suit; erkek Casual_2, Casual_Hoodie, Beach, Farmer, Worker, Suit ("şimdilik böyle, sonra değiştiririz") |
 | Kimler | Müşteriler, çalışan, yardımcılar ve sahip hepsi bu paketten |
 | Çeşitlilik | Ten (beş ton), saç ve kıyafet renkleri karışık; kıyafetler paletten, mor ve sarı yok. Aynı cinsiyetten başlar (saçıyla) gövdeler arasında karışır. Boylar kadın 1,55–1,75, erkek 1,65–1,85 |
-| Çalışan | Oyuncu bedeni seçer: kadın ya da erkek (başta kadın). Kıyafet şimdilik gündelik (Casual) + önlük; ileride değiştirilebilir. Saç biçimi şapkasız başlardan |
+| Çalışan | Oyuncu bedeni seçer: kadın ya da erkek (başta kadın). Kıyafet şimdilik gündelik (Casual), önlük kaldırıldı (0.11); ileride değiştirilebilir. Saç biçimi şapkasız başlardan |
 | Sahip | Kadın Formal (elbiseli), dükkânın moru |
 | Çocuklar | Şimdilik yok (pakette çocuk yok) |
 | Hareketler | Şimdilik yürüme, bekleme, uzanma (çalışırken), oturma (bacaklar bükülerek) |
@@ -312,6 +312,27 @@ oyunda sağ = kuzeydoğu, kıyı boyunca).
 | Mahalle | Araba yolunun arkasında haritadaki gibi sokaklar ve alçak evler |
 | Tekneler | Limanın içinde, iskeleye bağlı; biri ara sıra liman girişinden girip çıkar. Uzaktakiler sade çizilebilir ("belli bir yerden sonra iki boyutlu") |
 | Ölçü | Gerçek ölçü |
+
+### 0.11 Kişiselleştirme / görünüş (Kemal, 14 Ekim gece; C paketi)
+
+Sims gibi: dükkânın dışı ve içi oyuncunun zevkine göre. Geliştir'de yeni
+**Görünüş** sekmesi.
+
+| Konu | Karar |
+|---|---|
+| Dış boya | Paletten 6–8 hazır renk |
+| İç duvar | Ayrı seçilir; paletten 6–8 renk |
+| Çerçeve ve tente | Pencere / kapı çerçevesi ve tente rengi ayrı ayrı seçilir |
+| Çatı | Kiremit eğimli çatı, düz teras çatı + korkuluk, ahşap çatı / pergola, tente renkleri |
+| Tabelalar | Çatı tabelası, kaldırımda direk tabela, pencerede neon, iskele girişinde kemer. Yazı: dükkânın adı. Işıklılar akşam kendiliğinden yanar, sabah söner |
+| İç zemin | Ahşap tonları, damalı fayans, mozaik / karo, terrazzo / beton cila |
+| Halı ve tablo | Eşya gibi yerleşir (halı yere, tablo bir duvar parçasına); taşınır, döndürülür, depoya kalkar |
+| Tablolarda | Soyut renk desenleri, dondurma çizimleri, deniz / tekne siluetleri (Düzada'ya özel bir yer çizilmez), boş çerçeve (Kemal sonra doldurur). İleride reklam alınabilir |
+| Fiyat | Her seçenek bir kez alınır, alınanlar arasında geçiş bedava. Başlangıçtaki görünüş baştan açık. Fiyatlar geçici |
+| Satın almadan önce | Dokununca dükkân hemen öyle görünür (deneme); beğenilirse "Al", mağaza kapanınca alınmayan geri döner. Panel sağa çekilir, dükkân solda döndürülebilir |
+| Kilitler | Şimdilik yok. İleride her şey için bir deneyim (exp) sistemi: kimi para, kimi memnuniyet, servis edilen ürün / müşteri sayısı gibi ölçülerle açılır (ayrı çalışma) |
+| Sıra | 1) boya, çerçeve, tente, zemin → 2) çatı → 3) tabelalar → 4) halı ve tablo |
+| Önlük | Kemal: "berbat görünüyor, şimdilik kaldır." Daha iyisi yapılınca geri gelir |
 
 ## 1. Oyunun özeti ve vizyonu
 

@@ -1,5 +1,15 @@
 import { useSyncExternalStore } from 'react';
 
+import {
+  BASLANGIC_ACIK_GORUNUSLER,
+  BASLANGIC_GORUNUSU,
+  acikGorunusleriOku,
+  gorunusAnahtari,
+  gorunusSecenegi,
+  gorunusuOku,
+  type Gorunus,
+  type GorunusGrubu,
+} from './gorunus';
 import { BASLANGIC_CESITLERI, CESITLER, EN_BUYUK_VITRIN, ESKI_VITRIN_BUYUTMELERI, FIYAT_ARALIGI, ILK_VITRIN, makulFiyat, VITRIN_BUYUTMELERI } from './kuvetler';
 import {
   EN_COK_YARDIMCI,
@@ -229,6 +239,10 @@ export interface Durum {
   calisan: CalisanGorunumu;
   acikOnlukler: string[];
   acikAksesuarlar: Aksesuar[];
+  // Dükkânın görünüşü (C paketi, belge 0.11) ve satın almadan önce denenen (kaydedilmez)
+  gorunus: Gorunus;
+  acikGorunusler: string[];
+  gorunusDenemesi: Partial<Gorunus>;
   // Eğitim (Kemal, 14 Ekim): görülen el işaretleri (kayıtta saklanır)
   egitimGoruldu: EgitimAdi[];
   // Duraklatma menüsü (Kemal, 13 Ekim): saat ve müşteriler durur
@@ -358,6 +372,9 @@ let durum: Durum = {
   calisan: { ...VARSAYILAN_CALISAN },
   acikOnlukler: ONLUKLER.filter((o) => o.fiyat === 0).map((o) => o.id),
   acikAksesuarlar: [],
+  gorunus: { ...BASLANGIC_GORUNUSU },
+  acikGorunusler: [...BASLANGIC_ACIK_GORUNUSLER],
+  gorunusDenemesi: {},
   egitimGoruldu: [],
   duraklatildi: false,
   gezme: false,
@@ -1804,6 +1821,8 @@ interface Kayit {
   calisan: CalisanGorunumu;
   acikOnlukler: string[];
   acikAksesuarlar: Aksesuar[];
+  gorunus?: Gorunus;
+  acikGorunusler?: string[];
   egitimGoruldu: EgitimAdi[];
 }
 
@@ -1839,6 +1858,8 @@ function kaydet() {
     calisan: durum.calisan,
     acikOnlukler: durum.acikOnlukler,
     acikAksesuarlar: durum.acikAksesuarlar,
+    gorunus: durum.gorunus,
+    acikGorunusler: durum.acikGorunusler,
     egitimGoruldu: durum.egitimGoruldu,
   };
   try {
@@ -1872,6 +1893,7 @@ export function kaydiYukle() {
         : [],
       ...dekorasyonuOku(k),
       ...calisaniOku(k),
+      ...gorunusuKayittanOku(k),
       // 14 Ekim'den önce oynanmış kayıtta eğitim görülmüş sayılır (istenirse mola menüsünden açılır)
       egitimGoruldu: Array.isArray(k.egitimGoruldu)
         ? k.egitimGoruldu.filter((e) => EGITIMLER.includes(e))
@@ -2114,6 +2136,9 @@ function durumuSifirla() {
     calisan: { ...VARSAYILAN_CALISAN },
     acikOnlukler: ONLUKLER.filter((o) => o.fiyat === 0).map((o) => o.id),
     acikAksesuarlar: [],
+    gorunus: { ...BASLANGIC_GORUNUSU },
+    acikGorunusler: [...BASLANGIC_ACIK_GORUNUSLER],
+    gorunusDenemesi: {},
     egitimGoruldu: [],
     dakika: 0,
     acik: true,
@@ -2268,4 +2293,48 @@ function calisaniOku(k: Partial<Kayit>): Pick<Durum, 'calisan' | 'acikOnlukler' 
       aksesuarlar: Array.isArray(c.aksesuarlar) ? c.aksesuarlar.filter((x) => acikAksesuarlar.includes(x)) : [],
     },
   };
+}
+
+// ---- Dükkânın görünüşü (C paketi, belge 0.11) ----
+function gorunusuKayittanOku(k: Partial<Kayit>): Pick<Durum, 'gorunus' | 'acikGorunusler' | 'gorunusDenemesi'> {
+  const acikGorunusler = acikGorunusleriOku(k.acikGorunusler);
+  return { acikGorunusler, gorunus: gorunusuOku(k.gorunus, acikGorunusler), gorunusDenemesi: {} };
+}
+
+// Sahnede görünen: seçili görünüş, üstüne denenen
+export function gecerliGorunus(d: Durum = durum): Gorunus {
+  return { ...d.gorunus, ...d.gorunusDenemesi };
+}
+
+export function gorunusAcikMi(g: GorunusGrubu, id: string, d: Durum = durum) {
+  return d.acikGorunusler.includes(gorunusAnahtari(g, id));
+}
+
+// Seçeneğe dokununca: açıksa seçilir, değilse dükkân o hâliyle denenir
+export function gorunusSec(g: GorunusGrubu, id: string) {
+  if (gorunusAcikMi(g, id)) {
+    const deneme = { ...durum.gorunusDenemesi };
+    delete deneme[g];
+    guncelle({ gorunus: { ...durum.gorunus, [g]: id }, gorunusDenemesi: deneme });
+    kaydet();
+  } else guncelle({ gorunusDenemesi: { ...durum.gorunusDenemesi, [g]: id } });
+}
+
+export function gorunusAl(g: GorunusGrubu, id: string) {
+  const s = gorunusSecenegi(g, id);
+  if (gorunusAcikMi(g, id) || durum.para < s.fiyat) return;
+  const deneme = { ...durum.gorunusDenemesi };
+  delete deneme[g];
+  guncelle({
+    para: durum.para - s.fiyat,
+    acikGorunusler: [...durum.acikGorunusler, gorunusAnahtari(g, id)],
+    gorunus: { ...durum.gorunus, [g]: id },
+    gorunusDenemesi: deneme,
+  });
+  kaydet();
+}
+
+// Mağaza kapanınca denenen ama alınmayan her şey eski hâline döner
+export function gorunusDenemesiniBitir() {
+  if (Object.keys(durum.gorunusDenemesi).length) guncelle({ gorunusDenemesi: {} });
 }

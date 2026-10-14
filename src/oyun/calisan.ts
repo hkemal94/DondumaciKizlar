@@ -16,6 +16,10 @@ export interface Onluk {
   fiyat: number; // 0 = baştan açık
 }
 
+// Önlük şimdilik kaldırıldı (Kemal, 14 Ekim gece: "berbat görünüyor").
+// Daha iyisi yapılınca açılır (yol haritası, sona kalanlar); seçenekler ve kayıt duruyor.
+export const ONLUK_ACIK = false;
+
 export const ONLUKLER: Onluk[] = [
   { id: 'mor', renk: '#7a3fa8', desen: 'duz', fiyat: 0 },
   { id: 'sari', renk: '#ffc928', desen: 'duz', fiyat: 0 },
