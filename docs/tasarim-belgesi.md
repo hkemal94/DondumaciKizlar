@@ -359,6 +359,7 @@ Uygulamada **olan**:
 | 29 çeşit, vitrin (4–12) ve günlük seçim, tabelada ad | Bitti (14 Ekim); çeşit başına fiyat sonraki parça |
 | Yazısız eğitim (ilk sipariş + süsleme, tepsi, vitrin) | Bitti (14 Ekim). "Eğitimi yeniden göster" Ayarlar gelene kadar mola menüsünde |
 | Çeşit başına fiyat ekranı | Bitti (14 Ekim) |
+| Müşteriler Kenney karakterleri (varyasyonlu) | Bitti (14 Ekim). Kemal: "tek tip 12 karakteri beğenmedim… kıyafetleri, saç, aksesuar değişsin; her gün aynı karakterlere neden hizmet versin". Her müşteride baş (11) ve gövde (12) ayrı seçilir; ten, saç, üst, alt, ayakkabı renkleri; aksesuar (hasır şapka, gözlük, güneş gözlüğü). Yürüme / bekleme / oturma modelin kendi hareketleri. Çalışan ve sahip henüz eski hâlinde (Kemal'in kararı bekleniyor) |
 | Açılış ekranı + Ayarlar | Bitti (14 Ekim). Ses, ekran (etiketler), eğitimi yeniden göster, dil (İngilizce gelince), baştan başla Ayarlar'da; mola menüsünde yalnız Devam et, Dükkânı gez, Ayarlar |
 | Efektler (kıvılcım, serpinti, sıkılan müşteride bulut, kasaya uçan jeton) + bahşiş + yatay balon | Bitti (14 Ekim). Bahşiş: arka arkaya 3. mükemmel servisten başlar (+2, +4… en çok +10), gün sonunda ayrı satır. Uçan jetonlar test ortamında görüntülenemedi; telefonda bakılacak |
 | Küçük düğmeler, gün başı menü şeridi, küçük etiketler + ekran ayarı (mola menüsünde), resimli eşya kartları, "Şimdi yerleştir / Alışverişe devam et" | Bitti (14 Ekim). Eşya resimleri `public/gorseller/esyalar/`; yeni eşya eklenince adresin sonuna `#onizleme=<eşya>` yazılıp çekilir |

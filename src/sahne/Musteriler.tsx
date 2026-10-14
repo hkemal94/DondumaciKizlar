@@ -5,31 +5,14 @@ import { durumuOku, musteriTezgahaVardi, musteriyiKaldir, ondekiMusteri, useDuru
 import { HUCRELER } from '../oyun/dekorasyon';
 import { BANK_OTURAKLARI } from './DisSusler';
 import { Parcaciklar } from './Efektler';
+import { karakterKur, karakterleriYukle, rastgeleVaryant, type Karakter } from './karakterler';
+import { KAPI_X } from './Dukkan';
+
+// Tezgah önünde sıraya giren müşteriler (iş sırası 3). Kenney Mini Characters
+// (CC0) üzerine her müşteri için farklı baş, gövde, renk ve aksesuar
+// (Kemal, 14 Ekim). Adları, hikâyeleri yok.
 
 const BULUT_RENKLERI = ['#9aa0a8', '#b8bec6', '#7e848c'];
-import { KAPI_X } from './Dukkan';
-import { renk } from './renkler';
-
-// Tezgah önünde sıraya giren müşteriler (iş sırası 3).
-// Kodla çizilmiş geçici low-poly ada sakinleri; adları, hikâyeleri yok.
-// Dört görünüm (belge 7.1 önerisi: 3–4 müşteri görünümü).
-
-interface Gorunum {
-  ten: string;
-  ust: string;
-  alt: string;
-  sac: string;
-  boy: number;
-  sapka: boolean;
-  uzunSac: boolean;
-}
-
-export const musteriGorunumleri: Gorunum[] = [
-  { ten: '#e9b48f', ust: '#ffd25a', alt: '#d98a3d', sac: '#5a3825', boy: 1.0, sapka: true, uzunSac: true },
-  { ten: '#c98e66', ust: '#5fa8d3', alt: '#3d4f6b', sac: '#2b211c', boy: 1.06, sapka: false, uzunSac: false },
-  { ten: '#8d5a3b', ust: '#ef7a7a', alt: '#f2efe6', sac: '#1d1512', boy: 0.97, sapka: false, uzunSac: true },
-  { ten: '#f1c9a5', ust: '#8fcf8a', alt: '#6c5a8e', sac: '#b8763e', boy: 1.03, sapka: true, uzunSac: false },
-];
 
 // Sıradaki yerler: öndeki tezgahın ortasında, diğerleri sola doğru dizilir.
 const ON_YER = new THREE.Vector3(0, 0, -1.62);
@@ -46,92 +29,36 @@ function siraYeri(sira: number, hedef: THREE.Vector3) {
   return hedef.set(-0.82 * sira, 0, -1.85 - 0.04 * sira);
 }
 
-// Bacaklar kalçadan ve dizden bükülür: otururken uyluk öne, baldır aşağı
-function Govde({ g, oturuyor = false }: { g: Gorunum; oturuyor?: boolean }) {
-  const kafa = useMemo(() => new THREE.IcosahedronGeometry(0.13, 1), []);
-  return (
-    <group scale={g.boy}>
-      {/* Bacaklar */}
-      {[-0.08, 0.08].map((x) => (
-        <group key={x} position={[x, 0.76, 0]} rotation={[oturuyor ? -Math.PI / 2 : 0, 0, 0]}>
-          <mesh position={[0, -0.19, 0]} castShadow>
-            <boxGeometry args={[0.11, 0.38, 0.13]} />
-            <meshStandardMaterial color={g.alt} roughness={0.85} flatShading />
-          </mesh>
-          <group position={[0, -0.38, 0]} rotation={[oturuyor ? Math.PI / 2 : 0, 0, 0]}>
-            <mesh position={[0, -0.19, 0]} castShadow>
-              <boxGeometry args={[0.11, 0.38, 0.13]} />
-              <meshStandardMaterial color={g.alt} roughness={0.85} flatShading />
-            </mesh>
-          </group>
-        </group>
-      ))}
-      {/* Otururken elinde külah */}
-      {oturuyor && (
-        <group position={[0.2, 1.0, 0.2]}>
-          <mesh rotation={[Math.PI, 0, 0]}>
-            <coneGeometry args={[0.045, 0.14, 8]} />
-            <meshStandardMaterial color="#d9a35b" roughness={0.9} flatShading />
-          </mesh>
-          <mesh position={[0, 0.09, 0]}>
-            <icosahedronGeometry args={[0.05, 0]} />
-            <meshStandardMaterial color="#ff8fa0" roughness={0.6} flatShading />
-          </mesh>
-        </group>
-      )}
-      {/* Gövde */}
-      <mesh position={[0, 1.02, 0]} castShadow>
-        <cylinderGeometry args={[0.17, 0.21, 0.56, 7]} />
-        <meshStandardMaterial color={g.ust} roughness={0.85} flatShading />
-      </mesh>
-      {/* Kollar */}
-      {[-0.24, 0.24].map((x) => (
-        <mesh key={x} position={[x, 0.98, 0]} rotation={[0, 0, x > 0 ? 0.12 : -0.12]} castShadow>
-          <boxGeometry args={[0.08, 0.5, 0.09]} />
-          <meshStandardMaterial color={g.ten} roughness={0.8} flatShading />
-        </mesh>
-      ))}
-      {/* Baş */}
-      <mesh geometry={kafa} position={[0, 1.45, 0]} castShadow>
-        <meshStandardMaterial color={g.ten} roughness={0.8} flatShading />
-      </mesh>
-      {/* Gözler */}
-      {[-0.045, 0.045].map((x) => (
-        <mesh key={x} position={[x, 1.47, 0.12]}>
-          <sphereGeometry args={[0.015, 6, 4]} />
-          <meshStandardMaterial color="#2a1d17" />
-        </mesh>
-      ))}
-      {/* Saç */}
-      <mesh position={[0, 1.5, -0.02]} scale={[1.08, 0.85, 1.08]}>
-        <sphereGeometry args={[0.135, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2]} />
-        <meshStandardMaterial color={g.sac} roughness={0.9} flatShading />
-      </mesh>
-      {g.uzunSac && (
-        <mesh position={[0, 1.36, -0.08]}>
-          <boxGeometry args={[0.27, 0.3, 0.1]} />
-          <meshStandardMaterial color={g.sac} roughness={0.9} flatShading />
-        </mesh>
-      )}
-      {/* Hasır şapka */}
-      {g.sapka && (
-        <group position={[0, 1.57, 0]}>
-          <mesh>
-            <cylinderGeometry args={[0.27, 0.27, 0.02, 10]} />
-            <meshStandardMaterial color="#e3c58a" roughness={0.95} flatShading />
-          </mesh>
-          <mesh position={[0, 0.06, 0]}>
-            <cylinderGeometry args={[0.12, 0.14, 0.11, 10]} />
-            <meshStandardMaterial color="#e3c58a" roughness={0.95} flatShading />
-          </mesh>
-          <mesh position={[0, 0.03, 0]}>
-            <cylinderGeometry args={[0.142, 0.142, 0.03, 10]} />
-            <meshStandardMaterial color={renk.mor} roughness={0.8} />
-          </mesh>
-        </group>
-      )}
-    </group>
-  );
+
+// ---- Kenney karakterleri (Kemal, 14 Ekim): her müşteri farklı ----
+// Müşterinin numarasından baş, gövde, renkler ve aksesuar seçilir; hareket
+// (bekle / yürü / otur) modelin kendi animasyonlarından gelir.
+type Hareket = 'dur' | 'yuru' | 'otur';
+const HAREKET_ANIMASYONU: Record<Hareket, string> = { dur: 'idle', yuru: 'walk', otur: 'sit' };
+
+function KenneyGovde({ tohum, hareket }: { tohum: number; hareket: React.MutableRefObject<Hareket> }) {
+  const [k, setK] = useState<Karakter | null>(null);
+  const simdiki = useRef('');
+  useEffect(() => {
+    let iptal = false;
+    karakterleriYukle().then((y) => {
+      if (!iptal) setK(karakterKur(rastgeleVaryant(tohum), y));
+    });
+    return () => {
+      iptal = true;
+    };
+  }, [tohum]);
+  useFrame((_, dt) => {
+    if (!k || durumuOku().duraklatildi) return;
+    const ad = HAREKET_ANIMASYONU[hareket.current];
+    if (ad !== simdiki.current) {
+      k.eylemler[ad]?.reset().fadeIn(0.25).play();
+      k.eylemler[simdiki.current]?.fadeOut(0.25);
+      simdiki.current = ad;
+    }
+    k.karistirici.update(dt);
+  });
+  return k ? <primitive object={k.kok} /> : null;
 }
 
 // ---- Masalarda oturma (Kemal, 14 Ekim) ----
@@ -142,6 +69,10 @@ const OTURMA_SURESI: [number, number] = [10, 16]; // saniye
 const SANDALYE_ARALIGI = 0.62 * 0.85; // Dekorlar'daki masa ölçüsü
 const KOSE_Y = -3.0; // dükkânın köşesini dönerken geçilen hat
 const OTURAK_Y = 0.4; // sandalye oturağının masa zeminine göre yüksekliği
+// Kenney karakterinde oturma hareketindeki kalça yüksekliği (ölçekli) ve baş üstü
+const KENNEY_KALCA = 0.12;
+const BAS_USTU = 1.3;
+const BALON_YUKSEKLIGI = 1.05;
 
 interface Koltuk {
   anahtar: string;
@@ -200,8 +131,7 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
   const koltuk = useRef<Koltuk | null>(null);
   const kalanOturma = useRef(0);
   const kaldirildi = useRef(false);
-  const [oturuyor, setOturuyor] = useState(false);
-  const g = musteriGorunumleri[musteri.gorunum % musteriGorunumleri.length];
+  const hareket = useRef<Hareket>('yuru');
 
   // Sahneden çıkınca sandalyeyi boşalt
   useEffect(
@@ -245,12 +175,12 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
       grup.position.copy(k.yer);
       grup.rotation.y = k.bakis;
       // Kalça sandalyenin oturağına gelsin
-      ic.position.y = OTURAK_Y - 0.76 * g.boy + Math.sin(clock.elapsedTime * 1.6 + musteri.id) * 0.004;
+      hareket.current = 'otur';
+      ic.position.y = OTURAK_Y - KENNEY_KALCA;
       kalanOturma.current -= dt;
       if (kalanOturma.current <= 0) {
         doluKoltuklar.delete(k.anahtar);
         asama.current = 'cikiyor';
-        setOturuyor(false);
         yol.current = k.ic
           ? [new THREE.Vector3(k.yer.x, 0, -2.15), KAPI_IC, KAPI_DIS, son]
           : k.yan
@@ -271,7 +201,6 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
           else if (asama.current === 'masaya') {
             asama.current = 'oturuyor';
             kalanOturma.current = OTURMA_SURESI[0] + Math.random() * (OTURMA_SURESI[1] - OTURMA_SURESI[0]);
-            setOturuyor(true);
             return;
           } else if (asama.current === 'cikiyor' && !kaldirildi.current) {
             kaldirildi.current = true;
@@ -299,20 +228,18 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
     aci = Math.atan2(Math.sin(aci), Math.cos(aci)); // en kısa yoldan dön
     grup.rotation.y += aci * Math.min(1, dt * 8);
 
-    const t = clock.elapsedTime + musteri.id;
-    const ziplama = yuruyor ? Math.abs(Math.sin(t * 9)) * 0.04 : Math.sin(t * 1.6) * 0.006;
-    // Mutlu giden müşteri çıkarken sevinçle zıplar
-    const sevinc = m.mutlu && asama.current === 'cikiyor' && yol.current.length >= 2 ? Math.abs(Math.sin(t * 7)) * 0.08 : 0;
-    ic.position.y = ziplama + sevinc;
+    // Yürüme ve bekleme hareketi modelin kendi animasyonundan
+    hareket.current = yuruyor && mesafe > 0.03 ? 'yuru' : 'dur';
+    ic.position.y = 0;
   });
 
   return (
     <group ref={ref} name={`musteri-${musteri.id}`} position={baslangic.toArray()}>
       <group ref={icRef}>
-        <Govde g={g} oturuyor={oturuyor} />
+        <KenneyGovde tohum={musteri.id * 7 + musteri.gorunum} hareket={hareket} />
       </group>
       {/* Sıkılıp giden müşterinin başında küçük gri bulut (14 Ekim) */}
-      <group position={[0, 1.95 * g.boy, 0]}>
+      <group position={[0, BAS_USTU, 0]}>
         <Parcaciklar tetik={musteri.hal === 'gidiyor' && !musteri.mutlu ? 1 : 0} tur="bulut" renkler={BULUT_RENKLERI} />
       </group>
     </group>
@@ -340,7 +267,7 @@ function BalonTakibi() {
     if (vardi) musteriTezgahaVardi(m.id);
     // Başın sağı: balon buradan aşağı doğru açılır (üstteki ipucu yazısıyla çakışmasın)
     v.x += 0.3;
-    v.y += 1.5 * musteriGorunumleri[m.gorunum % musteriGorunumleri.length].boy;
+    v.y += BALON_YUKSEKLIGI;
     v.project(camera);
     const x = ((v.x + 1) / 2) * size.width;
     const y = ((1 - v.y) / 2) * size.height;

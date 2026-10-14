@@ -3,6 +3,8 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Canvas, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { EsyaModeli } from './Dekorlar';
+import { karakterKur, karakterleriYukle, rastgeleVaryant, type Karakter } from './karakterler';
+import { useFrame } from '@react-three/fiber';
 import type { Esya } from '../oyun/dekorasyon';
 
 // Mağaza kartlarındaki küçük resimleri üretmek için (yalnız geliştirirken):
@@ -59,7 +61,33 @@ function Model({ yol }: { yol: string }) {
   return sahne ? <primitive object={sahne} /> : null;
 }
 
-export function Onizleme({ esya, model }: { esya?: Esya; model?: string }) {
+// Varyant önizlemesi (#varyant=1): 12 rastgele müşteri yan yana
+function Varyantlar({ tohum }: { tohum: number }) {
+  const [karakterler, setKarakterler] = useState<Karakter[]>([]);
+  const { camera } = useThree();
+  useEffect(() => {
+    karakterleriYukle().then((y) => {
+      const k = Array.from({ length: 12 }, (_, i) => karakterKur(rastgeleVaryant(tohum + i), y));
+      k.forEach((c, i) => {
+        c.kok.position.set((i % 6) * 1.3 - 3.25, i < 6 ? 2.1 : 0, 0);
+        c.eylemler.idle?.play();
+      });
+      setKarakterler(k);
+    });
+    camera.position.set(0, 2.1, 9.5);
+    camera.lookAt(0, 1.85, 0);
+  }, [tohum, camera]);
+  useFrame((_, dt) => karakterler.forEach((k) => k.karistirici.update(dt)));
+  return (
+    <group>
+      {karakterler.map((k, i) => (
+        <primitive key={i} object={k.kok} />
+      ))}
+    </group>
+  );
+}
+
+export function Onizleme({ esya, model, varyant }: { esya?: Esya; model?: string; varyant?: number }) {
   return (
     <Canvas
       className="onizleme"
@@ -70,7 +98,7 @@ export function Onizleme({ esya, model }: { esya?: Esya; model?: string }) {
       <ambientLight intensity={1.2} />
       <hemisphereLight args={['#fff4e2', '#b98d6a', 1.1]} />
       <directionalLight position={[-4, 8, -6]} intensity={2.2} />
-      {model ? <Model yol={model} /> : esya && <Cerceve esya={esya} />}
+      {varyant !== undefined ? <Varyantlar tohum={varyant} /> : model ? <Model yol={model} /> : esya && <Cerceve esya={esya} />}
     </Canvas>
   );
 }
