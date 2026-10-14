@@ -29,18 +29,16 @@ demedikçe işler bu sırayla gider (belge 0.8).
 
 ## Bitenler
 
-| Ne | PR |
-|---|---|
-| Oynanabilir sürüm: kepçe mini oyunu, müşteri sırası, gün ve saat, iki kamera, dekorasyon, mola menüsü, ses, tepsi, çalışan, sahip | [#1](https://github.com/hkemal94/DondumaciKizlar/pull/1), [#2](https://github.com/hkemal94/DondumaciKizlar/pull/2) |
-| Satın alınan alanlar, masaya oturan müşteriler, dış süs eşyaları | [#3](https://github.com/hkemal94/DondumaciKizlar/pull/3), [#4](https://github.com/hkemal94/DondumaciKizlar/pull/4) |
-| 29 çeşit, büyüyen vitrin, fiyat ekranı | [#5](https://github.com/hkemal94/DondumaciKizlar/pull/5), [#8](https://github.com/hkemal94/DondumaciKizlar/pull/8) |
-| Yazısız eğitim, büyük küvetler, logo | [#6](https://github.com/hkemal94/DondumaciKizlar/pull/6), [#7](https://github.com/hkemal94/DondumaciKizlar/pull/7) |
-| Ekran düzeni, resimli mağaza, efektler, bahşiş, açılış ekranı, Ayarlar | [#9](https://github.com/hkemal94/DondumaciKizlar/pull/9), [#10](https://github.com/hkemal94/DondumaciKizlar/pull/10), [#11](https://github.com/hkemal94/DondumaciKizlar/pull/11) |
-| Kamera: döndürme, eğme, harita düzeninde parmak ve fare | [#14](https://github.com/hkemal94/DondumaciKizlar/pull/14), [#15](https://github.com/hkemal94/DondumaciKizlar/pull/15), [#16](https://github.com/hkemal94/DondumaciKizlar/pull/16) |
-| Büyüme: kare kare arazi, İnşaat, 1 m ölçü, taşınabilir tezgah, duvar ve pencere, mutfak, istasyonlar, waffle, içecek standı, yardımcı | [#17](https://github.com/hkemal94/DondumaciKizlar/pull/17)–[#22](https://github.com/hkemal94/DondumaciKizlar/pull/22) |
-| Tasarım dili: palet, ışık, ölçü; tekneler, mutfak deposu, dekorasyon eşyaları hazır paketlerden | [#23](https://github.com/hkemal94/DondumaciKizlar/pull/23), [#24](https://github.com/hkemal94/DondumaciKizlar/pull/24), [#25](https://github.com/hkemal94/DondumaciKizlar/pull/25) |
-| A paketi ve haber şeridi | [#26](https://github.com/hkemal94/DondumaciKizlar/pull/26), [#27](https://github.com/hkemal94/DondumaciKizlar/pull/27) |
-| Karakterler (eski Kenney karakterleri [#12](https://github.com/hkemal94/DondumaciKizlar/pull/12), [#13](https://github.com/hkemal94/DondumaciKizlar/pull/13) yerine) | [#28](https://github.com/hkemal94/DondumaciKizlar/pull/28) |
+- Oynanabilir sürüm: kepçe mini oyunu, müşteri sırası, gün ve saat, iki kamera, dekorasyon, mola menüsü, ses, tepsi, çalışan, sahip · [#1](https://github.com/hkemal94/DondumaciKizlar/pull/1), [#2](https://github.com/hkemal94/DondumaciKizlar/pull/2)
+- Satın alınan alanlar, masaya oturan müşteriler, dış süs eşyaları · [#3](https://github.com/hkemal94/DondumaciKizlar/pull/3), [#4](https://github.com/hkemal94/DondumaciKizlar/pull/4)
+- 29 çeşit, büyüyen vitrin, fiyat ekranı · [#5](https://github.com/hkemal94/DondumaciKizlar/pull/5), [#8](https://github.com/hkemal94/DondumaciKizlar/pull/8)
+- Yazısız eğitim, büyük küvetler, logo · [#6](https://github.com/hkemal94/DondumaciKizlar/pull/6), [#7](https://github.com/hkemal94/DondumaciKizlar/pull/7)
+- Ekran düzeni, resimli mağaza, efektler, bahşiş, açılış ekranı, Ayarlar · [#9](https://github.com/hkemal94/DondumaciKizlar/pull/9), [#10](https://github.com/hkemal94/DondumaciKizlar/pull/10), [#11](https://github.com/hkemal94/DondumaciKizlar/pull/11)
+- Kamera: döndürme, eğme, harita düzeninde parmak ve fare · [#14](https://github.com/hkemal94/DondumaciKizlar/pull/14), [#15](https://github.com/hkemal94/DondumaciKizlar/pull/15), [#16](https://github.com/hkemal94/DondumaciKizlar/pull/16)
+- Büyüme: kare kare arazi, İnşaat, 1 m ölçü, taşınabilir tezgah, duvar ve pencere, mutfak, istasyonlar, waffle, içecek standı, yardımcı · [#17](https://github.com/hkemal94/DondumaciKizlar/pull/17)–[#22](https://github.com/hkemal94/DondumaciKizlar/pull/22)
+- Tasarım dili: palet, ışık, ölçü; tekneler, mutfak deposu, dekorasyon eşyaları hazır paketlerden · [#23](https://github.com/hkemal94/DondumaciKizlar/pull/23), [#24](https://github.com/hkemal94/DondumaciKizlar/pull/24), [#25](https://github.com/hkemal94/DondumaciKizlar/pull/25)
+- A paketi ve haber şeridi · [#26](https://github.com/hkemal94/DondumaciKizlar/pull/26), [#27](https://github.com/hkemal94/DondumaciKizlar/pull/27)
+- Karakterler (eski Kenney karakterleri [#12](https://github.com/hkemal94/DondumaciKizlar/pull/12), [#13](https://github.com/hkemal94/DondumaciKizlar/pull/13) yerine) · [#28](https://github.com/hkemal94/DondumaciKizlar/pull/28)
 
 ## Sona kalanlar
 
