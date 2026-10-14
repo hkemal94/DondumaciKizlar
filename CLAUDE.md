@@ -89,6 +89,8 @@ Burada ve belgede yazmayan bir coğrafi, tarihî ya da kurumsal bilgiyi
 7. **Yapılmayan iş yapıldı diye sunulmaz.** Test edilemediyse açıkça söyle.
 8. Bir karar değişirse önce `docs/tasarim-belgesi.md` güncellenir, sonra kod.
 9. `npm run build` her iş sonunda hatasız geçmeli.
+10. Her PR `docs/yol-haritasi.md`'yi günceller (neredeyiz, paketler, bitenler,
+    sona kalanlar). KKM'deki oyun sayfası onu canlı okur (Kemal, 14 Ekim gece).
 
 ## Kapsam
 
