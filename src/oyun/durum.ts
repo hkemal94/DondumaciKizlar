@@ -122,10 +122,16 @@ export interface Durum {
   calisan: CalisanGorunumu;
   acikOnlukler: string[];
   acikAksesuarlar: Aksesuar[];
+  // Eğitim (Kemal, 14 Ekim): görülen el işaretleri (kayıtta saklanır)
+  egitimGoruldu: EgitimAdi[];
   // Duraklatma menüsü (Kemal, 13 Ekim): saat ve müşteriler durur
   duraklatildi: boolean;
   gezme: boolean; // duraklatıp dükkânı gezme (döndürme, yakınlaştırma, fotoğraf)
 }
+
+// Yazısız el işaretli eğitim: ilk sipariş üç adım, sonra ilk kez görülenler
+export type EgitimAdi = 'ilkSiparis' | 'susleme' | 'tepsi' | 'vitrin';
+export const EGITIMLER: EgitimAdi[] = ['ilkSiparis', 'susleme', 'tepsi', 'vitrin'];
 
 export interface Yerlesim {
   esya: Esya;
@@ -196,6 +202,7 @@ let durum: Durum = {
   calisan: { ...VARSAYILAN_CALISAN },
   acikOnlukler: ONLUKLER.filter((o) => o.fiyat === 0).map((o) => o.id),
   acikAksesuarlar: [],
+  egitimGoruldu: [],
   duraklatildi: false,
   gezme: false,
 };
@@ -283,7 +290,10 @@ export function suslemeBasilabilir(d: Durum = durum) {
 export function suslemeDegistir(s: Susleme) {
   if (!suslemeBasilabilir()) return;
   islemYapildi();
-  guncelle({ susleme: durum.susleme.includes(s) ? durum.susleme.filter((x) => x !== s) : [...durum.susleme, s] });
+  guncelle({
+    susleme: durum.susleme.includes(s) ? durum.susleme.filter((x) => x !== s) : [...durum.susleme, s],
+    ...(ondekiMusteri()?.siparis.susleme.includes(s) ? { egitimGoruldu: egitimEkle('susleme') } : {}),
+  });
 }
 
 // Geri al: konmuş toplar ve tepsi için (13 Ekim). Son konan top çıkar. Ceza yok.
@@ -356,6 +366,9 @@ export function musteriDongusu(simdi: number) {
   const siradaki = durum.musteriler.filter((m) => m.hal === 'sirada').length;
   if (!durum.acik || durum.gunSonu || durum.hazirlik || durum.duraklatildi) return; // kapanınca, gün başlamadan ve duraklatınca müşteri gelmez
   if (siradaki >= EN_COK_SIRA || simdi < durum.sonrakiGelis) return;
+  // İlk sipariş eğitimi: yalnız bir müşteri gelir, siparişi tek toplu külah
+  const egitim = ilkSiparisEgitimi();
+  if (egitim && durum.musteriler.length > 0) return;
   const [en, enCok] = GELIS_ARALIGI;
   // Sıra boşken ilk müşteri hemen gelsin. Fiyat ve dekorasyon müşteri
   // sıklığını etkiler (belge 4: dükkânın çekiciliği).
@@ -366,7 +379,7 @@ export function musteriDongusu(simdi: number) {
       {
         id: ++sonId,
         gorunum: Math.floor(Math.random() * MUSTERI_GORUNUM_SAYISI),
-        siparis: rastgeleSiparis(),
+        siparis: egitim ? { altlik: 'kulah', kuvetler: [durum.vitrin[0]], susleme: [] } : rastgeleSiparis(),
         hal: 'sirada',
         mutlu: false,
         gelisTarafi: Math.random() < 0.5 ? 1 : -1,
@@ -398,6 +411,7 @@ export function tepsiyeKoy() {
   islemYapildi();
   guncelle({
     tepsi: [{ altlik: durum.altlik!, toplar: durum.toplar, susleme: durum.susleme }],
+    egitimGoruldu: egitimEkle('tepsi'),
     asama: 'altlikSec',
     altlik: null,
     toplar: [],
@@ -471,6 +485,7 @@ export function servisEt() {
         puanlar: [...durum.gunluk.puanlar, puan],
       },
       musteriler: durum.musteriler.map((m) => (m.id === id ? { ...m, hal: 'gidiyor', mutlu: true } : m)),
+      egitimGoruldu: egitimEkle('ilkSiparis'),
     });
     // Sırada kimse kalmadıysa kamera dükkânın genel görünümüne döner
     window.setTimeout(() => {
@@ -497,6 +512,34 @@ function enIyiOrtalamaHesapla(puanlar: number[]) {
   const son = puanlar.slice(-60);
   if (son.length < ORTALAMA_EN_AZ) return durum.enIyiOrtalama;
   return Math.max(durum.enIyiOrtalama, son.reduce((a, b) => a + b, 0) / son.length);
+}
+
+// ---- Eğitim (Kemal, 14 Ekim) ----
+export function ilkSiparisEgitimi(d: Durum = durum) {
+  return !d.egitimGoruldu.includes('ilkSiparis');
+}
+
+function egitimEkle(ad: EgitimAdi) {
+  if (durum.egitimGoruldu.includes(ad)) return durum.egitimGoruldu;
+  window.setTimeout(kaydet, 0); // görüldüğü hemen saklansın (yeniden açınca tekrar çıkmasın)
+  return [...durum.egitimGoruldu, ad];
+}
+
+export function egitimGor(ad: EgitimAdi) {
+  if (durum.egitimGoruldu.includes(ad)) return;
+  guncelle({ egitimGoruldu: egitimEkle(ad) });
+  kaydet();
+}
+
+// Geç: bütün el işaretleri görülmüş sayılır
+export function egitimiAtla() {
+  guncelle({ egitimGoruldu: [...EGITIMLER] });
+  kaydet();
+}
+
+export function egitimiYenidenGoster() {
+  guncelle({ egitimGoruldu: [] });
+  kaydet();
 }
 
 export function ortalamaMemnuniyet(d: Durum = durum): number | null {
@@ -542,6 +585,8 @@ let birikenMs = 0;
 // Oyun döngüsü her turda geçen süreyi verir.
 export function zamanIlerlet(gecenMs: number) {
   if (durum.gunSonu || durum.hazirlik || durum.duraklatildi) return;
+  // İlk sipariş eğitiminde müşteri gelince saat (ve sabır) durur
+  if (ilkSiparisEgitimi() && durum.musteriler.some((m) => m.hal === 'sirada')) return;
   if (durum.acik) {
     birikenMs += Math.min(gecenMs, 1000); // sekme arkadayken gün akıp gitmesin
     const adim = Math.floor(birikenMs / adimMs());
@@ -856,6 +901,7 @@ interface Kayit {
   calisan: CalisanGorunumu;
   acikOnlukler: string[];
   acikAksesuarlar: Aksesuar[];
+  egitimGoruldu: EgitimAdi[];
 }
 
 function kaydet() {
@@ -879,6 +925,7 @@ function kaydet() {
     calisan: durum.calisan,
     acikOnlukler: durum.acikOnlukler,
     acikAksesuarlar: durum.acikAksesuarlar,
+    egitimGoruldu: durum.egitimGoruldu,
   };
   try {
     localStorage.setItem(KAYIT_ANAHTARI, JSON.stringify(k));
@@ -904,6 +951,12 @@ export function kaydiYukle() {
       fiyatSeviyesi: k.fiyatSeviyesi && k.fiyatSeviyesi in FIYAT_ETKISI ? k.fiyatSeviyesi : 'normal',
       ...dekorasyonuOku(k),
       ...calisaniOku(k),
+      // 14 Ekim'den önce oynanmış kayıtta eğitim görülmüş sayılır (istenirse mola menüsünden açılır)
+      egitimGoruldu: Array.isArray(k.egitimGoruldu)
+        ? k.egitimGoruldu.filter((e) => EGITIMLER.includes(e))
+        : (k.gun ?? 1) > 1 || (k.memnuniyetler?.length ?? 0) > 0
+          ? [...EGITIMLER]
+          : [],
     });
   } catch {
     // Bozuk ya da okunamayan kayıt: baştan başlanır.
@@ -992,6 +1045,7 @@ export function bastanBasla() {
     calisan: { ...VARSAYILAN_CALISAN },
     acikOnlukler: ONLUKLER.filter((o) => o.fiyat === 0).map((o) => o.id),
     acikAksesuarlar: [],
+    egitimGoruldu: [],
     dakika: 0,
     acik: true,
     gunSonu: false,

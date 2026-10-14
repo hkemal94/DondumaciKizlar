@@ -88,6 +88,19 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Vitrin (14 Ekim) | **4 küvetle başlar**, Dükkânı geliştir'den 6, 8, 10, 12'ye büyür; 6'dan fazlası iki sıra. Gün başında **Vitrin** ekranı: çeşide dokunarak elle seçilir ya da **Otomatik** (her sabah dünün en çok satanları + bir yeni çeşit). Müşteriler **yalnız vitrindekileri** ister. Her küvetin önünde çeşidin adı yazan kart var (arka sırada çubukta); sipariş balonunda da adlar yazar |
 | Işıklı tabela | Üstünde dükkânın adı: "Dondurmacı Kızlar" (Kemal, 14 Ekim) |
 | Çeşit fiyatları (sonraki parça) | Genel fiyat (ucuz / normal / pahalı) kalır; Fiyat ekranı ayrıntılanır: **her çeşidin kendi fiyat çubuğu** ve hepsini birden ayarlayan çubuk. Pahalı çeşit daha seyrek istenir (Kemal, 14 Ekim). *Uygulamada henüz yok* |
+| Eğitim (14 Ekim) | **Yazısız el işareti**. İlk siparişte üç adım (altlık → küvete basılı tut → servis et); sonra **ilk kez görülenlerde** birer kısa işaret (ilk süslemeli sipariş, ilk tepsi, ilk vitrin seçimi). İlk sipariş boyunca **saat durur, tek müşteri** gelir, sabır azalmaz. Köşede **Geç** düğmesi; Ayarlar'da (şimdilik mola menüsünde) "Eğitimi yeniden göster" |
+| Menüler (14 Ekim) | Tam ekran pencere kalır ama **resimli**: kartlarda eşyanın oyundaki modelinden **küçük 3B resmi**, az yazı. Ekran boş grafiklerle harcanmasın (Kemal: "özellikle dekorasyon bölümünde") |
+| Satın alınca (14 Ekim) | Eşya alınınca küçük bir ekran çıkar: **Yerleştir** ya da **Alışverişe devam et**. Devam edilirse eşya depoya gider, sonra istenince yerleştirilir |
+| Tezgah küvetleri (14 Ekim) | Çok küvette dokunma alanları küçük kalıyordu. Vitrin **yanlara genişler**, tezgah kamerası **biraz dikleşir**; iki sıra kalır, küvetler büyür, düğmeler kenarlara çekilir |
+| Oyun hissi (14 Ekim) | Parçacık efektleri **orta, sakin**: mükemmel topta kısa kıvılcım, doğru serviste kasaya uçan birkaç jeton, süslemede serpinti, sıkılan müşteride küçük bulut. Ekran sarsma yok. **Titreşim yok** |
+| Bahşiş (14 Ekim) | Arka arkaya mükemmel servislerde müşteri küçük **bahşiş** bırakır; seri bozulunca ceza yok, sessizce sıfırlanır |
+| Yardımcı çalışan (14 Ekim) | Parayla bir **yardımcı çalışan** alınabilecek (ör. masaları toplar, waffle makinesine bakar). **Assetlerden sonra**, makinelerle birlikte tasarlanır |
+| Açılış ekranı ve Ayarlar (14 Ekim) | Açılışta arkada dükkânın sakin görünümü, önde **logo**, **Oyna** ve **Ayarlar**. Logo dosyasını **Kemal gönderecek**. Ayarlar: müzik ve ses, eğitimi yeniden göster, baştan başla (onaylı), dil (İngilizce gelince) |
+| Makineler (14 Ekim) | Waffle ve limonata makineleri + yardımcı çalışan **assetlerden sonra** |
+| Assetler (14 Ekim) | Önce **ücretsiz paketler** (Kenney, Quaternius; CC0). Claude indirir, yerleştirir, `docs/lisanslar.md`'ye yazar; Kemal'in bir şey yüklemesi gerekmez. **İlk karakterler** değişir (müşteriler, çalışan, sahip; yürüme ve oturma hareketleriyle) |
+| Kroki | Kemal Düzada haritasındaki dükkânın krokisini paylaşacak. Kemal'e göre bugünkü düzen zaten çok yakın; büyük değişiklik beklenmiyor |
+| Büyüme (14 Ekim) | Bugünkü alan satın alma ekranını Kemal pek beğenmedi; **kapalı alanın da büyüyebildiği** bir yapı düşünüyor. Assetlerden sonra konuşulacak |
+| İş sırası (14 Ekim) | 1. Eğitim → 2. Tezgah küvetleri (vitrin yanlara, kamera dik) → 3. Çeşit başına fiyat ekranı → 4. Resimli menüler + "Yerleştir / devam et" ekranı → 5. Efektler + bahşiş → 6. Açılış ekranı + Ayarlar (logo gelince) → 7. Assetler (önce karakterler) → 8. Makineler + yardımcı çalışan → 9. Büyüme yapısı |
 | Masalarda oturan müşteriler | (Kemal, 14 Ekim: "misafirler arada varsa masalara otursun") Dondurmasını alıp mutlu giden müşterilerin bir kısmı boş bir masa varsa oturup yer, sonra iskeleden gider. Tezgahın arkasındaki köşelere konan masalara oturulmaz |
 | Sonraki iş sırası (14 Ekim) | 1. Alanlar + masalarda oturan müşteriler → 2. Dükkân dışı için tabela benzeri yeni dekorasyon ürünleri (market zayıf kaldı) → 3. Çok çeşit dondurma (Türkiye'de 20 çeşit olağan): çeşitler zamanla açılır, vitrine sınırlı küvet sığar, **her sabah vitrine hangi çeşitlerin gireceği seçilir** (önerildi, onay bekliyor) → 4. **Kış paketi:** dükkân tatlıcı / kafe olur, kışın yalnız **sıcak çikolata** istenir; makyaj paketi olarak satılabilir |
 | Topların sırası | Kural değil: yalnız altlık, çeşitler ve top sayısı tutmalı (13 Ekim) |
@@ -297,5 +310,6 @@ Uygulamada **olan**:
 | Alanlar + masalarda oturan müşteriler | Bitti (14 Ekim) |
 | Dış süsler (9 eşya) | Bitti (14 Ekim) |
 | 29 çeşit, vitrin (4–12) ve günlük seçim, tabelada ad | Bitti (14 Ekim); çeşit başına fiyat sonraki parça |
+| Yazısız eğitim (ilk sipariş + süsleme, tepsi, vitrin) | Bitti (14 Ekim). "Eğitimi yeniden göster" Ayarlar gelene kadar mola menüsünde |
 
 Uygulamada **olmayan** ama belgede geçenler: Kemal'in müziği (şimdilik kodla geçici ezgi), gerçek 3B modeller (hepsi kodla çizilmiş geçici parçalar), İngilizce.
