@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { calismaSaatleri, durumuOku } from '../oyun/durum';
 import { KAPI_X } from './Dukkan';
+import { YURUYUS_Z } from '../oyun/dekorasyon';
 import { KenneyKarakter, type Hareket } from './KenneyKarakter';
 import type { Varyant } from './karakterler';
 
@@ -11,8 +12,8 @@ import type { Varyant } from './karakterler';
 // Kemal belirleyecek. Günde bir kez rastgele bir saatte iskeleden gelir,
 // kapıdan girer, içeride ve terasta biraz dolaşır, gider. Başka bir şey yapmaz.
 
-const ISKELE_Z = -4.3;
-const ISKELE_UCU = 17;
+const ISKELE_Z = YURUYUS_Z + 0.2;
+const ISKELE_UCU = 22;
 const KAPI_DIS = new THREE.Vector3(KAPI_X, 0, -3.1);
 const KAPI_IC = new THREE.Vector3(KAPI_X, 0, -2.1);
 
@@ -24,6 +25,7 @@ interface Nokta {
 function gezintiYolu(donus: 1 | -1): Nokta[] {
   const n = (x: number, z: number, bekle = 0): Nokta => ({ yer: new THREE.Vector3(x, 0, z), bekle });
   return [
+    n(KAPI_X, ISKELE_Z),
     { yer: KAPI_DIS, bekle: 0 },
     { yer: KAPI_IC, bekle: 0 },
     n(1.6, -2.15, 3.5), // dükkânın içinde, vitrinin yanında durur, bakar
@@ -31,7 +33,7 @@ function gezintiYolu(donus: 1 | -1): Nokta[] {
     { yer: KAPI_IC, bekle: 0 },
     { yer: KAPI_DIS, bekle: 0 },
     n(1.2, -5.6, 3), // terasta denize bakar
-    n(-5.5, -6.2, 2.5),
+    n(-1.2, -6.9, 2.5),
     n(donus * ISKELE_UCU, ISKELE_Z),
   ];
 }

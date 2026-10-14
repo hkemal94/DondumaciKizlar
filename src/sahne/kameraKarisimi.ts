@@ -38,9 +38,27 @@ export const fotograf: { cek: null | (() => string) } = { cek: null };
 export const dukkanKaydirma = { x: 0, z: 0 };
 const KAYDIRMA_SINIRI = { x: 9, zEn: -7, zEnCok: 4 };
 
+// Dükkânın alınmış arazisi büyüdükçe genel görünüm kendiliğinden geri
+// çekilir (belge 0.2): merkez arazinin ortasına kayar, uzaklık bu ölçekle
+// çarpılır. Sahne her karede günceller.
+export const alanCercevesi = { merkezX: 0, merkezZ: 0, olcek: 1 };
+
 export function kaydir(dx: number, dz: number) {
-  dukkanKaydirma.x = Math.min(KAYDIRMA_SINIRI.x, Math.max(-KAYDIRMA_SINIRI.x, dukkanKaydirma.x + dx));
-  dukkanKaydirma.z = Math.min(KAYDIRMA_SINIRI.zEnCok, Math.max(KAYDIRMA_SINIRI.zEn, dukkanKaydirma.z + dz));
+  const o = alanCercevesi.olcek;
+  dukkanKaydirma.x = Math.min(KAYDIRMA_SINIRI.x * o, Math.max(-KAYDIRMA_SINIRI.x * o, dukkanKaydirma.x + dx));
+  dukkanKaydirma.z = Math.min(KAYDIRMA_SINIRI.zEnCok * o, Math.max(KAYDIRMA_SINIRI.zEn * o, dukkanKaydirma.z + dz));
+}
+
+// Genel görünüm çaprazdan bakar; bu dönüşle tam önden (denizden) bakar
+const ONDEN_BAKIS = -Math.atan2(13.1, 18.4);
+
+// İnşaat modunda dükkâna önden ve üstten bakılır, alınabilecek kareler de görünsün
+export function insaatKamerasi() {
+  dukkanKaydirma.x = 0;
+  dukkanKaydirma.z = 0;
+  dukkanYakinligi.deger = 1.25;
+  dukkanDonusu.deger = ONDEN_BAKIS;
+  dukkanEgimi.deger = EGIM_EN_COK * 0.8;
 }
 
 export function ortala() {

@@ -1,5 +1,5 @@
 import { hucreAcik, hucreDolu, hucreUygun, hucreyeKoy, useDurum, yerlesimiKaldir } from '../oyun/durum';
-import { HUCRELER, KARE_BOYU, YAN_ZEMIN, type Esya } from '../oyun/dekorasyon';
+import { DUKKAN_PARSELLERI, HUCRELER, KARE_BOYU, hucreBul, parselCoz, parselSiniri, type Esya } from '../oyun/dekorasyon';
 import { renk } from './renkler';
 import { Bank, Bisiklet, CicekKasasi, CopKutusu, Flama, IsikliTabela, KaraTahta, KulahFiguru, SokakLambasi } from './DisSusler';
 
@@ -171,63 +171,64 @@ function IsikliSerit() {
   );
 }
 
-// Alınmış yan alan: taş kaldırımın üstüne terasla aynı ahşap zemin
-function YanZemin({ yon }: { yon: 1 | -1 }) {
-  const { icX, disX, onZ, arkaZ } = YAN_ZEMIN;
-  const genislik = disX - icX;
-  const tahtalar = [];
-  for (let i = 0; i < 3; i++) {
-    tahtalar.push(
-      <mesh key={i} position={[yon * (icX + (genislik / 3) * (i + 0.5)), 0, (onZ + arkaZ) / 2]} receiveShadow>
-        <boxGeometry args={[genislik / 3 - 0.06, 0.12, arkaZ - onZ]} />
-        <meshStandardMaterial color={i % 2 ? renk.ahsapAcik : renk.ahsapOrta} roughness={0.9} />
-      </mesh>,
-    );
-  }
-  return <group>{tahtalar}</group>;
+// Alınmış arazi karesi (dükkânın yanı ya da arkası): taş kaldırımın üstüne
+// terasla aynı ahşap zemin. Ön teras zaten ahşap.
+function ParselZemini({ anahtar }: { anahtar: string }) {
+  const { i, j } = parselCoz(anahtar);
+  const { solX, sagX, onZ, arkaZ } = parselSiniri(i, j);
+  const genislik = sagX - solX;
+  return (
+    <group>
+      {[0, 1, 2].map((n) => (
+        <mesh key={n} position={[solX + (genislik / 3) * (n + 0.5), 0, (onZ + arkaZ) / 2]} receiveShadow>
+          <boxGeometry args={[genislik / 3 - 0.06, 0.12, arkaZ - onZ - 0.06]} />
+          <meshStandardMaterial color={n % 2 ? renk.ahsapAcik : renk.ahsapOrta} roughness={0.9} />
+        </mesh>
+      ))}
+    </group>
+  );
 }
 
-// Yerleştirme kareleri: boş kareler yeşil görünür, alınmamış alanlarınki gri. Dokunma tek bir görünmez
+// Yerleştirme kareleri: alınmış arazideki boş kareler yeşil görünür. Dokunma tek bir görünmez
 // zeminden alınır ve en yakın boş kareye konur (kareye tam isabet gerekmez).
 function Kareler() {
   const durum = useDurum();
   return (
     <group>
-      {HUCRELER.map((h, i) => {
-        const acik = hucreAcik(i, durum);
-        if (hucreDolu(i, durum) || (acik && !durum.seciliEsya)) return null;
-        if (acik && !hucreUygun(i, durum.seciliEsya, durum)) return null; // dışarıya özel eşya içeri konmaz
+      {HUCRELER.map((h) => {
+        if (!durum.seciliEsya || !hucreAcik(h.id, durum) || hucreDolu(h.id, durum)) return null;
+        if (!hucreUygun(h.id, durum.seciliEsya, durum)) return null; // dışarıya özel eşya içeri konmaz
         return (
-          <mesh key={i} position={[h.x, h.ic ? 0.02 : 0.08, h.z]} rotation={[-Math.PI / 2, 0, 0]}>
-            <planeGeometry args={[KARE_BOYU * (acik ? 0.9 : 0.8), KARE_BOYU * (acik ? 0.9 : 0.8)]} />
-            <meshBasicMaterial color={acik ? '#8fe36b' : '#5b5560'} transparent opacity={acik ? 0.35 : 0.22} depthWrite={false} />
+          <mesh key={h.id} position={[h.x, h.ic ? 0.02 : 0.08, h.z]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[KARE_BOYU * 0.9, KARE_BOYU * 0.9]} />
+            <meshBasicMaterial color="#8fe36b" transparent opacity={0.35} depthWrite={false} />
           </mesh>
         );
       })}
       <mesh
-        position={[0, 0.1, -3.2]}
+        position={[0, 0.1, 1.8]}
         rotation={[-Math.PI / 2, 0, 0]}
         onClick={(e) => {
           if (e.delta > 12) return; // sürükleme / yakınlaştırma değil
           e.stopPropagation();
           // En yakın kare doluysa oradaki eşya kalkar (taşımak için), boşsa seçili eşya konur
-          let enYakin = -1;
+          let enYakin: string | null = null;
           let enKisa = KARE_BOYU * 0.85;
-          HUCRELER.forEach((h, i) => {
-            if (!hucreAcik(i)) return; // alınmamış alana konmaz
-            if (!hucreDolu(i) && !hucreUygun(i, durum.seciliEsya)) return;
+          HUCRELER.forEach((h) => {
+            if (!hucreAcik(h.id)) return; // alınmamış araziye konmaz
+            if (!hucreDolu(h.id) && !hucreUygun(h.id, durum.seciliEsya)) return;
             const d = Math.hypot(h.x - e.point.x, h.z - e.point.z);
             if (d < enKisa) {
               enKisa = d;
-              enYakin = i;
+              enYakin = h.id;
             }
           });
-          if (enYakin < 0) return;
+          if (enYakin === null) return;
           if (hucreDolu(enYakin)) yerlesimiKaldir(enYakin);
           else hucreyeKoy(enYakin);
         }}
       >
-        <planeGeometry args={[26, 10]} />
+        <planeGeometry args={[90, 24]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
     </group>
@@ -236,15 +237,18 @@ function Kareler() {
 
 export function Dekorlar() {
   const durum = useDurum();
-  const { isikSeviyesi, yerlesim, yerlestirme, acikBolgeler } = durum;
+  const { isikSeviyesi, yerlesim, yerlestirme, parseller } = durum;
   return (
     <group>
-      {acikBolgeler.includes('solYan') && <YanZemin yon={1} />}
-      {acikBolgeler.includes('sagYan') && <YanZemin yon={-1} />}
+      {parseller
+        .filter((p) => !DUKKAN_PARSELLERI.includes(p) && parselCoz(p).j >= 0)
+        .map((p) => (
+          <ParselZemini key={p} anahtar={p} />
+        ))}
       {isikSeviyesi >= 1 && (
         <>
-          <Fener konum={[-4.6, 0.06, -7.6]} />
-          <Fener konum={[4.6, 0.06, -7.6]} />
+          <Fener konum={[-4.6, 0.06, -8.0]} />
+          <Fener konum={[4.6, 0.06, -8.0]} />
         </>
       )}
       {isikSeviyesi >= 2 && <AsmaAmpuller />}
@@ -252,7 +256,8 @@ export function Dekorlar() {
 
       {/* Yere konmuş eşyalar; yerleştirirken dokunulursa kalkar (taşımak için) */}
       {yerlesim.map((y) => {
-        const h = HUCRELER[y.hucre];
+        const h = hucreBul(y.hucre);
+        if (!h) return null;
         return (
           <group
             key={y.hucre}

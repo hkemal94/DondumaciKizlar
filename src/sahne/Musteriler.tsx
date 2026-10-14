@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { durumuOku, musteriTezgahaVardi, musteriyiKaldir, ondekiMusteri, useDurum, type Durum, type Musteri } from '../oyun/durum';
-import { HUCRELER } from '../oyun/dekorasyon';
+import { PARSEL, YURUYUS_Z, hucreBul, parselCoz } from '../oyun/dekorasyon';
 import { BANK_OTURAKLARI } from './DisSusler';
 import { Parcaciklar } from './Efektler';
 import { rastgeleVaryant } from './karakterler';
@@ -17,13 +17,27 @@ const BULUT_RENKLERI = ['#9aa0a8', '#b8bec6', '#7e848c'];
 
 // Sıradaki yerler: öndeki tezgahın ortasında, diğerleri sola doğru dizilir.
 const ON_YER = new THREE.Vector3(0, 0, -1.62);
-// Müşteri yolu (Kemal, 13 Ekim): iskelenin iki ucundan birinden, kameranın
-// dışından yürüyerek gelir; kapıdan girer, sıraya geçer. Giderken kapıdan
-// çıkıp yine iki uçtan birine yürür ve ekrandan çıkınca silinir.
-const ISKELE_Z = -4.1; // terastaki yürüme yolu
-const ISKELE_UCU = 17; // kameranın dışı
+// Müşteri yolu (Kemal, 13 Ekim): yürüyüş yolunun iki ucundan birinden,
+// kameranın dışından gelir; kapının önüne dönüp içeri girer, sıraya geçer.
+// Giderken kapıdan çıkıp yine iki uçtan birine yürür ve silinir.
+// Yürüyüş yolu 14 Ekim'de deniz tarafına alındı (belge 0.1).
+const ISKELE_Z = YURUYUS_Z;
+// Yolun ucu kameranın dışında: dükkân yana büyüdükçe uç da uzaklaşır
+function yolUcu(d: Durum) {
+  const kenar = Math.max(...d.parseller.map((p) => Math.max(Math.abs(parselCoz(p).i * PARSEL), Math.abs(parselCoz(p).i * PARSEL + PARSEL))));
+  return Math.max(22, kenar + 12);
+}
 const KAPI_DIS = new THREE.Vector3(KAPI_X, 0, -3.1);
 const KAPI_IC = new THREE.Vector3(KAPI_X, 0, -2.05);
+const KAPI_YOLU = new THREE.Vector3(KAPI_X, 0, ISKELE_Z); // kapının önünden yürüyüş yoluna
+const DUKKAN_KENARI = 4.6; // dükkânın arkasına giderken yanından geçilen hat
+
+// Yürüyüş yolundan bir oturma yerine: dükkânın arkasındaysa yanından dolaşır
+function yoldanKoltuga(yer: THREE.Vector3): THREE.Vector3[] {
+  if (yer.z < -2.5 || Math.abs(yer.x) > DUKKAN_KENARI - 0.3) return [new THREE.Vector3(yer.x, 0, ISKELE_Z), yer];
+  const yan = yer.x >= 0 ? DUKKAN_KENARI : -DUKKAN_KENARI;
+  return [new THREE.Vector3(yan, 0, ISKELE_Z), new THREE.Vector3(yan, 0, yer.z), yer];
+}
 
 function siraYeri(sira: number, hedef: THREE.Vector3) {
   if (sira === 0) return hedef.copy(ON_YER);
@@ -37,7 +51,6 @@ function siraYeri(sira: number, hedef: THREE.Vector3) {
 const OTURMA_OLASILIGI = 0.6;
 const OTURMA_SURESI: [number, number] = [10, 16]; // saniye
 const SANDALYE_ARALIGI = 0.62 * 0.85; // Dekorlar'daki masa ölçüsü
-const KOSE_Y = -3.0; // dükkânın köşesini dönerken geçilen hat
 const OTURAK_Y = 0.4; // sandalye oturağının masa zeminine göre yüksekliği
 // Kenney karakterinde oturma hareketindeki kalça yüksekliği (ölçekli) ve baş üstü
 const KENNEY_KALCA = 0.12;
@@ -49,7 +62,6 @@ interface Koltuk {
   yer: THREE.Vector3;
   bakis: number; // masaya dönük
   ic: boolean;
-  yan: 0 | 1 | -1; // dükkânın yanındaki alanlardan biri mi
 }
 
 const doluKoltuklar = new Map<string, number>(); // anahtar → müşteri
@@ -58,15 +70,14 @@ function bosKoltuk(d: Durum): Koltuk | null {
   const bos: Koltuk[] = [];
   for (const y of d.yerlesim) {
     if (y.esya !== 'masa' && y.esya !== 'semsiyeliMasa' && y.esya !== 'bank') continue;
-    const h = HUCRELER[y.hucre];
+    const h = hucreBul(y.hucre);
     if (!h || h.arkada) continue;
-    const yan: 0 | 1 | -1 = !h.ic && h.z > -2.6 ? (h.x > 0 ? 1 : -1) : 0;
     if (y.esya === 'bank') {
       // Bankta iki kişi yan yana, denize bakar
       for (const ox of BANK_OTURAKLARI) {
         const anahtar = `${y.hucre}:${ox}`;
         if (doluKoltuklar.has(anahtar)) continue;
-        bos.push({ anahtar, yer: new THREE.Vector3(h.x + ox, h.ic ? 0 : 0.06, h.z + 0.02), bakis: Math.PI, ic: h.ic, yan });
+        bos.push({ anahtar, yer: new THREE.Vector3(h.x + ox, h.ic ? 0 : 0.06, h.z + 0.02), bakis: Math.PI, ic: h.ic });
       }
       continue;
     }
@@ -78,7 +89,6 @@ function bosKoltuk(d: Durum): Koltuk | null {
         yer: new THREE.Vector3(h.x + taraf * (SANDALYE_ARALIGI - 0.05), h.ic ? 0 : 0.06, h.z),
         bakis: taraf > 0 ? -Math.PI / 2 : Math.PI / 2,
         ic: h.ic,
-        yan,
       });
     }
   }
@@ -92,11 +102,11 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
   const icRef = useRef<THREE.Group>(null);
   const hedef = useMemo(() => new THREE.Vector3(), []);
   const baslangic = useMemo(
-    () => new THREE.Vector3(musteri.gelisTarafi * ISKELE_UCU, 0, ISKELE_Z + ((musteri.id * 37) % 7) * 0.08 - 0.25),
+    () => new THREE.Vector3(musteri.gelisTarafi * yolUcu(durumuOku()), 0, ISKELE_Z + ((musteri.id * 37) % 7) * 0.08 - 0.25),
     [musteri.gelisTarafi, musteri.id],
   );
   // Sıradaki yol noktaları: önce kapının dışı, sonra içi; sonra sıradaki yeri
-  const yol = useRef<THREE.Vector3[]>([KAPI_DIS, KAPI_IC]);
+  const yol = useRef<THREE.Vector3[]>([KAPI_YOLU, KAPI_DIS, KAPI_IC]);
   const asama = useRef<Asama>('giris');
   const koltuk = useRef<Koltuk | null>(null);
   const kalanOturma = useRef(0);
@@ -120,7 +130,7 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
     const d = durumuOku();
     const m = d.musteriler.find((x) => x.id === musteri.id);
     if (!m || d.duraklatildi) return; // duraklatınca herkes yerinde durur
-    const son = new THREE.Vector3(m.gidisTarafi * ISKELE_UCU, 0, ISKELE_Z);
+    const son = new THREE.Vector3(m.gidisTarafi * yolUcu(d), 0, ISKELE_Z);
 
     // Servis bitti: ya bir masaya oturur ya da doğrudan gider
     if (m.hal === 'gidiyor' && (asama.current === 'giris' || asama.current === 'sirada')) {
@@ -132,12 +142,10 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
         asama.current = 'masaya';
         yol.current = k.ic
           ? [cikis, new THREE.Vector3(k.yer.x, 0, -2.15), k.yer]
-          : k.yan
-            ? [cikis, KAPI_IC, KAPI_DIS, new THREE.Vector3(k.yan * 4.6, 0, KOSE_Y), k.yer]
-            : [cikis, KAPI_IC, KAPI_DIS, new THREE.Vector3(k.yer.x, 0, ISKELE_Z), k.yer];
+          : [cikis, KAPI_IC, KAPI_DIS, KAPI_YOLU, ...yoldanKoltuga(k.yer)];
       } else {
         asama.current = 'cikiyor';
-        yol.current = [cikis, KAPI_IC, KAPI_DIS, son];
+        yol.current = [cikis, KAPI_IC, KAPI_DIS, KAPI_YOLU, son];
       }
     }
 
@@ -154,10 +162,8 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
         doluKoltuklar.delete(k.anahtar);
         asama.current = 'cikiyor';
         yol.current = k.ic
-          ? [new THREE.Vector3(k.yer.x, 0, -2.15), KAPI_IC, KAPI_DIS, son]
-          : k.yan
-            ? [new THREE.Vector3(k.yan * 4.6, 0, KOSE_Y), son]
-            : [new THREE.Vector3(k.yer.x, 0, ISKELE_Z), son];
+          ? [new THREE.Vector3(k.yer.x, 0, -2.15), KAPI_IC, KAPI_DIS, KAPI_YOLU, son]
+          : [...yoldanKoltuga(k.yer).slice(0, -1).reverse(), son];
         koltuk.current = null;
       }
       return;

@@ -13,6 +13,7 @@ import {
   depodaki,
   esyaSec,
   yerlestirmeyiAc,
+  insaataBasla,
   yerlestirmeyiKapat,
   IYI_PAYI,
   MUKEMMEL_ALT,
@@ -43,12 +44,13 @@ import { balon } from '../sahne/Musteriler';
 import { Gelistir } from './Gelistir';
 import { VitrinEkrani } from './VitrinEkrani';
 import { MenuSeridi } from './MenuSeridi';
+import { InsaatPaneli } from './InsaatPaneli';
 import { AcilisEkrani } from './AcilisEkrani';
 import { AyarlarEkrani } from './AyarlarEkrani';
 import { useEkranAyari } from './ekranAyari';
 import { EgitimEli, egitimHedefi } from './EgitimEli';
 import { CalisanAdi, CalisanEkrani } from './CalisanEkrani';
-import { dondur, ekrandaKaydir, ortala, yakinlikDegistir } from '../sahne/kameraKarisimi';
+import { dondur, ekrandaKaydir, insaatKamerasi, ortala, yakinlikDegistir } from '../sahne/kameraKarisimi';
 import { DuraklatDugmesi, DuraklatMenusu, GezmeEkrani } from './Duraklat';
 import { ESYALAR } from '../oyun/dekorasyon';
 
@@ -608,7 +610,8 @@ export function Arayuz() {
     );
 
   const tezgahta = durum.kamera === 'tezgah';
-  if (!tezgahta && durum.yerlestirme) ipucu = ESYALAR.some((e) => depodaki(e.id, durum) > 0) || durum.seciliEsya ? 'yerlestir.ipucu' : 'yerlestir.bos';
+  if (!tezgahta && durum.insaat) ipucu = durum.seciliParsel ? null : 'insaat.ipucu';
+  else if (!tezgahta && durum.yerlestirme) ipucu = ESYALAR.some((e) => depodaki(e.id, durum) > 0) || durum.seciliEsya ? 'yerlestir.ipucu' : 'yerlestir.bos';
   else if (!tezgahta) ipucu = durum.hazirlik ? 'ipucu.hazirlik' : musteri ? 'ipucu.siparisVar' : durum.acik ? 'ipucu.musteriYok' : null;
 
   return (
@@ -670,7 +673,9 @@ export function Arayuz() {
       )}
       {!tezgahta && !durum.gunSonu && !calisanAcik && (
         <div className="sag-dugmeler">
-          {durum.yerlestirme ? (
+          {durum.insaat ? (
+            <InsaatPaneli />
+          ) : durum.yerlestirme ? (
             // Yerleştirme: depodaki eşyalar, seçili olan vurgulu
             <>
               {ESYALAR.filter((e) => depodaki(e.id, durum) > 0 || durum.seciliEsya === e.id).map((e) => (
@@ -699,7 +704,7 @@ export function Arayuz() {
           )}
         </div>
       )}
-      {!tezgahta && durum.hazirlik && !durum.yerlestirme && !durum.gunSonu && !calisanAcik && (
+      {!tezgahta && durum.hazirlik && !durum.yerlestirme && !durum.insaat && !durum.gunSonu && !calisanAcik && (
         <MenuSeridi
           sec={(is) => {
             if (is === 'gelistir') setGelistirAcik(true);
@@ -707,6 +712,10 @@ export function Arayuz() {
               setVitrinAcik(true);
               egitimGor('vitrin');
             } else if (is === 'yerlestir') yerlestirmeyiAc();
+            else if (is === 'insaat') {
+              insaataBasla();
+              insaatKamerasi();
+            }
             else setCalisanAcik(true);
           }}
         />

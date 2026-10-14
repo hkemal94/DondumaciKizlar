@@ -1,8 +1,8 @@
 import { m, type MetinAnahtari } from '../metinler';
 
 // Gün başı menüsü (Kemal, 14 Ekim: "menü sistemi yok, her şey ortada"):
-// dört iş tek şeritte, küçük simge ve kısa adla.
-export type MenuIsi = 'gelistir' | 'vitrin' | 'yerlestir' | 'calisan';
+// işler tek şeritte, küçük simge ve kısa adla. İnşaat 14 Ekim'de eklendi.
+export type MenuIsi = 'gelistir' | 'vitrin' | 'yerlestir' | 'insaat' | 'calisan';
 
 function Simge({ is }: { is: MenuIsi }) {
   const ortak = { fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
@@ -32,6 +32,14 @@ function Simge({ is }: { is: MenuIsi }) {
         <path d="M7 13 V21 M17 13 V21 M7 17 H17" {...ortak} />
       </svg>
     );
+  if (is === 'insaat')
+    // Kare kare arazi ve çekiç
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden>
+        <path d="M3 3 H11 V11 H3 Z M13 13 H21 V21 H13 Z" {...ortak} />
+        <path d="M13 3 H21 V11 H13 Z M3 13 H11 V21 H3 Z" {...ortak} strokeDasharray="2 2" />
+      </svg>
+    );
   // Çalışan
   return (
     <svg viewBox="0 0 24 24" aria-hidden>
@@ -44,7 +52,7 @@ function Simge({ is }: { is: MenuIsi }) {
 export function MenuSeridi({ sec }: { sec: (is: MenuIsi) => void }) {
   return (
     <nav className="menu-seridi" aria-label={m('menu.baslik')}>
-      {(['gelistir', 'vitrin', 'yerlestir', 'calisan'] as const).map((is) => (
+      {(['gelistir', 'vitrin', 'yerlestir', 'insaat', 'calisan'] as const).map((is) => (
         <button key={is} className="menu-dugme" data-egitim={is} onClick={() => sec(is)}>
           <Simge is={is} />
           <span>{m(`menu.${is}` as MetinAnahtari)}</span>

@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { renk } from './renkler';
 import { gokRenkleri } from './gokRenkleri';
+import { YURUYUS_Z } from '../oyun/dekorasyon';
 
 // Dükkânın penceresinden görünen dış dünya: gök, deniz, tepeler,
 // iskele, tekneler, önündeki ahşap teras. Hepsi kodla çizilmiş
@@ -189,18 +190,25 @@ function Iskele() {
   );
 }
 
+// Ahşap teras: dükkânın önünden rıhtıma kadar, iki yana uzun (dükkân
+// büyüdükçe yer kalsın). Deniz tarafında taş yürüyüş yolu (Kemal, 14 Ekim:
+// "yürüyüş yolu deniz tarafına"); iskelenin önünde korkulukta açıklık.
+const TERAS_UCU = 46;
+const ISKELE_ACIKLIGI: [number, number] = [-12.4, -9.6];
+
 function Teras() {
   const tahtalar = [];
-  for (let i = 0; i < 18; i++) {
+  for (let x = -TERAS_UCU, i = 0; x < TERAS_UCU; x += 1.75, i++) {
     tahtalar.push(
-      <mesh key={i} position={[-15 + i * 1.75 + 0.85, 0, -5.4]} receiveShadow>
+      <mesh key={i} position={[x + 0.85, 0, -5.4]} receiveShadow>
         <boxGeometry args={[1.68, 0.12, 6]} />
         <meshStandardMaterial color={i % 2 ? renk.ahsapAcik : renk.ahsapOrta} roughness={0.9} />
       </mesh>,
     );
   }
   const korkuluk = [];
-  for (let x = -14; x <= 14; x += 2) {
+  for (let x = -TERAS_UCU + 2; x <= TERAS_UCU - 2; x += 2) {
+    if (x > ISKELE_ACIKLIGI[0] && x < ISKELE_ACIKLIGI[1]) continue;
     korkuluk.push(
       <mesh key={x} position={[x, 0.5, -8.2]} castShadow>
         <boxGeometry args={[0.12, 1, 0.12]} />
@@ -208,23 +216,43 @@ function Teras() {
       </mesh>,
     );
   }
+  // Korkuluğun tırabzanları: iskelenin iki yanında iki parça
+  const parcalar: [number, number][] = [
+    [-TERAS_UCU + 2, ISKELE_ACIKLIGI[0] + 0.4],
+    [ISKELE_ACIKLIGI[1] - 0.4, TERAS_UCU - 2],
+  ];
   return (
     <group>
       {tahtalar}
+      {/* Taş yürüyüş yolu: müşteriler buradan gelip gider */}
+      <mesh position={[0, 0.065, YURUYUS_Z]} receiveShadow>
+        <boxGeometry args={[TERAS_UCU * 2, 0.02, 1.7]} />
+        <meshStandardMaterial color="#d6c6a6" roughness={1} />
+      </mesh>
+      {[-1, 1].map((y) => (
+        <mesh key={y} position={[0, 0.07, YURUYUS_Z + y * 0.88]}>
+          <boxGeometry args={[TERAS_UCU * 2, 0.02, 0.07]} />
+          <meshStandardMaterial color="#b9a581" roughness={1} />
+        </mesh>
+      ))}
       {/* Taş rıhtım: teras ile deniz arası */}
       <mesh position={[0, -0.6, -8.6]}>
-        <boxGeometry args={[34, 1.2, 1.2]} />
+        <boxGeometry args={[TERAS_UCU * 2, 1.2, 1.2]} />
         <meshStandardMaterial color={renk.kaya} roughness={1} flatShading />
       </mesh>
       {korkuluk}
-      <mesh position={[0, 1.0, -8.2]} castShadow>
-        <boxGeometry args={[28.4, 0.1, 0.16]} />
-        <meshStandardMaterial color={renk.ahsapKoyu} />
-      </mesh>
-      <mesh position={[0, 0.55, -8.2]}>
-        <boxGeometry args={[28.4, 0.07, 0.1]} />
-        <meshStandardMaterial color={renk.ahsapKoyu} />
-      </mesh>
+      {parcalar.map(([a, b]) => (
+        <group key={a}>
+          <mesh position={[(a + b) / 2, 1.0, -8.2]} castShadow>
+            <boxGeometry args={[b - a, 0.1, 0.16]} />
+            <meshStandardMaterial color={renk.ahsapKoyu} />
+          </mesh>
+          <mesh position={[(a + b) / 2, 0.55, -8.2]}>
+            <boxGeometry args={[b - a, 0.07, 0.1]} />
+            <meshStandardMaterial color={renk.ahsapKoyu} />
+          </mesh>
+        </group>
+      ))}
     </group>
   );
 }
