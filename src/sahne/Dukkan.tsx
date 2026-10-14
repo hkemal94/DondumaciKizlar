@@ -22,7 +22,9 @@ import { useEkranAyari } from '../arayuz/ekranAyari';
 import { TezgahParcalari } from './TezgahParcalari';
 import { Mutfak } from './Mutfak';
 import { logoDokusu, LOGO_DOSYALARI, type LogoTuru } from './logo';
-import { durumuOku, kuveteBas, useDurum } from '../oyun/durum';
+import { durumuOku, gecerliGorunus, kuveteBas, useDurum } from '../oyun/durum';
+import { gorunusSecenegi } from '../oyun/gorunus';
+import { zeminDokusu } from './zeminDokusu';
 
 // Dükkânın içi, tezgahın arkasından görünen hâli (birinci şahıs yakın plan).
 // Kodla çizilmiş geçici parçalar; asıl modeller sonra gelecek.
@@ -52,6 +54,32 @@ function Kutu({
     <mesh position={konum} castShadow={golgeVer} receiveShadow={golgeAl}>
       <boxGeometry args={boyut} />
       <meshStandardMaterial color={renkAdi} roughness={puruz} />
+    </mesh>
+  );
+}
+
+// Görünüş (C paketi, belge 0.11): oyuncunun seçtiği (ya da denediği) renkler
+function useGorunusRenkleri() {
+  const g = gecerliGorunus(useDurum());
+  const tente = gorunusSecenegi('tente', g.tente);
+  return {
+    dis: gorunusSecenegi('disBoya', g.disBoya).renk,
+    ic: gorunusSecenegi('icBoya', g.icBoya).renk,
+    cerceve: gorunusSecenegi('cerceve', g.cerceve).renk,
+    tente: [tente.renk, tente.ikinciRenk ?? tente.renk] as const,
+    zemin: gorunusSecenegi('zemin', g.zemin),
+  };
+}
+
+// Duvar kutusu: dışa bakan yüz (yerel −z) dış boya, içe bakan (+z) iç boya
+function IkiYuzKutu({ konum, boyut }: { konum: [number, number, number]; boyut: [number, number, number] }) {
+  const { dis, ic } = useGorunusRenkleri();
+  return (
+    <mesh position={konum} receiveShadow>
+      <boxGeometry args={boyut} />
+      {[dis, dis, dis, dis, ic, dis].map((r, i) => (
+        <meshStandardMaterial key={i} attach={`material-${i}`} color={r} roughness={0.8} />
+      ))}
     </mesh>
   );
 }
@@ -115,10 +143,11 @@ function Tavan({ children }: { children: ReactNode }) {
 const PARCA_BOY = 1.1; // köşelerde boşluk kalmasın diye biraz taşar
 
 function DuzDuvar() {
-  return <Kutu konum={[0, 1.6, 0]} boyut={[PARCA_BOY, 3.3, 0.1]} renkAdi={renk.duvar} golgeVer={false} />;
+  return <IkiYuzKutu konum={[0, 1.6, 0]} boyut={[PARCA_BOY, 3.3, 0.1]} />;
 }
 
 function PencereParcasi({ on, c }: { on: boolean; c: number }) {
+  const { cerceve } = useGorunusRenkleri();
   return (
     <group>
       {/* Eşiğin altı: önde dikey ahşap tahtalar, yanlarda duvar */}
@@ -127,37 +156,38 @@ function PencereParcasi({ on, c }: { on: boolean; c: number }) {
           <Kutu key={x} konum={[x, ESIK / 2, i * 0.01]} boyut={[0.49, ESIK, 0.18]} renkAdi={(c + i) % 2 ? renk.ahsapAcik : '#b98a5f'} />
         ))
       ) : (
-        <Kutu konum={[0, ESIK / 2, 0]} boyut={[PARCA_BOY, ESIK, 0.1]} renkAdi={renk.duvar} golgeVer={false} />
+        <IkiYuzKutu konum={[0, ESIK / 2, 0]} boyut={[PARCA_BOY, ESIK, 0.1]} />
       )}
       {/* Pencerenin üstü */}
-      <Kutu konum={[0, (PENCERE_UST + TAVAN + 0.05) / 2, 0]} boyut={[PARCA_BOY, TAVAN + 0.05 - PENCERE_UST, 0.1]} renkAdi={renk.duvar} golgeVer={false} />
+      <IkiYuzKutu konum={[0, (PENCERE_UST + TAVAN + 0.05) / 2, 0]} boyut={[PARCA_BOY, TAVAN + 0.05 - PENCERE_UST, 0.1]} />
       {/* Cam */}
       <mesh position={[0, (ESIK + PENCERE_UST) / 2, 0]}>
         <boxGeometry args={[1, PENCERE_UST - ESIK, 0.02]} />
         <meshPhysicalMaterial color={renk.cam} transparent opacity={0.18} roughness={0.05} />
       </mesh>
       {/* Çerçeve: kenar kaydı, eşik ve üst kayıt */}
-      <Kutu konum={[-0.5, (ESIK + PENCERE_UST) / 2, 0.02]} boyut={[0.08, PENCERE_UST - ESIK, 0.2]} renkAdi={renk.pencereCerceve} golgeVer={false} />
+      <Kutu konum={[-0.5, (ESIK + PENCERE_UST) / 2, 0.02]} boyut={[0.08, PENCERE_UST - ESIK, 0.2]} renkAdi={cerceve} golgeVer={false} />
       <Kutu konum={[0, ESIK, 0.06]} boyut={[1.04, 0.08, on ? 0.5 : 0.24]} renkAdi={renk.ahsapOrta} golgeVer={false} />
-      <Kutu konum={[0, PENCERE_UST, 0.02]} boyut={[1.04, 0.12, 0.2]} renkAdi={renk.pencereCerceve} golgeVer={false} />
+      <Kutu konum={[0, PENCERE_UST, 0.02]} boyut={[1.04, 0.12, 0.2]} renkAdi={cerceve} golgeVer={false} />
     </group>
   );
 }
 
 function KapiParcasi() {
+  const { cerceve } = useGorunusRenkleri();
   const sol = -0.45;
   const sag = 0.45;
   return (
     <group>
       {/* Kapının üstü */}
-      <Kutu konum={[0, (KAPI_UST + TAVAN + 0.05) / 2, 0]} boyut={[PARCA_BOY, TAVAN + 0.05 - KAPI_UST, 0.1]} renkAdi={renk.duvar} golgeVer={false} />
-      {/* Kapı kasası (mor) ve açık duran kapı kanadı */}
+      <IkiYuzKutu konum={[0, (KAPI_UST + TAVAN + 0.05) / 2, 0]} boyut={[PARCA_BOY, TAVAN + 0.05 - KAPI_UST, 0.1]} />
+      {/* Kapı kasası ve açık duran kapı kanadı (çerçeve rengi) */}
       {[sol, sag].map((x) => (
-        <Kutu key={x} konum={[x, KAPI_UST / 2, 0]} boyut={[0.1, KAPI_UST, 0.24]} renkAdi={renk.pencereCerceve} golgeVer={false} />
+        <Kutu key={x} konum={[x, KAPI_UST / 2, 0]} boyut={[0.1, KAPI_UST, 0.24]} renkAdi={cerceve} golgeVer={false} />
       ))}
-      <Kutu konum={[0, KAPI_UST, 0]} boyut={[sag - sol + 0.1, 0.1, 0.24]} renkAdi={renk.pencereCerceve} golgeVer={false} />
+      <Kutu konum={[0, KAPI_UST, 0]} boyut={[sag - sol + 0.1, 0.1, 0.24]} renkAdi={cerceve} golgeVer={false} />
       <group position={[sol + 0.05, 0, 0.05]} rotation={[0, -1.35, 0]}>
-        <Kutu konum={[0.4, KAPI_UST / 2 - 0.03, 0]} boyut={[0.8, KAPI_UST - 0.08, 0.05]} renkAdi={renk.mor} golgeVer={false} />
+        <Kutu konum={[0.4, KAPI_UST / 2 - 0.03, 0]} boyut={[0.8, KAPI_UST - 0.08, 0.05]} renkAdi={cerceve} golgeVer={false} />
         <mesh position={[0.4, 1.25, 0.03]}>
           <boxGeometry args={[0.55, 0.8, 0.02]} />
           <meshPhysicalMaterial color={renk.cam} transparent opacity={0.4} roughness={0.05} />
@@ -168,14 +198,15 @@ function KapiParcasi() {
   );
 }
 
-// Ön parçaların dışındaki tente şeridi (mor-sarı) ve içerideki ampuller
+// Ön parçaların dışındaki tente şeridi (seçilen iki renk) ve içerideki ampuller
 function TenteParcasi() {
+  const { tente } = useGorunusRenkleri();
   return (
     <group position={[0, PENCERE_UST + 0.12, -0.55]} rotation={[0.32, 0, 0]}>
       {[-0.25, 0.25].map((x, i) => (
         <mesh key={x} position={[x, 0, 0]} castShadow>
           <boxGeometry args={[0.5, 0.04, 1.1]} />
-          <meshStandardMaterial color={i % 2 ? renk.sari : renk.mor} roughness={0.9} />
+          <meshStandardMaterial color={tente[i % 2 ? 1 : 0]} roughness={0.9} />
         </mesh>
       ))}
     </group>
@@ -212,7 +243,11 @@ function DuvarParcasi({ k, tur }: { k: Kenar; tur: ParcaTuru }) {
         // Genel görünümde kapının yeri: zeminde mor eşik
         <Kutu konum={[0, 0.02, 0]} boyut={[0.9, 0.04, 0.3]} renkAdi={renk.mor} golgeVer={false} />
       ) : (
-        <Kutu konum={[0, 0.18, 0]} boyut={[PARCA_BOY, 0.36, 0.14]} renkAdi={on ? renk.ahsapAcik : renk.duvar} golgeVer={false} />
+        on ? (
+          <Kutu konum={[0, 0.18, 0]} boyut={[PARCA_BOY, 0.36, 0.14]} renkAdi={renk.ahsapAcik} golgeVer={false} />
+        ) : (
+          <IkiYuzKutu konum={[0, 0.18, 0]} boyut={[PARCA_BOY, 0.36, 0.14]} />
+        )
       )}
     </group>
   );
@@ -220,6 +255,18 @@ function DuvarParcasi({ k, tur }: { k: Kenar; tur: ParcaTuru }) {
 
 // Kapalı alanın ortası: kesik duvarlar hangi yüzün kameraya döndüğüne buna göre bakar
 const DUKKAN_ORTASI = new THREE.Vector3(0, 0, -0.4);
+
+// İç zemin (belge 0.11): seçilen desen bir arazi karesini kaplar
+function IcZemin({ konum }: { konum: [number, number, number] }) {
+  const { zemin } = useGorunusRenkleri();
+  const doku = zeminDokusu(zemin);
+  return (
+    <mesh position={konum} receiveShadow>
+      <boxGeometry args={[PARSEL, 0.1, PARSEL]} />
+      <meshStandardMaterial map={doku} roughness={zemin.desen === 'cila' || zemin.desen === 'dama' ? 0.55 : 0.8} />
+    </mesh>
+  );
+}
 
 function Odalar() {
   const { kapaliParseller, duvarParcalari } = useDurum();
@@ -250,8 +297,7 @@ function Odalar() {
         const oz = (s.onZ + s.arkaZ) / 2;
         return (
           <group key={p}>
-            {/* İç zemin: koyu ahşap */}
-            <Kutu konum={[ox, -0.05, oz]} boyut={[PARSEL, 0.1, PARSEL]} renkAdi={renk.ahsapKoyu} golgeVer={false} />
+            <IcZemin konum={[ox, -0.05, oz]} />
             <Tavan>
               <Kutu konum={[ox, TAVAN, oz]} boyut={[PARSEL, 0.1, PARSEL]} renkAdi={renk.ahsapAcik} golgeVer={false} golgeAl={false} />
               {[-1.2, 0.8].map((dz) => (

@@ -2082,3 +2082,85 @@ a.dugme {
   height: 24px;
   margin-right: 4px;
 }
+
+/* Görünüş (C paketi, belge 0.11): panel sağa dikey yerleşir, dükkân solda
+   görünür ve döndürülebilir (zemin dokunmayı geçirir) */
+.gun-sonu-zemin.gelistir-gorunus {
+  background: transparent;
+  justify-content: flex-end;
+  align-items: stretch;
+  pointer-events: none;
+}
+.gelistir-gorunus .gelistir {
+  pointer-events: auto;
+  width: min(340px, 46%);
+  max-height: 100%;
+  border-radius: 22px 0 0 22px;
+  border-right: 0;
+  padding: 6px 10px 8px;
+}
+.gelistir-gorunus .gel-ust .baslik-logo,
+.gelistir-gorunus .gel-ust h2 {
+  display: none;
+}
+.gelistir-gorunus .gel-sekmeler button {
+  padding-inline: 8px;
+  font-size: 12px;
+}
+.gorunus {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.gorunus-gruplar {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.gorunus-gruplar .cip {
+  padding: 3px 8px;
+  font-size: 12px;
+}
+.gorunus-secenekler {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+  gap: 5px;
+}
+.gorunus-kart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 3px;
+  border: 3px solid transparent;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--mor-koyu);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.gorunus-kart.secili {
+  border-color: var(--mor);
+}
+.gorunus-ornek {
+  width: 38px;
+  height: 22px;
+  border-radius: 7px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+.gorunus-ad {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.gorunus-alt {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+}
+.gorunus-alt .gel-aciklama {
+  font-size: 11px;
+}

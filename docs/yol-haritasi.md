@@ -11,9 +11,9 @@ demedikçe işler bu sırayla gider (belge 0.8).
 | | |
 |---|---|
 | Aşama | İlk oynanabilir sürüm bitti (iş sırası 1–5). Büyüme ve görünüş paketleri sürüyor |
-| Son biten | B: Liman haritası (bu PR) |
-| Şu an | B'nin denetimi: Kemal telefonda bakacak |
-| Sıradaki | C: Kişiselleştirme (önce soru turu) |
+| Son biten | C1: Görünüş sekmesi; boya, çerçeve, tente, zemin (bu PR) |
+| Şu an | C1'in denetimi: Kemal telefonda bakacak |
+| Sıradaki | C2: Çatı (kiremit, teras, pergola) → C3: tabelalar → C4: halı ve tablo |
 | Yayın | Tarih yok; acele yok (Kemal, 14 Ekim gece) |
 
 ## Paketler
@@ -23,8 +23,8 @@ demedikçe işler bu sırayla gider (belge 0.8).
 | A | Test kolaylıkları ve ekran: 10.000 jeton, açılış ekranı (Yeni oyun / Devam et / Deneme dükkânı), döndürme ve duvar düğmeleri, haber şeridi | Bitti ([#26](https://github.com/hkemal94/DondumaciKizlar/pull/26), [#27](https://github.com/hkemal94/DondumaciKizlar/pull/27)) |
 | D | Karakterler: müşteri, çalışan, yardımcı, sahip yeni pakette; çalışanda beden seçimi | Bitti ([#28](https://github.com/hkemal94/DondumaciKizlar/pull/28)) |
 | KKM | KKM'deki oyun sayfasında bu yol haritası | Bitti ([#29](https://github.com/hkemal94/DondumaciKizlar/pull/29), KKM [#92](https://github.com/hkemal94/Kems-Company/pull/92)); Kemal KKM'de göremiyor, bakılıyor |
-| B | Liman haritası: Kemal'in KKM 2D haritasına göre dış dünya; kumsal, T iskele, mendirek (giriş solda), Liman İdare ve Deposu, araba yolu, mahalle, tekneler | Bitti (bu PR) |
-| C | Kişiselleştirme (Sims gibi): dış boya, çatı, büyük ışıklı tabelalar, iç zemin, halı, tablo | Sonra; önce soru turu |
+| B | Liman haritası: Kemal'in KKM 2D haritasına göre dış dünya; kumsal, T iskele, mendirek (giriş solda), Liman İdare ve Deposu, araba yolu, mahalle, tekneler | Bitti ([#30](https://github.com/hkemal94/DondumaciKizlar/pull/30)) |
+| C | Kişiselleştirme (Sims gibi, belge 0.11): C1 boya, çerçeve, tente, zemin · C2 çatı · C3 tabelalar · C4 halı ve tablo | C1 bitti (bu PR); C2–C4 sırada |
 | E | Hesap ve bulut kayıt: aynı dükkân telefonda ve bilgisayarda | Yayına yakın |
 
 ## Bitenler
@@ -38,7 +38,8 @@ demedikçe işler bu sırayla gider (belge 0.8).
 - Büyüme: kare kare arazi, İnşaat, 1 m ölçü, taşınabilir tezgah, duvar ve pencere, mutfak, istasyonlar, waffle, içecek standı, yardımcı · [#17](https://github.com/hkemal94/DondumaciKizlar/pull/17)–[#22](https://github.com/hkemal94/DondumaciKizlar/pull/22)
 - Tasarım dili: palet, ışık, ölçü; tekneler, mutfak deposu, dekorasyon eşyaları hazır paketlerden · [#23](https://github.com/hkemal94/DondumaciKizlar/pull/23), [#24](https://github.com/hkemal94/DondumaciKizlar/pull/24), [#25](https://github.com/hkemal94/DondumaciKizlar/pull/25)
 - A paketi ve haber şeridi · [#26](https://github.com/hkemal94/DondumaciKizlar/pull/26), [#27](https://github.com/hkemal94/DondumaciKizlar/pull/27)
-- Liman haritası: kumsal, T iskele, mendirek, liman yapıları, mahalle · bu PR
+- Liman haritası: kumsal, T iskele, mendirek, liman yapıları, mahalle · [#30](https://github.com/hkemal94/DondumaciKizlar/pull/30)
+- Görünüş sekmesi: dış boya, iç duvar, çerçeve, tente, iç zemin; satın almadan önce deneme · bu PR
 - Karakterler (eski Kenney karakterleri [#12](https://github.com/hkemal94/DondumaciKizlar/pull/12), [#13](https://github.com/hkemal94/DondumaciKizlar/pull/13) yerine) · [#28](https://github.com/hkemal94/DondumaciKizlar/pull/28)
 
 ## Sona kalanlar
@@ -46,7 +47,7 @@ demedikçe işler bu sırayla gider (belge 0.8).
 Kemal'in "sona bırakalım" dedikleri ve test sırasında görülen eksikler.
 
 - Karakterlere ağız: basit bir gülümseme
-- Çalışanın önlüğü daha iyi biçimli olsun (şimdi düz bir levha); kıyafeti değiştirilebilsin
+- Çalışanın önlüğü yeniden, daha iyi biçimli (şimdilik kaldırıldı); kıyafeti değiştirilebilsin
 - Saçları başlardan ayırıp ayrı seçmek
 - Hareketler: tezgaha varınca el sallama, servisi uzanıp alma, mutlu / mutsuz ayrılış
 - Çocuk müşteriler (pakette çocuk yok; uygun bir paket bulununca)
@@ -54,6 +55,8 @@ Kemal'in "sona bırakalım" dedikleri ve test sırasında görülen eksikler.
 - Yeni içecek istasyonları: limonata / ayran / buzlu çay; milkshake / frappe; kahve (barista); taze sıkma
 - Depo oynanışı (şimdi yalnız görüntü)
 - Mevsim: kışın tatlıcı / kafe
+- Deneyim (exp) sistemi: görünüş ve diğer şeyler para, memnuniyet, servis sayısı gibi ölçülerle açılsın (ayrı çalışma)
+- Tablolara reklam (belki)
 - Telefonda akıcılık: ekranda 10'dan çok karakter varken ve liman / mahalle görünürken kontrol
 - Liman: mahalle sokakları haritadaki gibi eğik değil, düz ızgara; liman yapılarının tabelası yok
 

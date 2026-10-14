@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { aksesuarAl, aksesuarDegistir, calisaniDegistir, onlukAl, useDurum } from '../oyun/durum';
-import { AD_EN_UZUN, AKSESUARLAR, BEDEN_SECENEKLERI, ONLUKLER, SAC_MODELLERI, SAC_RENKLERI, TENLER } from '../oyun/calisan';
+import { AD_EN_UZUN, AKSESUARLAR, BEDEN_SECENEKLERI, ONLUK_ACIK, ONLUKLER, SAC_MODELLERI, SAC_RENKLERI, TENLER } from '../oyun/calisan';
 import { m, type MetinAnahtari } from '../metinler';
 import { logoAdresi } from '../sahne/logo';
 import { odak } from '../sahne/kameraKarisimi';
@@ -87,7 +87,7 @@ export function CalisanEkrani({ kapat }: { kapat: () => void }) {
           </div>
         </div>
 
-        <div className="calisan-satir">
+        {ONLUK_ACIK && <div className="calisan-satir">
           <span className="gel-baslik">{m('calisan.onluk')}</span>
           <div className="secenek-cipleri">
             {ONLUKLER.map((o) => {
@@ -104,7 +104,7 @@ export function CalisanEkrani({ kapat }: { kapat: () => void }) {
               );
             })}
           </div>
-        </div>
+        </div>}
 
         <div className="calisan-satir">
           <span className="gel-baslik">{m('calisan.aksesuar')}</span>

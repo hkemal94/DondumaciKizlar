@@ -739,7 +739,7 @@ export function Arayuz() {
           )}
         </div>
       )}
-      {!tezgahta && durum.hazirlik && !durum.yerlestirme && !durum.insaat && !durum.gunSonu && !calisanAcik && !durum.istasyonSecimi && !yardimciAcik && (
+      {!tezgahta && durum.hazirlik && !durum.yerlestirme && !durum.insaat && !durum.gunSonu && !calisanAcik && !gelistirAcik && !durum.istasyonSecimi && !yardimciAcik && (
         <MenuSeridi
           sec={(is) => {
             if (is === 'gelistir') setGelistirAcik(true);

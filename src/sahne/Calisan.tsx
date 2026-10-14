@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { durumuOku, useDurum } from '../oyun/durum';
-import { ONLUKLER, SAC_RENKLERI, TENLER, type CalisanGorunumu, type Onluk } from '../oyun/calisan';
+import { ONLUK_ACIK, ONLUKLER, SAC_RENKLERI, TENLER, type CalisanGorunumu, type Onluk } from '../oyun/calisan';
 import { InsanKarakter, type Hareket } from './InsanKarakter';
 import type { Karakter, Varyant } from './karakterler';
 import { istasyonOdagi, kameraKarisimi, odak, tezgahOfseti } from './kameraKarisimi';
@@ -107,7 +107,7 @@ export function Calisan() {
   return (
     <group ref={ref} position={CALISAN_YERI.toArray()} rotation={[0, Math.PI, 0]}>
       <group>
-        <InsanKarakter varyant={varyant} hareket={hareket} ekle={onlukTak} />
+        <InsanKarakter varyant={varyant} hareket={hareket} ekle={ONLUK_ACIK ? onlukTak : undefined} />
       </group>
     </group>
   );
