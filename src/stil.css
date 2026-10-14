@@ -1732,3 +1732,72 @@ a.dugme {
     display: none;
   }
 }
+
+/* Mola menüsü yine tek sütun: ayarlar artık Ayarlar ekranında (14 Ekim) */
+.gun-sonu.duraklat-menu {
+  display: flex;
+  flex-direction: column;
+  width: min(300px, 100%);
+}
+.duraklat-menu > .dugme {
+  margin: 0;
+}
+
+/* Açılış ekranı (14 Ekim) */
+.acilis {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4vw;
+  background: radial-gradient(ellipse at center, rgba(122, 63, 168, 0.25), rgba(40, 20, 60, 0.55));
+  animation: belir 0.6s ease-out;
+}
+.acilis-logo {
+  height: min(78vh, 340px);
+  width: auto;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35));
+}
+.acilis-dugmeler {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 170px;
+}
+.acilis-dugmeler .dugme {
+  font-size: 18px;
+  padding: 10px 18px;
+}
+.dugme.acilis-oyna {
+  font-size: 24px;
+  padding: 12px 18px;
+}
+
+/* Ayarlar ekranı */
+.ayarlar {
+  width: min(480px, 100%);
+}
+.ayarlar-zemin {
+  z-index: 20;
+}
+.ayarlar-icerik section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 8px;
+}
+.ayarlar-satir {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+.ayarlar-dil {
+  font-size: 13px;
+}
+.ekran-satir input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--mor);
+}

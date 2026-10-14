@@ -1,14 +1,12 @@
 import { useState } from 'react';
-import { ekranAyariniYaz, useEkranAyari } from './ekranAyari';
-import { devamEt, duraklat, duraklatilabilir, egitimiYenidenGoster, gezmeyeBasla, gezmeyiBitir, useDurum } from '../oyun/durum';
+import { devamEt, duraklat, duraklatilabilir, gezmeyeBasla, gezmeyiBitir, useDurum } from '../oyun/durum';
 import { m, type MetinAnahtari } from '../metinler';
 import { logoAdresi } from '../sahne/logo';
-import { sesAyariniOku, sesAyariniYaz, type SesAyari } from '../ses/ses';
 import { gezmeIsigi, gezmeIsiginiDegistir } from '../sahne/gokRenkleri';
 import { duvarlar, duvarModunuDegistir, fotograf, ortala, yakinlikDegistir } from '../sahne/kameraKarisimi';
 
-// Duraklatma menüsü (Kemal, 13 Ekim): devam et, dükkânı gez, fotoğraf çek,
-// ses ayarı. Saat, müşteriler ve sabır durur.
+// Duraklatma menüsü (Kemal, 13 Ekim): devam et, dükkânı gez (fotoğraf),
+// Ayarlar (14 Ekim'den beri ses ve ekran ayarı orada). Saat, müşteriler ve sabır durur.
 
 export function DuraklatDugmesi() {
   const durum = useDurum();
@@ -20,15 +18,9 @@ export function DuraklatDugmesi() {
   );
 }
 
-export function DuraklatMenusu() {
+export function DuraklatMenusu({ ayarlar }: { ayarlar: () => void }) {
   const durum = useDurum();
-  const [ses, setSes] = useState(sesAyariniOku);
-  const ekran = useEkranAyari();
   if (!durum.duraklatildi || durum.gezme) return null;
-  const degistir = (yeni: SesAyari) => {
-    setSes(yeni);
-    sesAyariniYaz(yeni);
-  };
   return (
     <div className="gun-sonu-zemin">
       <div className="gun-sonu duraklat-menu" role="dialog" aria-labelledby="duraklat-baslik">
@@ -40,43 +32,8 @@ export function DuraklatMenusu() {
         <button className="dugme" onClick={gezmeyeBasla}>
           {m('duraklat.gez')}
         </button>
-        <div className="ses-ayari">
-          {(['muzik', 'efekt'] as const).map((tur) => (
-            <label key={tur} className="ses-satir" htmlFor={`ses-${tur}`}>
-              <span>{m(tur === 'muzik' ? 'ses.muzik' : 'ses.efekt')}</span>
-              <input
-                id={`ses-${tur}`}
-                type="range"
-                min={0}
-                max={100}
-                value={ses[tur]}
-                onChange={(e) => degistir({ ...ses, [tur]: Number(e.target.value) })}
-              />
-              <span className="ses-deger">{ses[tur]}</span>
-            </label>
-          ))}
-          <p className="gel-not">{m('ses.not')}</p>
-        </div>
-        {/* Ekran ayarları (Kemal, 14 Ekim): etiketleri gizle */}
-        <div className="ekran-ayari">
-          <label className="ekran-satir">
-            <input type="checkbox" checked={ekran.kuvetEtiketi} onChange={(e) => ekranAyariniYaz({ kuvetEtiketi: e.target.checked })} />
-            <span>{m('ekran.kuvetEtiketi')}</span>
-          </label>
-          <label className="ekran-satir">
-            <input type="checkbox" checked={ekran.balonAdlari} onChange={(e) => ekranAyariniYaz({ balonAdlari: e.target.checked })} />
-            <span>{m('ekran.balonAdlari')}</span>
-          </label>
-        </div>
-        {/* Ayarlar ekranı gelene kadar burada (Kemal, 14 Ekim) */}
-        <button
-          className="gel-bag"
-          onClick={() => {
-            egitimiYenidenGoster();
-            devamEt();
-          }}
-        >
-          {m('egitim.yeniden')}
+        <button className="dugme" onClick={ayarlar}>
+          {m('acilis.ayarlar')}
         </button>
       </div>
     </div>

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import {
-  bastanBasla,
   esyaSec,
   yerlestirmeyiAc,
   butunFiyatlariSec,
@@ -118,7 +117,6 @@ function FiyatEkrani() {
 export function Gelistir({ kapat }: { kapat: () => void }) {
   const durum = useDurum();
   const [sekme, setSekme] = useState<Sekme>('cesitler');
-  const [silmeOnayi, setSilmeOnayi] = useState(false);
   const [alinan, setAlinan] = useState<Esya | null>(null);
 
   return (
@@ -321,27 +319,7 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
               {m('deneme.para')}
             </button>
           )}
-          {silmeOnayi ? (
-            <span className="gel-sil">
-              {m('bastan.soru')}
-              <button
-                className="dugme gel-kucuk tehlike"
-                onClick={() => {
-                  bastanBasla();
-                  kapat();
-                }}
-              >
-                {m('bastan.evet')}
-              </button>
-              <button className="dugme gel-kucuk" onClick={() => setSilmeOnayi(false)}>
-                {m('bastan.hayir')}
-              </button>
-            </span>
-          ) : (
-            <button className="gel-bag" onClick={() => setSilmeOnayi(true)}>
-              {m('bastan.dugme')}
-            </button>
-          )}
+          <span />
           <button className="dugme dugme-yeni-gun" onClick={kapat}>
             {m('gelistir.kapat')}
           </button>

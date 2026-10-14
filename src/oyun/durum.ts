@@ -129,6 +129,7 @@ export interface Durum {
   duraklatildi: boolean;
   gezme: boolean; // duraklatıp dükkânı gezme (döndürme, yakınlaştırma, fotoğraf)
   mukemmelSeri: number; // arka arkaya bütün topları MÜKEMMEL servis (bahşiş için)
+  acilis: boolean; // açılış ekranı (logo, Oyna, Ayarlar) gösteriliyor
 }
 
 // Yazısız el işaretli eğitim: ilk sipariş üç adım, sonra ilk kez görülenler
@@ -210,6 +211,7 @@ let durum: Durum = {
   duraklatildi: false,
   gezme: false,
   mukemmelSeri: 0,
+  acilis: true,
 };
 
 const dinleyiciler = new Set<() => void>();
@@ -1132,8 +1134,13 @@ export function bastanBasla() {
 // ---- Duraklatma (Kemal, 13 Ekim) ----
 // Saat, müşteriler ve sabır durur. Menüden dükkân gezilir, fotoğraf çekilir,
 // ses ayarlanır. Kepçe dalarken ve gün sonunda açılmaz.
+// Açılış ekranında Oyna'ya basılınca oyun (gün başı) görünür
+export function acilisiKapat() {
+  guncelle({ acilis: false });
+}
+
 export function duraklatilabilir(d: Durum = durum) {
-  return !d.gunSonu && d.asama !== 'dolduruyor' && !d.yerlestirme;
+  return !d.acilis && !d.gunSonu && d.asama !== 'dolduruyor' && !d.yerlestirme;
 }
 
 export function duraklat() {
