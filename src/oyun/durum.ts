@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react';
 
 import { BASLANGIC_CESITLERI, CESITLER } from './kuvetler';
-import { EN_YUKSEK_ISIK, ESYALAR, HUCRELER, ISIK_SEVIYELERI, type Esya } from './dekorasyon';
+import { BOLGELER, EN_YUKSEK_ISIK, ESYALAR, HUCRELER, ISIK_SEVIYELERI, type Bolge, type Esya } from './dekorasyon';
 import {
   AD_EN_UZUN,
   AKSESUARLAR,
@@ -104,6 +104,7 @@ export interface Durum {
   fiyatSeviyesi: FiyatSeviyesi;
   // Dekorasyon: ışık seviyesi, depodaki eşyalar, yere konmuş eşyalar
   isikSeviyesi: number;
+  acikBolgeler: Bolge[];
   depo: Partial<Record<Esya, number>>;
   yerlesim: Yerlesim[];
   // Yerleştirme ekranı (kaydedilmez)
@@ -173,6 +174,7 @@ let durum: Durum = {
   tepsiAcik: false,
   fiyatSeviyesi: 'normal',
   isikSeviyesi: 0,
+  acikBolgeler: [],
   depo: {},
   yerlesim: [],
   yerlestirme: false,
@@ -685,13 +687,27 @@ export function esyaSec(esya: Esya) {
   if (depodaki(esya) > 0) guncelle({ seciliEsya: esya });
 }
 
+// Alan satın alma (Kemal, 14 Ekim)
+export function bolgeAl(bolge: Bolge) {
+  const b = BOLGELER.find((x) => x.id === bolge);
+  if (!b || durum.acikBolgeler.includes(bolge) || durum.para < b.fiyat) return;
+  guncelle({ para: durum.para - b.fiyat, acikBolgeler: [...durum.acikBolgeler, bolge] });
+  kaydet();
+}
+
+// Kareye eşya konabilir mi: başta açık ya da alanı alınmış
+export function hucreAcik(hucre: number, d: Durum = durum) {
+  const h = HUCRELER[hucre];
+  return !!h && (!h.bolge || d.acikBolgeler.includes(h.bolge));
+}
+
 export function hucreDolu(hucre: number, d: Durum = durum) {
   return d.yerlesim.some((y) => y.hucre === hucre);
 }
 
 export function hucreyeKoy(hucre: number) {
   const e = durum.seciliEsya;
-  if (!durum.yerlestirme || !e || depodaki(e) <= 0 || hucreDolu(hucre) || !HUCRELER[hucre]) return;
+  if (!durum.yerlestirme || !e || depodaki(e) <= 0 || hucreDolu(hucre) || !hucreAcik(hucre)) return;
   const kalan = depodaki(e) - 1;
   guncelle({
     yerlesim: [...durum.yerlesim, { esya: e, hucre }],
@@ -731,6 +747,7 @@ interface Kayit {
   tepsiAcik: boolean;
   fiyatSeviyesi: FiyatSeviyesi;
   isikSeviyesi: number;
+  acikBolgeler: Bolge[];
   depo: Partial<Record<Esya, number>>;
   yerlesim: Yerlesim[];
   dekorlar?: string[]; // eski kayıt (13 Ekim öncesi)
@@ -749,6 +766,7 @@ function kaydet() {
     tepsiAcik: durum.tepsiAcik,
     fiyatSeviyesi: durum.fiyatSeviyesi,
     isikSeviyesi: durum.isikSeviyesi,
+    acikBolgeler: durum.acikBolgeler,
     depo: durum.depo,
     yerlesim: durum.yerlesim,
     calisan: durum.calisan,
@@ -800,7 +818,11 @@ function dekorasyonuOku(k: Partial<Kayit>) {
     if (k.dekorlar.includes('semsiye')) depo.semsiyeliMasa = (depo.semsiyeliMasa ?? 0) + 1;
     if (k.dekorlar.includes('cicekler')) depo.saksi = (depo.saksi ?? 0) + 3;
   }
-  return { isikSeviyesi, depo, yerlesim };
+  // Alanlar: kayıttakiler + 14 Ekim'den önce eşya konmuş alanlar (o dükkânda zaten kullanılıyordu)
+  const acikBolgeler = BOLGELER.map((b) => b.id).filter(
+    (b) => (Array.isArray(k.acikBolgeler) && k.acikBolgeler.includes(b)) || yerlesim.some((y) => HUCRELER[y.hucre].bolge === b),
+  );
+  return { isikSeviyesi, depo, yerlesim, acikBolgeler };
 }
 
 // Baştan başla: kaydı siler, her şeyi ilk güne döndürür.
@@ -821,6 +843,7 @@ export function bastanBasla() {
     tepsi: [],
     fiyatSeviyesi: 'normal',
     isikSeviyesi: 0,
+    acikBolgeler: [],
     depo: {},
     yerlesim: [],
     yerlestirme: false,
