@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import {
+  acilisiKapat,
+  devamEt,
   egitimGor,
   altlikSec,
   birak,
@@ -41,6 +43,8 @@ import { balon } from '../sahne/Musteriler';
 import { Gelistir } from './Gelistir';
 import { VitrinEkrani } from './VitrinEkrani';
 import { MenuSeridi } from './MenuSeridi';
+import { AcilisEkrani } from './AcilisEkrani';
+import { AyarlarEkrani } from './AyarlarEkrani';
 import { useEkranAyari } from './ekranAyari';
 import { EgitimEli, egitimHedefi } from './EgitimEli';
 import { CalisanAdi, CalisanEkrani } from './CalisanEkrani';
@@ -519,6 +523,7 @@ export function Arayuz() {
   const [gelistirAcik, setGelistirAcik] = useState(false);
   const [calisanAcik, setCalisanAcik] = useState(false);
   const [vitrinAcik, setVitrinAcik] = useState(false);
+  const [ayarlarAcik, setAyarlarAcik] = useState(false);
   useYakinlastirma(durum.kamera === 'dukkan', durum.gezme);
 
   // Parmak ekranın neresinde kalkarsa kalksın kepçe bırakılır.
@@ -546,6 +551,15 @@ export function Arayuz() {
   }
 
   const servisHazir = durum.asama === 'kepceBos' && topSayisi > 0 && !!musteri;
+
+  // Açılış ekranı: logo, Oyna, Ayarlar (14 Ekim)
+  if (durum.acilis)
+    return (
+      <div className="arayuz">
+        <AcilisEkrani ayarlar={() => setAyarlarAcik(true)} />
+        {ayarlarAcik && <AyarlarEkrani kapat={() => setAyarlarAcik(false)} egitimSonrasi={acilisiKapat} />}
+      </div>
+    );
 
   if (durum.gezme)
     return (
@@ -662,7 +676,8 @@ export function Arayuz() {
       {calisanAcik && durum.hazirlik && <CalisanEkrani kapat={() => setCalisanAcik(false)} />}
       {vitrinAcik && durum.hazirlik && <VitrinEkrani kapat={() => setVitrinAcik(false)} />}
       {!calisanAcik && !gelistirAcik && <EgitimEli vitrinAcik={vitrinAcik} />}
-      <DuraklatMenusu />
+      <DuraklatMenusu ayarlar={() => setAyarlarAcik(true)} />
+      {ayarlarAcik && <AyarlarEkrani kapat={() => setAyarlarAcik(false)} egitimSonrasi={devamEt} />}
 
       <GunSonu />
     </div>
