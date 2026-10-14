@@ -60,6 +60,7 @@ body,
     top: 0;
     left: 100vw;
     width: 100vh;
+    width: 100dvh; /* tarayıcının çubuğu düşülmüş boy: oyun ekrana sığar */
     height: 100vw;
     transform-origin: top left;
     transform: rotate(90deg);
@@ -1800,4 +1801,20 @@ a.dugme {
   width: 18px;
   height: 18px;
   accent-color: var(--mor);
+}
+
+/* Dükkânı geliştir: Tamam üst satırda; alttaki şerit kalktı, kartlara yer kaldı (Kemal, 14 Ekim) */
+.gel-ust .gel-bosluk {
+  flex: 1;
+}
+.gel-ust h2 {
+  white-space: nowrap;
+}
+.dugme.gel-tamam {
+  font-size: 14px;
+  padding: 5px 16px;
+  margin: 0;
+  border-radius: 12px;
+  background: var(--sari);
+  color: var(--mor-koyu);
 }

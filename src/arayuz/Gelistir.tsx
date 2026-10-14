@@ -152,7 +152,16 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
         <div className="gel-ust">
           <img className="baslik-logo" src={logoAdresi('yazi')} alt="" aria-hidden />
           <h2 id="gelistir-baslik">{m('gelistir.baslik')}</h2>
+          <span className="gel-bosluk" />
+          {DENEME && (
+            <button className="dugme gel-kucuk" onClick={denemeParasi}>
+              {m('deneme.para')}
+            </button>
+          )}
           <Para miktar={durum.para} />
+          <button className="dugme gel-tamam" onClick={kapat}>
+            {m('gelistir.kapat')}
+          </button>
         </div>
 
         <div className="gel-sekmeler" role="tablist">
@@ -313,17 +322,6 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
           )}
         </div>
 
-        <div className="gel-alt">
-          {DENEME && (
-            <button className="dugme gel-kucuk" onClick={denemeParasi}>
-              {m('deneme.para')}
-            </button>
-          )}
-          <span />
-          <button className="dugme dugme-yeni-gun" onClick={kapat}>
-            {m('gelistir.kapat')}
-          </button>
-        </div>
       </div>
     </div>
   );
