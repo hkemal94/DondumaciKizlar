@@ -5,7 +5,7 @@ import { durumuOku, saatDakikasi } from '../oyun/durum';
 import { gezmeSaati, gokRenkleri } from './gokRenkleri';
 import * as THREE from 'three';
 import { Disari } from './Disari';
-import { dukkanDonusu, dukkanKaydirma, dukkanYakinligi, fotograf, kameraKarisimi, odak, tezgahDikligi } from './kameraKarisimi';
+import { dukkanDonusu, dukkanEgimi, dukkanKaydirma, dukkanYakinligi, fotograf, kameraKarisimi, odak, tezgahDikligi } from './kameraKarisimi';
 import { Calisan } from './Calisan';
 import { Sahip } from './Sahip';
 import { Dukkan } from './Dukkan';
@@ -56,6 +56,7 @@ function KameraYoneticisi() {
   const dukkanKonumu = useRef(new THREE.Vector3());
   const yakinlik = useRef(dukkanYakinligi.deger);
   const donus = useRef(0);
+  const egim = useRef(0);
   const odakKarisimi = useRef(0);
   const kayma = useRef(new THREE.Vector3());
   const dukkanHedefi = useRef(new THREE.Vector3());
@@ -71,14 +72,17 @@ function KameraYoneticisi() {
     // Geçişte kamera kısa bir yay çizer: önce biraz yükselir
     // Yakınlaştırma: hedefe doğru yaklaşıp uzaklaşır, yumuşakça
     yakinlik.current = THREE.MathUtils.damp(yakinlik.current, dukkanYakinligi.deger, 10, dt);
-    // Gezerken oyuncu dükkânın çevresinde döner; gezme bitince önden görünüme döner
+    // Genel görünümde oyuncu dükkânın çevresinde döner ve aşağı yukarı bakar
     const d = durumuOku();
-    if (!d.gezme) dukkanDonusu.deger = 0;
     donus.current = THREE.MathUtils.damp(donus.current, dukkanDonusu.deger, 8, dt);
+    egim.current = THREE.MathUtils.damp(egim.current, dukkanEgimi.deger, 8, dt);
+    // Varsayılan bakışın yerden yüksekliği (açı) ile uzaklığı; eğim açıya eklenir
+    const fark = DUKKAN.konum.clone().sub(DUKKAN.hedef);
+    const yerde = Math.hypot(fark.x, fark.z);
+    const aci = Math.atan2(fark.y, yerde) + egim.current;
+    const uzaklik = fark.length() * yakinlik.current;
     dukkanKonumu.current
-      .copy(DUKKAN.konum)
-      .sub(DUKKAN.hedef)
-      .multiplyScalar(yakinlik.current)
+      .set((fark.x / yerde) * Math.cos(aci) * uzaklik, Math.sin(aci) * uzaklik, (fark.z / yerde) * Math.cos(aci) * uzaklik)
       .applyAxisAngle(new THREE.Vector3(0, 1, 0), donus.current)
       .add(DUKKAN.hedef);
     // Kaydırma: bakılan nokta ve kamera birlikte kayar, açı değişmez

@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 // Kameranın hangi görünümde olduğu: 0 = tezgah, 1 = dükkânın genel görünümü.
 // Geçiş sırasında aradaki değerleri alır. Sahnedeki parçalar (tavan, kepçe…)
 // görünüp gizlenmek için buna bakar.
@@ -14,9 +16,19 @@ export function yakinlikDegistir(carpan: number) {
   dukkanYakinligi.deger = Math.min(YAKINLIK_EN_COK, Math.max(YAKINLIK_EN_AZ, dukkanYakinligi.deger * carpan));
 }
 
-// Duraklatıp gezerken dükkânın çevresinde dönme açısı (radyan); gezme
-// bitince yumuşakça önden görünüme döner.
+// Genel görünümde dükkânın çevresinde dönme açısı (radyan). Kemal, 14 Ekim:
+// "360 döndürme ve aşağı yukarı bakma, her yerde": yalnız gezerken değil,
+// genel görünümde her an. Ortala düğmesi önden görünüme döndürür.
 export const dukkanDonusu = { deger: 0 };
+// Aşağı yukarı bakış: varsayılan açıya eklenen eğim (radyan). Artı = daha yukarıdan.
+export const dukkanEgimi = { deger: 0 };
+export const EGIM_EN_AZ = THREE.MathUtils.degToRad(-22);
+export const EGIM_EN_COK = THREE.MathUtils.degToRad(50);
+
+export function dondur(yatay: number, dikey: number) {
+  dukkanDonusu.deger += yatay;
+  dukkanEgimi.deger = Math.min(EGIM_EN_COK, Math.max(EGIM_EN_AZ, dukkanEgimi.deger + dikey));
+}
 
 // Fotoğraf: sahne kendini buraya bağlar; çağrılınca o anki görüntüyü verir.
 export const fotograf: { cek: null | (() => string) } = { cek: null };
@@ -36,6 +48,7 @@ export function ortala() {
   dukkanKaydirma.z = 0;
   dukkanYakinligi.deger = 1;
   dukkanDonusu.deger = 0;
+  dukkanEgimi.deger = 0;
 }
 
 // Ekranda parmak kayması (oyun ekranının pikselleri) → yerde kayma.
