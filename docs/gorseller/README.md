@@ -14,7 +14,8 @@ Belgeyle çelişen yerde `docs/tasarim-belgesi.md` geçerli.
 ## Görsellerden alınmayacaklar
 
 - **Yer:** görsellerde kumlu plaj var; dükkân Liman'da, **iskelenin
-  yakınında** ("sahil şeridi" değil).
+  yakınında** ("sahil şeridi" değil). Gerçek krokide (`kroki-liman.webp`) dükkânın
+  önünde kum var ama oyunda ahşap teras kalır (Kemal, 14 Ekim).
 - **Logo renkleri:** görsellerde pembe / krem / kahve; kanonda **mor ve sarı**
   (taslak).
 - **Tezgah arkasındaki kız** (taslak 1): oyuncuya yüz verilmez. Kim olduğu
@@ -39,5 +40,5 @@ Oyunda kullanılan dosyalar `public/gorseller/` altında:
 | `logo-kulahli.webp` | Külahın önünde "Dondurmacı Kızlar" yazısı (saydam zemin) |
 | `logo-yazi.webp` | Yalnız yazı (saydam zemin) |
 
-Logonun renkleri kırmızı ve krem; kanonda logo renkleri mor ve sarı yazıyordu.
-Hangisinin geçerli olduğu Kemal'e soruldu.
+Yazı kırmızı-krem; logonun asıl zemini mor ve sarı (Kemal, 14 Ekim). Oyunun
+renkleri mor-sarı kalır. Bu dosyalar saydam zeminli hâli.
