@@ -47,6 +47,8 @@ import { VitrinEkrani } from './VitrinEkrani';
 import { MenuSeridi } from './MenuSeridi';
 import { IstasyonSecimi, MakineDugmeleri, MakineGostergesi, MakineSiparisResmi, YardimciEkrani, makineIpucu, makineSiparisAdlari } from './MakineArayuzu';
 import { InsaatPaneli } from './InsaatPaneli';
+import { KameraDugmeleri } from './KameraDugmeleri';
+import { HaberSeridi } from './HaberSeridi';
 import { AcilisEkrani } from './AcilisEkrani';
 import { AyarlarEkrani } from './AyarlarEkrani';
 import { useEkranAyari } from './ekranAyari';
@@ -645,8 +647,10 @@ export function Arayuz() {
       <CalisanAdi />
       <UstBilgi />
       <GunSaat />
-      {/* Eğitim eli varken yazılı ipucu çıkmaz (yazısız eğitim) */}
-      {ipucu && !calisanAcik && !egitimHedefi(durum, vitrinAcik) && <div className="ipucu">{suslemeHatirlatmasi(durum) ?? m(ipucu)}</div>}
+      {/* Eğitim eli varken yazılı ipucu çıkmaz (yazısız eğitim). Genel görünümde
+          ipucu üstteki haber şeridinden geçer (belge 0.8); tezgahta yerinde kalır */}
+      <HaberSeridi ipucu={!tezgahta && ipucu && !calisanAcik && !egitimHedefi(durum, vitrinAcik) ? m(ipucu) : null} />
+      {tezgahta && ipucu && !calisanAcik && !egitimHedefi(durum, vitrinAcik) && <div className="ipucu">{suslemeHatirlatmasi(durum) ?? m(ipucu)}</div>}
       {tezgahta && durum.asama === 'dolduruyor' && <Gosterge />}
       {tezgahta && makinede && ['dokuluyor', 'pisiyor'].includes(durum.makine.asama) && <MakineGostergesi />}
       <Bildirim />
@@ -694,17 +698,7 @@ export function Arayuz() {
           </div>
         </>
       ) : (
-        <div className="yakinlik-dugmeleri">
-          <button className="dugme dugme-simge" aria-label={m('kamera.yakinlas')} onClick={() => yakinlikDegistir(0.8)}>
-            +
-          </button>
-          <button className="dugme dugme-simge" aria-label={m('kamera.uzaklas')} onClick={() => yakinlikDegistir(1.25)}>
-            −
-          </button>
-          <button className="dugme dugme-simge" aria-label={m('kamera.ortala')} onClick={ortala}>
-            <span className="ortala-simge" aria-hidden />
-          </button>
-        </div>
+        <KameraDugmeleri />
       )}
       {!tezgahta && !durum.gunSonu && !calisanAcik && (
         <div className="sag-dugmeler">

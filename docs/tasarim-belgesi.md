@@ -254,6 +254,29 @@ Hepsini tek oyun gibi göstermek için tasarım dili (onay: 14 Ekim):
 | Nasıl | Oyun her modeli yüklerken boyunu ölçüye getirir, renklerini palete çevirir (renk tonu paletten, açıklık modelin kendisiyle paletinkinin karışımı), yüzeyini mat yapar. Yanlış tona giden renkler için parça başına küçük bir **boya tablosu** ("şu renge yakın her şey şu renge"); Kenney paketlerinin hepsi aynı renk tablosunu paylaştığı için tek tablo yeter (`src/sahne/tasarimDili.ts`) |
 | Sıra | 1) tasarım dili sayfası (onaylandı), 2) her paketten 2–3 parça önce / sonra denemesi, 3) oyuna yayma (karakterler K2 ile değişir, boy sorunu böyle çözülür) |
 
+### 0.8 Yol haritası, test kolaylıkları, ekran (Kemal, 14 Ekim gece soru turu)
+
+Kemal: "acelemiz yok; bir şirketmiş gibi yerimizi, noktamızı ve yolumuzu bilmek
+isterim." Sıralama Claude'da; Kemal "şimdi" demedikçe işler bu sırayla gider.
+
+| Paket | İçerik |
+|---|---|
+| A | Test kolaylıkları ve ekran: 10.000 jeton, açılış ekranı (Yeni oyun / Devam et / Deneme dükkânı), döndürme ve duvar düğmeleri, haber şeridi |
+| KKM | KKM'deki oyun sayfasına "Yol haritası ve durum" bölümü (ayrı depo, ayrı PR) |
+| B | Liman haritası: KKM'deki Düzada haritasına göre dış dünya; T biçimli iskele, soldan girişli uzun liman, dükkânın arkasında zemin, binalar, ağaçlar |
+| C | Kişiselleştirme (Sims gibi): dış boya, çatı, büyük ışıklı tabelalar, iç zemin, halı, tablo. Önce soru turu |
+| D | Karakterler (K2). Google Drive "kota doldu" diyor; Universal Base Characters (itch.io) iç çamaşırlı gövde olduğu için uymadı |
+| E | Hesap ve bulut kayıt (yayına yakın) |
+
+| Konu | Karar |
+|---|---|
+| Jeton | Oyun yayınlanana kadar **her açılışta para 10.000'e tamamlanır** (harcanan geri gelir). Yayında kalkar |
+| Açılış ekranı | **Yeni oyun**, **Devam et** (kayıt varsa), **Deneme dükkânı**, Ayarlar. Yeni oyun kayıtlı dükkânı silmeden önce sorar |
+| Deneme dükkânı | Ayrı kayıtta, ileri seviyede kurulmuş dükkân (geniş arazi, mutfak, tezgah parçaları, yardımcılar, dekor). Her açılışta baştan kurulur; yeni eklenen her şey buraya da konur. Oyuncunun kendi kaydına dokunmaz |
+| Kamera düğmeleri | Yakınlaştır / uzaklaştır / ortala'nın yanına **basılı tuttukça dönen** döndürme düğmesi ve **tek duvar düğmesi**: açık (duvarsız) → yarım (kameraya bakan duvarlar kaybolur) → kapalı (hepsi ve tavan yerinde) |
+| Haber şeridi | "Günaydın" yazısı ortadan kalkar; üstte saat ile jeton arasında **sürekli kayan** bir şerit. Genel görünümdeki ipuçları ve oyun haberleri oradan geçer. Tezgah ipuçları yerinde kalır |
+| Kayıt nerede | Şimdilik oyunun açıldığı tarayıcıda; telefon ve bilgisayar ayrı dükkân. Aynı dükkân için hesap + bulut kayıt gerekir (paket E) |
+
 ## 1. Oyunun özeti ve vizyonu
 
 ### 1.1 Tek cümlelik özet
@@ -472,5 +495,6 @@ Uygulamada **olan**:
 | Tasarım dili denemesi (0.7, 2. adım) | Deneme (14 Ekim). Yedi paketten üçer parça palete çevrildi; adresin sonuna `#tasarim=M1` (ham hâli `#tasarim=M1-ham`) yazınca görünür. Oyunun kendisinde henüz değişiklik yok. K2 (karakterler) indirilemedi: Google Drive "kota doldu" diyor |
 | Tasarım dili oyunda: tekneler ve depo (0.7, 3. adımın ilk parçası) | Bitti (14 Ekim). Denizdeki elle çizilmiş dört tekne yerine Kenney balıkçı tekneleri ve sandallar, iskelenin yanına iki şamandıra. Mutfak deposunda buzdolabı (KayKit, nane yeşili) ve kasalar. Sırada: dükkânın arkasına Liman binaları ve ağaçlar (önce arkaya zemin gerekiyor), dekorasyon eşyaları, karakterler (K2 indirilemedi) |
 | Tasarım dili oyunda: dekorasyon eşyaları (0.7, 3. adım) | Bitti (14 Ekim). Masa ve şemsiyeli masa: Tiny Treats yuvarlak masa (örtüsü mor-krem kareli) + iki ahşap sandalye (müşterinin oturduğu yerler aynı). Bank: Kenney minderli bank, minder mor. Saksı ve çöp kutusu: Kenney. Mağaza resimleri yenilendi. Tabela, külah figürü, flama, bisiklet, sokak lambası, çiçek kasası dükkâna özel olduğu için kodla çizilmiş hâliyle kaldı |
+| A paketi: test kolaylıkları ve ekran (0.8) | Bitti (14 Ekim gece). Her açılışta para en az 10.000; açılış ekranında Devam et / Yeni oyun (sorar) / Deneme dükkânı (ayrı kayıt, her açılışta baştan kurulur, `src/oyun/denemeDukkani.ts`); sol altta basılı tuttukça dönen düğme ve tek duvar düğmesi (yarım → açık → kapalı; inşaatta ve yerleştirirken kapalı yarım sayılır); üstte sürekli kayan haber şeridi (ipucu + gün başladı, sıkılan müşteri, bahşiş haberleri) |
 
 Uygulamada **olmayan** ama belgede geçenler: Kemal'in müziği (şimdilik kodla geçici ezgi), gerçek 3B modeller (hepsi kodla çizilmiş geçici parçalar), İngilizce.
