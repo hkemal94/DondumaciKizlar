@@ -5,7 +5,8 @@ paket eklenince buraya yazılır.
 
 | Paket | Kaynak | Lisans | Nerede kullanılıyor |
 |---|---|---|---|
-| Kenney Mini Characters 1.0 | https://kenney.nl/assets/mini-characters | CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/) | `public/modeller/karakterler/` — müşteriler (baş, gövde, renk ve aksesuar değişkenli), gözlük ve güneş gözlüğü aksesuarları (14 Ekim) |
+| Kenney Mini Characters 1.0 | https://kenney.nl/assets/mini-characters | CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/) | `public/modeller/karakterler/` — yalnız gözlük ve güneş gözlüğü aksesuarları. Karakterleri 14 Ekim gece silindi (yerine Quaternius) |
+| Quaternius — Ultimate Modular Women (Nisan 2022) ve Ultimate Modular Men (Şubat 2022) | https://quaternius.com/packs/ultimatemodularwomen.html · https://quaternius.com/packs/ultimatemodularcharacters.html | CC0 1.0 | `public/modeller/insanlar/` — müşteri, çalışan, yardımcı, sahip. Seçilen 10 karakter (kadın: Casual, Formal, Worker, Suit; erkek: Casual_2, Casual_Hoodie, Beach, Farmer, Worker, Suit); hareketler cinsiyet başına tek dosyada, silah çıkarıldı, sıkıştırıldı (14 Ekim gece) |
 | Kenney Furniture Kit | https://kenney.nl/assets/furniture-kit | CC0 1.0 | `public/modeller/mobilya/` — tasarım dili denemesi; dekorasyonda saksı, bank, çöp kutusu (14 Ekim) |
 | Kenney Food Kit | https://kenney.nl/assets/food-kit | CC0 1.0 | `public/modeller/yiyecek/` — tasarım dili denemesi (14 Ekim) |
 | Kenney Watercraft Kit | https://kenney.nl/assets/watercraft-kit | CC0 1.0 | `public/modeller/tekneler/` — tasarım dili denemesi; denizdeki tekneler ve şamandıralar (14 Ekim) |

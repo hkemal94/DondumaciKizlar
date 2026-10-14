@@ -277,6 +277,24 @@ isterim." Sıralama Claude'da; Kemal "şimdi" demedikçe işler bu sırayla gide
 | Haber şeridi | "Günaydın" yazısı ortadan kalkar; üstte saat ile jeton arasında bir şerit. Yeni haber ya da ipucu gelince **makul bir hızda 3 kez geçer, sonra kaybolur** (Kemal, 14 Ekim gece: "sürekli aynı yazının dönmesini sevmedim"). Genel görünümdeki ipuçları ve oyun haberleri oradan geçer. Tezgah ipuçları yerinde kalır |
 | Kayıt nerede | Şimdilik oyunun açıldığı tarayıcıda; telefon ve bilgisayar ayrı dükkân. Aynı dükkân için hesap + bulut kayıt gerekir (paket E) |
 
+### 0.9 Karakterler (Kemal, 14 Ekim gece soru turu)
+
+Paket: Quaternius Ultimate Modular Women + Men (K2). Google Drive kotası
+yüzünden Kemal kendi Drive'ına kopyalayıp paylaştı. Karakterler D paketinden
+öne alındı ("şimdi, ilk iş").
+
+| Konu | Karar |
+|---|---|
+| Hangi karakterler | 10 gündelik kıyafet: kadın Casual, Formal, Worker, Suit; erkek Casual_2, Casual_Hoodie, Beach, Farmer, Worker, Suit ("şimdilik böyle, sonra değiştiririz") |
+| Kimler | Müşteriler, çalışan, yardımcılar ve sahip hepsi bu paketten |
+| Çeşitlilik | Ten (beş ton), saç ve kıyafet renkleri karışık; kıyafetler paletten, mor ve sarı yok. Aynı cinsiyetten başlar (saçıyla) gövdeler arasında karışır. Boylar kadın 1,55–1,75, erkek 1,65–1,85 |
+| Çalışan | Oyuncu bedeni seçer: kadın ya da erkek (başta kadın). Kıyafet şimdilik gündelik (Casual) + önlük; ileride değiştirilebilir. Saç biçimi şapkasız başlardan |
+| Sahip | Kadın Formal (elbiseli), dükkânın moru |
+| Çocuklar | Şimdilik yok (pakette çocuk yok) |
+| Hareketler | Şimdilik yürüme, bekleme, uzanma (çalışırken), oturma (bacaklar bükülerek) |
+| Eski karakterler | Kenney Mini Characters silindi; yalnız gözlük modelleri kaldı |
+| Sona kalanlar | Ağız: basit bir gülümseme çizilecek. Önlük daha iyi biçimli olacak (şimdi düz bir levha). Saçları başlardan ayırıp ayrı seçmek (Blender). Tezgaha varınca el sallama, servisi uzanıp alma, mutlu / mutsuz ayrılış. Kıyafet değiştirme |
+
 ## 1. Oyunun özeti ve vizyonu
 
 ### 1.1 Tek cümlelik özet
@@ -496,5 +514,6 @@ Uygulamada **olan**:
 | Tasarım dili oyunda: tekneler ve depo (0.7, 3. adımın ilk parçası) | Bitti (14 Ekim). Denizdeki elle çizilmiş dört tekne yerine Kenney balıkçı tekneleri ve sandallar, iskelenin yanına iki şamandıra. Mutfak deposunda buzdolabı (KayKit, nane yeşili) ve kasalar. Sırada: dükkânın arkasına Liman binaları ve ağaçlar (önce arkaya zemin gerekiyor), dekorasyon eşyaları, karakterler (K2 indirilemedi) |
 | Tasarım dili oyunda: dekorasyon eşyaları (0.7, 3. adım) | Bitti (14 Ekim). Masa ve şemsiyeli masa: Tiny Treats yuvarlak masa (örtüsü mor-krem kareli) + iki ahşap sandalye (müşterinin oturduğu yerler aynı). Bank: Kenney minderli bank, minder mor. Saksı ve çöp kutusu: Kenney. Mağaza resimleri yenilendi. Tabela, külah figürü, flama, bisiklet, sokak lambası, çiçek kasası dükkâna özel olduğu için kodla çizilmiş hâliyle kaldı |
 | A paketi: test kolaylıkları ve ekran (0.8) | Bitti (14 Ekim gece). Her açılışta para en az 10.000; açılış ekranında Devam et / Yeni oyun (sorar) / Deneme dükkânı (ayrı kayıt, her açılışta baştan kurulur, `src/oyun/denemeDukkani.ts`); sol altta basılı tuttukça dönen düğme ve tek duvar düğmesi (yarım → açık → kapalı; inşaatta ve yerleştirirken kapalı yarım sayılır); üstte haber şeridi, yeni haber gelince 3 kez geçip kaybolur (ipucu + gün başladı, sıkılan müşteri, bahşiş haberleri) |
+| Karakterler (0.9) | Bitti (14 Ekim gece). Müşteri, çalışan, yardımcı, sahip Quaternius K2'ye geçti (10 karakter, 4 MB). Müşteriler 1,55–1,85 m, tezgahın üstünden görünüyor. Çalışan ekranında beden seçimi (kadın / erkek). Renk çevirmede açıklık hatası düzeltildi (palete çevrilen modeller koyu çıkıyordu). Sona kalanlar 0.9'da |
 
 Uygulamada **olmayan** ama belgede geçenler: Kemal'in müziği (şimdilik kodla geçici ezgi), gerçek 3B modeller (hepsi kodla çizilmiş geçici parçalar), İngilizce.

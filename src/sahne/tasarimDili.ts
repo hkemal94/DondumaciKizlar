@@ -41,6 +41,12 @@ const GRUPLAR: Record<PaletGrubu, string[]> = {
 
 // Renkleri göze yakın bir uzayda (Lab) karşılaştırırız: "en yakın" gözün gördüğü gibi olsun
 type Lab = [number, number, number];
+// "#rrggbb" → ekranda görünen (sRGB) 0–255 değerler. THREE.Color doğrusal
+// değer verir; onu böyle kullanmak paleti koyulaştırıyordu (14 Ekim gece düzeltildi)
+function srgb(hex: string): [number, number, number] {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
 function dogrusal(c: number) {
   c /= 255;
   return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
@@ -77,8 +83,7 @@ function paletiAl(grup: PaletGrubu) {
   let p = paletler.get(grup);
   if (!p) {
     p = [...new Set(GRUPLAR[grup])].map((h) => {
-      const c = new THREE.Color(h);
-      return { lab: labdan(c.r * 255, c.g * 255, c.b * 255) };
+      return { lab: labdan(...srgb(h)) };
     });
     paletler.set(grup, p);
   }
@@ -119,8 +124,7 @@ function ceviriciAl(grup: PaletGrubu, boyalar: Boya[]): Cevirici {
   let c = civiriciler.get(anahtar);
   if (c) return c;
   const tablo = boyalar.map(([kaynak, hedef, tolerans = 22]) => {
-    const k = new THREE.Color(kaynak), h = new THREE.Color(hedef);
-    return { k: labdan(k.r * 255, k.g * 255, k.b * 255), h: labdan(h.r * 255, h.g * 255, h.b * 255), tolerans };
+    return { k: labdan(...srgb(kaynak)), h: labdan(...srgb(hedef)), tolerans };
   });
   c = {
     anahtar,
@@ -181,6 +185,12 @@ function kenneyBoyasi(grup: PaletGrubu): Boya[] {
     ['#f2bf99', renk.kum, 6],
     ['#f1976c', renk.kiremit, 6],
   ];
+}
+
+// Tek bir rengi palete oturtur (karakterlerin dokunulmayan ayrıntıları için)
+export function paletRengi(hex: string, grup: PaletGrubu) {
+  const [r, g, b] = ceviriciAl(grup, []).cevir(...srgb(hex));
+  return `#${[r, g, b].map((x) => x.toString(16).padStart(2, '0')).join('')}`;
 }
 
 // ---- Doku (renk tablosu) çevirme ----

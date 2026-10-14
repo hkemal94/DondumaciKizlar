@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { calismaSaatleri, dukkanKapilari, durumuOku } from '../oyun/durum';
 import { YURUYUS_Z, kenarYeri } from '../oyun/dekorasyon';
-import { KenneyKarakter, type Hareket } from './KenneyKarakter';
+import { InsanKarakter, type Hareket } from './InsanKarakter';
 import type { Varyant } from './karakterler';
 
 // Dükkânın sahibi (Kemal, 13 Ekim: "arada dükkânda gezsin"). Kanondaki kadın;
@@ -43,14 +43,17 @@ function gezintiYolu(donus: 1 | -1): Nokta[] {
 
 // Görünüş GEÇİCİ (Kemal belirleyecek): mor elbise, topuz, küpe — müşterilerle
 // aynı Kenney parçalarından (14 Ekim)
+// Sahip (belge 0.9; Kemal, 14 Ekim gece): elbiseli kadın (Formal), dükkânın moru
 const SAHIP: Varyant = {
-  govde: 3,
-  bas: 3,
+  cinsiyet: 'kadin',
+  govde: 'formal',
+  bas: 'formal',
+  boy: 1.68,
   ten: '#e3b08a',
   sac: '#3a2a22',
   ust: '#7a3fa8',
-  alt: '#4e2470',
-  ayakkabi: '#2a2830',
+  alt: '#7a3fa8',
+  ayakkabi: '#7a5236',
   aksesuarlar: ['kupe'],
 };
 
@@ -119,7 +122,7 @@ export function Sahip() {
   return (
     <group ref={ref} visible={false}>
       <group ref={icRef}>
-        <KenneyKarakter varyant={SAHIP} hareket={hareket} />
+        <InsanKarakter varyant={SAHIP} hareket={hareket} />
       </group>
     </group>
   );

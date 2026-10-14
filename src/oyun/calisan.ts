@@ -32,8 +32,13 @@ export const AKSESUARLAR: { id: Aksesuar; fiyat: number; bas?: true }[] = [
   { id: 'kasket', fiyat: 180, bas: true },
 ];
 
+// Beden (belge 0.9): oyuncu seçer, başta kadın
+export type Beden = 'kadin' | 'erkek';
+export const BEDEN_SECENEKLERI: Beden[] = ['kadin', 'erkek'];
+
 export interface CalisanGorunumu {
   ad: string;
+  beden: Beden;
   ten: number;
   sac: SacModeli;
   sacRengi: number;
@@ -43,6 +48,7 @@ export interface CalisanGorunumu {
 
 export const VARSAYILAN_CALISAN: CalisanGorunumu = {
   ad: '',
+  beden: 'kadin',
   ten: 1,
   sac: 'topuz',
   sacRengi: 1,

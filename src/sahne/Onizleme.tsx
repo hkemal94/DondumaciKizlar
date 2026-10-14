@@ -39,7 +39,7 @@ function Cerceve({ esya }: { esya: Esya }) {
   );
 }
 
-// Model önizlemesi (#model=karakterler/character-female-a): Kemal seçsin diye
+// Model önizlemesi (#model=insanlar/kadin-casual): Kemal seçsin diye
 function Model({ yol }: { yol: string }) {
   const [sahne, setSahne] = useState<THREE.Object3D | null>(null);
   const { camera } = useThree();
@@ -75,7 +75,7 @@ function Varyantlar({ tohum }: { tohum: number }) {
       const k = Array.from({ length: 12 }, (_, i) => karakterKur(rastgeleVaryant(tohum + i), y));
       k.forEach((c, i) => {
         c.kok.position.set((i % 6) * 1.3 - 3.25, i < 6 ? 2.1 : 0, 0);
-        c.eylemler.idle?.play();
+        c.eylemler.Idle?.play();
       });
       setKarakterler(k);
     });

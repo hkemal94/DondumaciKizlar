@@ -3,14 +3,14 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { durumuOku, useDurum } from '../oyun/durum';
 import { ONLUKLER, SAC_RENKLERI, TENLER, type CalisanGorunumu, type Onluk } from '../oyun/calisan';
-import { KenneyKarakter, type Hareket } from './KenneyKarakter';
+import { InsanKarakter, type Hareket } from './InsanKarakter';
 import type { Karakter, Varyant } from './karakterler';
 import { istasyonOdagi, kameraKarisimi, odak, tezgahOfseti } from './kameraKarisimi';
 import { renk } from './renkler';
 
 // Tezgahın arkasındaki çalışan (Kemal, 13 Ekim). Genel görünümde görünür;
 // tezgah görünümünde kamera onun yerinde olduğu için gizlenir.
-// Kenney Mini Characters parçalarından (taslak; Kemal, 14 Ekim).
+// müşterilerle aynı Quaternius parçalarından (belge 0.9).
 
 export const CALISAN_YERI = new THREE.Vector3(0, 0, 0.75);
 
@@ -42,8 +42,15 @@ function onlukDokusu(o: Onluk) {
 // Adın ekrandaki yeri: başının üstü (arayüz öğeyi buraya bağlar)
 export const calisanEtiketi: { oge: HTMLDivElement | null } = { oge: null };
 
-// Saç modeli → Kenney paketindeki baş (Kemal'in seçtiği saç biçimine en yakın)
-const SAC_BASI: Record<CalisanGorunumu['sac'], number> = { kisa: 11, uzun: 4, topuz: 3, kivircik: 6 };
+// Saç modeli → paketteki baş (belge 0.9; şapkalı ve baretli başlar seçilmez).
+// Saçlar ileride başlardan ayrılıp ayrı seçilebilir (Kemal, 14 Ekim gece)
+const SAC_BASI: Record<CalisanGorunumu['beden'], Record<CalisanGorunumu['sac'], string>> = {
+  kadin: { kisa: 'formal', uzun: 'casual', topuz: 'suit', kivircik: 'formal' },
+  erkek: { kisa: 'casual_2', uzun: 'casual_hoodie', topuz: 'suit', kivircik: 'beach' },
+};
+// Deneme için gündelik kıyafet (Kemal: "değiştirebilelim, şimdilik casual")
+const CALISAN_GOVDESI: Record<CalisanGorunumu['beden'], string> = { kadin: 'casual', erkek: 'casual_2' };
+const CALISAN_BOYU: Record<CalisanGorunumu['beden'], number> = { kadin: 1.68, erkek: 1.76 };
 
 export function Calisan() {
   const { calisan } = useDurum();
@@ -52,28 +59,32 @@ export function Calisan() {
   const v = useMemo(() => new THREE.Vector3(), []);
   const onluk = ONLUKLER.find((o) => o.id === calisan.onluk) ?? ONLUKLER[0];
   const doku = useMemo(() => onlukDokusu(onluk), [onluk]);
-  // Çalışan da müşterilerle aynı Kenney parçalarından (Kemal, 14 Ekim)
+  // Çalışan da müşterilerle aynı parçalardan (belge 0.9)
   const varyant = useMemo<Varyant>(
     () => ({
-      govde: 1,
-      bas: SAC_BASI[calisan.sac],
+      cinsiyet: calisan.beden,
+      govde: CALISAN_GOVDESI[calisan.beden],
+      bas: SAC_BASI[calisan.beden][calisan.sac],
+      boy: CALISAN_BOYU[calisan.beden],
       ten: TENLER[calisan.ten],
       sac: SAC_RENKLERI[calisan.sacRengi],
       ust: '#f6ecd6',
-      alt: '#3d4f6b',
-      ayakkabi: '#2a2830',
+      alt: '#2f7fb3',
+      ayakkabi: '#7a5236',
       aksesuarlar: calisan.aksesuarlar,
     }),
-    [calisan.sac, calisan.ten, calisan.sacRengi, calisan.aksesuarlar],
+    [calisan.beden, calisan.sac, calisan.ten, calisan.sacRengi, calisan.aksesuarlar],
   );
   // Önlük gövdenin önüne takılır; renk ve desen değişince doku yenilenir
   const onlukMalzemesi = useMemo(() => new THREE.MeshStandardMaterial({ roughness: 0.85 }), []);
   onlukMalzemesi.map = doku;
   onlukMalzemesi.needsUpdate = true;
+  // Önlük: göğüsten dizlere, gövdenin önünde; kalçaya bağlı (eğilince onunla eğilir)
   const onlukTak = (k: Karakter) => {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(0.27, 0.22), onlukMalzemesi);
-    m.position.set(0, 0.02, 0.135);
-    k.govdeKemigi?.add(m);
+    const boy = k.kalca * 0.75;
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(0.36, boy), onlukMalzemesi);
+    m.position.set(0, k.kalca * 1.05, k.govdeKutusu.max.z * 0.62);
+    k.tak('Hips', m);
   };
 
   useFrame(({ camera, size }) => {
@@ -87,7 +98,7 @@ export function Calisan() {
     hareket.current = d.asama === 'dolduruyor' || ['dokuluyor', 'doluyor'].includes(d.makine.asama) ? 'calis' : 'dur';
     const etiket = calisanEtiketi.oge;
     if (etiket) {
-      v.set(g.position.x + tezgahOfseti.x, 1.6, CALISAN_YERI.z + tezgahOfseti.z).project(camera);
+      v.set(g.position.x + tezgahOfseti.x, 2.0, CALISAN_YERI.z + tezgahOfseti.z).project(camera);
       etiket.style.transform = `translate(${((v.x + 1) / 2) * size.width}px, ${((1 - v.y) / 2) * size.height}px)`;
       etiket.style.opacity = g.visible && d.calisan.ad && !odak.calisan ? '1' : '0';
     }
@@ -95,9 +106,8 @@ export function Calisan() {
 
   return (
     <group ref={ref} position={CALISAN_YERI.toArray()} rotation={[0, Math.PI, 0]}>
-      {/* Tezgah arkasında basamakta durur ve müşterilerden biraz iri: vitrin camının üstünden görünsün */}
-      <group position={[0, 0.12, 0]} scale={1.18}>
-        <KenneyKarakter varyant={varyant} hareket={hareket} ekle={onlukTak} />
+      <group>
+        <InsanKarakter varyant={varyant} hareket={hareket} ekle={onlukTak} />
       </group>
     </group>
   );
