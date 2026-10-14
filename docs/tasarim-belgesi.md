@@ -235,6 +235,25 @@ Kalan büyüme işleri **tek pakette** (Kemal: "paketleri birleştirebilirsin, b
 | İkinci vitrin | **Kaldırıldı** (Kemal: "sevmedim"); vitrin en çok 12 küvet. Satın alınmışsa parası geri verilir |
 | Assetler | Müşterilerin boyu tezgaha yetmiyor; karakterler, duvarlar, ürünler için yeni paketler. Claude aday listesini resimleriyle hazırlar, **Kemal seçer**; seçilmeden eklenmez |
 
+### 0.7 Tasarım dili ve hazır paketler (Kemal, 14 Ekim)
+
+Kemal'in seçtiği paketler: K2 Ultimate Modular Women + Men (Quaternius),
+M1 Furniture Kit (Kenney), M2 Bakery Interior (Tiny Treats), M4 Restaurant
+Bits (KayKit), G1 Food Kit (Kenney), D1 Watercraft Kit (Kenney), D4 City Kit
+Commercial (Kenney), D7 Stylized Nature MegaKit (Quaternius). Paketler
+olduğu gibi kullanılır; Blender yalnız bozuk ya da biçimi uymayan model için.
+Hepsini tek oyun gibi göstermek için tasarım dili (onay: 14 Ekim):
+
+| Konu | Karar |
+|---|---|
+| Palet | Oyundaki renkler (`src/sahne/renkler.ts`) + dört yeni ton: fayans, tekne mavisi, kiremit, pembe sıva. Dondurma, meyve, içecek renkleri olduğu gibi kalır; ekranın en canlı şeyi ürünler |
+| Mor ve sarı | **Yalnız bizim dükkânın** (logo, tente, menü, önlük). Liman'daki öteki binalar, tekneler, sokak eşyaları almaz |
+| Renk kuralları | Her renk paletten; saf siyah ve beyaz yok; bir eşyada en çok bir canlı renk |
+| Işık ve yüzey | Tek sıcak güneş + gökyüzü dolgusu; her şey mat (cam ve metal hafif parlar); köşeli görünüm; doku yalnız zemin tahtası ve fayansta; gölgeyi yalnız büyük eşyalar ve insanlar verir; siyah kontur yok |
+| Ölçü | 1 m ızgara. Yetişkin 1,70 m (1,55–1,85 karışık), çocuk 1,10–1,30, tezgah 0,95, masa 0,75, oturak 0,45, kapı 2,15, tavan 3,25 |
+| Nasıl | Oyun her modeli yüklerken boyunu ölçüye getirir, renklerini palete çevirir (renk tonu paletten, açıklık modelin kendisiyle paletinkinin karışımı), yüzeyini mat yapar. Yanlış tona giden renkler için parça başına küçük bir **boya tablosu** ("şu renge yakın her şey şu renge"); Kenney paketlerinin hepsi aynı renk tablosunu paylaştığı için tek tablo yeter (`src/sahne/tasarimDili.ts`) |
+| Sıra | 1) tasarım dili sayfası (onaylandı), 2) her paketten 2–3 parça önce / sonra denemesi, 3) oyuna yayma (karakterler K2 ile değişir, boy sorunu böyle çözülür) |
+
 ## 1. Oyunun özeti ve vizyonu
 
 ### 1.1 Tek cümlelik özet
@@ -450,5 +469,6 @@ Uygulamada **olan**:
 | Efektler (kıvılcım, serpinti, sıkılan müşteride bulut, kasaya uçan jeton) + bahşiş + yatay balon | Bitti (14 Ekim). Bahşiş: arka arkaya 3. mükemmel servisten başlar (+2, +4… en çok +10), gün sonunda ayrı satır. Uçan jetonlar test ortamında görüntülenemedi; telefonda bakılacak |
 | Küçük düğmeler, gün başı menü şeridi, küçük etiketler + ekran ayarı (mola menüsünde), resimli eşya kartları, "Şimdi yerleştir / Alışverişe devam et" | Bitti (14 Ekim). Eşya resimleri `public/gorseller/esyalar/`; yeni eşya eklenince adresin sonuna `#onizleme=<eşya>` yazılıp çekilir |
 | Tezgah küvetleri büyüdü (iki sırada vitrin yanlara, kamera dik) + logo (tabela, arka duvar, ön cephe, pencere başlıkları) | Bitti (14 Ekim) |
+| Tasarım dili denemesi (0.7, 2. adım) | Deneme (14 Ekim). Yedi paketten üçer parça palete çevrildi; adresin sonuna `#tasarim=M1` (ham hâli `#tasarim=M1-ham`) yazınca görünür. Oyunun kendisinde henüz değişiklik yok. K2 (karakterler) indirilemedi: Google Drive "kota doldu" diyor |
 
 Uygulamada **olmayan** ama belgede geçenler: Kemal'in müziği (şimdilik kodla geçici ezgi), gerçek 3B modeller (hepsi kodla çizilmiş geçici parçalar), İngilizce.

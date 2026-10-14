@@ -63,7 +63,10 @@ Burada ve belgede yazmayan bir coğrafi, tarihî ya da kurumsal bilgiyi
 ## 3B modeller
 
 - İlk sürümde **hazır, ücretsiz ve ticari kullanıma açık (CC0)** low-poly
-  paketler: Kenney, Quaternius. Başka kaynaktan model eklemeden önce sor.
+  paketler: Kenney, Quaternius, Tiny Treats, KayKit (son ikisi Kemal'in
+  14 Ekim paket seçimiyle onaylandı). Başka kaynaktan model eklemeden önce sor.
+- Her model tasarım diline göre yüklenir (`src/sahne/tasarimDili.ts`, belge 0.7):
+  ölçüye getirilir, renkleri palete çevrilir, yüzeyi mat olur.
 - Kullanılan her paketi `docs/lisanslar.md`'ye yaz: paket adı, kaynak
   bağlantısı, lisans.
 - Modeller `public/modeller/` altında, glTF/GLB biçiminde.

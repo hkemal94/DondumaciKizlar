@@ -27,4 +27,12 @@ export const renk = {
 
   tekneGovde: '#f4efe6',
   yelken: '#fbf8f1',
+
+  // Tasarım dili (Kemal, 14 Ekim onayı): hazır paketler için yeni tonlar
+  krem: '#fbf1e3',
+  morKoyu: '#4e2470',
+  fayans: '#e8eef0',
+  tekneMavisi: '#5f8fa8',
+  kiremit: '#c8705a',
+  pembeSiva: '#e7c9b8',
 } as const;
