@@ -1,5 +1,17 @@
-import { hucreAcik, hucreDolu, hucreUygun, hucreyeKoy, useDurum, yerlesimiKaldir } from '../oyun/durum';
-import { DUKKAN_PARSELLERI, HUCRELER, KARE_BOYU, hucreBul, parselCoz, parselSiniri, type Esya } from '../oyun/dekorasyon';
+import * as THREE from 'three';
+import { birimDolu, birimEngelli, birimIcMi, noktadakiEsya, noktayaKoy, useDurum, yerlesimiKaldir } from '../oyun/durum';
+import {
+  DUKKAN_PARSELLERI,
+  ESYALAR,
+  PARSEL,
+  birimCoz,
+  birimOrtasi,
+  esyaOlcusu,
+  esyaOrtasi,
+  parselCoz,
+  parselSiniri,
+  type Esya,
+} from '../oyun/dekorasyon';
 import { renk } from './renkler';
 import { Bank, Bisiklet, CicekKasasi, CopKutusu, Flama, IsikliTabela, KaraTahta, KulahFiguru, SokakLambasi } from './DisSusler';
 
@@ -171,64 +183,67 @@ function IsikliSerit() {
   );
 }
 
-// Alınmış arazi karesi (dükkânın yanı ya da arkası): taş kaldırımın üstüne
-// terasla aynı ahşap zemin. Ön teras zaten ahşap.
+// Alınmış açık arazi karesi (dükkânın yanı ya da arkası): taş kaldırımın
+// üstüne terasla aynı, 1 m genişlikte ve aynı hizada ahşap tahtalar (belge
+// 0.3). Yan yana kareler tek zemin gibi görünür. Ön teras zaten ahşap.
 function ParselZemini({ anahtar }: { anahtar: string }) {
   const { i, j } = parselCoz(anahtar);
-  const { solX, sagX, onZ, arkaZ } = parselSiniri(i, j);
-  const genislik = sagX - solX;
+  const { solX, onZ, arkaZ } = parselSiniri(i, j);
   return (
     <group>
-      {[0, 1, 2].map((n) => (
-        <mesh key={n} position={[solX + (genislik / 3) * (n + 0.5), 0, (onZ + arkaZ) / 2]} receiveShadow>
-          <boxGeometry args={[genislik / 3 - 0.06, 0.12, arkaZ - onZ - 0.06]} />
-          <meshStandardMaterial color={n % 2 ? renk.ahsapAcik : renk.ahsapOrta} roughness={0.9} />
-        </mesh>
-      ))}
+      {Array.from({ length: PARSEL }, (_, n) => {
+        const x = solX + n;
+        return (
+          <mesh key={n} position={[x + 0.5, 0, (onZ + arkaZ) / 2]} receiveShadow>
+            <boxGeometry args={[0.96, 0.12, PARSEL]} />
+            <meshStandardMaterial color={((x % 2) + 2) % 2 ? renk.ahsapAcik : renk.ahsapOrta} roughness={0.9} />
+          </mesh>
+        );
+      })}
     </group>
   );
 }
 
-// Yerleştirme kareleri: alınmış arazideki boş kareler yeşil görünür. Dokunma tek bir görünmez
-// zeminden alınır ve en yakın boş kareye konur (kareye tam isabet gerekmez).
+// Yerleştirme kareleri (1×1 m): alınmış arazideki boş yerler yeşil görünür.
+// Dokunma tek bir görünmez zeminden alınır: konmuş eşyaya dokunulursa o
+// kalkar (taşımak için), değilse seçili eşya en yakın sığdığı yere konur.
+const yesilKare = new THREE.PlaneGeometry(0.86, 0.86);
+const yesilMalzeme = new THREE.MeshBasicMaterial({ color: '#8fe36b', transparent: true, opacity: 0.35, depthWrite: false });
+
 function Kareler() {
   const durum = useDurum();
+  const disariya = !!ESYALAR.find((e) => e.id === durum.seciliEsya)?.disari;
+  const kareler: { c: number; r: number; ic: boolean }[] = [];
+  if (durum.seciliEsya)
+    for (const p of durum.parseller) {
+      const { i, j } = parselCoz(p);
+      for (let a = 0; a < PARSEL; a++)
+        for (let b = 0; b < PARSEL; b++) {
+          const c = i * PARSEL + a;
+          const r = j * PARSEL + b;
+          const ic = birimIcMi(c, r, durum);
+          if ((ic && disariya) || birimEngelli(c, r, durum) || birimDolu(c, r, durum)) continue;
+          kareler.push({ c, r, ic });
+        }
+    }
   return (
     <group>
-      {HUCRELER.map((h) => {
-        if (!durum.seciliEsya || !hucreAcik(h.id, durum) || hucreDolu(h.id, durum)) return null;
-        if (!hucreUygun(h.id, durum.seciliEsya, durum)) return null; // dışarıya özel eşya içeri konmaz
-        return (
-          <mesh key={h.id} position={[h.x, h.ic ? 0.02 : 0.08, h.z]} rotation={[-Math.PI / 2, 0, 0]}>
-            <planeGeometry args={[KARE_BOYU * 0.9, KARE_BOYU * 0.9]} />
-            <meshBasicMaterial color="#8fe36b" transparent opacity={0.35} depthWrite={false} />
-          </mesh>
-        );
+      {kareler.map(({ c, r, ic }) => {
+        const o = birimOrtasi(c, r);
+        return <mesh key={`${c},${r}`} geometry={yesilKare} material={yesilMalzeme} position={[o.x, ic ? 0.02 : 0.08, o.z]} rotation={[-Math.PI / 2, 0, 0]} />;
       })}
       <mesh
-        position={[0, 0.1, 1.8]}
+        position={[0, 0.1, 2]}
         rotation={[-Math.PI / 2, 0, 0]}
         onClick={(e) => {
           if (e.delta > 12) return; // sürükleme / yakınlaştırma değil
           e.stopPropagation();
-          // En yakın kare doluysa oradaki eşya kalkar (taşımak için), boşsa seçili eşya konur
-          let enYakin: string | null = null;
-          let enKisa = KARE_BOYU * 0.85;
-          HUCRELER.forEach((h) => {
-            if (!hucreAcik(h.id)) return; // alınmamış araziye konmaz
-            if (!hucreDolu(h.id) && !hucreUygun(h.id, durum.seciliEsya)) return;
-            const d = Math.hypot(h.x - e.point.x, h.z - e.point.z);
-            if (d < enKisa) {
-              enKisa = d;
-              enYakin = h.id;
-            }
-          });
-          if (enYakin === null) return;
-          if (hucreDolu(enYakin)) yerlesimiKaldir(enYakin);
-          else hucreyeKoy(enYakin);
+          const y = noktadakiEsya(e.point.x, e.point.z);
+          if (y) yerlesimiKaldir(y);
+          else noktayaKoy(e.point.x, e.point.z);
         }}
       >
-        <planeGeometry args={[90, 24]} />
+        <planeGeometry args={[90, 26]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
     </group>
@@ -256,23 +271,27 @@ export function Dekorlar() {
 
       {/* Yere konmuş eşyalar; yerleştirirken dokunulursa kalkar (taşımak için) */}
       {yerlesim.map((y) => {
-        const h = hucreBul(y.hucre);
-        if (!h) return null;
+        const { c, r } = birimCoz(y.hucre);
+        const o = esyaOrtasi(y.esya, c, r, y.yon);
+        const { en, boy } = esyaOlcusu(y.esya, y.yon);
+        const ic = birimIcMi(c, r, durum);
         return (
           <group
-            key={y.hucre}
-            position={[h.x, h.ic ? 0 : 0.06, h.z]}
+            key={`${y.hucre}:${y.esya}`}
+            position={[o.x, ic ? 0 : 0.06, o.z]}
             onClick={(e) => {
               if (!yerlestirme || e.delta > 12) return;
               e.stopPropagation();
-              yerlesimiKaldir(y.hucre);
+              yerlesimiKaldir(y);
             }}
           >
-            <EsyaModeli esya={y.esya} />
+            <group rotation={[0, (y.yon * Math.PI) / 2, 0]}>
+              <EsyaModeli esya={y.esya} />
+            </group>
             {/* Yerleştirirken eşyayı kolay tutmak için görünmez kutu */}
             {yerlestirme && (
               <mesh position={[0, 0.7, 0]}>
-                <boxGeometry args={[KARE_BOYU * 0.9, 1.4, KARE_BOYU * 0.9]} />
+                <boxGeometry args={[en * 0.9, 1.4, boy * 0.9]} />
                 <meshBasicMaterial transparent opacity={0} depthWrite={false} />
               </mesh>
             )}

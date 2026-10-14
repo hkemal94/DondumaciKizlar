@@ -13,6 +13,7 @@ import {
   depodaki,
   esyaSec,
   yerlestirmeyiAc,
+  esyaCevir,
   insaataBasla,
   yerlestirmeyiKapat,
   IYI_PAYI,
@@ -52,7 +53,7 @@ import { EgitimEli, egitimHedefi } from './EgitimEli';
 import { CalisanAdi, CalisanEkrani } from './CalisanEkrani';
 import { dondur, ekrandaKaydir, insaatKamerasi, ortala, yakinlikDegistir } from '../sahne/kameraKarisimi';
 import { DuraklatDugmesi, DuraklatMenusu, GezmeEkrani } from './Duraklat';
-import { ESYALAR } from '../oyun/dekorasyon';
+import { ESYALAR, ESYA_BOYU } from '../oyun/dekorasyon';
 
 // Tezgah ekranının düğmeleri, ipucu yazısı, kepçe göstergesi ve sonuç yazısı.
 // Tarz: taslak 1 ve 3 gibi sıcak ahşap paneller.
@@ -688,6 +689,12 @@ export function Arayuz() {
                   {m(`esya.${e.id}` as MetinAnahtari)} <span className="esya-sayi">{depodaki(e.id, durum)}</span>
                 </button>
               ))}
+              {/* Kare olmayan eşyalar çevrilebilir (belge 0.3) */}
+              {durum.seciliEsya && ESYA_BOYU[durum.seciliEsya].en !== ESYA_BOYU[durum.seciliEsya].boy && (
+                <button className="dugme esya-cip" onClick={esyaCevir}>
+                  ⟳ {m('yerlestir.cevir')}
+                </button>
+              )}
               <button className="dugme dugme-servis" onClick={yerlestirmeyiKapat}>
                 {m('yerlestir.bitti')}
               </button>

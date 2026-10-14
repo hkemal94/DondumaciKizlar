@@ -1,6 +1,7 @@
 import { useMemo, useRef, type ReactNode } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { duvarlar, kameraKarisimi } from './kameraKarisimi';
+import { duvarlar, kameraKarisimi, tezgahOfsetiniGuncelle } from './kameraKarisimi';
+import { PARSEL, Z0 } from '../oyun/dekorasyon';
 import * as THREE from 'three';
 import { renk } from './renkler';
 import { CESITLER, kuvetKonumu, vitrinGenisligi } from '../oyun/kuvetler';
@@ -12,10 +13,14 @@ import { durumuOku, kuveteBas, useDurum } from '../oyun/durum';
 // Dükkânın içi, tezgahın arkasından görünen hâli (birinci şahıs yakın plan).
 // Kodla çizilmiş geçici parçalar; asıl modeller sonra gelecek.
 
-const PENCERE_Z = -2.4; // pencere duvarının yeri
+const PENCERE_Z = Z0; // pencere duvarının yeri
 const ESIK = 1.05; // pencerenin alt kenarı
 const PENCERE_UST = 2.75;
 const TAVAN = 3.25;
+// Dükkân 8×4 m (belge 0.3): ön duvar Z0, arka duvar 4 m geride
+const ARKA_Z = Z0 + PARSEL;
+const DERINLIK = ARKA_Z - PENCERE_Z;
+const ORTA_Z = (PENCERE_Z + ARKA_Z) / 2;
 
 function Kutu({
   konum,
@@ -156,34 +161,34 @@ function Odalar() {
   return (
     <group>
       {/* Zemin */}
-      <Kutu konum={[0, -0.05, -0.3]} boyut={[8, 0.1, 4.6]} renkAdi={renk.ahsapKoyu} golgeVer={false} />
+      <Kutu konum={[0, -0.05, ORTA_Z]} boyut={[8, 0.1, DERINLIK]} renkAdi={renk.ahsapKoyu} golgeVer={false} />
       {/* Duvarlar: genel görünümde kameraya dönük olanlar kalkar */}
       <KesikDuvar yon={[1, 0]}>
-        <Kutu konum={[4, 1.6, -0.3]} boyut={[0.1, 3.3, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
+        <Kutu konum={[4, 1.6, ORTA_Z]} boyut={[0.1, 3.3, DERINLIK]} renkAdi={renk.duvar} golgeVer={false} />
       </KesikDuvar>
       <KesikDuvar yon={[0, 1]}>
-        <Kutu konum={[0, 1.6, 2.05]} boyut={[8.1, 3.3, 0.1]} renkAdi={renk.duvar} golgeVer={false} />
+        <Kutu konum={[0, 1.6, ARKA_Z]} boyut={[8.1, 3.3, 0.1]} renkAdi={renk.duvar} golgeVer={false} />
         <MenuPanosu />
-        <LogoLevhasi tur="yazi" genislik={1.5} konum={[1.25, 2.25, 1.98]} donuk={Math.PI} />
+        <LogoLevhasi tur="yazi" genislik={1.5} konum={[1.25, 2.25, ARKA_Z - 0.07]} donuk={Math.PI} />
       </KesikDuvar>
       <KesikDuvar yon={[-1, 0]}>
-        <Kutu konum={[-4, 1.6, -0.3]} boyut={[0.1, 3.3, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
+        <Kutu konum={[-4, 1.6, ORTA_Z]} boyut={[0.1, 3.3, DERINLIK]} renkAdi={renk.duvar} golgeVer={false} />
       </KesikDuvar>
       <Tavan>
         {/* Tavan */}
-        <Kutu konum={[0, TAVAN, -0.3]} boyut={[8, 0.1, 4.6]} renkAdi={renk.ahsapAcik} golgeVer={false} golgeAl={false} />
+        <Kutu konum={[0, TAVAN, ORTA_Z]} boyut={[8, 0.1, DERINLIK]} renkAdi={renk.ahsapAcik} golgeVer={false} golgeAl={false} />
         {/* Tavan kirişleri */}
         {[-1.6, 0.2].map((z) => (
           <Kutu key={z} konum={[0, TAVAN - 0.12, z]} boyut={[8, 0.16, 0.2]} renkAdi={renk.ahsapOrta} golgeVer={false} />
         ))}
         {/* Damın dış yüzü ve saçak: dışarıdan bakınca görünür */}
-        <Kutu konum={[0, TAVAN + 0.1, -0.3]} boyut={[8.5, 0.12, 5.1]} renkAdi={renk.mor} golgeVer={false} golgeAl={false} />
-        <Kutu konum={[0, TAVAN + 0.2, -0.3]} boyut={[8.2, 0.08, 4.8]} renkAdi="#e9d6bd" golgeVer={false} golgeAl={false} />
+        <Kutu konum={[0, TAVAN + 0.1, ORTA_Z]} boyut={[8.5, 0.12, DERINLIK + 0.5]} renkAdi={renk.mor} golgeVer={false} golgeAl={false} />
+        <Kutu konum={[0, TAVAN + 0.2, ORTA_Z]} boyut={[8.2, 0.08, DERINLIK + 0.2]} renkAdi="#e9d6bd" golgeVer={false} golgeAl={false} />
       </Tavan>
       {/* Kesik duvar dipleri: duvar kalkınca yerinde alçak bir dip kalır */}
-      <Kutu konum={[4, 0.18, -0.3]} boyut={[0.14, 0.36, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
-      <Kutu konum={[0, 0.18, 2.05]} boyut={[8.14, 0.36, 0.14]} renkAdi={renk.duvar} golgeVer={false} />
-      <Kutu konum={[-4, 0.18, -0.3]} boyut={[0.14, 0.36, 4.6]} renkAdi={renk.duvar} golgeVer={false} />
+      <Kutu konum={[4, 0.18, ORTA_Z]} boyut={[0.14, 0.36, DERINLIK]} renkAdi={renk.duvar} golgeVer={false} />
+      <Kutu konum={[0, 0.18, ARKA_Z]} boyut={[8.14, 0.36, 0.14]} renkAdi={renk.duvar} golgeVer={false} />
+      <Kutu konum={[-4, 0.18, ORTA_Z]} boyut={[0.14, 0.36, DERINLIK]} renkAdi={renk.duvar} golgeVer={false} />
       <Kutu konum={[(KAPI_SAG + 4.07) / 2, 0.18, PENCERE_Z]} boyut={[4.07 - KAPI_SAG, 0.36, 0.2]} renkAdi={renk.ahsapAcik} golgeVer={false} />
       {/* Genel görünümde kapının yeri: zeminde mor eşik */}
       <Kutu konum={[(KAPI_SOL + KAPI_SAG) / 2, 0.02, PENCERE_Z]} boyut={[KAPI_SAG - KAPI_SOL, 0.04, 0.3]} renkAdi={renk.mor} golgeVer={false} />
@@ -210,16 +215,42 @@ function Odalar() {
   );
 }
 
+// Tezgah bölümü (belge 0.3): vitrinli tezgah, arka tezgah, çalışan ve
+// hazırlama tek parça; taşınınca hep birlikte kayar. İçindekiler bölümün
+// eski (başlangıç) yerine göre çizilir.
+export function TezgahGrubu({ children }: { children: ReactNode }) {
+  const ref = useRef<THREE.Group>(null);
+  useFrame(() => {
+    if (ref.current) ref.current.position.copy(tezgahOfsetiniGuncelle(durumuOku().tezgah));
+  });
+  return <group ref={ref}>{children}</group>;
+}
+
+// Bölümün iki ucundaki saksılar (boyla birlikte uçlara gider)
+function BolumSaksilari() {
+  const { tezgah } = useDurum();
+  const uc = tezgah.boy / 2 - 0.4;
+  return (
+    <>
+      <Saksi konum={[-uc, 0, 1.0]} />
+      <Saksi konum={[uc, 0, 1.05]} olcek={0.9} />
+    </>
+  );
+}
+
 // Oyuncunun arkasındaki tezgah: dolap, kavanozlar, kahve makinesi, kasa.
 // Tezgah görünümünde kameranın arkasında kalır; genel görünümde görünür.
 function ArkaTezgah() {
   const kavanozRenkleri = ['#ff6f7d', '#ffc928', '#5fd08a', '#9b5fc9', '#8a4b2e'];
+  const { tezgah } = useDurum();
+  const genislik = tezgah.boy - 1.4;
+  const kapakSayisi = Math.max(1, Math.floor(genislik / 1.3));
   return (
     <group position={[0, 0, 1.68]}>
-      <Kutu konum={[0, 0.45, 0]} boyut={[6.6, 0.9, 0.55]} renkAdi={renk.ahsapOrta} />
-      <Kutu konum={[0, 0.92, 0]} boyut={[6.7, 0.05, 0.62]} renkAdi={renk.tezgahUst} puruz={0.6} />
+      <Kutu konum={[0, 0.45, 0]} boyut={[genislik, 0.9, 0.55]} renkAdi={renk.ahsapOrta} />
+      <Kutu konum={[0, 0.92, 0]} boyut={[genislik + 0.1, 0.05, 0.62]} renkAdi={renk.tezgahUst} puruz={0.6} />
       {/* Dolap kapakları */}
-      {[-2.6, -1.3, 0, 1.3, 2.6].map((x) => (
+      {Array.from({ length: kapakSayisi }, (_, i) => (i - (kapakSayisi - 1) / 2) * 1.3).map((x) => (
         <Kutu key={x} konum={[x, 0.45, -0.28]} boyut={[1.15, 0.72, 0.02]} renkAdi={renk.ahsapAcik} golgeVer={false} />
       ))}
       {/* Kavanozlar */}
@@ -306,7 +337,7 @@ function LogoLevhasi({ tur, genislik, konum, donuk = 0 }: { tur: LogoTuru; genis
 function MenuPanosu() {
   const resimler = ['#ff6f7d', '#8a4b2e', '#5fd08a', '#fff0c8'];
   return (
-    <group position={[-1.6, 2.05, 1.98]} rotation={[0, Math.PI, 0]}>
+    <group position={[-1.6, 2.05, ARKA_Z - 0.07]} rotation={[0, Math.PI, 0]}>
       <Kutu konum={[0, 0, 0]} boyut={[1.7, 1.05, 0.05]} renkAdi={renk.ahsapKoyu} golgeVer={false} />
       <Kutu konum={[0, 0, 0.03]} boyut={[1.55, 0.9, 0.02]} renkAdi="#2f3b35" golgeVer={false} />
       {resimler.map((r, i) => (
@@ -504,16 +535,17 @@ function Yiginlar({ vitrin }: { vitrin: number }) {
 }
 
 function Tezgah() {
-  const { vitrin } = useDurum();
+  const { vitrin, tezgah } = useDurum();
   const VITRIN_GENISLIGI = vitrinGenisligi(vitrin.length);
+  const TOPLAM = tezgah.boy - 0.2; // duvardan duvara değil, bölümün boyu kadar
   return (
     <group>
       {/* Yan tezgahlar (vitrinin iki yanı) */}
       {[-1, 1].map((yon) => (
         // Yan tezgahlar vitrinle duvar arasını doldurur (vitrin genişleyince kısalır)
-        <group key={yon} position={[yon * (VITRIN_GENISLIGI / 2 + (7.8 - VITRIN_GENISLIGI) / 4), 0, -0.62]}>
-          <Kutu konum={[0, 0.46, 0]} boyut={[(7.8 - VITRIN_GENISLIGI) / 2 - 0.1, 0.92, 0.9]} renkAdi={renk.ahsapOrta} />
-          <Kutu konum={[0, 0.94, 0]} boyut={[(7.8 - VITRIN_GENISLIGI) / 2, 0.05, 1.0]} renkAdi={renk.tezgahUst} puruz={0.6} />
+        <group key={yon} position={[yon * (VITRIN_GENISLIGI / 2 + (TOPLAM - VITRIN_GENISLIGI) / 4), 0, -0.62]}>
+          <Kutu konum={[0, 0.46, 0]} boyut={[Math.max(0.05, (TOPLAM - VITRIN_GENISLIGI) / 2 - 0.1), 0.92, 0.9]} renkAdi={renk.ahsapOrta} />
+          <Kutu konum={[0, 0.94, 0]} boyut={[Math.max(0.05, (TOPLAM - VITRIN_GENISLIGI) / 2), 0.05, 1.0]} renkAdi={renk.tezgahUst} puruz={0.6} />
         </group>
       ))}
       <Vitrin />
@@ -534,11 +566,11 @@ export function Dukkan() {
         <Tente />
         <Ampuller />
       </KesikDuvar>
-      <Tezgah />
-      <ArkaTezgah />
-      <Saksi konum={[-3.6, 0, 1.0]} />
-      <Saksi konum={[3.55, 0, -2.0]} olcek={1.1} />
-      <Saksi konum={[3.6, 0, 1.05]} olcek={0.9} />
+      <TezgahGrubu>
+        <Tezgah />
+        <ArkaTezgah />
+        <BolumSaksilari />
+      </TezgahGrubu>
     </group>
   );
 }

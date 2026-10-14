@@ -1845,3 +1845,14 @@ a.dugme {
   align-items: center;
   gap: 4px;
 }
+
+.insaat-oklar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.insaat-oklar .dugme-simge {
+  width: 34px;
+  height: 34px;
+  font-size: 14px;
+}

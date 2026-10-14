@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { durumuOku } from '../oyun/durum';
 import { KUVET_Y, kuvetKonumu } from '../oyun/kuvetler';
 import { EL_BOYU, egitimEli } from '../arayuz/EgitimEli';
+import { tezgahOfseti } from './kameraKarisimi';
 
 // Eğitim eli küvetin üstündeyken yerini her karede buradan alır
 // (balon gibi: 3B yerden ekrandaki yere).
@@ -18,7 +19,7 @@ export function EgitimTakibi() {
       return;
     }
     const k = kuvetKonumu(egitimEli.kuvet, d.vitrin);
-    v.set(k.x, KUVET_Y + 0.06, k.z).project(camera);
+    v.set(k.x + tezgahOfseti.x, KUVET_Y + 0.06, k.z + tezgahOfseti.z).project(camera);
     const y = ((1 - v.y) / 2) * size.height;
     oge.style.transform = `translate(${((v.x + 1) / 2) * size.width}px, ${y}px)`;
     oge.classList.toggle('asagi', y > size.height - EL_BOYU);

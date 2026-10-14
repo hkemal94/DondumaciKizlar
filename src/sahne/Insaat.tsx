@@ -1,11 +1,21 @@
 import { useMemo } from 'react';
 import { parselDurumu, parselSec, useDurum, type ParselDurumu } from '../oyun/durum';
-import { SATIR_EN_AZ, SATIR_EN_COK, SUTUN_EN_AZ, SUTUN_EN_COK, parselAnahtari, parselCoz, parselSiniri } from '../oyun/dekorasyon';
+import {
+  SATIR_EN_AZ,
+  SATIR_EN_COK,
+  SUTUN_EN_AZ,
+  SUTUN_EN_COK,
+  TEZGAH_DERINLIGI,
+  Z0,
+  parselAnahtari,
+  parselCoz,
+  parselSiniri,
+} from '../oyun/dekorasyon';
 
 // İnşaat modu (belge 0.1, 0.2; Kemal, 14 Ekim): gün başında dükkâna üstten
 // bakılır, arazi kareleri trafik ışığı renkleriyle görünür: alınmış yeşil,
 // alınabilir sarı, alınamaz gri. Kareye dokununca seçilir; fiyat ve "Al"
-// ekrandaki panelde.
+// ekrandaki panelde. Tezgah bölümü mor görünür; seçilince taşınır, uzar.
 
 const RENKLER: Record<ParselDurumu, string> = {
   sahip: '#4fc46a',
@@ -53,6 +63,27 @@ function Kare({ anahtar, durumu, secili }: { anahtar: string; durumu: ParselDuru
   );
 }
 
+// Tezgah bölümü: üstünde mor yarı saydam bir kutu; dokununca seçilir
+function TezgahSecici({ secili }: { secili: boolean }) {
+  const { tezgah } = useDurum();
+  const x = tezgah.c + tezgah.boy / 2;
+  const z = Z0 + tezgah.r + TEZGAH_DERINLIGI / 2;
+  return (
+    <mesh
+      position={[x, 1.25, z]}
+      rotation={[-Math.PI / 2, 0, 0]}
+      onClick={(e) => {
+        if (e.delta > 12) return;
+        e.stopPropagation();
+        parselSec('tezgah');
+      }}
+    >
+      <planeGeometry args={[tezgah.boy - 0.1, TEZGAH_DERINLIGI - 0.1]} />
+      <meshBasicMaterial color="#9b5fc9" transparent opacity={secili ? 0.55 : 0.3} depthWrite={false} />
+    </mesh>
+  );
+}
+
 export function Insaat() {
   const durum = useDurum();
   // Gösterilen kareler: sahip olunanların çevresinde iki sıra
@@ -70,6 +101,7 @@ export function Insaat() {
       {kareler.map((k) => (
         <Kare key={k} anahtar={k} durumu={parselDurumu(k, durum)} secili={durum.seciliParsel === k} />
       ))}
+      <TezgahSecici secili={durum.seciliParsel === 'tezgah'} />
     </group>
   );
 }

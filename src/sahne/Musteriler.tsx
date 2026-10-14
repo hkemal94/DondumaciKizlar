@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { durumuOku, musteriTezgahaVardi, musteriyiKaldir, ondekiMusteri, useDurum, type Durum, type Musteri } from '../oyun/durum';
-import { PARSEL, YURUYUS_Z, hucreBul, parselCoz } from '../oyun/dekorasyon';
+import { birimIcMi, durumuOku, kapaliParseller, musteriTezgahaVardi, musteriyiKaldir, ondekiMusteri, useDurum, type Durum, type Musteri } from '../oyun/durum';
+import { PARSEL, YURUYUS_Z, birimCoz, esyaOrtasi, parselCoz } from '../oyun/dekorasyon';
+import { tezgahOfseti } from './kameraKarisimi';
 import { BANK_OTURAKLARI } from './DisSusler';
 import { Parcaciklar } from './Efektler';
 import { rastgeleVaryant } from './karakterler';
@@ -16,7 +17,7 @@ import { KAPI_X } from './Dukkan';
 const BULUT_RENKLERI = ['#9aa0a8', '#b8bec6', '#7e848c'];
 
 // Sıradaki yerler: öndeki tezgahın ortasında, diğerleri sola doğru dizilir.
-const ON_YER = new THREE.Vector3(0, 0, -1.62);
+const ON_YER = new THREE.Vector3(0, 0, -1.55); // tezgah bölümünün başlangıç yerine göre
 // Müşteri yolu (Kemal, 13 Ekim): yürüyüş yolunun iki ucundan birinden,
 // kameranın dışından gelir; kapının önüne dönüp içeri girer, sıraya geçer.
 // Giderken kapıdan çıkıp yine iki uçtan birine yürür ve silinir.
@@ -39,9 +40,22 @@ function yoldanKoltuga(yer: THREE.Vector3): THREE.Vector3[] {
   return [new THREE.Vector3(yan, 0, ISKELE_Z), new THREE.Vector3(yan, 0, yer.z), yer];
 }
 
+// Sıra tezgah bölümüyle birlikte kayar (belge 0.3). Öndeki tezgahın
+// ortasında; ötekiler kapalı alanın daha geniş kalan yanına doğru dizilir.
 function siraYeri(sira: number, hedef: THREE.Vector3) {
-  if (sira === 0) return hedef.copy(ON_YER);
-  return hedef.set(-0.82 * sira, 0, -1.85 - 0.04 * sira);
+  if (sira === 0) hedef.copy(ON_YER);
+  else {
+    let sol = Infinity;
+    let sag = -Infinity;
+    for (const p of kapaliParseller()) {
+      const { i } = parselCoz(p);
+      sol = Math.min(sol, i * PARSEL);
+      sag = Math.max(sag, i * PARSEL + PARSEL);
+    }
+    const yon = tezgahOfseti.x - sol >= sag - tezgahOfseti.x ? -1 : 1;
+    hedef.set(yon * 0.82 * sira, 0, -1.78 - 0.04 * sira);
+  }
+  return hedef.add(tezgahOfseti);
 }
 
 
@@ -70,14 +84,19 @@ function bosKoltuk(d: Durum): Koltuk | null {
   const bos: Koltuk[] = [];
   for (const y of d.yerlesim) {
     if (y.esya !== 'masa' && y.esya !== 'semsiyeliMasa' && y.esya !== 'bank') continue;
-    const h = hucreBul(y.hucre);
-    if (!h || h.arkada) continue;
+    const { c, r } = birimCoz(y.hucre);
+    const o = esyaOrtasi(y.esya, c, r, y.yon);
+    const ic = birimIcMi(c, r, d);
+    // Eşya çevrilmişse oturma yerleri ve bakış da onunla döner
+    const aci = (y.yon * Math.PI) / 2;
+    const yer = (lx: number, lz: number) =>
+      new THREE.Vector3(o.x + lx * Math.cos(aci) + lz * Math.sin(aci), ic ? 0 : 0.06, o.z - lx * Math.sin(aci) + lz * Math.cos(aci));
     if (y.esya === 'bank') {
-      // Bankta iki kişi yan yana, denize bakar
+      // Bankta iki kişi yan yana, bankın önüne bakar
       for (const ox of BANK_OTURAKLARI) {
         const anahtar = `${y.hucre}:${ox}`;
         if (doluKoltuklar.has(anahtar)) continue;
-        bos.push({ anahtar, yer: new THREE.Vector3(h.x + ox, h.ic ? 0 : 0.06, h.z + 0.02), bakis: Math.PI, ic: h.ic });
+        bos.push({ anahtar, yer: yer(ox, 0.02), bakis: Math.PI + aci, ic });
       }
       continue;
     }
@@ -86,9 +105,9 @@ function bosKoltuk(d: Durum): Koltuk | null {
       if (doluKoltuklar.has(anahtar)) continue;
       bos.push({
         anahtar,
-        yer: new THREE.Vector3(h.x + taraf * (SANDALYE_ARALIGI - 0.05), h.ic ? 0 : 0.06, h.z),
-        bakis: taraf > 0 ? -Math.PI / 2 : Math.PI / 2,
-        ic: h.ic,
+        yer: yer(taraf * (SANDALYE_ARALIGI - 0.05), 0),
+        bakis: (taraf > 0 ? -Math.PI / 2 : Math.PI / 2) + aci,
+        ic,
       });
     }
   }
@@ -135,7 +154,7 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
     // Servis bitti: ya bir masaya oturur ya da doğrudan gider
     if (m.hal === 'gidiyor' && (asama.current === 'giris' || asama.current === 'sirada')) {
       const k = m.mutlu && Math.random() < OTURMA_OLASILIGI ? bosKoltuk(d) : null;
-      const cikis = new THREE.Vector3(grup.position.x, 0, -2.12);
+      const cikis = new THREE.Vector3(grup.position.x, 0, grup.position.z - 0.2);
       if (k) {
         doluKoltuklar.set(k.anahtar, m.id);
         koltuk.current = k;

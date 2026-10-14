@@ -1,15 +1,15 @@
 import { Suspense, useLayoutEffect } from 'react';
 import { Canvas, events, useFrame, useThree, type RootState } from '@react-three/fiber';
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import { durumuOku, saatDakikasi } from '../oyun/durum';
 import { gezmeSaati, gokRenkleri } from './gokRenkleri';
 import * as THREE from 'three';
 import { Disari } from './Disari';
 import { parselCoz, parselSiniri } from '../oyun/dekorasyon';
-import { alanCercevesi, dukkanDonusu, dukkanEgimi, dukkanKaydirma, dukkanYakinligi, fotograf, kameraKarisimi, odak, tezgahDikligi } from './kameraKarisimi';
+import { alanCercevesi, tezgahOfseti, dukkanDonusu, dukkanEgimi, dukkanKaydirma, dukkanYakinligi, fotograf, kameraKarisimi, odak, tezgahDikligi } from './kameraKarisimi';
 import { Calisan } from './Calisan';
 import { Sahip } from './Sahip';
-import { Dukkan } from './Dukkan';
+import { Dukkan, TezgahGrubu } from './Dukkan';
 import { Hazirlama } from './Hazirlama';
 import { Musteriler } from './Musteriler';
 import { EgitimTakibi } from './EgitimTakibi';
@@ -32,8 +32,8 @@ const DUKKAN = { konum: new THREE.Vector3(-13.5, 15.5, -20), hedef: new THREE.Ve
 
 
 // Alınmış arazinin ortası (başlangıç arazisine göre kayma) ve ne kadar geri
-// çekilmek gerektiği. Başlangıç arazisi 8 m geniş, ~8.5 m derin.
-const BASLANGIC_MERKEZI = { x: 0, z: -2.18 };
+// çekilmek gerektiği. Başlangıç arazisi 8 m geniş, 8 m derin.
+const BASLANGIC_MERKEZI = { x: 0, z: -2.4 };
 let sonArazi = '';
 let sonCerceve = { merkezX: 0, merkezZ: 0, olcek: 1 };
 function araziCercevesi(parseller: string[]) {
@@ -90,6 +90,8 @@ function KameraYoneticisi() {
   const dukkanHedefi = useRef(new THREE.Vector3());
   const tezgahKonumu = useRef(new THREE.Vector3());
   const tezgahHedefi = useRef(new THREE.Vector3());
+  const calisanOdakKonumu = useMemo(() => new THREE.Vector3(), []);
+  const calisanOdakHedefi = useMemo(() => new THREE.Vector3(), []);
   useFrame((_, dt) => {
     const kamera = camera as THREE.PerspectiveCamera;
     const istenen = durumuOku().kamera === 'dukkan' ? 1 : 0;
@@ -129,8 +131,9 @@ function KameraYoneticisi() {
     dukkanHedefi.current.z += alanCercevesi.merkezZ;
     // Tezgah pozu: vitrin büyüyünce dikleşir
     const dik = (tezgahDikligi.deger = THREE.MathUtils.damp(tezgahDikligi.deger, d.vitrin.length > 6 ? 1 : 0, 4, dt));
-    tezgahKonumu.current.lerpVectors(TEZGAH.konum, TEZGAH_DIK.konum, dik);
-    tezgahHedefi.current.lerpVectors(TEZGAH.hedef, TEZGAH_DIK.hedef, dik);
+    // Tezgah bölümü taşınınca yakın plan da onunla gider (belge 0.3)
+    tezgahKonumu.current.lerpVectors(TEZGAH.konum, TEZGAH_DIK.konum, dik).add(tezgahOfseti);
+    tezgahHedefi.current.lerpVectors(TEZGAH.hedef, TEZGAH_DIK.hedef, dik).add(tezgahOfseti);
     konum.current.lerpVectors(tezgahKonumu.current, dukkanKonumu.current, t);
     konum.current.y += Math.sin(t * Math.PI) * 0.8;
     hedef.current.lerpVectors(tezgahHedefi.current, dukkanHedefi.current, t);
@@ -142,8 +145,8 @@ function KameraYoneticisi() {
     odakKarisimi.current = THREE.MathUtils.damp(odakKarisimi.current, odak.calisan ? 1 : 0, 5, dt);
     const o = odakKarisimi.current;
     if (o > 0.001) {
-      konum.current.lerp(CALISAN_ODAGI.konum, o);
-      hedef.current.lerp(CALISAN_ODAGI.hedef, o);
+      konum.current.lerp(calisanOdakKonumu.copy(CALISAN_ODAGI.konum).add(tezgahOfseti), o);
+      hedef.current.lerp(calisanOdakHedefi.copy(CALISAN_ODAGI.hedef).add(tezgahOfseti), o);
       kamera.fov = THREE.MathUtils.lerp(kamera.fov, 40, o);
     }
     kamera.position.copy(konum.current);
@@ -261,12 +264,14 @@ export function Sahne() {
       <Suspense fallback={null}>
         <Disari />
         <Dukkan />
-        <Hazirlama />
+        <TezgahGrubu>
+          <Hazirlama />
+          <Calisan />
+        </TezgahGrubu>
         <Musteriler />
         <EgitimTakibi />
         <Dekorlar />
         <Insaat />
-        <Calisan />
         <Sahip />
       </Suspense>
     </Canvas>

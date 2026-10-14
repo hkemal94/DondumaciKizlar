@@ -5,7 +5,7 @@ import { durumuOku, useDurum } from '../oyun/durum';
 import { ONLUKLER, SAC_RENKLERI, TENLER, type CalisanGorunumu, type Onluk } from '../oyun/calisan';
 import { KenneyKarakter, type Hareket } from './KenneyKarakter';
 import type { Karakter, Varyant } from './karakterler';
-import { kameraKarisimi, odak } from './kameraKarisimi';
+import { kameraKarisimi, odak, tezgahOfseti } from './kameraKarisimi';
 import { renk } from './renkler';
 
 // Tezgahın arkasındaki çalışan (Kemal, 13 Ekim). Genel görünümde görünür;
@@ -85,7 +85,7 @@ export function Calisan() {
     hareket.current = d.asama === 'dolduruyor' ? 'calis' : 'dur';
     const etiket = calisanEtiketi.oge;
     if (etiket) {
-      v.set(CALISAN_YERI.x, 1.6, CALISAN_YERI.z).project(camera);
+      v.set(CALISAN_YERI.x + tezgahOfseti.x, 1.6, CALISAN_YERI.z + tezgahOfseti.z).project(camera);
       etiket.style.transform = `translate(${((v.x + 1) / 2) * size.width}px, ${((1 - v.y) / 2) * size.height}px)`;
       etiket.style.opacity = g.visible && d.calisan.ad && !odak.calisan ? '1' : '0';
     }
