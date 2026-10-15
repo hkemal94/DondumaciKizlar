@@ -111,6 +111,7 @@ import {
 } from './calisan';
 import { DENEME_KAYDI } from './denemeDukkani';
 import { AYAR } from './ayarlar';
+import { ekranAyariniOku } from '../arayuz/ekranAyari';
 import { BOS_YETENEKLER, EN_COK_BASAMAK, basamakBedeli, harcananPuan, kazanilanPuan, yetenekEtkisi, yetenekleriOku, type Yetenek, type Yetenekler } from './yetenek';
 import { BOS_EXP, acilanKilitler, araziSeviyesi, gerekenSeviye, seviye, yardimciSeviyesi, type Expler, type SeviyeTuru } from './seviye';
 // Geliştirme jetonu (belge 0.8): oyun yayınlanana kadar her açılışta para
@@ -263,6 +264,11 @@ export interface Durum {
   exp: Expler;
   // Çalışanın yetenekleri (8b): alınmış basamaklar
   yetenekler: Yetenekler;
+  // Günlük hedefler, bugünün yorumları, bugünkü grupların saatleri (8c)
+  hedefler: Hedef[];
+  yorumlar: Yorum[];
+  grupZamanlari: number[];
+  grupKalan: number;
   // Bugün olanlar (seviye, ödül, açılan kilit): gün sonu kartında "YENİ!"
   gunYenilikleri: Yenilik[];
   // Gün içinde seviye atlayınca üstte kısa parlama
@@ -316,6 +322,21 @@ export type FiyatSeviyesi = 'ucuz' | 'normal' | 'pahali';
 
 export type Kamera = 'dukkan' | 'tezgah';
 
+// Günlük hedefler (belge 0.12, 8c)
+export type HedefTuru = 'musteri' | 'mukemmel' | 'kazanc' | 'besYildiz' | 'waffle' | 'icecek';
+export interface Hedef {
+  tur: HedefTuru;
+  hedef: number;
+  tamam: boolean;
+}
+// Müşteri yorumu (8c): yıldız ve oyunun verisinden nedeni; cümleler Kemal'in
+export type YorumNedeni = 'mukemmel' | 'iyi' | 'kucuk' | 'buyuk' | 'pahali' | 'bekledi' | 'altin' | 'pisme';
+export interface Yorum {
+  yildiz: number;
+  neden: YorumNedeni;
+  gorunum: number;
+}
+
 export type Yenilik =
   | { tur: 'seviye'; seviyeTuru: SeviyeTuru; seviye: number }
   | { tur: 'jeton'; miktar: number }
@@ -329,10 +350,14 @@ export interface GunlukOzet {
   bahsis: number;
   puanlar: number[];
   yevmiye: number;
+  // Günlük hedefler için (8c)
+  besYildiz: number;
+  waffle: number;
+  icecek: number;
 }
 
 function bosOzet(): GunlukOzet {
-  return { musteri: 0, kazanc: 0, mukemmel: 0, bahsis: 0, puanlar: [], yevmiye: 0 };
+  return { musteri: 0, kazanc: 0, mukemmel: 0, bahsis: 0, puanlar: [], yevmiye: 0, besYildiz: 0, waffle: 0, icecek: 0 };
 }
 
 // Gösterge ayarları
@@ -412,6 +437,10 @@ let durum: Durum = {
   albumAyi: -1,
   exp: { ...BOS_EXP },
   yetenekler: { ...BOS_YETENEKLER },
+  hedefler: [],
+  yorumlar: [],
+  grupZamanlari: [],
+  grupKalan: 0,
   gunYenilikleri: [],
   seviyeParlama: null,
   duraklatildi: false,
@@ -659,9 +688,25 @@ export function musteriDongusu(simdi: number) {
   const egitim = egitimde;
   if (egitim && durum.musteriler.length > 0) return;
   const [en, enCok] = GELIS_ARALIGI;
+  // Ara sıra bir grup birden gelir (8c)
+  let grupKalan = durum.grupKalan;
+  let grupZamanlari = durum.grupZamanlari;
+  if (!egitim && grupKalan === 0 && grupZamanlari.length > 0 && durum.dakika >= grupZamanlari[0]) {
+    const s = AYAR.sira;
+    grupKalan = s.grupKisiEnAz + Math.floor(Math.random() * (s.grupKisiEnCok - s.grupKisiEnAz + 1));
+    grupZamanlari = grupZamanlari.slice(1);
+    haberVer('haber.grup');
+  }
   // Sıra boşken ilk müşteri hemen gelsin. Fiyat ve dekorasyon müşteri
-  // sıklığını etkiler (belge 4: dükkânın çekiciliği).
-  const bekle = siradaki === 0 ? 1500 : (en + Math.random() * (enCok - en)) * gelisCarpani();
+  // sıklığını etkiler (belge 4: dükkânın çekiciliği). Günün saatine göre
+  // kalabalık dalgalanır (8c).
+  const bekle =
+    grupKalan > 0
+      ? AYAR.sira.grupAraligi
+      : siradaki === 0
+        ? 1500
+        : ((en + Math.random() * (enCok - en)) * gelisCarpani()) / saatYogunlugu();
+  if (grupKalan > 0) grupKalan--;
   guncelle({
     musteriler: [
       ...durum.musteriler,
@@ -679,6 +724,8 @@ export function musteriDongusu(simdi: number) {
       },
     ],
     sonrakiGelis: simdi + bekle,
+    grupKalan,
+    grupZamanlari,
   });
 }
 
@@ -785,16 +832,20 @@ export function servisEt() {
         mukemmel: durum.gunluk.mukemmel + butunToplar.filter((t) => t.sonuc === 'mukemmel').length,
         bahsis: durum.gunluk.bahsis + bahsis,
         puanlar: [...durum.gunluk.puanlar, puan],
+        besYildiz: durum.gunluk.besYildiz + (puan >= 4.5 ? 1 : 0),
       },
+      yorumlar: [...durum.yorumlar, { yildiz: puan, neden: dondurmaNedeni(butunToplar.map((t) => t.sonuc), pahalilik), gorunum: musteri.gorunum }],
       musteriler: durum.musteriler.map((m) => (m.id === id ? { ...m, hal: 'gidiyor', mutlu: true } : m)),
       egitimGoruldu: egitimEkle('ilkSiparis'),
     });
     // Exp (8. adım): el işi çalışana, para ve yıldız dükkâna
     const mukemmelSayisi = butunToplar.filter((t) => t.sonuc === 'mukemmel').length;
     expEkle(AYAR.exp.calisanServis + mukemmelSayisi * AYAR.exp.calisanMukemmel, dukkanExpi(miktar, puan));
+    yorumuDuyur(puan);
+    hedefKontrol();
     // Sırada kimse kalmadıysa kamera dükkânın genel görünümüne döner
     window.setTimeout(() => {
-      if (!ondekiMusteri()) kameraSec('dukkan');
+      if (!ondekiMusteri() && ekranAyariniOku().otoKamera) kameraSec('dukkan');
     }, 1600);
   }
 
@@ -973,6 +1024,7 @@ export function haberVer(anahtar: string, degerler?: Haber['degerler']) {
 function gunuBaslat() {
   haberVer('haber.gunBasladi', { gun: durum.gun });
   birikenMs = 0;
+  guncelle({ hedefler: hedefleriUret(), yorumlar: [], grupZamanlari: grupZamanlariUret(), grupKalan: 0 });
   guncelle({ istasyonSecimi: false, makine: bosMakine(), yardimciIsleri: {} });
   guncelle({ hazirlik: false, sonrakiGelis: 0, yerlestirme: false, seciliEsya: null });
   kaydet();
@@ -999,7 +1051,8 @@ export function musteriTezgahaVardi(id: number) {
   if (id === sonKarsilanan) return;
   sonKarsilanan = id;
   guncelle({ sabirMusteri: id, sabirBasi: durum.dakika });
-  kameraSec('tezgah');
+  // Ayarlar'dan kapatılabilir (8c); kapalıyken "Tezgaha geç" düğmesi parlar
+  if (ekranAyariniOku().otoKamera) kameraSec('tezgah');
 }
 
 // ---- Sabır (Kemal, 13 Ekim) ----
@@ -1021,12 +1074,13 @@ function sabirKontrol() {
     sabirMusteri: null,
     memnuniyetler: [...durum.memnuniyetler, 0],
     gunluk: { ...durum.gunluk, puanlar: [...durum.gunluk.puanlar, 0] },
+    yorumlar: [...durum.yorumlar, { yildiz: 0, neden: 'bekledi', gorunum: durum.musteriler.find((m) => m.id === id)?.gorunum ?? 0 }],
     musteriler: durum.musteriler.map((m) => (m.id === id ? { ...m, hal: 'gidiyor', mutlu: false } : m)),
     bildirim: { tur: 'sikildi', zaman: performance.now() },
   });
   haberVer('haber.sikildi');
   window.setTimeout(() => {
-    if (!ondekiMusteri()) kameraSec('dukkan');
+    if (!ondekiMusteri() && ekranAyariniOku().otoKamera) kameraSec('dukkan');
   }, 1600);
 }
 
@@ -1685,7 +1739,8 @@ function makineSonucu(urun: Istasyon, m: MakineDurumu, istenen: MakineSiparisi) 
 }
 
 // calisanExp: müşteriye oyuncu kendisi servis ettiyse (yardımcının servisinde 0)
-function musteriyiUgurla(id: number, miktar: number, puan: number, mukemmel: boolean, ek: Partial<Durum> = {}, calisanExp = 0) {
+function musteriyiUgurla(id: number, miktar: number, puan: number, mukemmel: boolean, ek: Partial<Durum> = {}, calisanExp = 0, neden: YorumNedeni = 'iyi') {
+  const musteri = durum.musteriler.find((x) => x.id === id);
   guncelle({
     para: durum.para + miktar,
     memnuniyetler: [...durum.memnuniyetler, puan],
@@ -1696,11 +1751,17 @@ function musteriyiUgurla(id: number, miktar: number, puan: number, mukemmel: boo
       kazanc: durum.gunluk.kazanc + miktar,
       mukemmel: durum.gunluk.mukemmel + (mukemmel ? 1 : 0),
       puanlar: [...durum.gunluk.puanlar, puan],
+      besYildiz: durum.gunluk.besYildiz + (puan >= 4.5 ? 1 : 0),
+      waffle: durum.gunluk.waffle + (musteri?.urun === 'waffle' ? 1 : 0),
+      icecek: durum.gunluk.icecek + (musteri?.urun === 'icecek' ? 1 : 0),
     },
+    yorumlar: [...durum.yorumlar, { yildiz: puan, neden, gorunum: musteri?.gorunum ?? 0 }],
     musteriler: durum.musteriler.map((m) => (m.id === id ? { ...m, hal: 'gidiyor', mutlu: true } : m)),
     ...ek,
   });
   expEkle(calisanExp, dukkanExpi(miktar, puan));
+  yorumuDuyur(puan);
+  hedefKontrol();
 }
 
 export function makineServisEt() {
@@ -1725,10 +1786,11 @@ export function makineServisEt() {
     mukemmel,
     { makine: { ...m, asama: 'servis' }, bildirim: { tur: 'para', miktar, bahsis: 0, zaman: simdi } },
     AYAR.exp.calisanServis + (musteri.urun === 'waffle' && m.pisme === 'altin' ? AYAR.exp.calisanAltinWaffle : 0),
+    musteri.urun !== 'waffle' ? 'iyi' : m.pisme === 'altin' ? 'altin' : 'pisme',
   );
   window.setTimeout(() => {
     guncelle({ makine: bosMakine() });
-    if (!ondekiMusteri()) kameraSec('dukkan');
+    if (!ondekiMusteri() && ekranAyariniOku().otoKamera) kameraSec('dukkan');
   }, 1100);
 }
 
@@ -2595,4 +2657,73 @@ function bahsisHesapla(seri: number) {
   if (seri < esik) return 0;
   const kat = 1 + yetenekEtkisi('gulerYuz', b);
   return Math.round(Math.min(BAHSIS_EN_COK, (seri - esik + 1) * 2) * kat);
+}
+
+// ---- Günlük hedefler, yorumlar, sıranın dalgası (belge 0.12, 8c) ----
+const HEDEF_TURLERI: HedefTuru[] = ['musteri', 'mukemmel', 'kazanc', 'besYildiz', 'waffle', 'icecek'];
+
+function hedefleriUret(): Hedef[] {
+  const h = AYAR.hedef;
+  const adaylar = HEDEF_TURLERI.filter((t) => (t === 'waffle' ? istasyonKurulu('waffle') : t === 'icecek' ? istasyonKurulu('icecek') : true));
+  const secilen: HedefTuru[] = [];
+  while (secilen.length < Math.min(h.sayi, adaylar.length)) {
+    const t = adaylar[Math.floor(Math.random() * adaylar.length)];
+    if (!secilen.includes(t)) secilen.push(t);
+  }
+  const buyume = 1 + h.seviyeArtisi * (seviye('ana', durum.exp.ana) - 1);
+  return secilen.map((tur) => ({ tur, hedef: Math.max(1, Math.round(h[tur] * buyume)), tamam: false }));
+}
+
+export function hedefIlerlemesi(h: Hedef, d: Durum = durum) {
+  const g = d.gunluk;
+  return { musteri: g.musteri, mukemmel: g.mukemmel, kazanc: g.kazanc, besYildiz: g.besYildiz, waffle: g.waffle, icecek: g.icecek }[h.tur];
+}
+
+// Tutulan hedef: jeton ve dükkân exp'i; ceza yok
+function hedefKontrol() {
+  const yeniTamam = durum.hedefler.filter((h) => !h.tamam && hedefIlerlemesi(h) >= h.hedef);
+  if (yeniTamam.length === 0) return;
+  guncelle({
+    hedefler: durum.hedefler.map((h) => (yeniTamam.includes(h) ? { ...h, tamam: true } : h)),
+    para: durum.para + yeniTamam.length * AYAR.hedef.odulJeton,
+  });
+  expEkle(0, yeniTamam.length * AYAR.hedef.odulExp);
+  haberVer('haber.hedef', { miktar: AYAR.hedef.odulJeton });
+}
+
+// Dondurmanın yorumu: oyunun verisinden tek bir neden
+function dondurmaNedeni(sonuclar: Sonuc[], pahalilik: number): YorumNedeni {
+  if (pahalilik > 0.3) return 'pahali';
+  if (sonuclar.every((x) => x === 'mukemmel')) return 'mukemmel';
+  if (sonuclar.includes('kucuk')) return 'kucuk';
+  if (sonuclar.includes('buyuk')) return 'buyuk';
+  return 'iyi';
+}
+
+// Yorum kayan yazıda da geçer (Kemal: "kayan yazı müşteri yorumlarına ayrılır")
+function yorumuDuyur(puan: number) {
+  const son = durum.yorumlar[durum.yorumlar.length - 1];
+  if (!son) return;
+  haberVer('haber.yorum', { yildiz: yildizYazisi(puan), neden: `yorum.${son.neden}` });
+}
+export function yildizYazisi(puan: number) {
+  const n = Math.max(0, Math.min(5, Math.round(puan)));
+  return '★'.repeat(n) + '☆'.repeat(5 - n);
+}
+
+// Günün saatine göre kalabalık (1 = olağan) ve küçük rastgele dalgalanma
+function saatYogunlugu() {
+  const s = AYAR.sira;
+  const saat = saatDakikasi() / 60;
+  const taban =
+    durum.dakika < 60 ? s.acilisSaati : saat >= 22 ? s.gece : saat >= 14 && saat < 17 ? s.ogledenSonra : saat >= 18 && saat < 20 ? s.aksamustu : 1;
+  return Math.max(0.2, taban * (1 - s.dalgalanma + Math.random() * 2 * s.dalgalanma));
+}
+
+// Bugün grupların geleceği dakikalar (açılıştan bir saat sonra, kapanıştan bir saat önce arası)
+function grupZamanlariUret() {
+  const s = AYAR.sira;
+  const sayi = s.grupEnAz + Math.floor(Math.random() * (s.grupEnCok - s.grupEnAz + 1));
+  const uzunluk = gunUzunlugu();
+  return Array.from({ length: sayi }, () => 60 + Math.random() * Math.max(0, uzunluk - 120)).sort((a, b) => a - b);
 }
