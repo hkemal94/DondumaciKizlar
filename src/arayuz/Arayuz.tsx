@@ -367,6 +367,8 @@ function SiparisBalonu() {
           </div>
           {/* Yatay balon (Kemal, 14 Ekim): sağda adlar, sabır ve süsleme rozetleri */}
           <div className="balon-sag">
+            {/* Gedikli müşteri (belge 0.15c) */}
+            {musteri.gedikli && <span className="balon-gedikli">{m('musteri.gedikli')}</span>}
             {/* Çeşitlerin adları: çok çeşit olunca renkler karışmasın */}
             {ekran.balonAdlari && (
               <div className="balon-adlar">

@@ -107,3 +107,99 @@ export function zeminDokusu(s: GorunusSecenegi): THREE.CanvasTexture {
   onbellek.set(s.id, doku);
   return doku;
 }
+
+// İç duvar kâğıdı (belge 0.15d): 50 cm'lik tekrar eden kare
+const DUVAR = 256; // piksel = 0,5 m (duvarda iki kez tekrar eder)
+const duvarOnbellek = new Map<string, THREE.CanvasTexture>();
+export function duvarDokusu(s: GorunusSecenegi): THREE.CanvasTexture | null {
+  if (!s.duvarDeseni) return null;
+  const var_ = duvarOnbellek.get(s.id);
+  if (var_) return var_;
+  const c = document.createElement('canvas');
+  c.width = c.height = DUVAR;
+  const g = c.getContext('2d')!;
+  g.fillStyle = s.renk;
+  g.fillRect(0, 0, DUVAR, DUVAR);
+  const b = s.ikinciRenk ?? s.renk;
+  const yer = [
+    [0.25, 0.25],
+    [0.75, 0.75],
+  ];
+  if (s.duvarDeseni === 'serit') {
+    // Dikey şeritler, araları ince çizgili
+    for (let x = 0; x < DUVAR; x += DUVAR / 4) {
+      g.fillStyle = b;
+      g.fillRect(x, 0, DUVAR / 8, DUVAR);
+      g.fillStyle = 'rgba(255,255,255,0.5)';
+      g.fillRect(x + DUVAR / 8 + 6, 0, 2, DUVAR);
+    }
+  } else if (s.duvarDeseni === 'kulah') {
+    // Külahlar: mor ve sarı toplu, eğik
+    yer.forEach(([x, y], i) => {
+      g.save();
+      g.translate(x * DUVAR, y * DUVAR);
+      g.rotate(i ? 0.25 : -0.25);
+      g.scale(1.8, 1.8);
+      g.fillStyle = '#d9a066';
+      g.beginPath();
+      g.moveTo(-14, -6);
+      g.lineTo(14, -6);
+      g.lineTo(0, 30);
+      g.closePath();
+      g.fill();
+      g.fillStyle = i ? '#ffc928' : b;
+      g.beginPath();
+      g.arc(0, -12, 14, 0, Math.PI * 2);
+      g.fill();
+      g.restore();
+    });
+    // Aralarda küçük noktalar
+    g.fillStyle = 'rgba(155,95,201,0.35)';
+    for (const [x, y] of [[0.75, 0.25], [0.25, 0.75]]) {
+      g.beginPath();
+      g.arc(x * DUVAR, y * DUVAR, 5, 0, Math.PI * 2);
+      g.fill();
+    }
+  } else {
+    // Meyveler: limon ve kiraz
+    yer.forEach(([x, y], i) => {
+      g.save();
+      g.translate(x * DUVAR, y * DUVAR);
+      g.scale(1.8, 1.8);
+      const cx = 0;
+      const cy = 0;
+      if (i === 0) {
+        g.fillStyle = b;
+        g.beginPath();
+        g.ellipse(cx, cy, 20, 14, -0.4, 0, Math.PI * 2);
+        g.fill();
+        g.fillStyle = '#7cbf3a';
+        g.beginPath();
+        g.ellipse(cx + 14, cy - 16, 8, 4, -0.6, 0, Math.PI * 2);
+        g.fill();
+      } else {
+        g.strokeStyle = '#4f7d2a';
+        g.lineWidth = 3;
+        g.beginPath();
+        g.moveTo(cx - 8, cy);
+        g.quadraticCurveTo(cx, cy - 26, cx + 4, cy - 30);
+        g.moveTo(cx + 10, cy + 2);
+        g.quadraticCurveTo(cx + 6, cy - 22, cx + 4, cy - 30);
+        g.stroke();
+        g.fillStyle = '#c8233b';
+        for (const dx of [-8, 10]) {
+          g.beginPath();
+          g.arc(cx + dx, cy + 4, 9, 0, Math.PI * 2);
+          g.fill();
+        }
+      }
+      g.restore();
+    });
+  }
+  const doku = new THREE.CanvasTexture(c);
+  doku.wrapS = doku.wrapT = THREE.RepeatWrapping;
+  doku.colorSpace = THREE.SRGBColorSpace;
+  doku.anisotropy = 4;
+  duvarOnbellek.set(s.id, doku);
+  return doku;
+}

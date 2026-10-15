@@ -663,5 +663,12 @@
   "esya.cekicilikKisa": "Appeal {n}",
   "dekor.konforEtki": "+{ek} stars to every customer's satisfaction",
   "dekor.cekicilikEtki": "the higher it is, the more often customers come",
-  "yenilik.konfor": "Items now have comfort and appeal: comfort raises satisfaction, appeal brings customers more often"
+  "yenilik.konfor": "Items now have comfort and appeal: comfort raises satisfaction, appeal brings customers more often",
+  "musteri.gedikli": "♥ Regular",
+  "haber.gedikliOldu": "A customer loved it; they're a regular now. They'll be back for {cesit}",
+  "yenilik.gedikli": "Regulars: very happy customers come back now and then for their favourite flavour",
+  "gorunus.icBoya.kulahDesenli": "Cones",
+  "gorunus.icBoya.meyveDesenli": "Fruit",
+  "gorunus.icBoya.seritli": "Striped",
+  "yenilik.duvarDeseni": "Wall patterns: cone, fruit and striped wallpaper (Look → Inside walls)"
 }

@@ -663,5 +663,12 @@
   "esya.cekicilikKisa": "Çekicilik {n}",
   "dekor.konforEtki": "her müşterinin memnuniyetine +{ek} yıldız",
   "dekor.cekicilikEtki": "yüksekse müşteri daha sık gelir",
-  "yenilik.konfor": "Eşyaların konfor ve çekicilik puanı: konfor memnuniyeti, çekicilik müşteri sıklığını artırır"
+  "yenilik.konfor": "Eşyaların konfor ve çekicilik puanı: konfor memnuniyeti, çekicilik müşteri sıklığını artırır",
+  "musteri.gedikli": "♥ Gedikli",
+  "haber.gedikliOldu": "Bir müşteri çok memnun kaldı; artık gedikli. {cesit} için yine gelecek",
+  "yenilik.gedikli": "Gedikli müşteriler: çok memnun kalanlar ara sıra yine gelir, sevdikleri çeşidi ister",
+  "gorunus.icBoya.kulahDesenli": "Külahlı",
+  "gorunus.icBoya.meyveDesenli": "Meyveli",
+  "gorunus.icBoya.seritli": "Şeritli",
+  "yenilik.duvarDeseni": "İç duvara desen: külahlı, meyveli, şeritli duvar kâğıdı (Görünüş → İç duvar)"
 }

@@ -176,6 +176,16 @@ export interface Musteri {
   urun: Istasyon;
   makine: MakineSiparisi;
   vardi: boolean; // sıradaki yerine (tezgaha) vardı
+  gedikli?: boolean; // tekrar gelen müşteri (belge 0.15c)
+}
+
+// Gedikli müşteri (belge 0.15c; "Sonraki fikirler": aynı yüz tekrar gelir):
+// çok memnun kalan dondurma müşterisi bazen gedikli olur; sonra ara sıra
+// yine gelir ve ilk topu hep sevdiği çeşittir. Adı yok (adlar Kemal'in).
+export interface Gedikli {
+  gorunum: number;
+  cesit: number;
+  gelis: number;
 }
 
 export type Bildirim =
@@ -313,6 +323,7 @@ export interface Durum {
   // Hava durumu (belge 0.15): bugünün planı; yarınki gün sonunda belli olur
   havaPlani: HavaPlani;
   yarinHava: HavaPlani | null;
+  gedikliler: Gedikli[];
 }
 
 // Waffle yapımı (belge 0.5) ve içecek standı (0.6)
@@ -453,6 +464,7 @@ let durum: Durum = {
   acikIcecekler: [...BASLANGIC_ICECEKLERI],
   havaPlani: { sabah: 'gunesli', degisim: null },
   yarinHava: null,
+  gedikliler: [],
   insaat: false,
   seciliParsel: null,
   yerlestirme: false,
@@ -815,12 +827,16 @@ export function musteriDongusu(simdi: number) {
     guncelle({ sonrakiGelis: simdi + 1500 });
     return;
   }
+  // Ara sıra gedikli bir müşteri gelir: ilk topu sevdiği çeşit (stokta varsa)
+  const gedikli = !egitim && siparis && urun === 'dondurma' ? gedikliSec() : null;
+  if (gedikli && siparis) siparis.kuvetler[0] = gedikli.cesit;
   guncelle({
     musteriler: [
       ...durum.musteriler,
       {
         id: ++sonId,
-        gorunum: Math.floor(Math.random() * MUSTERI_GORUNUM_SAYISI),
+        gorunum: gedikli ? gedikli.gorunum : Math.floor(Math.random() * MUSTERI_GORUNUM_SAYISI),
+        gedikli: !!gedikli,
         // Makine müşterisinin dondurma siparişi kullanılmaz; stok yetmezse boş bir yer tutucu
         siparis: siparis ?? { altlik: 'kulah', kuvetler: [durum.vitrin[0]], susleme: [] },
         hal: 'sirada',
@@ -836,6 +852,28 @@ export function musteriDongusu(simdi: number) {
     grupKalan,
     grupZamanlari,
   });
+}
+
+function gedikliSec(): Gedikli | null {
+  if (!durum.gedikliler.length || Math.random() * 100 >= AYAR.gedikli.gelmeOlasiligi) return null;
+  const mevcut = mevcutStok();
+  const uygun = durum.gedikliler.filter(
+    (g) => durum.vitrin.includes(g.cesit) && mevcut[dondurmaAnahtari(g.cesit)] >= 1 && !durum.musteriler.some((m) => m.hal === 'sirada' && m.gorunum === g.gorunum),
+  );
+  return uygun.length ? uygun[Math.floor(Math.random() * uygun.length)] : null;
+}
+
+// Servisten sonra: gedikli yine geldiyse sayılır; çok memnun yeni müşteri bazen gedikli olur
+function gedikliKontrol(musteri: Musteri, puan: number) {
+  if (musteri.urun !== 'dondurma') return;
+  if (musteri.gedikli) {
+    guncelle({ gedikliler: durum.gedikliler.map((g) => (g.gorunum === musteri.gorunum ? { ...g, gelis: g.gelis + 1 } : g)) });
+    return;
+  }
+  if (puan < 4.5 || durum.gedikliler.length >= AYAR.gedikli.enCok || durum.gedikliler.some((g) => g.gorunum === musteri.gorunum)) return;
+  if (Math.random() * 100 >= AYAR.gedikli.olmaOlasiligi) return;
+  guncelle({ gedikliler: [...durum.gedikliler, { gorunum: musteri.gorunum, cesit: musteri.siparis.kuvetler[0], gelis: 1 }] });
+  haberVer('haber.gedikliOldu', { cesit: `cesit.${CESITLER[musteri.siparis.kuvetler[0]]?.ad}` });
 }
 
 // Altlık ve toplar tutuyor mu (sıra kural değil; Kemal, 13 Ekim)
@@ -919,8 +957,10 @@ export function servisEt() {
     const hamPuan = butunToplar.reduce((t, top) => t + SONUC_PUANI[top.sonuc], 0) / butunToplar.length;
     // Makulün %20'sinden fazla pahalı çeşitler memnuniyeti biraz düşürür
     const pahalilik = butunToplar.reduce((t, top) => t + Math.min(1, Math.max(0, (cesitFiyati(top.kuvet) / makulFiyat(top.kuvet) - 1.2) * 1.5)), 0) / butunToplar.length;
-    const puan = Math.max(1, hamPuan - FIYAT_ETKISI[durum.fiyatSeviyesi].memnuniyet - pahalilik);
+    // Konfor eki (belge 0.15b): dükkânın rahatlığı, en çok 5 yıldız
+    const puan = Math.min(5, Math.max(1, hamPuan - FIYAT_ETKISI[durum.fiyatSeviyesi].memnuniyet - pahalilik) + konforEki());
     const id = musteri.id;
+    gedikliKontrol(musteri, puan);
     guncelle({
       asama: 'servis',
       servisDogru: true,
@@ -2299,6 +2339,7 @@ interface Kayit {
   acikIcecekler?: string[];
   havaPlani?: HavaPlani;
   yarinHava?: HavaPlani | null;
+  gedikliler?: Gedikli[];
 }
 
 function kaydet() {
@@ -2350,6 +2391,7 @@ function kaydet() {
     acikIcecekler: durum.acikIcecekler,
     havaPlani: durum.havaPlani,
     yarinHava: durum.yarinHava,
+    gedikliler: durum.gedikliler,
   };
   try {
     const ham = JSON.stringify(k);
@@ -2409,6 +2451,12 @@ export function kaydiYukle() {
       oyuncuAdi: typeof k.oyuncuAdi === 'string' ? k.oyuncuAdi.slice(0, OYUNCU_ADI_EN_UZUN) : '',
       havaPlani: havaPlaniOku(k.havaPlani) ?? { sabah: 'gunesli', degisim: null },
       yarinHava: havaPlaniOku(k.yarinHava),
+      gedikliler: Array.isArray(k.gedikliler)
+        ? k.gedikliler
+            .filter((g) => g && typeof g.gorunum === 'number' && typeof g.cesit === 'number' && CESITLER[g.cesit])
+            .slice(0, AYAR.gedikli.enCok)
+            .map((g) => ({ gorunum: g.gorunum, cesit: g.cesit, gelis: typeof g.gelis === 'number' ? g.gelis : 1 }))
+        : [],
       acikIcecekler: [...new Set([...BASLANGIC_ICECEKLERI, ...(Array.isArray(k.acikIcecekler) ? (k.acikIcecekler.filter((x) => ICECEKLER.includes(x as Icecek)) as Icecek[]) : [])])],
     });
     // Eski parçaların parası geri verildiyse hemen kaydedilir (bir kez verilsin)
@@ -2649,6 +2697,7 @@ function durumuSifirla() {
     acikIcecekler: [...BASLANGIC_ICECEKLERI],
     havaPlani: { sabah: 'gunesli', degisim: null },
     yarinHava: null,
+    gedikliler: [],
     insaat: false,
     seciliParsel: null,
     yerlestirme: false,
