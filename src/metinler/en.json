@@ -544,5 +544,6 @@
   "stok.tur.icecek": "Drinks",
   "menu.stok": "Stock",
   "siparis.birinci": "1: {adlar}",
-  "siparis.ikinci": "2: {adlar}"
+  "siparis.ikinci": "2: {adlar}",
+  "gunSonu.mesai": "Overtime ({saat} h)"
 }

@@ -457,6 +457,8 @@ function GunSonu({ stokAc }: { stokAc: () => void }) {
     ...(g.bahsis > 0 ? ([[m('gunSonu.bahsis'), <><span className="para-simge" aria-hidden /> {g.bahsis}</>]] as [string, React.ReactNode][]) : []),
     // Yardımcıların yevmiyesi (belge 0.5)
     ...(g.yevmiye > 0 ? ([[m('gunSonu.yevmiye'), <><span className="para-simge" aria-hidden /> −{g.yevmiye}</>]] as [string, React.ReactNode][]) : []),
+    // Fazla mesai ücreti (15 Ekim gece)
+    ...(g.mesai > 0 ? ([[m('gunSonu.mesai', { saat: g.mesaiSaati }), <><span className="para-simge" aria-hidden /> −{g.mesai}</>]] as [string, React.ReactNode][]) : []),
     [m('gunSonu.memnuniyet'), <Yildizlar puan={ortalama} />],
     [m('gunSonu.toplam'), <><span className="para-simge" aria-hidden /> {durum.para}</>],
   ];

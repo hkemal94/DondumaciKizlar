@@ -354,6 +354,8 @@ export interface GunlukOzet {
   bahsis: number;
   puanlar: number[];
   yevmiye: number;
+  mesai: number; // fazla mesai ücreti (kapanıştan sonra çalışılan saatler)
+  mesaiSaati: number;
   // Günlük hedefler için (8c)
   besYildiz: number;
   waffle: number;
@@ -361,7 +363,7 @@ export interface GunlukOzet {
 }
 
 function bosOzet(): GunlukOzet {
-  return { musteri: 0, kazanc: 0, mukemmel: 0, bahsis: 0, puanlar: [], yevmiye: 0, besYildiz: 0, waffle: 0, icecek: 0 };
+  return { musteri: 0, kazanc: 0, mukemmel: 0, bahsis: 0, puanlar: [], yevmiye: 0, mesai: 0, mesaiSaati: 0, besYildiz: 0, waffle: 0, icecek: 0 };
 }
 
 // Gösterge ayarları
@@ -1060,7 +1062,11 @@ export function zamanIlerlet(gecenMs: number) {
   if (!bekleyen && durum.asama === 'altlikSec') {
     // Yardımcıların yevmiyesi (belge 0.5): para 0'ın altına inmez, ceza yok
     const yevmiye = Math.min(durum.para, durum.yardimcilar.length * YEVMIYE);
-    guncelle({ gunSonu: true, para: durum.para - yevmiye, gunluk: { ...durum.gunluk, yevmiye } });
+    // Fazla mesai (Kemal, 15 Ekim gece): kapanıştan sonra başlayan her saat için
+    // her yardımcıya ek ücret; para yine 0'ın altına inmez
+    const mesaiSaati = Math.ceil(Math.max(0, durum.dakika - gunUzunlugu()) / 60);
+    const mesai = Math.min(durum.para - yevmiye, mesaiSaati * durum.yardimcilar.length * AYAR.yardimci.mesaiSaatlik);
+    guncelle({ gunSonu: true, para: durum.para - yevmiye - mesai, gunluk: { ...durum.gunluk, yevmiye, mesai, mesaiSaati } });
     kaydet();
   }
 }
