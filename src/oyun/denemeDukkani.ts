@@ -1,4 +1,5 @@
 import { CESITLER } from './kuvetler';
+import { toplamEsik } from './seviye';
 
 // Deneme dükkânı (belge 0.8; Kemal, 14 Ekim gece): oyun yayınlanana kadar
 // ileri seviyedeki dükkânı görmek için hazır kayıt. Açılış ekranından her
@@ -13,6 +14,8 @@ for (let i = -3; i <= 2; i++) for (let j = -1; j <= 2; j++) parseller.push(`${i}
 export const DENEME_KAYDI = {
   para: 25000,
   gun: 30,
+  // Exp (8. adım): ileri seviye; dükkânda hiçbir şey kilitli kalmaz
+  exp: { ana: toplamEsik('ana', 30) + 40, dukkan: toplamEsik('dukkan', 60), calisan: toplamEsik('calisan', 15) + 10 },
   memnuniyetler: Array.from({ length: 40 }, (_, i) => (i % 5 === 0 ? 4 : 5)),
   acikCesitler: CESITLER.map((_, i) => i),
   vitrin: CESITLER.slice(0, 12).map((_, i) => i),

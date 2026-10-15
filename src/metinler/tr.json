@@ -443,5 +443,22 @@
   "duraklat.galeri": "Galeri",
   "haber.album": "Dükkânın bu ayki fotoğrafı albüme girdi",
   "dil.tr": "Türkçe",
-  "dil.en": "English"
+  "dil.en": "English",
+  "seviye.baslik": "Seviyeler",
+  "seviye.kisa": "Sv. {seviye}",
+  "seviye.ana": "Ana seviye",
+  "seviye.dukkan": "Dükkân seviyesi",
+  "seviye.calisan": "Çalışan seviyesi",
+  "seviye.not": "Servis, MÜKEMMEL toplar ve altın sarı waffle çalışana; kazanç ve yıldızlar dükkâna exp verir. Hepsi ana seviyeye de gider. Dükkân seviyesi yeni eşya ve çeşitlerin kilidini açar.",
+  "seviye.atladi": "Seviye {seviye}!",
+  "seviye.yeni": "YENİ!",
+  "seviye.satir": "{ad}: {seviye}",
+  "seviye.odul": "Seviye ödülü",
+  "seviye.hediye": "Hediye: {ad} (depoda)",
+  "seviye.acilanlar": "Açılanlar: {liste}",
+  "seviye.gerekli": "Dükkân seviyesi {seviye}",
+  "seviye.vitrin": "{boy} küvetlik vitrin",
+  "haber.seviye": "Seviye {seviye}! Ödüller gün sonunda",
+  "seviye.gerekliKisa": "Sv. {seviye}",
+  "seviye.dahaFazla": "{liste} ve {sayi} tane daha"
 }

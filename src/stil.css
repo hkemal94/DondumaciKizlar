@@ -2226,3 +2226,169 @@ a.dugme {
   text-align: center;
   padding: 18px 8px;
 }
+
+/* Deneyim ve seviyeler (belge 0.12, 8. adım) */
+.seviye-rozet-kap {
+  position: relative;
+  pointer-events: auto;
+}
+.seviye-rozet {
+  font: inherit;
+  cursor: pointer;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  min-width: 58px;
+}
+.seviye-rozet-yazi {
+  font-weight: 900;
+  text-align: center;
+  line-height: 1.1;
+}
+.seviye-rozet-cubuk,
+.seviye-cubuk {
+  display: block;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.25);
+  overflow: hidden;
+}
+.seviye-rozet-cubuk > span,
+.seviye-cubuk > span {
+  display: block;
+  height: 100%;
+  background: var(--sari);
+  border-radius: 3px;
+  transition: width 0.4s ease-out;
+}
+.seviye-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(300px, 80vw);
+  background: var(--krem);
+  color: var(--mor-koyu);
+  border: 3px solid var(--mor-koyu);
+  border-radius: 16px;
+  box-shadow: 0 4px 0 var(--mor-koyu);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 5;
+  animation: belir 0.2s ease-out;
+}
+.seviye-satir {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3px;
+  font-weight: 800;
+  font-size: 14px;
+}
+.seviye-satir .seviye-cubuk {
+  height: 9px;
+  background: #e8dcef;
+}
+.seviye-satir .seviye-cubuk > span {
+  background: var(--mor);
+}
+.seviye-sayi {
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.75;
+  font-variant-numeric: tabular-nums;
+}
+.seviye-panel .gel-not {
+  margin: 0;
+  font-size: 12px;
+}
+.seviye-parlama {
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 22px;
+  border-radius: 999px;
+  background: var(--sari);
+  color: var(--mor-koyu);
+  border: 3px solid var(--mor-koyu);
+  box-shadow: 0 0 0 6px rgba(255, 201, 40, 0.35), 0 4px 0 var(--mor-koyu);
+  font-weight: 900;
+  font-size: 24px;
+  pointer-events: none;
+  animation: seviyeParla 2.6s ease-out forwards;
+}
+@keyframes seviyeParla {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.6);
+  }
+  12% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.12);
+  }
+  22% {
+    transform: translateX(-50%) scale(1);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-14px);
+  }
+}
+.gun-yenilikler {
+  align-self: stretch;
+  background: #fff6d9;
+  border: 2px dashed var(--mor);
+  border-radius: 14px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.gun-yeni-baslik {
+  font-weight: 900;
+  color: var(--mor);
+  letter-spacing: 0.06em;
+}
+.gun-yenilikler ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+.seviye-kilit {
+  font-size: 12px;
+}
+.seviye-kilit::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 7px;
+  margin-right: 5px;
+  border: 2px solid currentColor;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  border-bottom: none;
+  vertical-align: 3px;
+  box-shadow: 0 7px 0 -1px currentColor;
+}
+.esya-kart.kilitli img {
+  filter: grayscale(0.8) brightness(0.9);
+}
+
+/* Gün sonu: seviye yenilikleri varsa iki sütun (yatay ekranda Tamam görünür kalsın) */
+.gun-sonu-govde {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.gun-sonu.gun-sonu-genis {
+  width: min(760px, 100%);
+}
+.gun-sonu-genis .gun-sonu-govde {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: start;
+}

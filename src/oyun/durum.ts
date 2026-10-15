@@ -111,6 +111,7 @@ import {
 } from './calisan';
 import { DENEME_KAYDI } from './denemeDukkani';
 import { AYAR } from './ayarlar';
+import { BOS_EXP, acilanKilitler, araziSeviyesi, gerekenSeviye, seviye, yardimciSeviyesi, type Expler, type SeviyeTuru } from './seviye';
 // Geliştirme jetonu (belge 0.8): oyun yayınlanana kadar her açılışta para
 // en az bu kadar olur. Yayından önce 0 yapılır.
 export const GELISTIRME_JETONU = AYAR.para.gelistirmeJetonu;
@@ -257,6 +258,12 @@ export interface Durum {
   tabelaDenemesi: Tabela | null; // alınmadan denenen (kaydedilmez)
   // Eğitim (Kemal, 14 Ekim): görülen el işaretleri (kayıtta saklanır)
   egitimGoruldu: EgitimAdi[];
+  // Deneyim (belge 0.12, 8. adım): birikmiş exp; seviyeler bundan hesaplanır
+  exp: Expler;
+  // Bugün olanlar (seviye, ödül, açılan kilit): gün sonu kartında "YENİ!"
+  gunYenilikleri: Yenilik[];
+  // Gün içinde seviye atlayınca üstte kısa parlama
+  seviyeParlama: { seviye: number; zaman: number } | null;
   // Albüm (belge 0.12): dükkânın kendiliğinden çekilen fotoğrafı en son hangi
   // ay (30 günlük) çekildi; -1 = hiç
   albumAyi: number;
@@ -305,6 +312,12 @@ export interface Yerlesim {
 export type FiyatSeviyesi = 'ucuz' | 'normal' | 'pahali';
 
 export type Kamera = 'dukkan' | 'tezgah';
+
+export type Yenilik =
+  | { tur: 'seviye'; seviyeTuru: SeviyeTuru; seviye: number }
+  | { tur: 'jeton'; miktar: number }
+  | { tur: 'hediye'; esya: Esya }
+  | { tur: 'kilit'; anahtar: string };
 
 export interface GunlukOzet {
   musteri: number;
@@ -394,6 +407,9 @@ let durum: Durum = {
   tabelaDenemesi: null,
   egitimGoruldu: [],
   albumAyi: -1,
+  exp: { ...BOS_EXP },
+  gunYenilikleri: [],
+  seviyeParlama: null,
   duraklatildi: false,
   gezme: false,
   mukemmelSeri: 0,
@@ -768,6 +784,9 @@ export function servisEt() {
       musteriler: durum.musteriler.map((m) => (m.id === id ? { ...m, hal: 'gidiyor', mutlu: true } : m)),
       egitimGoruldu: egitimEkle('ilkSiparis'),
     });
+    // Exp (8. adım): el işi çalışana, para ve yıldız dükkâna
+    const mukemmelSayisi = butunToplar.filter((t) => t.sonuc === 'mukemmel').length;
+    expEkle(AYAR.exp.calisanServis + mukemmelSayisi * AYAR.exp.calisanMukemmel, dukkanExpi(miktar, puan));
     // Sırada kimse kalmadıysa kamera dükkânın genel görünümüne döner
     window.setTimeout(() => {
       if (!ondekiMusteri()) kameraSec('dukkan');
@@ -918,6 +937,7 @@ export function gunSonunuKapat() {
     gunSonu: false,
     hazirlik: true,
     gunluk: bosOzet(),
+    gunYenilikleri: [],
     sonrakiGelis: 0,
     kamera: 'dukkan',
     asama: 'altlikSec',
@@ -1062,12 +1082,14 @@ const HAFTA_SONU_CARPANI = AYAR.gun.haftaSonuCarpani;
 function gelisCarpani() {
   const haftaSonu = haftaSonuMu() ? HAFTA_SONU_CARPANI : 1;
   const cekicilik = Math.min(AYAR.cekicilik.cekicilikEnCok, ESYA_ETKISI * durum.yerlesim.length + ISIK_ETKISI * durum.isikSeviyesi);
-  return FIYAT_ETKISI[durum.fiyatSeviyesi].gelis * (1 - cekicilik) * haftaSonu;
+  // Ana seviye arttıkça müşteriler biraz daha sık gelir (8. adım)
+  const seviyeEtkisi = Math.min(AYAR.exp.musteriArtisiEnCok, AYAR.exp.musteriArtisi * (seviye('ana', durum.exp.ana) - 1));
+  return FIYAT_ETKISI[durum.fiyatSeviyesi].gelis * (1 - cekicilik) * (1 - seviyeEtkisi) * haftaSonu;
 }
 
 export function cesitAc(cesit: number) {
   const c = CESITLER[cesit];
-  if (!c || durum.acikCesitler.includes(cesit) || durum.para < c.fiyat || !cesitAlinabilir(cesit)) return;
+  if (!c || durum.acikCesitler.includes(cesit) || durum.para < c.fiyat || !cesitAlinabilir(cesit) || !kilitAcik(`cesit.${c.ad}`)) return;
   // Vitrinde yer varsa yeni çeşit hemen küvete girer
   const yerVar = durum.vitrin.length < durum.vitrinBoyu;
   guncelle({
@@ -1091,7 +1113,7 @@ export function sonrakiVitrin(d: Durum = durum) {
 
 export function vitrinBuyut() {
   const b = sonrakiVitrin();
-  if (!b || durum.para < b.fiyat) return;
+  if (!b || durum.para < b.fiyat || !kilitAcik(`vitrin.${b.boy}`)) return;
   // Yeni yerler açık çeşitlerle dolar
   const ekler = durum.acikCesitler.filter((c) => !durum.vitrin.includes(c)).slice(0, b.boy - durum.vitrin.length);
   guncelle({ para: durum.para - b.fiyat, vitrinBoyu: b.boy, vitrin: [...durum.vitrin, ...ekler] });
@@ -1139,14 +1161,14 @@ export function kupAc() {
 // ---- Dekorasyon (3. paket) ----
 export function isikAl() {
   const sonraki = ISIK_SEVIYELERI[durum.isikSeviyesi];
-  if (!sonraki || durum.isikSeviyesi >= EN_YUKSEK_ISIK || durum.para < sonraki.fiyat) return;
+  if (!sonraki || durum.isikSeviyesi >= EN_YUKSEK_ISIK || durum.para < sonraki.fiyat || !kilitAcik(`isik.${sonraki.seviye}`)) return;
   guncelle({ para: durum.para - sonraki.fiyat, isikSeviyesi: durum.isikSeviyesi + 1 });
   kaydet();
 }
 
 export function esyaAl(esya: Esya) {
   const e = ESYALAR.find((x) => x.id === esya);
-  if (!e || durum.para < e.fiyat) return;
+  if (!e || durum.para < e.fiyat || !kilitAcik(`esya.${esya}`)) return;
   guncelle({ para: durum.para - e.fiyat, depo: { ...durum.depo, [esya]: (durum.depo[esya] ?? 0) + 1 } });
   kaydet();
 }
@@ -1214,7 +1236,7 @@ export function parselSec(anahtar: string | null) {
 export function parselAl(anahtar: string) {
   if (!durum.insaat || parselDurumu(anahtar) !== 'alinabilir') return;
   const fiyat = parselFiyatiNe(anahtar);
-  if (durum.para < fiyat) return;
+  if (durum.para < fiyat || araziKilidi() !== null) return;
   guncelle({ para: durum.para - fiyat, parseller: [...durum.parseller, anahtar] });
   kaydet();
 }
@@ -1656,7 +1678,8 @@ function makineSonucu(urun: Istasyon, m: MakineDurumu, istenen: MakineSiparisi) 
   return { puan: 5, miktar: makineSatisFiyati('icecek') * istenen.icecekler.length, mukemmel: false };
 }
 
-function musteriyiUgurla(id: number, miktar: number, puan: number, mukemmel: boolean, ek: Partial<Durum> = {}) {
+// calisanExp: müşteriye oyuncu kendisi servis ettiyse (yardımcının servisinde 0)
+function musteriyiUgurla(id: number, miktar: number, puan: number, mukemmel: boolean, ek: Partial<Durum> = {}, calisanExp = 0) {
   guncelle({
     para: durum.para + miktar,
     memnuniyetler: [...durum.memnuniyetler, puan],
@@ -1671,6 +1694,7 @@ function musteriyiUgurla(id: number, miktar: number, puan: number, mukemmel: boo
     musteriler: durum.musteriler.map((m) => (m.id === id ? { ...m, hal: 'gidiyor', mutlu: true } : m)),
     ...ek,
   });
+  expEkle(calisanExp, dukkanExpi(miktar, puan));
 }
 
 export function makineServisEt() {
@@ -1688,10 +1712,14 @@ export function makineServisEt() {
   }
   const { puan, miktar, mukemmel } = makineSonucu(musteri.urun, m, musteri.makine);
   const p = Math.max(1, puan - FIYAT_ETKISI[durum.fiyatSeviyesi].memnuniyet);
-  musteriyiUgurla(musteri.id, miktar, p, mukemmel, {
-    makine: { ...m, asama: 'servis' },
-    bildirim: { tur: 'para', miktar, bahsis: 0, zaman: simdi },
-  });
+  musteriyiUgurla(
+    musteri.id,
+    miktar,
+    p,
+    mukemmel,
+    { makine: { ...m, asama: 'servis' }, bildirim: { tur: 'para', miktar, bahsis: 0, zaman: simdi } },
+    AYAR.exp.calisanServis + (musteri.urun === 'waffle' && m.pisme === 'altin' ? AYAR.exp.calisanAltinWaffle : 0),
+  );
   window.setTimeout(() => {
     guncelle({ makine: bosMakine() });
     if (!ondekiMusteri()) kameraSec('dukkan');
@@ -1747,7 +1775,7 @@ export function adaylariGetir() {
   guncelle({ adaylar: [0, 1, 2].map((n) => adayUret(Date.now() + n)) });
 }
 export function yardimciAlinabilir(d: Durum = durum) {
-  return d.yardimcilar.length < EN_COK_YARDIMCI && d.para >= YARDIMCI_FIYATI;
+  return d.yardimcilar.length < EN_COK_YARDIMCI && d.para >= YARDIMCI_FIYATI && yardimciKilidi(d) === null;
 }
 export function yardimciAl(adayId: number, ad: string) {
   const aday = durum.adaylar.find((a) => a.id === adayId);
@@ -1793,6 +1821,7 @@ export function parcaEklenebilir(tur: ParcaTipi, yan: 1 | -1, d: Durum = durum) 
   if (d.tezgahParcalari.some((p) => p.tur === 'kose' && p.yan === yan)) return false;
   const fiyat = d.sahipParcalar.includes(tur) ? 0 : PARCA_BILGI[tur].fiyat;
   if (d.para < fiyat) return false;
+  if (!d.sahipParcalar.includes(tur) && !kilitAcik(`parca.${tur}`, d)) return false;
   return tezgahUygun(d.tezgah, d, [...d.tezgahParcalari, { tur, yan }]);
 }
 
@@ -1877,6 +1906,7 @@ interface Kayit {
   tabelalar?: Tabela[];
   egitimGoruldu: EgitimAdi[];
   albumAyi?: number;
+  exp?: Partial<Expler>;
 }
 
 function kaydet() {
@@ -1916,6 +1946,7 @@ function kaydet() {
     tabelalar: durum.tabelalar,
     egitimGoruldu: durum.egitimGoruldu,
     albumAyi: durum.albumAyi,
+    exp: durum.exp,
   };
   try {
     localStorage.setItem(kayitAnahtari, JSON.stringify(k));
@@ -1956,6 +1987,8 @@ export function kaydiYukle() {
           ? [...EGITIMLER]
           : [],
       albumAyi: typeof k.albumAyi === 'number' ? k.albumAyi : -1,
+      // Exp (8. adım): eski kayıtlar 1. seviyeden başlar (Kemal, 15 Ekim)
+      exp: expOku(k.exp),
     });
     // Eski parçaların parası geri verildiyse hemen kaydedilir (bir kez verilsin)
     if (eskiParcaIadesi(k) > 0) kaydet();
@@ -2199,6 +2232,9 @@ function durumuSifirla() {
   tabelaDenemesi: null,
     egitimGoruldu: [],
     albumAyi: -1,
+    exp: { ...BOS_EXP },
+    gunYenilikleri: [],
+    seviyeParlama: null,
     dakika: 0,
     acik: true,
     gunSonu: false,
@@ -2404,7 +2440,7 @@ export function tabelaSec(id: Tabela) {
 }
 export function tabelaAl(id: Tabela) {
   const t = TABELALAR.find((x) => x.id === id);
-  if (!t || tabelaAcikMi(id) || durum.para < t.fiyat) return;
+  if (!t || tabelaAcikMi(id) || durum.para < t.fiyat || !kilitAcik(`tabela.${id}`)) return;
   guncelle({
     para: durum.para - t.fiyat,
     acikGorunusler: [...durum.acikGorunusler, tabelaAnahtari(id)],
@@ -2435,7 +2471,7 @@ export function gorunusSec(g: GorunusGrubu, id: string) {
 
 export function gorunusAl(g: GorunusGrubu, id: string) {
   const s = gorunusSecenegi(g, id);
-  if (gorunusAcikMi(g, id) || durum.para < s.fiyat) return;
+  if (gorunusAcikMi(g, id) || durum.para < s.fiyat || !kilitAcik(`gorunus.${g}.${id}`)) return;
   const deneme = { ...durum.gorunusDenemesi };
   delete deneme[g];
   guncelle({
@@ -2450,4 +2486,70 @@ export function gorunusAl(g: GorunusGrubu, id: string) {
 // Mağaza kapanınca denenen ama alınmayan her şey eski hâline döner
 export function gorunusDenemesiniBitir() {
   if (Object.keys(durum.gorunusDenemesi).length || durum.tabelaDenemesi) guncelle({ gorunusDenemesi: {}, tabelaDenemesi: null });
+}
+
+// ---- Deneyim ve seviyeler (belge 0.12, 8. adım) ----
+function expOku(ham: unknown): Expler {
+  const k = (ham && typeof ham === 'object' ? ham : {}) as Partial<Expler>;
+  const sayi = (n: unknown) => (typeof n === 'number' && Number.isFinite(n) && n > 0 ? n : 0);
+  return { ana: sayi(k.ana), dukkan: sayi(k.dukkan), calisan: sayi(k.calisan) };
+}
+
+export function seviyeler(d: Durum = durum) {
+  return { ana: seviye('ana', d.exp.ana), dukkan: seviye('dukkan', d.exp.dukkan), calisan: seviye('calisan', d.exp.calisan) };
+}
+
+// Dükkânın exp'i: kazanılan para ve müşterinin yıldızı
+function dukkanExpi(miktar: number, puan: number) {
+  const e = AYAR.exp;
+  const yildiz = puan >= 4.5 ? e.dukkanBesYildiz : puan >= 3.5 ? e.dukkanDortYildiz : 0;
+  return miktar / Math.max(1, e.dukkanParaBasina) + yildiz;
+}
+
+// Dükkân seviyesi kilidi: anahtarın gerektirdiği seviyeye gelindi mi
+export function kilitAcik(anahtar: string, d: Durum = durum) {
+  return seviye('dukkan', d.exp.dukkan) >= gerekenSeviye(anahtar);
+}
+// Arazi ve yardımcı: kilitliyse gereken seviye, açıksa null
+export function araziKilidi(d: Durum = durum) {
+  const gereken = araziSeviyesi(Math.max(0, d.parseller.length - BASLANGIC_PARSELLERI.length));
+  return seviye('dukkan', d.exp.dukkan) >= gereken ? null : gereken;
+}
+export function yardimciKilidi(d: Durum = durum) {
+  const gereken = yardimciSeviyesi(d.yardimcilar.length);
+  return seviye('dukkan', d.exp.dukkan) >= gereken ? null : gereken;
+}
+
+// Exp ekler; seviye atlanınca ödül verilir, açılanlar "bugünün yenilikleri"ne yazılır
+export function expEkle(calisan: number, dukkan: number) {
+  if (calisan <= 0 && dukkan <= 0) return;
+  const eski = seviyeler();
+  const exp = { ana: durum.exp.ana + calisan + dukkan, dukkan: durum.exp.dukkan + dukkan, calisan: durum.exp.calisan + calisan };
+  const yeni = { ana: seviye('ana', exp.ana), dukkan: seviye('dukkan', exp.dukkan), calisan: seviye('calisan', exp.calisan) };
+  const yenilikler: Yenilik[] = [];
+  let para = durum.para;
+  let depo = durum.depo;
+  for (let s = eski.ana + 1; s <= yeni.ana; s++) {
+    const jeton = s * AYAR.exp.odulJetonu;
+    para += jeton;
+    yenilikler.push({ tur: 'seviye', seviyeTuru: 'ana', seviye: s }, { tur: 'jeton', miktar: jeton });
+    // Her birkaç seviyede bir hediye eşya depoya gelir
+    if (AYAR.exp.hediyeAraligi > 0 && s % AYAR.exp.hediyeAraligi === 0) {
+      const adaylar = ESYALAR.filter((e) => e.fiyat <= AYAR.exp.hediyeEnCokFiyat);
+      const hediye = adaylar[(s * 7 + durum.gun) % adaylar.length];
+      if (hediye) {
+        depo = { ...depo, [hediye.id]: (depo[hediye.id] ?? 0) + 1 };
+        yenilikler.push({ tur: 'hediye', esya: hediye.id });
+      }
+    }
+  }
+  for (let s = eski.dukkan + 1; s <= yeni.dukkan; s++) yenilikler.push({ tur: 'seviye', seviyeTuru: 'dukkan', seviye: s });
+  for (const anahtar of acilanKilitler(eski.dukkan, yeni.dukkan)) yenilikler.push({ tur: 'kilit', anahtar });
+  for (let s = eski.calisan + 1; s <= yeni.calisan; s++) yenilikler.push({ tur: 'seviye', seviyeTuru: 'calisan', seviye: s });
+  guncelle({
+    exp,
+    ...(yenilikler.length ? { gunYenilikleri: [...durum.gunYenilikleri, ...yenilikler], para, depo } : {}),
+    ...(yeni.ana > eski.ana ? { seviyeParlama: { seviye: yeni.ana, zaman: performance.now() } } : {}),
+  });
+  if (yeni.ana > eski.ana) haberVer('haber.seviye', { seviye: yeni.ana });
 }

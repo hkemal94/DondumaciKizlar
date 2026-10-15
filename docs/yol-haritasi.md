@@ -11,9 +11,9 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | | |
 |---|---|
 | Aşama | Oynanabilir sürüm, büyüme, karakterler, liman ve kişiselleştirme bitti. Sırada görsel kalite |
-| Son biten | 7. adımın oyun tarafı: ayar dosyası (bu PR) |
-| Şu an | 7. adım: KKM'de Ayarlar sekmesi (yazma yolu Kemal'in seçimini bekliyor) |
-| Sıradaki | 8. adım: exp sistemi (önce soru turu) |
+| Son biten | 8a: exp, seviyeler ve dükkân seviyesi kilitleri (bu PR) |
+| Şu an | 8a'nın denetimi |
+| Sıradaki | 8b: yetenek puanı ve yetenek ağacı |
 | Yayın | Deneme sürümü webde; tarih yok, acele yok |
 
 ## Sıra (15 Ekim, belge 0.12)
@@ -27,8 +27,8 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | 4 | Karakterler | Gülümseme, bedene oturan önlük + dükkân üniforması, el sallama ve mutlu / mutsuz ayrılış, kıyafet seçimi, saçları başlardan ayırma denemesi | Bitti ([#38](https://github.com/hkemal94/DondumaciKizlar/pull/38)) |
 | 5 | Açılış ve galeri | Arkada kendi dükkânın gün batımında, galeri, ayda bir otomatik dükkân fotoğrafı | Bitti ([#39](https://github.com/hkemal94/DondumaciKizlar/pull/39)) |
 | 6 | İngilizce | Bütün yazılar İngilizce; Ayarlar'da dil seçimi | Bitti ([#40](https://github.com/hkemal94/DondumaciKizlar/pull/40)) |
-| 7 | Ayar paneli | Bütün sayılar oyunda tek ayar dosyasında; KKM'de "Ayarlar" sekmesi (KKM deposunda ayrı PR) | Oyun tarafı bitti (bu PR); KKM sekmesi sırada |
-| 8 | Exp sistemi | Ana seviye + dükkân ve çalışan seviyeleri; günlük hedefler; yıldızlar yorum gibi; sıra bazen uzun bazen boş; otomatik kamera ayarı; eşyalara konfor ve çekicilik | |
+| 7 | Ayar paneli | Bütün sayılar oyunda tek ayar dosyasında; KKM'de "Ayarlar" sekmesi (KKM deposunda ayrı PR) | Bitti ([#41](https://github.com/hkemal94/DondumaciKizlar/pull/41), KKM [#94](https://github.com/hkemal94/Kems-Company/pull/94)). Yazma yolu: GitHub anahtarı (Kemal, 15 Ekim) |
+| 8 | Exp sistemi | Ana seviye + dükkân ve çalışan seviyeleri; günlük hedefler; yıldızlar yorum gibi; sıra bazen uzun bazen boş; otomatik kamera ayarı; eşyalara konfor ve çekicilik | Soru turu bitti (15 Ekim). 8a exp + seviyeler + kilitler: bitti (bu PR). Sırada 8b yetenekler; 8c günlük hedefler, yorumlar, sıra, otomatik kamera. Eşya konfor / çekicilik 10. maddeye kaldı |
 | 9 | İçecekler ve stok | Limonata / ayran / buzlu çay → milkshake / frappe → kahve → taze sıkma; hafif stok ve gün sonu sipariş ekranı | |
 | 10 | Sonra | Kayan yazıda müşteri yorumları (cümleler Kemal'in), eşya renkleri ve yumuşak yıpranma, gedikli müşteriler, hava durumu, duvar deseni, seyyar dondurma arabası, festival / bayramlar, yeni süslemeler, mevsim | |
 
@@ -68,14 +68,14 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 - Karakterler: gülümseme, bedene oturan önlük, dükkân üniforması (yardımcılar da giyer), kıyafet seçimi, saçlar başlardan ayrı; el sallama, memnun / memnun olmayan ayrılış · [#38](https://github.com/hkemal94/DondumaciKizlar/pull/38)
 - Açılış ve galeri: açılışta kendi dükkânın gün batımında, dönen kamera; Galeri (Fotoğraflarım / Albüm), gezerken çekilen fotoğraflar birikir, ayda bir dükkânın fotoğrafı kendiliğinden albüme girer · [#39](https://github.com/hkemal94/DondumaciKizlar/pull/39)
 - İngilizce: bütün yazılar İngilizce, Ayarlar'da Türkçe / English; telefonun diline göre açılır · [#40](https://github.com/hkemal94/DondumaciKizlar/pull/40)
-- Ayar dosyası: bütün fiyat, süre ve oranlar (197 ayar) tek dosyada, Türkçe adlarıyla · bu PR
+- Ayar dosyası: bütün fiyat, süre ve oranlar (197 ayar) tek dosyada, Türkçe adlarıyla · [#41](https://github.com/hkemal94/DondumaciKizlar/pull/41), KKM [#94](https://github.com/hkemal94/Kems-Company/pull/94)
+- Exp ve seviyeler (8a): ana, dükkân ve çalışan seviyesi; dükkân seviyesi kilitleri; seviye rozeti, parlama, gün sonunda "YENİ!" · bu PR
 
 ## Bilinen eksikler
 
 - Telefonda akıcılık gerçek telefonda ölçülmedi; takılırsa Ayarlar → Grafik → Düşük
 - Bugünkü başlangıç dükkânının içi tezgahla dolu; halı için önce büyütmek gerekiyor
 - Çocuk müşteri yok (seçilen pakette çocuk yok)
-- Albümün "bir ay = 30 gün, ayın ilk akşamı" kuralı Claude'un önerisi; Kemal onaylarsa kalır
 
 ## Yayından önce
 

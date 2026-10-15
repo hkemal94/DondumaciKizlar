@@ -1087,6 +1087,589 @@
           "birim": "jeton"
         }
       }
+    },
+    "exp": {
+      "ad": "Deneyim (exp) ve seviyeler",
+      "aciklama": "Belge 0.12, 8. adım. Her exp ana seviyeye ve türüne göre dükkân ya da çalışan seviyesine gider",
+      "ayarlar": {
+        "calisanServis": {
+          "ad": "Çalışan: servis edilen her müşteri",
+          "deger": 2,
+          "birim": "exp"
+        },
+        "calisanMukemmel": {
+          "ad": "Çalışan: her MÜKEMMEL top",
+          "deger": 1,
+          "birim": "exp"
+        },
+        "calisanAltinWaffle": {
+          "ad": "Çalışan: altın sarı waffle",
+          "deger": 1,
+          "birim": "exp"
+        },
+        "dukkanParaBasina": {
+          "ad": "Dükkân: kaç jetonda 1 exp",
+          "deger": 10,
+          "birim": "jeton"
+        },
+        "dukkanBesYildiz": {
+          "ad": "Dükkân: 5 yıldız veren müşteri",
+          "deger": 2,
+          "birim": "exp"
+        },
+        "dukkanDortYildiz": {
+          "ad": "Dükkân: 4 yıldız veren müşteri",
+          "deger": 1,
+          "birim": "exp"
+        },
+        "anaIlk": {
+          "ad": "Ana seviye: 2. seviye için",
+          "deger": 30,
+          "birim": "exp"
+        },
+        "anaArtis": {
+          "ad": "Ana seviye: her seviyede eşik artışı",
+          "deger": 35,
+          "birim": "exp"
+        },
+        "altIlk": {
+          "ad": "Dükkân ve çalışan: 2. seviye için",
+          "deger": 20,
+          "birim": "exp"
+        },
+        "altArtis": {
+          "ad": "Dükkân ve çalışan: her seviyede eşik artışı",
+          "deger": 20,
+          "birim": "exp"
+        },
+        "odulJetonu": {
+          "ad": "Ana seviye ödülü: seviye × bu kadar",
+          "deger": 50,
+          "birim": "jeton"
+        },
+        "hediyeAraligi": {
+          "ad": "Kaç ana seviyede bir hediye eşya",
+          "deger": 5,
+          "birim": "seviye"
+        },
+        "hediyeEnCokFiyat": {
+          "ad": "Hediye eşyanın en yüksek fiyatı",
+          "deger": 260,
+          "birim": "jeton"
+        },
+        "musteriArtisi": {
+          "ad": "Her ana seviyede müşteri sıklığı artışı",
+          "deger": 0.02,
+          "birim": "oran"
+        },
+        "musteriArtisiEnCok": {
+          "ad": "Müşteri sıklığı artışı en çok",
+          "deger": 0.3,
+          "birim": "oran"
+        }
+      }
+    },
+    "kilit": {
+      "ad": "Dükkân seviyesi kilitleri",
+      "aciklama": "Bu seviyeye gelmeden satın alınamaz (seviye gelince yine parayla alınır). 1 = baştan açık",
+      "ayarlar": {
+        "esya.saksi": {
+          "ad": "Çiçek saksısı",
+          "deger": 1,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.masa": {
+          "ad": "Masa takımı",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.semsiyeliMasa": {
+          "ad": "Şemsiyeli masa",
+          "deger": 6,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.bank": {
+          "ad": "Bank",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.copKutusu": {
+          "ad": "Çöp kutusu",
+          "deger": 1,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.cicekKasasi": {
+          "ad": "Çiçekli kasa",
+          "deger": 1,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.karaTahta": {
+          "ad": "Ayaklı kara tahta",
+          "deger": 1,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.flama": {
+          "ad": "Flama direği",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.sokakLambasi": {
+          "ad": "Sokak lambası",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.bisiklet": {
+          "ad": "Sepetli bisiklet",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.isikliTabela": {
+          "ad": "Işıklı tabela",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.kulahFiguru": {
+          "ad": "Dev külah",
+          "deger": 6,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.paspas": {
+          "ad": "Paspas",
+          "deger": 1,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.haliYuvarlak": {
+          "ad": "Yuvarlak halı",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.haliKilim": {
+          "ad": "Kilim",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.tabloSoyut": {
+          "ad": "Tablo: soyut",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.tabloDondurma": {
+          "ad": "Tablo: dondurma",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.tabloDeniz": {
+          "ad": "Tablo: deniz",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.tabloBos": {
+          "ad": "Boş çerçeve [YER TUTUCU]",
+          "deger": 1,
+          "birim": "dükkân seviyesi"
+        },
+        "isik.1": {
+          "ad": "Işık: Fenerler",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "isik.2": {
+          "ad": "Işık: Asma ampuller",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "isik.3": {
+          "ad": "Işık: Işıklı şerit",
+          "deger": 9,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.disBoya.beyaz": {
+          "ad": "Dış boya: Beyaz",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.disBoya.pembe": {
+          "ad": "Dış boya: Sıva pembesi",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.disBoya.sari": {
+          "ad": "Dış boya: Sarı",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.disBoya.lila": {
+          "ad": "Dış boya: Lila",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.disBoya.mavi": {
+          "ad": "Dış boya: Ege mavisi",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.disBoya.adacayi": {
+          "ad": "Dış boya: Adaçayı",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.disBoya.kiremit": {
+          "ad": "Dış boya: Kiremit",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.icBoya.beyaz": {
+          "ad": "İç duvar: Beyaz",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.icBoya.pembe": {
+          "ad": "İç duvar: Sıva pembesi",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.icBoya.sari": {
+          "ad": "İç duvar: Sarı",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.icBoya.lila": {
+          "ad": "İç duvar: Lila",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.icBoya.mavi": {
+          "ad": "İç duvar: Ege mavisi",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.icBoya.adacayi": {
+          "ad": "İç duvar: Adaçayı",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.icBoya.mor": {
+          "ad": "İç duvar: Mor",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.cerceve.sari": {
+          "ad": "Çerçeve: Sarı",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.cerceve.beyaz": {
+          "ad": "Çerçeve: Beyaz",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.cerceve.ahsap": {
+          "ad": "Çerçeve: Ahşap",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.cerceve.mavi": {
+          "ad": "Çerçeve: Ege mavisi",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.cerceve.yesil": {
+          "ad": "Çerçeve: Yeşil",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.cerceve.koyu": {
+          "ad": "Çerçeve: Koyu gri",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.tente.morKrem": {
+          "ad": "Tente: Mor-krem",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.tente.sariBeyaz": {
+          "ad": "Tente: Sarı-beyaz",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.tente.maviBeyaz": {
+          "ad": "Tente: Mavi-beyaz",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.tente.kiremitKrem": {
+          "ad": "Tente: Kiremit-krem",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.tente.yesilKrem": {
+          "ad": "Tente: Yeşil-krem",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.tente.mor": {
+          "ad": "Tente: Mor",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.zemin.ahsapOrta": {
+          "ad": "Zemin: Ahşap",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.zemin.ahsapAcik": {
+          "ad": "Zemin: Açık ahşap",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.zemin.damaSiyah": {
+          "ad": "Zemin: Dama (siyah)",
+          "deger": 6,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.zemin.damaMor": {
+          "ad": "Zemin: Dama (mor)",
+          "deger": 6,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.zemin.mozaik": {
+          "ad": "Zemin: Mozaik",
+          "deger": 6,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.zemin.karo": {
+          "ad": "Zemin: Pişmiş karo",
+          "deger": 6,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.zemin.terrazzo": {
+          "ad": "Zemin: Terrazzo",
+          "deger": 9,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.zemin.cila": {
+          "ad": "Zemin: Cilalı beton",
+          "deger": 6,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.cati.teras": {
+          "ad": "Çatı: Teras",
+          "deger": 9,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.cati.kiremit": {
+          "ad": "Çatı: Kiremit",
+          "deger": 9,
+          "birim": "dükkân seviyesi"
+        },
+        "gorunus.cati.pergola": {
+          "ad": "Çatı: Ahşap + pergola",
+          "deger": 12,
+          "birim": "dükkân seviyesi"
+        },
+        "tabela.cati": {
+          "ad": "Tabela: Çatı tabelası",
+          "deger": 9,
+          "birim": "dükkân seviyesi"
+        },
+        "tabela.direk": {
+          "ad": "Tabela: Direk tabela",
+          "deger": 6,
+          "birim": "dükkân seviyesi"
+        },
+        "tabela.neon": {
+          "ad": "Tabela: Pencerede neon",
+          "deger": 6,
+          "birim": "dükkân seviyesi"
+        },
+        "tabela.kemer": {
+          "ad": "Tabela: İskele kemeri",
+          "deger": 12,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.mango": {
+          "ad": "Çeşit: Mango",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.yabanMersini": {
+          "ad": "Çeşit: Yaban mersini",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.limon": {
+          "ad": "Çeşit: Limon",
+          "deger": 1,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.visne": {
+          "ad": "Çeşit: Vişne",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.kavun": {
+          "ad": "Çeşit: Kavun",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.karpuz": {
+          "ad": "Çeşit: Karpuz",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.muz": {
+          "ad": "Çeşit: Muz",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.kahve": {
+          "ad": "Çeşit: Kahve",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.findik": {
+          "ad": "Çeşit: Fındık",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.karamel": {
+          "ad": "Çeşit: Karamel",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.portakal": {
+          "ad": "Çeşit: Portakal",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.kayisi": {
+          "ad": "Çeşit: Kayısı",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.seftali": {
+          "ad": "Çeşit: Şeftali",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.hindistanCevizi": {
+          "ad": "Çeşit: Hindistan cevizi",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.nane": {
+          "ad": "Çeşit: Nane",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.bogurtlen": {
+          "ad": "Çeşit: Böğürtlen",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.ahududu": {
+          "ad": "Çeşit: Ahududu",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.bitter": {
+          "ad": "Çeşit: Bitter çikolata",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.tarcin": {
+          "ad": "Çeşit: Tarçın",
+          "deger": 6,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.balliYogurt": {
+          "ad": "Çeşit: Ballı yoğurt",
+          "deger": 6,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.karadut": {
+          "ad": "Çeşit: Karadut",
+          "deger": 6,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.sakizli": {
+          "ad": "Çeşit: Sakızlı",
+          "deger": 6,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.incir": {
+          "ad": "Çeşit: İncir",
+          "deger": 6,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.gul": {
+          "ad": "Çeşit: Gül",
+          "deger": 9,
+          "birim": "dükkân seviyesi"
+        },
+        "cesit.kestane": {
+          "ad": "Çeşit: Kestane",
+          "deger": 9,
+          "birim": "dükkân seviyesi"
+        },
+        "vitrin.6": {
+          "ad": "Vitrini 6 küvete büyütme",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "vitrin.8": {
+          "ad": "Vitrini 8 küvete büyütme",
+          "deger": 9,
+          "birim": "dükkân seviyesi"
+        },
+        "vitrin.10": {
+          "ad": "Vitrini 10 küvete büyütme",
+          "deger": 12,
+          "birim": "dükkân seviyesi"
+        },
+        "vitrin.12": {
+          "ad": "Vitrini 12 küvete büyütme",
+          "deger": 12,
+          "birim": "dükkân seviyesi"
+        },
+        "parca.waffle": {
+          "ad": "Tezgah parçası: Waffle makinesi",
+          "deger": 9,
+          "birim": "dükkân seviyesi"
+        },
+        "parca.icecek": {
+          "ad": "Tezgah parçası: İçecek standı",
+          "deger": 6,
+          "birim": "dükkân seviyesi"
+        },
+        "parca.servis": {
+          "ad": "Tezgah parçası: İkinci servis noktası",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "parca.kose": {
+          "ad": "Tezgah parçası: Köşe (süs)",
+          "deger": 1,
+          "birim": "dükkân seviyesi"
+        },
+        "araziAdimi": {
+          "ad": "Arazi: her yeni kare için gereken seviye artışı",
+          "deger": 2,
+          "birim": "seviye",
+          "not": "Başlangıçtan sonraki 1. kare seviye 1+2, 2. kare 1+4 …"
+        },
+        "yardimciIlk": {
+          "ad": "Yardımcılar: ilk yardımcı",
+          "deger": 3,
+          "birim": "dükkân seviyesi"
+        },
+        "yardimciAdimi": {
+          "ad": "Yardımcılar: her yeni yardımcı için seviye artışı",
+          "deger": 3,
+          "birim": "seviye"
+        }
+      }
     }
   }
 }
