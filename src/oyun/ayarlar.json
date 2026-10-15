@@ -1,0 +1,1092 @@
+{
+  "_aciklama": "Dondurmacı Kızlar ayar dosyası (belge 0.12, 7. adım). Oyundaki bütün fiyat, süre ve oranlar burada. Yalnız 'deger' alanları değiştirilir; 'ad', 'birim' ve 'not' KKM'deki Ayarlar sekmesinde görünür.",
+  "bolumler": {
+    "para": {
+      "ad": "Para ve kazanç",
+      "aciklama": "Satıştan gelen ekler, bahşiş ve tezgah eşyaları",
+      "ayarlar": {
+        "gelistirmeJetonu": {
+          "ad": "Geliştirme jetonu (her açılışta en az bu kadar para)",
+          "deger": 10000,
+          "birim": "jeton",
+          "not": "Yayında 0 olur"
+        },
+        "mukemmelEki": {
+          "ad": "MÜKEMMEL topa ek",
+          "deger": 5,
+          "birim": "jeton"
+        },
+        "iyiEki": {
+          "ad": "İyi topa ek",
+          "deger": 2,
+          "birim": "jeton"
+        },
+        "bahsisSerisi": {
+          "ad": "Bahşiş kaçıncı arka arkaya MÜKEMMEL serviste başlar",
+          "deger": 3,
+          "birim": "servis"
+        },
+        "bahsisEnCok": {
+          "ad": "En çok bahşiş",
+          "deger": 10,
+          "birim": "jeton"
+        },
+        "suslemeFiyati": {
+          "ad": "Süsleme (sos, şeker, fındık) ek fiyatı",
+          "deger": 3,
+          "birim": "jeton"
+        },
+        "kupFiyati": {
+          "ad": "Kup satın alma",
+          "deger": 200,
+          "birim": "jeton"
+        },
+        "kupEki": {
+          "ad": "Kuplu siparişe ek",
+          "deger": 5,
+          "birim": "jeton"
+        },
+        "tepsiFiyati": {
+          "ad": "Tepsi satın alma",
+          "deger": 400,
+          "birim": "jeton"
+        }
+      }
+    },
+    "gun": {
+      "ad": "Gün, saat ve müşteri",
+      "aciklama": "Günün uzunluğu, müşterilerin geliş sıklığı ve sabrı",
+      "ayarlar": {
+        "adimMs": {
+          "ad": "Saatin 5 dakika ilerlemesi",
+          "deger": 770,
+          "birim": "ms",
+          "not": "Hafta içi bir gün ≈ 156 × bu süre (770 ms ≈ 2 dk)"
+        },
+        "haftaIciAcilis": {
+          "ad": "Hafta içi açılış saati",
+          "deger": 11,
+          "birim": "saat"
+        },
+        "haftaIciKapanis": {
+          "ad": "Hafta içi kapanış saati",
+          "deger": 24,
+          "birim": "saat",
+          "not": "24 = gece yarısı"
+        },
+        "haftaSonuAcilis": {
+          "ad": "Hafta sonu açılış saati",
+          "deger": 10,
+          "birim": "saat"
+        },
+        "haftaSonuKapanis": {
+          "ad": "Hafta sonu kapanış saati",
+          "deger": 26,
+          "birim": "saat",
+          "not": "26 = gece 02.00"
+        },
+        "gelisEnAz": {
+          "ad": "İki müşteri arası en az",
+          "deger": 5000,
+          "birim": "ms"
+        },
+        "gelisEnCok": {
+          "ad": "İki müşteri arası en çok",
+          "deger": 9000,
+          "birim": "ms"
+        },
+        "haftaSonuCarpani": {
+          "ad": "Hafta sonu geliş aralığı çarpanı",
+          "deger": 0.65,
+          "birim": "çarpan",
+          "not": "Küçük = daha kalabalık"
+        },
+        "enCokSira": {
+          "ad": "Sırada en çok müşteri",
+          "deger": 4,
+          "birim": "kişi"
+        },
+        "servisSirasi": {
+          "ad": "İkinci servis noktasında en çok müşteri",
+          "deger": 3,
+          "birim": "kişi"
+        },
+        "sabirDakika": {
+          "ad": "Müşterinin sabrı",
+          "deger": 80,
+          "birim": "oyun dakikası"
+        },
+        "albumAyGunu": {
+          "ad": "Albüm için bir ay",
+          "deger": 30,
+          "birim": "gün"
+        },
+        "albumSaati": {
+          "ad": "Albüm fotoğrafının saati (en erken)",
+          "deger": 18.5,
+          "birim": "saat",
+          "not": "18,5 = 18.30"
+        }
+      }
+    },
+    "kepce": {
+      "ad": "Kepçe",
+      "aciklama": "Top doldurma mini oyunu",
+      "ayarlar": {
+        "dolumSuresi": {
+          "ad": "Kepçenin boştan dolmaya süresi",
+          "deger": 1000,
+          "birim": "ms"
+        },
+        "mukemmelAlt": {
+          "ad": "MÜKEMMEL aralığının başı",
+          "deger": 0.62,
+          "birim": "oran (0–1)"
+        },
+        "mukemmelUst": {
+          "ad": "MÜKEMMEL aralığının sonu",
+          "deger": 0.8,
+          "birim": "oran (0–1)"
+        },
+        "iyiPayi": {
+          "ad": "İyi sayılan pay (MÜKEMMEL aralığının iki yanında)",
+          "deger": 0.14,
+          "birim": "oran (0–1)"
+        },
+        "enCokTop": {
+          "ad": "Bir dondurmada en çok top",
+          "deger": 3,
+          "birim": "top"
+        }
+      }
+    },
+    "cekicilik": {
+      "ad": "Fiyat ve çekicilik",
+      "aciklama": "Genel fiyat seviyesinin ve eşyaların müşteri sıklığına etkisi",
+      "ayarlar": {
+        "ucuzFiyat": {
+          "ad": "Ucuz: fiyat çarpanı",
+          "deger": 0.8,
+          "birim": "çarpan"
+        },
+        "ucuzGelis": {
+          "ad": "Ucuz: geliş aralığı çarpanı",
+          "deger": 0.8,
+          "birim": "çarpan"
+        },
+        "ucuzMemnuniyet": {
+          "ad": "Ucuz: memnuniyet düşüşü",
+          "deger": 0,
+          "birim": "yıldız"
+        },
+        "normalFiyat": {
+          "ad": "Normal: fiyat çarpanı",
+          "deger": 1,
+          "birim": "çarpan"
+        },
+        "normalGelis": {
+          "ad": "Normal: geliş aralığı çarpanı",
+          "deger": 1,
+          "birim": "çarpan"
+        },
+        "normalMemnuniyet": {
+          "ad": "Normal: memnuniyet düşüşü",
+          "deger": 0,
+          "birim": "yıldız"
+        },
+        "pahaliFiyat": {
+          "ad": "Pahalı: fiyat çarpanı",
+          "deger": 1.3,
+          "birim": "çarpan"
+        },
+        "pahaliGelis": {
+          "ad": "Pahalı: geliş aralığı çarpanı",
+          "deger": 1.3,
+          "birim": "çarpan"
+        },
+        "pahaliMemnuniyet": {
+          "ad": "Pahalı: memnuniyet düşüşü",
+          "deger": 0.5,
+          "birim": "yıldız"
+        },
+        "esyaEtkisi": {
+          "ad": "Her yerleşen eşya geliş aralığını kısaltır",
+          "deger": 0.04,
+          "birim": "oran"
+        },
+        "isikEtkisi": {
+          "ad": "Her ışık seviyesi geliş aralığını kısaltır",
+          "deger": 0.06,
+          "birim": "oran"
+        },
+        "cekicilikEnCok": {
+          "ad": "Eşya ve ışığın toplam etkisi en çok",
+          "deger": 0.5,
+          "birim": "oran"
+        }
+      }
+    },
+    "cesitFiyati": {
+      "ad": "Çeşit satış fiyatı",
+      "aciklama": "Bir topun fiyatı",
+      "ayarlar": {
+        "enAz": {
+          "ad": "Oyuncunun koyabileceği en düşük fiyat",
+          "deger": 5,
+          "birim": "jeton"
+        },
+        "enCok": {
+          "ad": "Oyuncunun koyabileceği en yüksek fiyat",
+          "deger": 25,
+          "birim": "jeton"
+        },
+        "makulNormal": {
+          "ad": "Makul fiyat: yıldızsız çeşitler",
+          "deger": 10,
+          "birim": "jeton"
+        },
+        "makul4": {
+          "ad": "Makul fiyat: 4 yıldız çeşitler",
+          "deger": 12,
+          "birim": "jeton"
+        },
+        "makul45": {
+          "ad": "Makul fiyat: 4,5 yıldız çeşitler",
+          "deger": 14,
+          "birim": "jeton"
+        },
+        "makul475": {
+          "ad": "Makul fiyat: 4,75 yıldız çeşitler",
+          "deger": 16,
+          "birim": "jeton"
+        }
+      }
+    },
+    "cesitAcma": {
+      "ad": "Çeşit açma fiyatı",
+      "aciklama": "0 = oyunun başında açık",
+      "ayarlar": {
+        "cilek": {
+          "ad": "Çilek",
+          "deger": 0,
+          "birim": "jeton"
+        },
+        "cikolata": {
+          "ad": "Çikolata",
+          "deger": 0,
+          "birim": "jeton"
+        },
+        "fistik": {
+          "ad": "Fıstık",
+          "deger": 0,
+          "birim": "jeton"
+        },
+        "kaymak": {
+          "ad": "Kaymak",
+          "deger": 0,
+          "birim": "jeton"
+        },
+        "mango": {
+          "ad": "Mango",
+          "deger": 150,
+          "birim": "jeton"
+        },
+        "yabanMersini": {
+          "ad": "Yaban mersini",
+          "deger": 250,
+          "birim": "jeton"
+        },
+        "limon": {
+          "ad": "Limon",
+          "deger": 100,
+          "birim": "jeton"
+        },
+        "visne": {
+          "ad": "Vişne",
+          "deger": 120,
+          "birim": "jeton"
+        },
+        "kavun": {
+          "ad": "Kavun",
+          "deger": 120,
+          "birim": "jeton"
+        },
+        "karpuz": {
+          "ad": "Karpuz",
+          "deger": 140,
+          "birim": "jeton"
+        },
+        "muz": {
+          "ad": "Muz",
+          "deger": 140,
+          "birim": "jeton"
+        },
+        "kahve": {
+          "ad": "Kahve",
+          "deger": 160,
+          "birim": "jeton"
+        },
+        "findik": {
+          "ad": "Fındık",
+          "deger": 160,
+          "birim": "jeton"
+        },
+        "karamel": {
+          "ad": "Karamel",
+          "deger": 180,
+          "birim": "jeton"
+        },
+        "portakal": {
+          "ad": "Portakal",
+          "deger": 180,
+          "birim": "jeton"
+        },
+        "kayisi": {
+          "ad": "Kayısı",
+          "deger": 200,
+          "birim": "jeton"
+        },
+        "seftali": {
+          "ad": "Şeftali",
+          "deger": 200,
+          "birim": "jeton"
+        },
+        "hindistanCevizi": {
+          "ad": "Hindistan cevizi",
+          "deger": 220,
+          "birim": "jeton"
+        },
+        "nane": {
+          "ad": "Nane",
+          "deger": 220,
+          "birim": "jeton"
+        },
+        "bogurtlen": {
+          "ad": "Böğürtlen",
+          "deger": 260,
+          "birim": "jeton"
+        },
+        "ahududu": {
+          "ad": "Ahududu",
+          "deger": 300,
+          "birim": "jeton"
+        },
+        "bitter": {
+          "ad": "Bitter çikolata",
+          "deger": 300,
+          "birim": "jeton"
+        },
+        "tarcin": {
+          "ad": "Tarçın",
+          "deger": 320,
+          "birim": "jeton"
+        },
+        "balliYogurt": {
+          "ad": "Ballı yoğurt",
+          "deger": 320,
+          "birim": "jeton"
+        },
+        "karadut": {
+          "ad": "Karadut",
+          "deger": 450,
+          "birim": "jeton"
+        },
+        "sakizli": {
+          "ad": "Sakızlı",
+          "deger": 450,
+          "birim": "jeton"
+        },
+        "incir": {
+          "ad": "İncir",
+          "deger": 480,
+          "birim": "jeton"
+        },
+        "gul": {
+          "ad": "Gül",
+          "deger": 600,
+          "birim": "jeton"
+        },
+        "kestane": {
+          "ad": "Kestane",
+          "deger": 600,
+          "birim": "jeton"
+        }
+      }
+    },
+    "cesitYildiz": {
+      "ad": "Çeşit için gereken yıldız",
+      "aciklama": "Memnuniyet ortalaması bu kadar olunca satın alınabilir",
+      "ayarlar": {
+        "ahududu": {
+          "ad": "Ahududu",
+          "deger": 4,
+          "birim": "yıldız"
+        },
+        "bitter": {
+          "ad": "Bitter çikolata",
+          "deger": 4,
+          "birim": "yıldız"
+        },
+        "tarcin": {
+          "ad": "Tarçın",
+          "deger": 4,
+          "birim": "yıldız"
+        },
+        "balliYogurt": {
+          "ad": "Ballı yoğurt",
+          "deger": 4,
+          "birim": "yıldız"
+        },
+        "karadut": {
+          "ad": "Karadut",
+          "deger": 4.5,
+          "birim": "yıldız"
+        },
+        "sakizli": {
+          "ad": "Sakızlı",
+          "deger": 4.5,
+          "birim": "yıldız"
+        },
+        "incir": {
+          "ad": "İncir",
+          "deger": 4.5,
+          "birim": "yıldız"
+        },
+        "gul": {
+          "ad": "Gül",
+          "deger": 4.75,
+          "birim": "yıldız"
+        },
+        "kestane": {
+          "ad": "Kestane",
+          "deger": 4.75,
+          "birim": "yıldız"
+        }
+      }
+    },
+    "vitrin": {
+      "ad": "Vitrin",
+      "aciklama": "Küvet sayısı ve büyütme fiyatları",
+      "ayarlar": {
+        "ilkVitrin": {
+          "ad": "Başlangıçta küvet",
+          "deger": 4,
+          "birim": "küvet"
+        },
+        "buyut6": {
+          "ad": "6 küvete büyütme",
+          "deger": 300,
+          "birim": "jeton"
+        },
+        "buyut8": {
+          "ad": "8 küvete büyütme",
+          "deger": 600,
+          "birim": "jeton"
+        },
+        "buyut10": {
+          "ad": "10 küvete büyütme",
+          "deger": 1000,
+          "birim": "jeton"
+        },
+        "buyut12": {
+          "ad": "12 küvete büyütme",
+          "deger": 1500,
+          "birim": "jeton"
+        }
+      }
+    },
+    "insaat": {
+      "ad": "Arazi ve inşaat",
+      "aciklama": "Kare, duvar ve tezgah fiyatları",
+      "ayarlar": {
+        "parselOn": {
+          "ad": "Ön teras karesi",
+          "deger": 250,
+          "birim": "jeton"
+        },
+        "parselDukkan": {
+          "ad": "Dükkân sırası karesi",
+          "deger": 200,
+          "birim": "jeton"
+        },
+        "parselArka": {
+          "ad": "Arka kare",
+          "deger": 150,
+          "birim": "jeton"
+        },
+        "iskeleCarpani": {
+          "ad": "İskele tarafı kareler",
+          "deger": 1.15,
+          "birim": "çarpan"
+        },
+        "parselArtisi": {
+          "ad": "Alınan her kare sonrakini pahalılaştırır",
+          "deger": 0.2,
+          "birim": "oran"
+        },
+        "tezgahMetre": {
+          "ad": "Tezgahı 1 m uzatma",
+          "deger": 80,
+          "birim": "jeton"
+        },
+        "duvar": {
+          "ad": "Duvar örme (kare başına)",
+          "deger": 150,
+          "birim": "jeton"
+        },
+        "yikim": {
+          "ad": "Duvar yıkma",
+          "deger": 50,
+          "birim": "jeton"
+        },
+        "pencere": {
+          "ad": "Pencere (1 m)",
+          "deger": 40,
+          "birim": "jeton"
+        },
+        "kapi": {
+          "ad": "İkinci kapıdan başlayarak kapı",
+          "deger": 250,
+          "birim": "jeton"
+        },
+        "mutfak": {
+          "ad": "Mutfağa katma (kare başına)",
+          "deger": 100,
+          "birim": "jeton"
+        },
+        "mutfakGeri": {
+          "ad": "Mutfağı dükkâna çevirme",
+          "deger": 50,
+          "birim": "jeton"
+        }
+      }
+    },
+    "makine": {
+      "ad": "Makineler ve içecek",
+      "aciklama": "Tezgah parçaları, waffle ve içecek",
+      "ayarlar": {
+        "parcaWaffle": {
+          "ad": "Waffle makinesi",
+          "deger": 600,
+          "birim": "jeton"
+        },
+        "parcaIcecek": {
+          "ad": "İçecek standı",
+          "deger": 400,
+          "birim": "jeton"
+        },
+        "parcaServis": {
+          "ad": "İkinci servis noktası",
+          "deger": 300,
+          "birim": "jeton"
+        },
+        "parcaKose": {
+          "ad": "Köşe (süs)",
+          "deger": 100,
+          "birim": "jeton"
+        },
+        "waffleFiyati": {
+          "ad": "Waffle satış fiyatı (başta)",
+          "deger": 6,
+          "birim": "jeton"
+        },
+        "waffleEnAz": {
+          "ad": "Waffle en düşük fiyat",
+          "deger": 3,
+          "birim": "jeton"
+        },
+        "waffleEnCok": {
+          "ad": "Waffle en yüksek fiyat",
+          "deger": 14,
+          "birim": "jeton"
+        },
+        "icecekFiyati": {
+          "ad": "İçecek satış fiyatı (başta, tanesi)",
+          "deger": 2,
+          "birim": "jeton"
+        },
+        "icecekEnAz": {
+          "ad": "İçecek en düşük fiyat",
+          "deger": 1,
+          "birim": "jeton"
+        },
+        "icecekEnCok": {
+          "ad": "İçecek en yüksek fiyat",
+          "deger": 6,
+          "birim": "jeton"
+        },
+        "makineSusleme": {
+          "ad": "Waffle süslemesi ek fiyatı",
+          "deger": 1,
+          "birim": "jeton"
+        },
+        "makineMukemmelEki": {
+          "ad": "Altın sarı waffle eki",
+          "deger": 2,
+          "birim": "jeton"
+        },
+        "enCokIcecek": {
+          "ad": "Bir siparişte en çok içecek",
+          "deger": 3,
+          "birim": "tane"
+        },
+        "pismeSuresi": {
+          "ad": "Waffle pişme süresi",
+          "deger": 5000,
+          "birim": "ms"
+        },
+        "altinAlt": {
+          "ad": "Altın sarı aralığının başı",
+          "deger": 0.6,
+          "birim": "oran (0–1)"
+        },
+        "altinUst": {
+          "ad": "Altın sarı aralığının sonu",
+          "deger": 0.84,
+          "birim": "oran (0–1)"
+        }
+      }
+    },
+    "yardimci": {
+      "ad": "Yardımcılar",
+      "aciklama": "İşe alma ve yevmiye",
+      "ayarlar": {
+        "fiyat": {
+          "ad": "İşe alma",
+          "deger": 300,
+          "birim": "jeton"
+        },
+        "yevmiye": {
+          "ad": "Günlük yevmiye",
+          "deger": 40,
+          "birim": "jeton"
+        },
+        "enCok": {
+          "ad": "En çok yardımcı",
+          "deger": 3,
+          "birim": "kişi"
+        }
+      }
+    },
+    "esya": {
+      "ad": "Eşya fiyatları",
+      "aciklama": "Mağazadaki dekorasyon eşyaları",
+      "ayarlar": {
+        "saksi": {
+          "ad": "Çiçek saksısı",
+          "deger": 60,
+          "birim": "jeton"
+        },
+        "masa": {
+          "ad": "Masa takımı",
+          "deger": 200,
+          "birim": "jeton"
+        },
+        "semsiyeliMasa": {
+          "ad": "Şemsiyeli masa",
+          "deger": 320,
+          "birim": "jeton"
+        },
+        "bank": {
+          "ad": "Bank",
+          "deger": 140,
+          "birim": "jeton"
+        },
+        "copKutusu": {
+          "ad": "Çöp kutusu",
+          "deger": 50,
+          "birim": "jeton"
+        },
+        "cicekKasasi": {
+          "ad": "Çiçekli kasa",
+          "deger": 80,
+          "birim": "jeton"
+        },
+        "karaTahta": {
+          "ad": "Ayaklı kara tahta",
+          "deger": 90,
+          "birim": "jeton"
+        },
+        "flama": {
+          "ad": "Flama direği",
+          "deger": 110,
+          "birim": "jeton"
+        },
+        "sokakLambasi": {
+          "ad": "Sokak lambası",
+          "deger": 160,
+          "birim": "jeton"
+        },
+        "bisiklet": {
+          "ad": "Sepetli bisiklet",
+          "deger": 180,
+          "birim": "jeton"
+        },
+        "isikliTabela": {
+          "ad": "Işıklı tabela",
+          "deger": 260,
+          "birim": "jeton"
+        },
+        "kulahFiguru": {
+          "ad": "Dev külah",
+          "deger": 380,
+          "birim": "jeton"
+        },
+        "paspas": {
+          "ad": "Paspas",
+          "deger": 70,
+          "birim": "jeton"
+        },
+        "haliYuvarlak": {
+          "ad": "Yuvarlak halı",
+          "deger": 180,
+          "birim": "jeton"
+        },
+        "haliKilim": {
+          "ad": "Kilim",
+          "deger": 260,
+          "birim": "jeton"
+        },
+        "tabloSoyut": {
+          "ad": "Tablo: soyut",
+          "deger": 150,
+          "birim": "jeton"
+        },
+        "tabloDondurma": {
+          "ad": "Tablo: dondurma",
+          "deger": 150,
+          "birim": "jeton"
+        },
+        "tabloDeniz": {
+          "ad": "Tablo: deniz",
+          "deger": 180,
+          "birim": "jeton"
+        },
+        "tabloBos": {
+          "ad": "Boş çerçeve [YER TUTUCU]",
+          "deger": 60,
+          "birim": "jeton"
+        }
+      }
+    },
+    "isik": {
+      "ad": "Işıklandırma",
+      "aciklama": "Her seviye bir öncekinin üstüne eklenir",
+      "ayarlar": {
+        "seviye1": {
+          "ad": "Fenerler",
+          "deger": 120,
+          "birim": "jeton"
+        },
+        "seviye2": {
+          "ad": "Asma ampuller",
+          "deger": 300,
+          "birim": "jeton"
+        },
+        "seviye3": {
+          "ad": "Işıklı şerit",
+          "deger": 600,
+          "birim": "jeton"
+        }
+      }
+    },
+    "gorunus": {
+      "ad": "Görünüş fiyatları",
+      "aciklama": "Boya, çerçeve, tente, zemin, çatı (0 = baştan açık)",
+      "ayarlar": {
+        "disBoya.krem": {
+          "ad": "Dış boya: Krem",
+          "deger": 0,
+          "birim": "jeton"
+        },
+        "disBoya.beyaz": {
+          "ad": "Dış boya: Beyaz",
+          "deger": 150,
+          "birim": "jeton"
+        },
+        "disBoya.pembe": {
+          "ad": "Dış boya: Sıva pembesi",
+          "deger": 200,
+          "birim": "jeton"
+        },
+        "disBoya.sari": {
+          "ad": "Dış boya: Sarı",
+          "deger": 200,
+          "birim": "jeton"
+        },
+        "disBoya.lila": {
+          "ad": "Dış boya: Lila",
+          "deger": 250,
+          "birim": "jeton"
+        },
+        "disBoya.mavi": {
+          "ad": "Dış boya: Ege mavisi",
+          "deger": 250,
+          "birim": "jeton"
+        },
+        "disBoya.adacayi": {
+          "ad": "Dış boya: Adaçayı",
+          "deger": 250,
+          "birim": "jeton"
+        },
+        "disBoya.kiremit": {
+          "ad": "Dış boya: Kiremit",
+          "deger": 300,
+          "birim": "jeton"
+        },
+        "icBoya.krem": {
+          "ad": "İç duvar: Krem",
+          "deger": 0,
+          "birim": "jeton"
+        },
+        "icBoya.beyaz": {
+          "ad": "İç duvar: Beyaz",
+          "deger": 150,
+          "birim": "jeton"
+        },
+        "icBoya.pembe": {
+          "ad": "İç duvar: Sıva pembesi",
+          "deger": 200,
+          "birim": "jeton"
+        },
+        "icBoya.sari": {
+          "ad": "İç duvar: Sarı",
+          "deger": 200,
+          "birim": "jeton"
+        },
+        "icBoya.lila": {
+          "ad": "İç duvar: Lila",
+          "deger": 250,
+          "birim": "jeton"
+        },
+        "icBoya.mavi": {
+          "ad": "İç duvar: Ege mavisi",
+          "deger": 250,
+          "birim": "jeton"
+        },
+        "icBoya.adacayi": {
+          "ad": "İç duvar: Adaçayı",
+          "deger": 250,
+          "birim": "jeton"
+        },
+        "icBoya.mor": {
+          "ad": "İç duvar: Mor",
+          "deger": 300,
+          "birim": "jeton"
+        },
+        "cerceve.mor": {
+          "ad": "Çerçeve: Mor",
+          "deger": 0,
+          "birim": "jeton"
+        },
+        "cerceve.sari": {
+          "ad": "Çerçeve: Sarı",
+          "deger": 150,
+          "birim": "jeton"
+        },
+        "cerceve.beyaz": {
+          "ad": "Çerçeve: Beyaz",
+          "deger": 150,
+          "birim": "jeton"
+        },
+        "cerceve.ahsap": {
+          "ad": "Çerçeve: Ahşap",
+          "deger": 200,
+          "birim": "jeton"
+        },
+        "cerceve.mavi": {
+          "ad": "Çerçeve: Ege mavisi",
+          "deger": 200,
+          "birim": "jeton"
+        },
+        "cerceve.yesil": {
+          "ad": "Çerçeve: Yeşil",
+          "deger": 200,
+          "birim": "jeton"
+        },
+        "cerceve.koyu": {
+          "ad": "Çerçeve: Koyu gri",
+          "deger": 250,
+          "birim": "jeton"
+        },
+        "tente.morSari": {
+          "ad": "Tente: Mor-sarı",
+          "deger": 0,
+          "birim": "jeton"
+        },
+        "tente.morKrem": {
+          "ad": "Tente: Mor-krem",
+          "deger": 200,
+          "birim": "jeton"
+        },
+        "tente.sariBeyaz": {
+          "ad": "Tente: Sarı-beyaz",
+          "deger": 200,
+          "birim": "jeton"
+        },
+        "tente.maviBeyaz": {
+          "ad": "Tente: Mavi-beyaz",
+          "deger": 250,
+          "birim": "jeton"
+        },
+        "tente.kiremitKrem": {
+          "ad": "Tente: Kiremit-krem",
+          "deger": 250,
+          "birim": "jeton"
+        },
+        "tente.yesilKrem": {
+          "ad": "Tente: Yeşil-krem",
+          "deger": 250,
+          "birim": "jeton"
+        },
+        "tente.mor": {
+          "ad": "Tente: Mor",
+          "deger": 300,
+          "birim": "jeton"
+        },
+        "zemin.ahsapKoyu": {
+          "ad": "Zemin: Koyu ahşap",
+          "deger": 0,
+          "birim": "jeton"
+        },
+        "zemin.ahsapOrta": {
+          "ad": "Zemin: Ahşap",
+          "deger": 300,
+          "birim": "jeton"
+        },
+        "zemin.ahsapAcik": {
+          "ad": "Zemin: Açık ahşap",
+          "deger": 300,
+          "birim": "jeton"
+        },
+        "zemin.damaSiyah": {
+          "ad": "Zemin: Dama (siyah)",
+          "deger": 450,
+          "birim": "jeton"
+        },
+        "zemin.damaMor": {
+          "ad": "Zemin: Dama (mor)",
+          "deger": 450,
+          "birim": "jeton"
+        },
+        "zemin.mozaik": {
+          "ad": "Zemin: Mozaik",
+          "deger": 500,
+          "birim": "jeton"
+        },
+        "zemin.karo": {
+          "ad": "Zemin: Pişmiş karo",
+          "deger": 400,
+          "birim": "jeton"
+        },
+        "zemin.terrazzo": {
+          "ad": "Zemin: Terrazzo",
+          "deger": 550,
+          "birim": "jeton"
+        },
+        "zemin.cila": {
+          "ad": "Zemin: Cilalı beton",
+          "deger": 350,
+          "birim": "jeton"
+        },
+        "cati.duz": {
+          "ad": "Çatı: Düz dam",
+          "deger": 0,
+          "birim": "jeton"
+        },
+        "cati.teras": {
+          "ad": "Çatı: Teras",
+          "deger": 600,
+          "birim": "jeton"
+        },
+        "cati.kiremit": {
+          "ad": "Çatı: Kiremit",
+          "deger": 800,
+          "birim": "jeton"
+        },
+        "cati.pergola": {
+          "ad": "Çatı: Ahşap + pergola",
+          "deger": 900,
+          "birim": "jeton"
+        }
+      }
+    },
+    "tabela": {
+      "ad": "Tabelalar",
+      "aciklama": "",
+      "ayarlar": {
+        "cati": {
+          "ad": "Çatı tabelası",
+          "deger": 700,
+          "birim": "jeton"
+        },
+        "direk": {
+          "ad": "Direk tabela",
+          "deger": 400,
+          "birim": "jeton"
+        },
+        "neon": {
+          "ad": "Pencerede neon",
+          "deger": 500,
+          "birim": "jeton"
+        },
+        "kemer": {
+          "ad": "İskele kemeri",
+          "deger": 900,
+          "birim": "jeton"
+        }
+      }
+    },
+    "calisan": {
+      "ad": "Çalışan",
+      "aciklama": "Önlük ve aksesuar fiyatları",
+      "ayarlar": {
+        "onluk.mor": {
+          "ad": "Önlük: Mor",
+          "deger": 0,
+          "birim": "jeton"
+        },
+        "onluk.sari": {
+          "ad": "Önlük: Sarı",
+          "deger": 0,
+          "birim": "jeton"
+        },
+        "onluk.krem": {
+          "ad": "Önlük: Krem",
+          "deger": 0,
+          "birim": "jeton"
+        },
+        "onluk.cizgili": {
+          "ad": "Önlük: Çizgili",
+          "deger": 150,
+          "birim": "jeton"
+        },
+        "onluk.puantiye": {
+          "ad": "Önlük: Puantiyeli",
+          "deger": 200,
+          "birim": "jeton"
+        },
+        "aksesuar.kupe": {
+          "ad": "Aksesuar: Küpe",
+          "deger": 100,
+          "birim": "jeton"
+        },
+        "aksesuar.bandana": {
+          "ad": "Aksesuar: Bandana",
+          "deger": 120,
+          "birim": "jeton"
+        },
+        "aksesuar.gozluk": {
+          "ad": "Aksesuar: Gözlük",
+          "deger": 160,
+          "birim": "jeton"
+        },
+        "aksesuar.kasket": {
+          "ad": "Aksesuar: Kasket",
+          "deger": 180,
+          "birim": "jeton"
+        }
+      }
+    }
+  }
+}

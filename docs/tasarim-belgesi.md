@@ -116,7 +116,7 @@ Taslakla çelişen yerde bu bölüm geçerli.
 
 ## 0.1 Büyüme planı (Kemal, 14 Ekim soru turu)
 
-*Yapıldı (0.2–0.5).* Sayılar geçici; ayar dosyasına taşınacak (0.12).
+*Yapıldı (0.2–0.5).* Sayılar geçici; 7. adımdan beri `src/oyun/ayarlar.json`'da (0.12).
 
 **Arazi**
 - Dükkânın sağı, solu ve arkası **eşit dilimlere** (~4 m) bölünür; her dilim ayrı alınır.
@@ -412,7 +412,7 @@ yazılar kanon değildir.
 
 | Konu | Karar |
 |---|---|
-| Ayar paneli | Bütün fiyat, süre ve oranlar oyunda tek bir ayar dosyasına taşınır; **KKM'deki oyun sayfasında "Ayarlar" sekmesi** onları gösterir ve düzenler. Değişikliğin oyuna nasıl gideceği (KKM'ye GitHub anahtarı ya da kopyala-yapıştır) o adımda seçilir |
+| Ayar paneli | Bütün fiyat, süre ve oranlar oyunda tek bir ayar dosyasına taşınır; **KKM'deki oyun sayfasında "Ayarlar" sekmesi** onları gösterir ve düzenler. Değişikliğin oyuna nasıl gideceği (KKM'ye GitHub anahtarı ya da kopyala-yapıştır) o adımda seçilir. Yapıldı (7. adım, oyun tarafı): 197 ayar 15 bölümde `src/oyun/ayarlar.json`'da; her ayarın Türkçe adı, birimi, gerekirse notu yanında. Oyun yalnız `deger`leri okur (`src/oyun/ayarlar.ts`); değerler eskisiyle birebir aynı. Puanlama (MÜKEMMEL = 5 yıldız gibi) ve ölçüler (kare 4 m) oyunun kuralı sayılıp kodda kaldı |
 | İngilizce | **Şimdi** eklenir (ileride başka diller için temel). Yapıldı (6. adım): bütün yazılar `src/metinler/en.json`'da; Ayarlar → Oyun → Dil: Türkçe / English. Seçim bu cihazda saklanır; hiç seçilmemişse telefonun dili Türkçeyse Türkçe, değilse İngilizce açılır. Ondalık sayılar dile göre (4,5 / 4.5). Dükkânın adı (logo) ve vitrindeki **DONDURMA** neonu oyun dünyasının parçası sayılıp Türkçe kaldı (**Kemal'e soruldu**) |
 | Bulut kayıt | Yayına yakın, Google ile giriş |
 | Deneme yayını | Web |
@@ -543,9 +543,9 @@ toparlamada kalktı (cevaplananlar bölüm 0'da; geçmişi GitHub'da).
 
 ### 7.1 Geçici sayılar
 
-Bütün fiyatlar, süreler ve oranlar geçici. Ayar dosyasına taşınınca (0.12)
-KKM'deki panelden birlikte bakılıp onaylanacak. O zamana kadar değerler
-kodda, bölüm 0'daki satırlarda yazanlarla aynı.
+Bütün fiyatlar, süreler ve oranlar geçici. 7. adımda `src/oyun/ayarlar.json`'a
+taşındı (0.12); KKM'deki panelden birlikte bakılıp onaylanacak. Değerler
+bölüm 0'daki satırlarda yazanlarla aynı.
 
 ---
 
