@@ -89,7 +89,7 @@ function Kunye() {
     <div className="acilis-kunye">
       <b>{m('kunye.yer')}</b>
       <span>{m('kunye.donem')}</span>
-      <span className="yer-tutucu">{m('kunye.metin')}</span>
+      <span className="kunye-alt">{m('kunye.metin')}</span>
     </div>
   );
 }

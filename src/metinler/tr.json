@@ -587,7 +587,7 @@
   "acilis.yenilikler": "Yenilikler",
   "kunye.yer": "Düzada · Liman Mahallesi · iskele yanı",
   "kunye.donem": "Dondurmacı Kızlar'ın ilk yılları · 2000'lerin başı",
-  "kunye.metin": "[YER TUTUCU] künye metni",
+  "kunye.metin": "Düzada evreninden bir oyun",
   "oyuncu.adYaz": "Takma adın",
   "oyuncu.adsiz": "Takma ad yaz",
   "oyuncu.ozet": "Dükkân Sv. {seviye} · {gun}. gün",
@@ -614,5 +614,11 @@
   "kod.evet": "Evet, yükle",
   "kod.bozuk": "Kod okunamadı. Tamamını kopyaladığından emin ol.",
   "kod.kayitYok": "Bu cihazda kayıtlı dükkân yok.",
-  "kod.not": "Kod dükkânın o anki kaydıdır; öbür cihazda oynayınca yeniden kod alıp geri taşı. Fotoğraf albümü kodla taşınmaz."
+  "kod.not": "Kod dükkânın o anki kaydıdır; öbür cihazda oynayınca yeniden kod alıp geri taşı. Fotoğraf albümü kodla taşınmaz.",
+  "urun.cayBardaklari": "Çay bardakları",
+  "urun.kahveFincanlari": "Türk kahvesi fincanları",
+  "urun.cezve": "Cezve",
+  "urun.caydanlik": "Çaydanlık",
+  "urun.suIsiticisi": "Su ısıtıcısı (plastik)",
+  "yenilik.yerel": "Arka tezgaha yerel eşyalar: çay bardakları, Türk kahvesi fincanları, cezve, çaydanlık, su ısıtıcısı."
 }

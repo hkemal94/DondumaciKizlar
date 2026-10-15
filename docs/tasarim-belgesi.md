@@ -509,6 +509,8 @@ konusunda komple assetlere ihtiyacımız olabilir."
 - Giriş ekranı: sol altta künye (ilk iki satır kanondan: Düzada · Liman Mahallesi · iskele yanı; ilk yıllar · 2000'lerin başı; üçüncü satır [YER TUTUCU], metni Kemal'in), sağ altta oyuncu kartı (takma ad dokununca değişir, ID `DK-XXXXXX`, dükkân seviyesi, gün), **Yenilikler** listesi (`src/oyun/yenilikler.ts`), arkada daha çok yürüyen ve alçaktan uçan martılar.
 - Kayıt kodu: giriş ekranında **Kayıt kodu**. Kod oluştur → kopyala / paylaş; öbür cihazda yapıştır → Yükle → o cihazdaki dükkânın yerine geçer. Kod kaydın sıkıştırılmış hâli (sunucu yok); albüm fotoğrafları taşınmaz.
 - Model rehberi: `docs/model-rehberi.md`.
+- Yerel eşyalar (Kemal, 16 Ekim: "oyun assetlerinin lokalize olması gerekmez mi"): izinli paketlerde yok; koddan çizildi ve arka tezgaha eklendi: ince belli çay bardakları (tabakta, demli çay), Türk kahvesi fincanları (yaldızlı, köpüklü), bakır cezve, iki katlı çaydanlık, 2000'lerin plastik su ısıtıcısı. 9d içeceklerde de bunlar kullanılacak.
+- Künyenin üçüncü satırı (Kemal: "o yer tutucuya bir yazı ekleyebilirsin"): "Düzada evreninden bir oyun".
 
 ## 1. Oyunun özeti ve vizyonu
 
