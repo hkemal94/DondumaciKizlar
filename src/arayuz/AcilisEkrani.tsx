@@ -2,13 +2,18 @@ import { useState } from 'react';
 import { denemeDukkani, kayitVar, kayittanDevamEt, yeniOyun } from '../oyun/durum';
 import { m } from '../metinler';
 import { logoAdresi } from '../sahne/logo';
+import { Galeri } from './Galeri';
 
 // Açılış ekranı (Kemal, 14 Ekim; belge 0.8): arkada dükkânın sakin genel
 // görünümü, önde külahlı logo. Kayıt varsa Devam et öne çıkar; Yeni oyun
 // kayıtlı dükkânı silmeden önce sorar. Deneme dükkânı yayına kadar durur.
+// 5. adımdan beri (belge 0.12) arkada oyuncunun kendi dükkânı gün batımında,
+// kamera yavaşça döner (Sahne.tsx); Galeri buradan da açılır.
 export function AcilisEkrani({ ayarlar }: { ayarlar: () => void }) {
   const [kayit] = useState(kayitVar);
   const [soruyor, setSoruyor] = useState(false);
+  const [galeri, setGaleri] = useState(false);
+  if (galeri) return <Galeri kapat={() => setGaleri(false)} />;
   if (soruyor)
     return (
       <div className="acilis">
@@ -39,6 +44,11 @@ export function AcilisEkrani({ ayarlar }: { ayarlar: () => void }) {
         <button className="dugme acilis-deneme" onClick={denemeDukkani}>
           {m('acilis.deneme')}
         </button>
+        {kayit && (
+          <button className="dugme" onClick={() => setGaleri(true)}>
+            {m('acilis.galeri')}
+          </button>
+        )}
         <button className="dugme" onClick={ayarlar}>
           {m('acilis.ayarlar')}
         </button>

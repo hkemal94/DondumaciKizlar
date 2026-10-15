@@ -1788,7 +1788,8 @@ a.dugme {
   align-items: center;
   justify-content: center;
   gap: 4vw;
-  background: radial-gradient(ellipse at center, rgba(122, 63, 168, 0.25), rgba(40, 20, 60, 0.55));
+  /* Arkadaki gün batımı görünsün diye yalnız kenarlar hafif kararır (5. adım) */
+  background: radial-gradient(ellipse at center, rgba(122, 63, 168, 0) 45%, rgba(40, 20, 60, 0.4));
   animation: belir 0.6s ease-out;
 }
 .acilis-logo {
@@ -2180,4 +2181,48 @@ a.dugme {
 }
 .menu-dugme.secili {
   background: rgba(255, 255, 255, 0.14);
+}
+
+/* Galeri ve albüm (belge 0.12, 5. adım) */
+.galeri {
+  width: min(620px, 100%);
+}
+.galeri .gel-sekmeler {
+  align-self: stretch;
+  border-bottom: 3px solid var(--mor-koyu);
+}
+.galeri-izgara {
+  align-self: stretch;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  min-height: 0;
+  overflow: auto;
+}
+.galeri-foto {
+  font: inherit;
+  padding: 0;
+  border: 3px solid var(--mor-koyu);
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+.galeri-foto img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+}
+.galeri-foto span {
+  font-weight: 800;
+  font-size: 12px;
+  color: var(--mor-koyu);
+  padding: 2px 6px;
+}
+.galeri-bos {
+  text-align: center;
+  padding: 18px 8px;
 }
