@@ -398,5 +398,14 @@
   "tabela.neonYazi": "DONDURMA",
   "tabela.takili": "Takılı",
   "tabela.takiliDegil": "Kapalı",
-  "tabela.not": "Birden çok tabela takabilirsin; alınana dokununca takılır ya da çıkar. Işıklılar akşam kendiliğinden yanar."
+  "tabela.not": "Birden çok tabela takabilirsin; alınana dokununca takılır ya da çıkar. Işıklılar akşam kendiliğinden yanar.",
+  "dekor.ic": "Dükkânın içi için",
+  "esya.paspas": "Paspas",
+  "esya.haliYuvarlak": "Yuvarlak halı",
+  "esya.haliKilim": "Kilim",
+  "esya.tabloSoyut": "Tablo: soyut",
+  "esya.tabloDondurma": "Tablo: dondurma",
+  "esya.tabloDeniz": "Tablo: deniz",
+  "esya.tabloBos": "Boş çerçeve [YER TUTUCU]",
+  "dekor.icNot": "Halı yere serilir, üstüne masa konabilir. Tablo düz duvarın dibindeki kareye konur ve o duvara asılır; köşede çevirince öbür duvara geçer."
 }

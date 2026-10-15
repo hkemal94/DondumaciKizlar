@@ -26,14 +26,15 @@ export const DENEME_KAYDI = {
   cesitFiyatlari: [],
   isikSeviyesi: 3,
   parseller,
-  // Kapalı alan: dükkân iki yana büyümüş, arkada iki karelik mutfak
-  kapaliParseller: ['-2,0', '-1,0', '0,0', '1,0', '-1,1', '0,1'],
+  // Kapalı alan: dükkân iki yana büyümüş, arkada iki karelik mutfak; sağda
+  // oturma odası (halı ve tablo, C4)
+  kapaliParseller: ['-2,0', '-1,0', '0,0', '1,0', '2,0', '-1,1', '0,1'],
   duvarParcalari: {
     '-8,0,g': 'kapi',
     '-8,1,b': 'pencere',
     '-8,2,b': 'pencere',
-    '7,1,d': 'pencere',
-    '7,2,d': 'pencere',
+    '11,1,d': 'pencere',
+    '11,2,d': 'pencere',
   },
   mutfakParseller: ['-1,1', '0,1'],
   tezgah: { c: -4, r: 1, boy: 8 },
@@ -51,7 +52,7 @@ export const DENEME_KAYDI = {
     { id: 2, ad: '', tohum: 777, yetenek: 'icecek', hiz: 3 },
   ],
   istasyon: 'dondurma',
-  depo: { saksi: 2, masa: 1 },
+  depo: { saksi: 2, haliYuvarlak: 1, paspas: 1, tabloDondurma: 1, tabloDeniz: 1, tabloBos: 1 },
   // Terastaki eşyalar (köşe birim "c,r"; teras r = -4 … -1)
   yerlesim: [
     { esya: 'semsiyeliMasa', hucre: '-12,-4', yon: 0 },
@@ -69,6 +70,11 @@ export const DENEME_KAYDI = {
     { esya: 'sokakLambasi', hucre: '-12,-1', yon: 0 },
     { esya: 'bisiklet', hucre: '9,-2', yon: 0 },
     { esya: 'cicekKasasi', hucre: '-11,-2', yon: 0 },
+    // Sağdaki oda (C4): kilimin üstünde masa, duvarda tablo, köşede saksı
+    { esya: 'haliKilim', hucre: '8,1', yon: 0 },
+    { esya: 'masa', hucre: '9,1', yon: 0 },
+    { esya: 'tabloSoyut', hucre: '9,3', yon: 0 },
+    { esya: 'saksi', hucre: '11,3', yon: 0 },
   ],
   egitimGoruldu: ['ilkSiparis', 'susleme', 'tepsi', 'vitrin'],
 };

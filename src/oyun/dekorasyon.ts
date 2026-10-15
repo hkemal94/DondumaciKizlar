@@ -14,11 +14,20 @@ export type Esya =
   | 'cicekKasasi'
   | 'bisiklet'
   | 'copKutusu'
-  | 'sokakLambasi';
+  | 'sokakLambasi'
+  // C4 (belge 0.11): içeri için halı ve tablo
+  | 'haliYuvarlak'
+  | 'haliKilim'
+  | 'paspas'
+  | 'tabloSoyut'
+  | 'tabloDondurma'
+  | 'tabloDeniz'
+  | 'tabloBos';
 
 // grup: mağazadaki başlık. disari: yalnız dükkânın dışına konur (14 Ekim:
 // "özellikle dükkân dışı için tabela benzeri ürünler").
-export const ESYALAR: { id: Esya; fiyat: number; grup: 'oturma' | 'dis'; disari?: boolean }[] = [
+// iceri: yalnız dükkânın içine konur (halı, tablo; C4)
+export const ESYALAR: { id: Esya; fiyat: number; grup: 'oturma' | 'dis' | 'ic'; disari?: boolean; iceri?: boolean }[] = [
   { id: 'saksi', fiyat: 60, grup: 'oturma' },
   { id: 'masa', fiyat: 200, grup: 'oturma' },
   { id: 'semsiyeliMasa', fiyat: 320, grup: 'oturma', disari: true },
@@ -31,7 +40,23 @@ export const ESYALAR: { id: Esya; fiyat: number; grup: 'oturma' | 'dis'; disari?
   { id: 'bisiklet', fiyat: 180, grup: 'dis', disari: true },
   { id: 'isikliTabela', fiyat: 260, grup: 'dis', disari: true },
   { id: 'kulahFiguru', fiyat: 380, grup: 'dis', disari: true },
+  { id: 'paspas', fiyat: 70, grup: 'ic', iceri: true },
+  { id: 'haliYuvarlak', fiyat: 180, grup: 'ic', iceri: true },
+  { id: 'haliKilim', fiyat: 260, grup: 'ic', iceri: true },
+  { id: 'tabloSoyut', fiyat: 150, grup: 'ic', iceri: true },
+  { id: 'tabloDondurma', fiyat: 150, grup: 'ic', iceri: true },
+  { id: 'tabloDeniz', fiyat: 180, grup: 'ic', iceri: true },
+  { id: 'tabloBos', fiyat: 60, grup: 'ic', iceri: true },
 ];
+
+// Katman (C4): halı yere serilir, üstüne eşya konabilir; tablo duvara asılır,
+// yerde yer kaplamaz. Aynı katmandakiler üst üste gelemez.
+export type Katman = 'esya' | 'zemin' | 'duvar';
+export function esyaKatmani(e: Esya): Katman {
+  if (e === 'paspas' || e === 'haliYuvarlak' || e === 'haliKilim') return 'zemin';
+  if (e.startsWith('tablo')) return 'duvar';
+  return 'esya';
+}
 
 // Işıklandırma seviyeleri: 1 fenerler, 2 asma ampuller, 3 ışıklı şerit.
 // Her seviye bir öncekinin üstüne eklenir.
@@ -120,6 +145,13 @@ export const ESYA_BOYU: Record<Esya, { en: number; boy: number }> = {
   cicekKasasi: { en: 2, boy: 1 },
   masa: { en: 2, boy: 2 },
   semsiyeliMasa: { en: 2, boy: 2 },
+  paspas: { en: 2, boy: 1 },
+  haliYuvarlak: { en: 2, boy: 2 },
+  haliKilim: { en: 3, boy: 2 },
+  tabloSoyut: { en: 1, boy: 1 },
+  tabloDondurma: { en: 1, boy: 1 },
+  tabloDeniz: { en: 1, boy: 1 },
+  tabloBos: { en: 1, boy: 1 },
 };
 
 export function esyaOlcusu(esya: Esya, yon: number) {

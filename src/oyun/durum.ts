@@ -82,6 +82,10 @@ import {
   esyaOlcusu,
   esyaOrtasi,
   kapladigiBirimler,
+  esyaKatmani,
+  YON_ADIMI,
+  type Katman,
+  type Yon,
   noktaninBirimi,
   parselAnahtari,
   parselCoz,
@@ -1243,9 +1247,9 @@ export function birimEngelli(c: number, r: number, d: Durum = durum) {
   return siraBirimiMi(d.tezgah, c, r);
 }
 
-export function birimDolu(c: number, r: number, d: Durum = durum, haric?: Yerlesim) {
+export function birimDolu(c: number, r: number, d: Durum = durum, haric?: Yerlesim, katman: Katman = 'esya') {
   return d.yerlesim.some((y) => {
-    if (y === haric) return false;
+    if (y === haric || esyaKatmani(y.esya) !== katman) return false;
     const k = birimCoz(y.hucre);
     return kapladigiBirimler(y.esya, k.c, k.r, y.yon).some((b) => b.c === c && b.r === r);
   });
@@ -1256,10 +1260,35 @@ export function birimDolu(c: number, r: number, d: Durum = durum, haric?: Yerles
 export function esyaSigar(esya: Esya, c: number, r: number, yon: number, d: Durum = durum, haric?: Yerlesim) {
   const birimler = kapladigiBirimler(esya, c, r, yon);
   const ic = birimIcMi(birimler[0].c, birimler[0].r, d);
-  if (ic && ESYALAR.find((e) => e.id === esya)?.disari) return false;
+  const tanim = ESYALAR.find((e) => e.id === esya);
+  if (ic && tanim?.disari) return false;
+  if (!ic && tanim?.iceri) return false;
+  const katman = esyaKatmani(esya);
+  // Tablo yalnız düz duvarın dibindeki kareye konur (o duvara asılır)
+  if (katman === 'duvar' && !birimDuvarlari(c, r, d).length) return false;
   return birimler.every(
-    (b) => birimSahipli(b.c, b.r, d) && !birimEngelli(b.c, b.r, d) && !birimDolu(b.c, b.r, d, haric) && birimIcMi(b.c, b.r, d) === ic,
+    (b) => birimSahipli(b.c, b.r, d) && !birimEngelliKatman(b.c, b.r, katman, d) && !birimDolu(b.c, b.r, d, haric, katman) && birimIcMi(b.c, b.r, d) === ic,
   );
+}
+
+// Tablo yerde yer kaplamaz: tezgahın, sıranın, kapı yolunun arkasındaki duvara da
+// asılır; yalnız mutfağa konmaz
+export function birimEngelliKatman(c: number, r: number, katman: Katman, d: Durum = durum) {
+  if (katman === 'duvar') return d.mutfakParseller.includes(birimParseli(c, r));
+  return birimEngelli(c, r, d);
+}
+
+// İçerideki bir karenin dibindeki düz duvarlar (pencere ve kapı değil; C4 tablolar)
+export function birimDuvarlari(c: number, r: number, d: Durum = durum): Kenar[] {
+  if (!birimIcMi(c, r, d)) return [];
+  const liste: Kenar[] = [];
+  for (const y of ['k', 'b', 'd', 'g'] as Yon[]) {
+    const [dc, dr] = YON_ADIMI[y];
+    if (birimIcMi(c + dc, r + dr, d)) continue;
+    const k: Kenar = { c, r, y };
+    if (parcaTuru(k, d.duvarParcalari) === 'duvar') liste.push(k);
+  }
+  return liste;
 }
 
 // Dokunulan noktaya en yakın, eşyanın sığdığı köşe birim (2 m içinde)
@@ -1284,13 +1313,20 @@ export function enYakinYer(esya: Esya, x: number, z: number, yon: number, d: Dur
   return enIyi;
 }
 
-// Bir noktadaki konmuş eşya
+// Bir noktadaki konmuş eşya. Halı ya da tablo seçiliyken yalnız aynı
+// katmandakiler; değilse önce tablo ve eşyalar, halı en son (altta kalır).
 export function noktadakiEsya(x: number, z: number, d: Durum = durum) {
   const { c, r } = noktaninBirimi(x, z);
-  return d.yerlesim.find((y) => {
+  const oradakiler = d.yerlesim.filter((y) => {
     const k = birimCoz(y.hucre);
     return kapladigiBirimler(y.esya, k.c, k.r, y.yon).some((b) => b.c === c && b.r === r);
   });
+  return oradakiler.find((y) => esyaKatmani(y.esya) === dokunmaKatmani(d)) ?? (d.seciliEsya ? undefined : oradakiler.find((y) => esyaKatmani(y.esya) !== 'zemin') ?? oradakiler[0]);
+}
+
+// Yerleştirirken dokunulunca hangi katmandaki eşya kalkar
+export function dokunmaKatmani(d: Durum = durum): Katman | null {
+  return d.seciliEsya ? esyaKatmani(d.seciliEsya) : null;
 }
 
 // Dokunulan yere seçili eşyayı koy
@@ -1421,7 +1457,7 @@ function tezgahiKoy(t: TezgahYeri, ek: Partial<Durum> = {}) {
   const depo = { ...durum.depo };
   for (const y of durum.yerlesim) {
     const k = birimCoz(y.hucre);
-    if (kapladigiBirimler(y.esya, k.c, k.r, y.yon).some((b) => birimEngelli(b.c, b.r, sonra))) depo[y.esya] = (depo[y.esya] ?? 0) + 1;
+    if (kapladigiBirimler(y.esya, k.c, k.r, y.yon).some((b) => birimEngelliKatman(b.c, b.r, esyaKatmani(y.esya), sonra))) depo[y.esya] = (depo[y.esya] ?? 0) + 1;
     else kalan.push(y);
   }
   guncelle({ tezgah: t, yerlesim: kalan, depo, ...ek });

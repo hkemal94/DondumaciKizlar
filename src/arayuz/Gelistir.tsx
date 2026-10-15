@@ -443,7 +443,7 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
               </div>
 
               {/* Taşınabilir eşyalar: alınır, depoya gider */}
-              {(['oturma', 'dis'] as const).map((grup) => (
+              {(['oturma', 'dis', 'ic'] as const).map((grup) => (
                 <div key={grup}>
                   <div className="gel-baslik">{m(`dekor.${grup}`)}</div>
                   {/* Resimli kartlar (Kemal, 14 Ekim): eşyanın oyundaki modelinden küçük resim */}
@@ -469,6 +469,7 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
                   </div>
                 </div>
               ))}
+              <p className="gel-not">{m('dekor.icNot')}</p>
               <p className="gel-not">{m('dekor.etki')}</p>
             </div>
           )}
