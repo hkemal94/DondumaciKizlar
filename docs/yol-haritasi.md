@@ -11,7 +11,7 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | | |
 |---|---|
 | Aşama | Oynanabilir sürüm, büyüme, karakterler, liman ve kişiselleştirme bitti. Sırada görsel kalite |
-| Son biten | Soru turu 0.14: mutfak, arka tezgah, giriş ekranı, kayıt kodu, model rehberi (bu PR) |
+| Son biten | Yerel eşyalar: çay bardağı, Türk kahvesi fincanı, cezve, çaydanlık, su ısıtıcısı (bu PR) |
 | Şu an | Hataların denetimi; sıradaki soruları Kemal'e tek tek sor (belge 0.13.2 son satır) |
 | Sıradaki | 9d: içecekler (tek istasyon; seçilen dolap, makine ve bardaklarla); sonra hesap ve bulut kayıt (ayrı Firebase projesi) |
 | Yayın | Deneme sürümü webde; tarih yok, acele yok |
@@ -81,7 +81,8 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 - Hatalar (15 Ekim gece): tezgahta hedefler, gün sonunda çarpı, iki sıra küvet dokunuşu, gözlük ve küpe, 2 m ortalı ön tabela, iki dondurmalı balon, mesaiden sonra ilerleyen saat, eşit süsleme düğmeleri, tablolar taşınır, "İpucunu geç", "günlük ücret" · [#50](https://github.com/hkemal94/DondumaciKizlar/pull/50)
 - Fazla mesai ücreti: kapanıştan sonra her saat için yardımcılara ek; gün sonunda ayrı satır · [#51](https://github.com/hkemal94/DondumaciKizlar/pull/51)
 - İş kısmına ışık: tezgahın üstünde sarkan zayıf lambalar; mağazada duvar lambası (mutfak duvarına da asılır) · [#52](https://github.com/hkemal94/DondumaciKizlar/pull/52)
-- Soru turu 0.14: mutfağa yalnız mutfak eşyası ve fayans zemin; Dükkân → Arka tezgah ile ürün seçme; giriş ekranında künye, oyuncu kartı, Yenilikler, canlı liman; iki cihaz için kayıt kodu; model hazırlama rehberi · bu PR
+- Soru turu 0.14: mutfağa yalnız mutfak eşyası ve fayans zemin; Dükkân → Arka tezgah ile ürün seçme; giriş ekranında künye, oyuncu kartı, Yenilikler, canlı liman; iki cihaz için kayıt kodu; model hazırlama rehberi · [#53](https://github.com/hkemal94/DondumaciKizlar/pull/53)
+- Yerel eşyalar arka tezgahta (çay bardakları, Türk kahvesi fincanları, cezve, çaydanlık, su ısıtıcısı); künyeye "Düzada evreninden bir oyun" · bu PR
 
 ## Bilinen eksikler
 
@@ -94,7 +95,6 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 ## Yayından önce
 
 - 10.000 jeton kalkar (`GELISTIRME_JETONU` 0 olur)
-- Künyenin metni (Kemal yazar; şimdilik [YER TUTUCU])
 - Deneme dükkânı düğmesi kalkar
 - Hesap ve bulut kayıt (E, Google ile giriş)
 - Mağaza ve bilgisayar paketi (sonra)

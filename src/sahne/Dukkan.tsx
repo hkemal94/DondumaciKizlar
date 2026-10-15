@@ -636,6 +636,169 @@ function ArkaTezgah() {
   );
 }
 
+// ---- Yerel eşyalar (16 Ekim): koddan, dönen biçimler (low-poly) ----
+function dondur(noktalar: [number, number][], kenar = 10) {
+  return new THREE.LatheGeometry(noktalar.map(([x, y]) => new THREE.Vector2(x, y)), kenar);
+}
+const CAM_MALZEMESI = { color: '#f4fbff', transparent: true, opacity: 0.3, roughness: 0.08, metalness: 0.05 } as const;
+
+// İnce belli çay bardağı, tabağında, içinde demli çay
+function CayBardagi() {
+  const bardak = useMemo(() => dondur([[0, 0.012], [0.024, 0.012], [0.026, 0.02], [0.017, 0.05], [0.021, 0.075], [0.027, 0.1], [0.026, 0.1]]), []);
+  const cay = useMemo(() => dondur([[0, 0.014], [0.023, 0.014], [0.016, 0.05], [0.02, 0.075], [0.024, 0.09], [0, 0.09]]), []);
+  return (
+    <group>
+      <mesh position={[0, 0.006, 0]}>
+        <cylinderGeometry args={[0.05, 0.04, 0.012, 12]} />
+        <meshStandardMaterial color="#ffffff" roughness={0.5} />
+      </mesh>
+      <mesh geometry={cay}>
+        <meshStandardMaterial color="#8a2410" roughness={0.25} />
+      </mesh>
+      <mesh geometry={bardak}>
+        <meshStandardMaterial {...CAM_MALZEMESI} side={THREE.DoubleSide} />
+      </mesh>
+    </group>
+  );
+}
+function CayBardaklari() {
+  return (
+    <>
+      {[-0.15, 0, 0.15].map((x, i) => (
+        <group key={x} position={[x, 0, (i % 2) * 0.06]}>
+          <CayBardagi />
+        </group>
+      ))}
+    </>
+  );
+}
+
+// Türk kahvesi fincanı ve tabağı: beyaz, ağzında altın yaldız, içinde köpüklü kahve
+function KahveFincani() {
+  const fincan = useMemo(() => dondur([[0, 0.012], [0.02, 0.012], [0.028, 0.03], [0.031, 0.055], [0.032, 0.062]], 12), []);
+  return (
+    <group>
+      <mesh position={[0, 0.006, 0]}>
+        <cylinderGeometry args={[0.055, 0.045, 0.012, 14]} />
+        <meshStandardMaterial color="#ffffff" roughness={0.45} />
+      </mesh>
+      <mesh geometry={fincan}>
+        <meshStandardMaterial color="#ffffff" roughness={0.45} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh position={[0, 0.06, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.031, 0.003, 4, 14]} />
+        <meshStandardMaterial color="#d8a93a" metalness={0.5} roughness={0.35} />
+      </mesh>
+      <mesh position={[0, 0.056, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[0.029, 12]} />
+        <meshStandardMaterial color="#b8875a" roughness={0.9} />
+      </mesh>
+      <mesh position={[0.035, 0.04, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <torusGeometry args={[0.011, 0.003, 4, 8, Math.PI]} />
+        <meshStandardMaterial color="#ffffff" roughness={0.45} />
+      </mesh>
+    </group>
+  );
+}
+function KahveFincanlari() {
+  return (
+    <>
+      {[-0.1, 0.1].map((x) => (
+        <group key={x} position={[x, 0, 0]} rotation={[0, x > 0 ? 2.6 : 0.4, 0]}>
+          <KahveFincani />
+        </group>
+      ))}
+    </>
+  );
+}
+
+// Cezve: bakır, belli gövde, uzun sap
+function Cezve() {
+  const govde = useMemo(() => dondur([[0, 0], [0.045, 0], [0.05, 0.03], [0.04, 0.075], [0.045, 0.095], [0.05, 0.1]], 12), []);
+  return (
+    <group rotation={[0, 0.5, 0]}>
+      <mesh geometry={govde} castShadow>
+        <meshStandardMaterial color="#c8743a" metalness={0.55} roughness={0.35} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh position={[0.13, 0.085, 0]} rotation={[0, 0, -0.25]}>
+        <boxGeometry args={[0.17, 0.012, 0.016]} />
+        <meshStandardMaterial color="#5a3a26" roughness={0.7} />
+      </mesh>
+    </group>
+  );
+}
+
+// İki katlı çaydanlık: altta su (büyük), üstte demlik (küçük); paslanmaz
+function Caydanlik() {
+  const alt = useMemo(() => dondur([[0, 0], [0.085, 0], [0.095, 0.05], [0.09, 0.11], [0.06, 0.14], [0.05, 0.145]], 12), []);
+  const ust = useMemo(() => dondur([[0, 0], [0.055, 0], [0.065, 0.04], [0.055, 0.075], [0.03, 0.09], [0.01, 0.1], [0, 0.11]], 12), []);
+  const celik = { color: '#cfd6dc', metalness: 0.6, roughness: 0.3 } as const;
+  return (
+    <group>
+      <mesh geometry={alt} castShadow>
+        <meshStandardMaterial {...celik} />
+      </mesh>
+      <group position={[0, 0.145, 0]}>
+        <mesh geometry={ust} castShadow>
+          <meshStandardMaterial {...celik} />
+        </mesh>
+        <mesh position={[0, 0.112, 0]}>
+          <sphereGeometry args={[0.012, 8, 6]} />
+          <meshStandardMaterial color="#2f2a33" />
+        </mesh>
+        {/* Demlik ağzı */}
+        <mesh position={[-0.075, 0.05, 0]} rotation={[0, 0, 0.9]}>
+          <cylinderGeometry args={[0.008, 0.012, 0.06, 6]} />
+          <meshStandardMaterial {...celik} />
+        </mesh>
+      </group>
+      {/* Alt kabın ağzı ve sapı */}
+      <mesh position={[-0.11, 0.08, 0]} rotation={[0, 0, 0.8]}>
+        <cylinderGeometry args={[0.01, 0.016, 0.08, 6]} />
+        <meshStandardMaterial {...celik} />
+      </mesh>
+      <mesh position={[0.1, 0.1, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <torusGeometry args={[0.035, 0.007, 4, 10, Math.PI]} />
+        <meshStandardMaterial color="#2f2a33" roughness={0.7} />
+      </mesh>
+    </group>
+  );
+}
+
+// 2000'lerin plastik su ısıtıcısı: krem gövde, mor kapak, tabanı
+function SuIsiticisi() {
+  const govde = useMemo(() => dondur([[0, 0.02], [0.07, 0.02], [0.075, 0.08], [0.065, 0.17], [0.05, 0.19], [0, 0.19]], 12), []);
+  return (
+    <group>
+      <mesh position={[0, 0.01, 0]}>
+        <cylinderGeometry args={[0.085, 0.09, 0.02, 14]} />
+        <meshStandardMaterial color="#3a3340" roughness={0.6} />
+      </mesh>
+      <mesh geometry={govde} castShadow>
+        <meshStandardMaterial color="#f3ead9" roughness={0.55} />
+      </mesh>
+      <mesh position={[0, 0.192, 0]}>
+        <cylinderGeometry args={[0.048, 0.05, 0.012, 12]} />
+        <meshStandardMaterial color={renk.mor} roughness={0.6} />
+      </mesh>
+      {/* Sap ve ağız */}
+      <mesh position={[0.085, 0.11, 0]}>
+        <boxGeometry args={[0.025, 0.13, 0.03]} />
+        <meshStandardMaterial color="#f3ead9" roughness={0.55} />
+      </mesh>
+      <mesh position={[-0.078, 0.165, 0]} rotation={[0, 0, 0.6]}>
+        <boxGeometry args={[0.03, 0.04, 0.04]} />
+        <meshStandardMaterial color="#f3ead9" roughness={0.55} />
+      </mesh>
+      {/* Su göstergesi */}
+      <mesh position={[0, 0.1, -0.072]}>
+        <boxGeometry args={[0.018, 0.08, 0.004]} />
+        <meshStandardMaterial color="#9fd3ea" transparent opacity={0.7} />
+      </mesh>
+    </group>
+  );
+}
+
 // Arka tezgahtaki bir ürün; yuvanın ortasında, önü dükkâna (−z) bakar
 export function TezgahUrunuModeli({ id }: { id: string }) {
   if (id === 'kavanozlar')
@@ -678,6 +841,11 @@ export function TezgahUrunuModeli({ id }: { id: string }) {
         <Kutu konum={[0, 0.1, -0.22]} boyut={[0.3, 0.04, 0.12]} renkAdi="#5b6268" />
       </group>
     );
+  if (id === 'cayBardaklari') return <CayBardaklari />;
+  if (id === 'kahveFincanlari') return <KahveFincanlari />;
+  if (id === 'cezve') return <Cezve />;
+  if (id === 'caydanlik') return <Caydanlik />;
+  if (id === 'suIsiticisi') return <SuIsiticisi />;
   if (id === 'eskiKasa')
     return (
       <group>

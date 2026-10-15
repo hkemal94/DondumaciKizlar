@@ -587,7 +587,7 @@
   "acilis.yenilikler": "What's new",
   "kunye.yer": "Düzada · Harbour quarter · by the pier",
   "kunye.donem": "Dondurmacı Kızlar's first years · early 2000s",
-  "kunye.metin": "[PLACEHOLDER] credits text",
+  "kunye.metin": "A game from the Düzada universe",
   "oyuncu.adYaz": "Your nickname",
   "oyuncu.adsiz": "Add a nickname",
   "oyuncu.ozet": "Shop lv. {seviye} · day {gun}",
@@ -614,5 +614,11 @@
   "kod.evet": "Yes, load",
   "kod.bozuk": "Couldn't read the code. Make sure you copied all of it.",
   "kod.kayitYok": "There's no saved shop on this device.",
-  "kod.not": "The code is the shop's save at that moment; after playing on the other device, make a new code to move it back. The photo album isn't moved."
+  "kod.not": "The code is the shop's save at that moment; after playing on the other device, make a new code to move it back. The photo album isn't moved.",
+  "urun.cayBardaklari": "Turkish tea glasses",
+  "urun.kahveFincanlari": "Turkish coffee cups",
+  "urun.cezve": "Cezve (coffee pot)",
+  "urun.caydanlik": "Double teapot",
+  "urun.suIsiticisi": "Electric kettle",
+  "yenilik.yerel": "Local items for the back counter: Turkish tea glasses, Turkish coffee cups, cezve, double teapot, electric kettle."
 }

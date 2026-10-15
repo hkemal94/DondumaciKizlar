@@ -18,6 +18,13 @@ export const TEZGAH_URUNLERI: TezgahUrunu[] = [
   { id: 'kaplar', fiyat: 0 },
   { id: 'eskiKahve', fiyat: 0 },
   { id: 'eskiKasa', fiyat: 0 },
+  // Yerel eşyalar (Kemal, 16 Ekim: "Türk kahvesi fincanı, Türk tipi çay,
+  // çaydanlık"); hiçbir pakette yok, koddan çizilir
+  { id: 'cayBardaklari', fiyat: 25 },
+  { id: 'kahveFincanlari', fiyat: 30 },
+  { id: 'cezve', fiyat: 35 },
+  { id: 'caydanlik', fiyat: 60 },
+  { id: 'suIsiticisi', fiyat: 80 },
   { id: 'kahveMakinesi', kod: 'M1', yol: 'tezgah/kitchenCoffeeMachine', yukseklik: 0.42, fiyat: 150 },
   { id: 'espresso', kod: 'M2', yol: 'tezgah/coffee_machine', yukseklik: 0.45, fiyat: 200 },
   { id: 'blender', kod: 'M3', yol: 'tezgah/kitchenBlender', yukseklik: 0.4, fiyat: 120 },
