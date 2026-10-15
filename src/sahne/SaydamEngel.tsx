@@ -8,7 +8,16 @@ import { kameraKarisimi } from './kameraKarisimi';
 // birkaç karede bir ölçülür; kameradan dükkâna giden çizgi kutudan geçiyorsa
 // malzemeleri yumuşakça solar, çekilince geri gelir.
 
-const DUKKAN = new THREE.Vector3(0, 1.5, 0);
+// Dükkânın birkaç noktası: orta, iki yan, ön ve arka kenar (biri kapanırsa solar)
+const DUKKAN_NOKTALARI = [
+  [0, 1.5, 0],
+  [-6, 1, 1],
+  [6, 1, 1],
+  [0, 1, -2],
+  [0, 1, 5],
+  [-6, 1, 5],
+  [6, 1, 5],
+].map(([x, y, z]) => new THREE.Vector3(x, y, z));
 const SAYDAM = 0.22;
 
 export function SaydamEngel({ children }: { children: ReactNode }) {
@@ -42,9 +51,11 @@ export function SaydamEngel({ children }: { children: ReactNode }) {
     if (kameraKarisimi.deger < 0.12 || kutu.isEmpty()) d.engel = false;
     else {
       isin.origin.copy(camera.position);
-      isin.direction.copy(DUKKAN).sub(camera.position).normalize();
-      const nokta = isin.intersectBox(kutu, kesisme);
-      d.engel = !!nokta && nokta.distanceTo(camera.position) < camera.position.distanceTo(DUKKAN);
+      d.engel = DUKKAN_NOKTALARI.some((hedefNokta) => {
+        isin.direction.copy(hedefNokta).sub(camera.position).normalize();
+        const nokta = isin.intersectBox(kutu, kesisme);
+        return !!nokta && nokta.distanceTo(camera.position) < camera.position.distanceTo(hedefNokta);
+      });
     }
     const hedef = d.engel ? SAYDAM : 1;
     if (Math.abs(d.opaklik - hedef) < 0.01 && d.opaklik === hedef) return;

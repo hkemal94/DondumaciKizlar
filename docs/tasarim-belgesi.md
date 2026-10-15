@@ -361,10 +361,10 @@ yazılar kanon değildir.
 | Kapı | Müşteri gelince açılır, geçince kapanır; açılınca **zil sesi**. Yapıldı (1. adım): müşteri ya da sahip 1,7 m'ye yaklaşınca açılır |
 | Araya giren ev | Kamerayla dükkân arasına giren ev **yarı saydam** olur. Yapıldı (1. adım): şimdilik ön sıradaki büyük binalarda; yeni mahallede bütün evlere uygulanacak |
 | Menü | Dört grup: **Dükkân** (inşaat + yerleştir + görünüş), **Ekip** (çalışan + yardımcılar), **Ürünler** (vitrin + çeşitler + fiyat), **Mağaza** (satın almalar). Yapıldı (1. adım): gruba dokununca üstünde alt işler açılır; Mağaza doğrudan eşyaları açar |
-| Mahalle | "Savaş alanı gibi" kutular yerine iki-üç katlı müstakil Ege evleri. İzinli dört paketin (Kenney, Quaternius, Tiny Treats, KayKit) hepsi kullanılabilir; **önce adaylar gösterilir, Kemal seçer** |
-| Zemin | Taş döşeli sokaklar ve kaldırımlar, çimen ve bahçeler, zeytin, çam, begonvil. **Kum yalnız sahilde** |
-| Deniz ve kumsal | Açılış konsept görseli gibi: yumuşak low-poly, hafif dalga, kıyıda köpük, kayalar, sıcak ışık |
-| Boşluklar | Kumsal daralır ve dolar; yürüyüş yolunda bank, saksı, ağaç, lamba |
+| Mahalle | "Savaş alanı gibi" kutular yerine iki-üç katlı müstakil Ege evleri. İzinli dört paketin (Kenney, Quaternius, Tiny Treats, KayKit) hepsi kullanılabilir; **önce adaylar gösterilir, Kemal seçer**. **Seçildi (15 Ekim):** Quaternius Simple Buildings (küçük evler ve düz damlı apartmanlar) + Kenney Modular Buildings (dar, düz damlı, balkonlu kasaba evleri). Renk: çoğu beyaz badana, aralarda krem, sıva pembesi, açık sarı; pencere ve kapılar mavi ya da yeşil; **pencere camları açık renk** (koyu cam beğenilmedi). Adaylar: `docs/gorseller/ev-adaylari/` |
+| Zemin | Taş döşeli sokaklar ve kaldırımlar, çimen ve bahçeler, zeytin, çam, begonvil. **Kum yalnız sahilde**. Yapıldı (2. adım): mahalle dört sıra ada, iki yana 200 m (ötesi sis); ağaçlar telefon için kodla çizilen sade şekiller (paket ağaçları 5–9 bin üçgen, çok ağır); dükkânın çevresindeki kaldırım da taş döşeme |
+| Deniz ve kumsal | Açılış konsept görseli gibi: yumuşak low-poly, hafif dalga, kıyıda köpük, kayalar, sıcak ışık. Yapıldı (2. adım): dalgalar ekran kartında, kıyıya yakın açık turkuaz → açıkta koyu mavi, kıyıda gelip giden köpük; kumda ton farkları ve ıslak şerit |
+| Boşluklar | Kumsal daralır ve dolar; yürüyüş yolunda bank, saksı, ağaç, lamba. Yapıldı (2. adım): sekiz şemsiyeli şezlong grubu, ters çevrilmiş iki sandal, kayalar, iskele başında fıçı ve sandık, korkuluğun önünde saksıda zeytinler. Lambalar ve yürüyüş yolunun uzaması 3. adımda |
 | Liman canlılığı | Yürüyüş yolu sise kadar uzanır, iki yanı ışıklı; sokak lambaları; arka yoldan geçen arabalar; yayalar; martılar ve kediler; tekne çeşidi ve renkleri; deniz ve ortam sesi. Mahalle sokakları haritadaki gibi eğik, uzağı sisle kapanır. Liman binalarına tabela şimdilik yok |
 | Akıcılık | Ayarlara **grafik kalitesi** (düşük / orta / yüksek) |
 
