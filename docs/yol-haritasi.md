@@ -11,8 +11,8 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | | |
 |---|---|
 | Aşama | Oynanabilir sürüm, büyüme, karakterler, liman ve kişiselleştirme bitti. Sırada görsel kalite |
-| Son biten | 7. adımın oyun tarafı: ayar dosyası (bu PR) |
-| Şu an | 7. adım: KKM'de Ayarlar sekmesi (yazma yolu Kemal'in seçimini bekliyor) |
+| Son biten | 7. adım: ayar dosyası ve KKM'de Ayarlar sekmesi (bu PR) |
+| Şu an | 7. adımın denetimi (oyun ve KKM PR'ları) |
 | Sıradaki | 8. adım: exp sistemi (önce soru turu) |
 | Yayın | Deneme sürümü webde; tarih yok, acele yok |
 
@@ -27,7 +27,7 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | 4 | Karakterler | Gülümseme, bedene oturan önlük + dükkân üniforması, el sallama ve mutlu / mutsuz ayrılış, kıyafet seçimi, saçları başlardan ayırma denemesi | Bitti ([#38](https://github.com/hkemal94/DondumaciKizlar/pull/38)) |
 | 5 | Açılış ve galeri | Arkada kendi dükkânın gün batımında, galeri, ayda bir otomatik dükkân fotoğrafı | Bitti ([#39](https://github.com/hkemal94/DondumaciKizlar/pull/39)) |
 | 6 | İngilizce | Bütün yazılar İngilizce; Ayarlar'da dil seçimi | Bitti ([#40](https://github.com/hkemal94/DondumaciKizlar/pull/40)) |
-| 7 | Ayar paneli | Bütün sayılar oyunda tek ayar dosyasında; KKM'de "Ayarlar" sekmesi (KKM deposunda ayrı PR) | Oyun tarafı bitti (bu PR); KKM sekmesi sırada |
+| 7 | Ayar paneli | Bütün sayılar oyunda tek ayar dosyasında; KKM'de "Ayarlar" sekmesi (KKM deposunda ayrı PR) | Bitti (bu PR; KKM sekmesi KKM deposunda ayrı PR). Yazma yolu: GitHub anahtarı (Kemal, 15 Ekim) |
 | 8 | Exp sistemi | Ana seviye + dükkân ve çalışan seviyeleri; günlük hedefler; yıldızlar yorum gibi; sıra bazen uzun bazen boş; otomatik kamera ayarı; eşyalara konfor ve çekicilik | |
 | 9 | İçecekler ve stok | Limonata / ayran / buzlu çay → milkshake / frappe → kahve → taze sıkma; hafif stok ve gün sonu sipariş ekranı | |
 | 10 | Sonra | Kayan yazıda müşteri yorumları (cümleler Kemal'in), eşya renkleri ve yumuşak yıpranma, gedikli müşteriler, hava durumu, duvar deseni, seyyar dondurma arabası, festival / bayramlar, yeni süslemeler, mevsim | |

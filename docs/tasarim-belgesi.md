@@ -537,7 +537,7 @@ toparlamada kalktı (cevaplananlar bölüm 0'da; geçmişi GitHub'da).
 | Müşteri yorum cümleleri, hikâye kırıntıları | Kemal'in; o zamana kadar [YER TUTUCU] |
 | Boş çerçeve resimleri | Kemal gönderecek |
 | Festival / bayram günleri, adları ve özel çeşitleri | Sonra; Kemal'in |
-| Ayar panelinin oyuna yazma yolu | KKM'ye GitHub anahtarı mı, kopyala-yapıştır mı (ayar paneli adımında) |
+| Ayar panelinin oyuna yazma yolu | ~~Açık~~ → **GitHub anahtarı** (Kemal, 15 Ekim): KKM → Oyun → Ayarlar'da "Oyuna gönder" oyunun deposunda PR açar; anahtar yalnız o tarayıcıda durur |
 | Exp sisteminin sayıları | Seviye eşikleri, ödüller, neyin hangi seviyede açılacağı: exp adımında tablo olarak sunulur |
 | Mahalle evleri | Paket adayları gösterilip Kemal seçecek |
 
