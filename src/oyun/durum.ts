@@ -1236,7 +1236,21 @@ export const FIYAT_ETKISI: Record<FiyatSeviyesi, { fiyat: number; gelis: number;
 };
 
 // Her yerleştirilmiş eşya ve her ışık seviyesi müşteri aralığını kısaltır (en çok %50)
-const ESYA_ETKISI = AYAR.cekicilik.esyaEtkisi;
+// Eşyaların toplam konfor ve çekicilik puanı (belge 0.15b)
+export function dukkanPuanlari(d: Durum = durum) {
+  let konfor = 0;
+  let cekicilik = 0;
+  for (const y of d.yerlesim) {
+    const e = ESYALAR.find((x) => x.id === y.esya);
+    konfor += e?.konfor ?? 0;
+    cekicilik += e?.cekicilik ?? 0;
+  }
+  return { konfor, cekicilik };
+}
+// Konforun memnuniyete eki (yıldız)
+export function konforEki(d: Durum = durum) {
+  return Math.min(AYAR.cekicilik.konforEnCok, dukkanPuanlari(d).konfor * AYAR.cekicilik.konforPuani);
+}
 const ISIK_ETKISI = AYAR.cekicilik.isikEtkisi;
 
 // Oyuncunun koyduğu fiyat (genel seviyeden önce) ve müşterinin ödediği
@@ -1284,7 +1298,7 @@ const HAFTA_SONU_CARPANI = AYAR.gun.haftaSonuCarpani;
 
 function gelisCarpani() {
   const haftaSonu = haftaSonuMu() ? HAFTA_SONU_CARPANI : 1;
-  const cekicilik = Math.min(AYAR.cekicilik.cekicilikEnCok, ESYA_ETKISI * durum.yerlesim.length + ISIK_ETKISI * durum.isikSeviyesi);
+  const cekicilik = Math.min(AYAR.cekicilik.cekicilikEnCok, AYAR.cekicilik.cekicilikPuani * dukkanPuanlari().cekicilik + ISIK_ETKISI * durum.isikSeviyesi);
   // Ana seviye arttıkça müşteriler biraz daha sık gelir (8. adım)
   const seviyeEtkisi = Math.min(AYAR.exp.musteriArtisiEnCok, AYAR.exp.musteriArtisi * (seviye('ana', durum.exp.ana) - 1));
   return FIYAT_ETKISI[durum.fiyatSeviyesi].gelis * (1 - cekicilik) * (1 - seviyeEtkisi) * haftaSonu;
@@ -1932,7 +1946,9 @@ function makineSonucu(urun: Istasyon, m: MakineDurumu, istenen: MakineSiparisi) 
 }
 
 // calisanExp: müşteriye oyuncu kendisi servis ettiyse (yardımcının servisinde 0)
-function musteriyiUgurla(id: number, miktar: number, puan: number, mukemmel: boolean, ek: Partial<Durum> = {}, calisanExp = 0, neden: YorumNedeni = 'iyi') {
+function musteriyiUgurla(id: number, miktar: number, hamPuan: number, mukemmel: boolean, ek: Partial<Durum> = {}, calisanExp = 0, neden: YorumNedeni = 'iyi') {
+  // Dükkânın konforu memnuniyete küçük bir ek yapar (belge 0.15b), en çok 5 yıldız
+  const puan = Math.min(5, hamPuan + konforEki());
   const musteri = durum.musteriler.find((x) => x.id === id);
   guncelle({
     para: durum.para + miktar,

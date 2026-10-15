@@ -525,6 +525,10 @@ konusunda komple assetlere ihtiyacımız olabilir."
 
 **Yapılanlar (0.15):** üst bilgide saatin yanında hava simgesi; gün sonunda "Yarın" satırı. Sıcakta güneş daha sarı ve parlak, ufuk solgun; bulutluda ışık ve gök griye döner, gökte low-poly bulutlar sürüklenir, flamalar ve deniz dalgaları hızlanır; yağmurda damlalar (dükkânın içine düşmez), uzak sisli, yağmur sesi, martılar susar. Hava değişince görüntü birkaç saniyede döner. İlk gün hep güneşli. Olasılıklar ve etkiler ayar dosyasında (`hava` bölümü; geçici: güneşli %50, sıcak %25, bulutlu %17, yağmurlu %8, değişim %20; müşteri sıklığı sıcak %115, bulutlu %95, yağmurlu %75; sıcakta içecek payı %150). Açılış ekranı hep açık gün batımı.
 
+### 0.15b Eşyaların konforu ve çekiciliği (exp soru turundaki "Eşyalar" maddesi)
+
+Her eşyanın 0–3 **konfor** ve 0–3 **çekicilik** puanı var; mağaza kartında yazar. Yerleşen eşyaların toplamı Geliştir → Dekorasyon → Genel'de görünür. **Konfor** her servis edilen müşterinin memnuniyetine küçük ek yapar (puan başına 0,03 yıldız, en çok 0,4; geçici); **çekicilik** müşterileri daha sık getirir (eskiden her eşya eşit sayılıyordu). Puanlar `src/oyun/dekorasyon.ts`'te, etkiler ayar dosyasında (`cekicilik` bölümü). Renk seçeneği ve yıpranma bu maddenin kalanı, sonra.
+
 ## 1. Oyunun özeti ve vizyonu
 
 ### 1.1 Tek cümlelik özet

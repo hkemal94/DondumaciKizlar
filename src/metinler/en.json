@@ -214,7 +214,7 @@
   "dekor.isik.3": "Light strip",
   "dekor.enIyi": "The best",
   "dekor.depoda": "{sayi} in storage",
-  "dekor.etki": "Items you buy go to storage. At the start of the day tap “Place” in the shop, pick the item and tap the floor. Every placed item and every light brings customers a little more often.",
+  "dekor.etki": "Items you buy go to storage. At the start of the day tap “Place” in the shop, pick the item and tap the floor. Placed items' comfort makes customers a little happier; their appeal and the lights bring customers more often.",
   "alindi.baslik": "{ad} bought",
   "alindi.depoda": "{sayi} in storage.",
   "alindi.devam": "Keep shopping",
@@ -656,5 +656,12 @@
   "haber.hava.sicak": "It's getting hot; lots of people will want cold drinks",
   "haber.hava.bulutlu": "Clouds rolled in, the wind picked up",
   "haber.hava.yagmurlu": "It started raining; a few fewer customers",
-  "yenilik.hava": "Weather: sunny, very hot, cloudy and rainy days; tomorrow's forecast at the end of the day"
+  "yenilik.hava": "Weather: sunny, very hot, cloudy and rainy days; tomorrow's forecast at the end of the day",
+  "esya.konfor": "Comfort",
+  "esya.cekicilik": "Appeal",
+  "esya.konforKisa": "Comfort {n}",
+  "esya.cekicilikKisa": "Appeal {n}",
+  "dekor.konforEtki": "+{ek} stars to every customer's satisfaction",
+  "dekor.cekicilikEtki": "the higher it is, the more often customers come",
+  "yenilik.konfor": "Items now have comfort and appeal: comfort raises satisfaction, appeal brings customers more often"
 }

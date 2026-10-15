@@ -263,10 +263,22 @@
           "deger": 0.5,
           "birim": "yıldız"
         },
-        "esyaEtkisi": {
-          "ad": "Her yerleşen eşya geliş aralığını kısaltır",
-          "deger": 0.04,
-          "birim": "oran"
+        "cekicilikPuani": {
+          "ad": "Eşya çekiciliğinin puan başına etkisi",
+          "deger": 0.03,
+          "birim": "oran",
+          "not": "Yerleşen eşyaların çekicilik puanları toplanır (0–3, mağaza kartında); her puan geliş aralığını bu kadar kısaltır"
+        },
+        "konforPuani": {
+          "ad": "Konforun puan başına memnuniyet eki",
+          "deger": 0.03,
+          "birim": "yıldız",
+          "not": "Yerleşen eşyaların konfor puanları toplanır; her servis edilen müşterinin memnuniyetine eklenir"
+        },
+        "konforEnCok": {
+          "ad": "Konfor ekinin en çoğu",
+          "deger": 0.4,
+          "birim": "yıldız"
         },
         "isikEtkisi": {
           "ad": "Her ışık seviyesi geliş aralığını kısaltır",

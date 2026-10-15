@@ -3176,3 +3176,19 @@ li.tamam .hedef-ad {
   font-size: 0.85em;
   opacity: 0.8;
 }
+
+/* Eşya konforu ve çekiciliği (belge 0.15b) */
+.esya-kart-puan {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  flex-wrap: wrap;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--mor-koyu);
+  opacity: 0.8;
+}
+.dukkan-puanlari {
+  flex-wrap: wrap;
+  gap: 2px 14px;
+}
