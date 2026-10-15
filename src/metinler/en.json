@@ -91,7 +91,7 @@
   "gelistir.acik": "In the display",
   "gelistir.alindi": "In the shop",
   "gelistir.kapat": "OK",
-  "egitim.gec": "Skip",
+  "egitim.gec": "Skip tips",
   "acilis.logo": "Dondurmacı Kızlar",
   "acilis.oyna": "Play",
   "acilis.ayarlar": "Settings",
@@ -542,5 +542,7 @@
   "stok.tur.altlik": "Cones, cups, sundae glasses",
   "stok.tur.susleme": "Toppings",
   "stok.tur.icecek": "Drinks",
-  "menu.stok": "Stock"
+  "menu.stok": "Stock",
+  "siparis.birinci": "1: {adlar}",
+  "siparis.ikinci": "2: {adlar}"
 }

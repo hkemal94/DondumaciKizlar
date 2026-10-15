@@ -302,12 +302,21 @@ function SuslemeDugmeleri() {
 }
 
 // Siparişteki çeşitlerin adları: "Çilek ×2 · Limon"
-function siparisAdlari(s: Siparis) {
+function topAdlari(kuvetler: number[]) {
   const sayilar = new Map<number, number>();
-  for (const k of [...s.kuvetler, ...(s.ikinci?.kuvetler ?? [])]) sayilar.set(k, (sayilar.get(k) ?? 0) + 1);
-  return [...sayilar]
-    .map(([k, n]) => m(`cesit.${CESITLER[k].ad}` as MetinAnahtari) + (n > 1 ? ` ×${n}` : ''))
-    .join(' · ');
+  for (const k of kuvetler) sayilar.set(k, (sayilar.get(k) ?? 0) + 1);
+  return [...sayilar].map(([k, n]) => m(`cesit.${CESITLER[k].ad}` as MetinAnahtari) + (n > 1 ? ` ×${n}` : '')).join(' · ');
+}
+// İki dondurmalı siparişte her dondurma ayrı satır (Kemal, 15 Ekim akşam:
+// "hangi siparişte ne olduğu toplu yazıyor")
+function siparisAdlari(s: Siparis): React.ReactNode {
+  if (!s.ikinci) return topAdlari(s.kuvetler);
+  return (
+    <>
+      <span className="balon-ad-satir">{m('siparis.birinci', { adlar: topAdlari(s.kuvetler) })}</span>
+      <span className="balon-ad-satir">{m('siparis.ikinci', { adlar: topAdlari(s.ikinci.kuvetler) })}</span>
+    </>
+  );
 }
 
 // Tepside bekleyen dondurmanın küçük resmi
@@ -378,12 +387,20 @@ function SiparisBalonu() {
             {/* İstenen süsleme ayrıca rozet olarak: gözden kaçmasın */}
             {musteri.urun === 'dondurma' && musteri.siparis.susleme.length + (musteri.siparis.ikinci?.susleme.length ?? 0) > 0 && (
               <div className="balon-rozetler">
-                {[...musteri.siparis.susleme, ...(musteri.siparis.ikinci?.susleme ?? [])].map((s, i) => (
-                  <svg key={i} viewBox="0 0 30 30" className="balon-rozet" aria-label={m(`susleme.${s}` as MetinAnahtari)}>
-                    <circle cx="15" cy="17" r="11" fill="#fff0c8" />
-                    <SuslemeIsareti tur={s} x={15} y={17} />
-                  </svg>
-                ))}
+                {/* İki dondurmada süslemeler de dondurma dondurma ayrı (1:, 2:) */}
+                {[musteri.siparis, ...(musteri.siparis.ikinci ? [musteri.siparis.ikinci] : [])].map((sp, n) =>
+                  sp.susleme.length === 0 ? null : (
+                    <span key={n} className="balon-rozet-grup">
+                      {musteri.siparis.ikinci && <b>{n + 1}:</b>}
+                      {sp.susleme.map((s, i) => (
+                        <svg key={i} viewBox="0 0 30 30" className="balon-rozet" aria-label={m(`susleme.${s}` as MetinAnahtari)}>
+                          <circle cx="15" cy="17" r="11" fill="#fff0c8" />
+                          <SuslemeIsareti tur={s} x={15} y={17} />
+                        </svg>
+                      ))}
+                    </span>
+                  ),
+                )}
               </div>
             )}
           </div>
@@ -446,6 +463,10 @@ function GunSonu({ stokAc }: { stokAc: () => void }) {
   return (
     <div className="gun-sonu-zemin">
       <div className="gun-sonu gun-sonu-genis" role="dialog" aria-labelledby="gun-sonu-baslik">
+        {/* Yedek kapatma (Kemal, 15 Ekim akşam: yazılar çoğalınca Tamam görünmüyordu) */}
+        <button className="gun-sonu-kapat" aria-label={m('gunSonu.tamam')} onClick={gunSonunuKapat}>
+          ×
+        </button>
         <img className="baslik-logo" src={logoAdresi('yazi')} alt="" aria-hidden />
         <h2 id="gun-sonu-baslik">{m('gunSonu.baslik', { gun: durum.gun })}</h2>
         {/* Bugün atlanan seviyeler, ödüller, açılanlar (8. adım): yatay ekranda yanda */}

@@ -2823,3 +2823,75 @@ li.tamam .hedef-ad {
   font-size: 11px;
   flex: 1 1 200px;
 }
+
+/* Tezgahta günlük hedefler sol üstte, altlık düğmelerinin üstünde, küçük
+   (altta küvetlerin üstüne biniyordu) */
+.gunluk-hedefler.tezgahta {
+  top: calc(max(10px, env(safe-area-inset-top)) + 36px);
+  font-size: 10px;
+  min-width: 140px;
+  padding: 2px 8px 3px;
+  opacity: 0.9;
+}
+.gunluk-hedefler.tezgahta .hedef-baslik {
+  display: none;
+}
+
+/* Gün sonu: sol sütun kendi içinde kayar, Tamam hep altta görünür; sağ üstte yedek çarpı */
+.gun-sonu.gun-sonu-genis {
+  position: relative;
+}
+.gun-sonu-genis .gun-sonu-sol {
+  max-height: calc(100dvh - 150px);
+  overflow-y: auto;
+}
+.gun-sonu-genis .gun-sonu-sol .dugme-yeni-gun {
+  position: sticky;
+  bottom: 0;
+}
+.gun-sonu-genis .gun-sonu-satir {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+.gun-sonu-kapat {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(78, 36, 112, 0.35);
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--mor-koyu);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.75;
+  z-index: 1;
+}
+.gun-sonu-kapat:hover,
+.gun-sonu-kapat:focus-visible {
+  opacity: 1;
+}
+
+/* Süsleme düğmeleri hep aynı boyda (Kemal, 15 Ekim akşam) */
+.susleme-dugme {
+  width: 132px;
+  justify-content: flex-start;
+}
+.susleme-dugme span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* İki dondurmalı siparişte adlar iki satır */
+.balon-ad-satir {
+  display: block;
+}
+.balon-rozet-grup {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  color: #3a2350;
+}

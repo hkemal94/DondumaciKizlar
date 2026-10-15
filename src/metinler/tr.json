@@ -91,7 +91,7 @@
   "gelistir.acik": "Vitrinde",
   "gelistir.alindi": "Dükkânda",
   "gelistir.kapat": "Tamam",
-  "egitim.gec": "Geç",
+  "egitim.gec": "İpucunu geç",
   "acilis.logo": "Dondurmacı Kızlar",
   "acilis.oyna": "Oyna",
   "acilis.ayarlar": "Ayarlar",
@@ -269,7 +269,7 @@
   "bastan.soru": "Bütün ilerleme silinsin mi?",
   "bastan.evet": "Evet, sil",
   "bastan.hayir": "Vazgeç",
-  "gunSonu.yevmiye": "Yardımcıların yevmiyesi",
+  "gunSonu.yevmiye": "Yardımcıların günlük ücreti",
   "pisme.soluk": "Soluk",
   "pisme.altin": "ALTIN SARI!",
   "pisme.yanik": "Yandı",
@@ -303,7 +303,7 @@
   "yardimci.getir": "Aday bul",
   "yardimci.adYaz": "Adını yaz",
   "yardimci.al": "İşe al",
-  "yardimci.not": "İşe almak {fiyat}, her gün sonunda yevmiye {yevmiye}. En çok {sayi} yardımcı. Güne başlarken istasyonlara dağılırlar.",
+  "yardimci.not": "İşe almak {fiyat}, her gün sonunda günlük ücret {yevmiye}. En çok {sayi} yardımcı. Güne başlarken istasyonlara dağılırlar.",
   "yardimci.dolu": "Yardımcı yeri dolu",
   "yardimci.tamam": "Tamam",
   "insaat.parcalar": "Tezgah parçaları",
@@ -542,5 +542,7 @@
   "stok.tur.altlik": "Külah, kap, kup",
   "stok.tur.susleme": "Süslemeler",
   "stok.tur.icecek": "İçecekler",
-  "menu.stok": "Stok"
+  "menu.stok": "Stok",
+  "siparis.birinci": "1: {adlar}",
+  "siparis.ikinci": "2: {adlar}"
 }

@@ -1043,8 +1043,15 @@ export function zamanIlerlet(gecenMs: number) {
     sabirKontrol();
     return;
   }
-  // Kapandıktan sonra saat durur; sıradakilerin sabrı da azalmaz
-  // Kapandı: sıradakilere servis bitince gün sonu ekranı
+  // Kapandıktan sonra saat işlemeye devam eder (Kemal, 15 Ekim akşam: "saat
+  // durmasın, kaça kadar çalıştığımızı bilelim"); ekranda kırmızı. Sıradakilerin
+  // sabrı azalmaz. Kapandı: sıradakilere servis bitince gün sonu ekranı
+  birikenMs += Math.min(gecenMs, 1000);
+  const mesaiAdimi = Math.floor(birikenMs / ADIM_MS);
+  if (mesaiAdimi > 0) {
+    birikenMs -= mesaiAdimi * ADIM_MS;
+    guncelle({ dakika: durum.dakika + mesaiAdimi * ADIM });
+  }
   // Kimsenin bakmadığı istasyonun sırasında kalan müşteri cezasız gider
   const bakan = (ist: Istasyon) => ist === durum.istasyon || durum.yardimcilar.some((y) => y.istasyon === ist);
   if (durum.musteriler.some((m) => m.hal === 'sirada' && !bakan(m.urun)))

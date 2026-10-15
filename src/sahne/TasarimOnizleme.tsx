@@ -142,7 +142,11 @@ function InsanlarOnizleme() {
   const { camera } = useThree();
   useEffect(() => {
     // #tasarim=insan-yan: yalnız oturan karakter, yandan yakın
-    if (location.hash.endsWith('-sac')) {
+    if (location.hash.endsWith('-aks')) {
+      // #tasarim=insan-aks: gözlük ve küpe yakından (kadın, erkek)
+      camera.position.set(-1.0, 1.55, 2.9);
+      camera.lookAt(-1.0, 1.45, 0);
+    } else if (location.hash.endsWith('-sac')) {
       camera.position.set(0, 1.55, 3.4);
       camera.lookAt(0, 1.5, 0);
     } else if (location.hash.endsWith('-yuz')) {
@@ -161,13 +165,23 @@ function InsanlarOnizleme() {
   const otur = useRef<Hareket>('otur');
   // #tasarim=insan-sac: aynı yüz, farklı saçlar (belge 0.12: saç başlardan ayrı)
   const sacDenemesi = location.hash.includes('-sac');
+  const aksDenemesi = location.hash.includes('-aks');
   const varyantlar = useMemo(
     () =>
-      sacDenemesi
+      aksDenemesi
+        ? ([['kadin', 'casual', 'gozluk'], ['kadin', 'formal', 'kupe'], ['erkek', 'casual_2', 'gunesGozlugu'], ['erkek', 'beach', 'kupe']] as const).map(([c, b, a], i) => ({
+            ...rastgeleVaryant(3 + i),
+            cinsiyet: c,
+            govde: b,
+            bas: b,
+            sacBasi: undefined,
+            aksesuarlar: [a],
+          }))
+        : sacDenemesi
         ? [...BEDENLER.kadin.map((b) => ({ ...rastgeleVaryant(3), cinsiyet: 'kadin' as const, govde: 'casual', bas: 'casual', sacBasi: b, aksesuarlar: [] })),
            ...BEDENLER.erkek.slice(0, 2).map((b) => ({ ...rastgeleVaryant(4), cinsiyet: 'erkek' as const, govde: 'casual_2', bas: 'casual_2', sacBasi: b, aksesuarlar: [] }))]
         : [3, 8, 11, 17, 22, 40].map((t, i) => ({ ...rastgeleVaryant(t), aksesuarlar: [(['gozluk', 'gunesGozlugu', 'hasirSapka', 'kupe', 'bandana', 'kasket'] as const)[i]] })),
-    [sacDenemesi],
+    [sacDenemesi, aksDenemesi],
   );
   return (
     <>

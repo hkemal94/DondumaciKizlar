@@ -268,7 +268,9 @@ export function Dekorlar() {
         // Yerleştirirken yalnız seçili eşyanın katmanındakiler dokununca kalkar
         // (halının üstüne masa konurken halı kalkmasın)
         const secilen = dokunmaKatmani(durum);
-        const tutulur = yerlestirme && (secilen === null || secilen === katman);
+        // Tablolar her zaman tutulur: elde masa seçiliyken duvardaki tablo
+        // taşınamıyordu (Kemal, 15 Ekim akşam); duvarda başka katman yok
+        const tutulur = yerlestirme && (secilen === null || secilen === katman || katman === 'duvar');
         const tikla = (e: { delta: number; stopPropagation: () => void }) => {
           if (!tutulur || e.delta > 12) return;
           e.stopPropagation();

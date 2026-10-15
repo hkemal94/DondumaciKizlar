@@ -193,19 +193,28 @@ function hasirSapka(en: number) {
 
 // Başın kutusu (metre): aksesuarların yeri ve büyüklüğü buna göre
 // Ortası baş kemiğinden: saç (atkuyruğu, yan saç) kutuyu bir yana kaydırabilir
-function aksesuarKur(ak: KarakterAksesuari, bas: THREE.Box3, basOrtasi: THREE.Vector3, yuklu: Yuklu) {
+// Gözlük ve küpe saçsız yüze ve gözlere göre (Kemal, 15 Ekim akşam: "gözlükler
+// ve küpeler oturmuyor"; saç başın kutusunu büyütüp kaydırıyordu)
+function aksesuarKur(ak: KarakterAksesuari, bas: THREE.Box3, basOrtasi: THREE.Vector3, yuklu: Yuklu, yuz: THREE.Box3, goz: THREE.Box3 | null) {
   const en = Math.min(bas.max.x - basOrtasi.x, basOrtasi.x - bas.min.x) * 2;
   const boy = bas.max.y - bas.min.y;
   const orta = new THREE.Vector3(basOrtasi.x, bas.min.y + boy / 2, basOrtasi.z);
+  const yuzEn = yuz.max.x - yuz.min.x;
+  const yuzBoy = yuz.max.y - yuz.min.y;
+  const gozY = goz ? (goz.min.y + goz.max.y) / 2 : yuz.min.y + yuzBoy * 0.55;
+  const gozOnu = goz ? goz.max.z : yuz.max.z - yuzEn * 0.08;
+  // Yatay orta: gözlerin (yoksa yüzün) ortası; baş kemiği yüzün ortasında olmayabiliyor
+  const ortaX = goz ? (goz.min.x + goz.max.x) / 2 : (yuz.min.x + yuz.max.x) / 2;
   const g = new THREE.Group();
   if (ak === 'gozluk' || ak === 'gunesGozlugu') {
     const model = (ak === 'gozluk' ? yuklu.gozluk : yuklu.gunesGozlugu).clone();
     const k = new THREE.Box3().setFromObject(model);
-    const s = (en * 0.78) / (k.max.x - k.min.x);
+    const s = (yuzEn * 0.92) / (k.max.x - k.min.x);
     model.scale.setScalar(s);
+    // Camların ortası göz hizasında, arka kenarı gözün hemen önünde
     model.position.set(-((k.min.x + k.max.x) / 2) * s, -((k.min.y + k.max.y) / 2) * s, -k.min.z * s);
     g.add(model);
-    g.position.set(orta.x, bas.min.y + boy * 0.42, bas.max.z - en * 0.1);
+    g.position.set(ortaX, gozY, gozOnu + 0.004);
   } else if (ak === 'hasirSapka') {
     g.add(hasirSapka(en));
     g.position.set(orta.x, bas.max.y - boy * 0.16, orta.z);
@@ -227,12 +236,13 @@ function aksesuarKur(ak: KarakterAksesuari, bas: THREE.Box3, basOrtasi: THREE.Ve
     g.add(bant);
     g.position.set(orta.x, bas.max.y - boy * 0.28, orta.z);
   } else {
-    for (const x of [-en * 0.42, en * 0.42]) {
-      const k = new THREE.Mesh(new THREE.SphereGeometry(0.012, 8, 6), altin);
+    // Küpe: kulak memesinde, yüzün iki yanında, gözün biraz altında ve gerisinde
+    for (const x of [-yuzEn * 0.5, yuzEn * 0.5]) {
+      const k = new THREE.Mesh(new THREE.SphereGeometry(0.011, 8, 6), altin);
       k.position.set(x, 0, 0);
       g.add(k);
     }
-    g.position.set(orta.x, bas.min.y + boy * 0.33, orta.z);
+    g.position.set(ortaX, gozY - yuzBoy * 0.2, (yuz.min.z + yuz.max.z) / 2 - yuzEn * 0.05);
   }
   return g;
 }
@@ -342,10 +352,15 @@ export function karakterKur(v: Varyant, yuklu: Yuklu): Karakter {
   const basKemigi = kemikler.Head ?? null;
   if (basKemigi) {
     const basOrtasi = basKemigi.getWorldPosition(new THREE.Vector3());
-    for (const ak of v.aksesuarlar) kemigeTak(basKemigi, aksesuarKur(ak, basKutusu, basOrtasi, yuklu));
-    // Gülümseme (Kemal: "basit bir gülümseme, hep aynı"); yüz kutusu saçsız ölçülür
+    // Yüz kutusu saçsız (yalnız ten); gözler paketteki göz parçasından
     const yuzKutusu = new THREE.Box3();
     for (const { mesh, parca } of meshler) if (parca.rol === 'ten' && parca.bolum === 'bas') yuzKutusu.expandByObject(mesh, true);
+    const gozKutusu = new THREE.Box3();
+    for (const { mesh, parca } of meshler)
+      if (parca.bolum === 'bas' && !parca.sac && (parca.malzemeAdi === 'Eye' || (v.cinsiyet === 'kadin' && parca.malzemeAdi === 'Brown'))) gozKutusu.expandByObject(mesh, true);
+    const yuz = yuzKutusu.isEmpty() ? basKutusu : yuzKutusu;
+    for (const ak of v.aksesuarlar) kemigeTak(basKemigi, aksesuarKur(ak, basKutusu, basOrtasi, yuklu, yuz, gozKutusu.isEmpty() ? null : gozKutusu));
+    // Gülümseme (Kemal: "basit bir gülümseme, hep aynı"); yüz kutusu saçsız ölçülür
     kemigeTak(basKemigi, gulumseme(yuzKutusu.isEmpty() ? basKutusu : yuzKutusu, basOrtasi));
   }
   // Yükleyici kemik adlarındaki noktayı siler: UpperLeg.L → UpperLegL

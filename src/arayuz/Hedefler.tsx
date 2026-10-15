@@ -20,12 +20,13 @@ function HedefSatiri({ h }: { h: Hedef }) {
   );
 }
 
-// Gün içinde, genel görünümde sol üstte küçük liste
+// Gün içinde küçük liste: genel görünümde sol üstte, tezgahta sol altta
+// (Kemal, 15 Ekim akşam: "tezgahtayken de solda göster")
 export function GunlukHedefler() {
   const durum = useDurum();
-  if (durum.hazirlik || durum.gunSonu || durum.kamera !== 'dukkan' || durum.hedefler.length === 0) return null;
+  if (durum.hazirlik || durum.gunSonu || durum.hedefler.length === 0) return null;
   return (
-    <div className="gunluk-hedefler" aria-label={m('hedef.baslik')}>
+    <div className={`gunluk-hedefler ${durum.kamera === 'tezgah' ? 'tezgahta' : ''}`} aria-label={m('hedef.baslik')}>
       <div className="hedef-baslik">{m('hedef.baslik')}</div>
       <ul>
         {durum.hedefler.map((h) => (
