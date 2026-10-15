@@ -49,6 +49,7 @@ interface Parca {
   renk: THREE.Color; // paketteki asıl renk (doğrusal)
   rol: Rol;
   oran: number; // rolün ana rengine göre açıklık (gölge ve ayrıntı korunsun)
+  sac: boolean; // saçın kendisi (kaş ve bıyık değil); başka başa taşınabilir
 }
 
 interface Taban {
@@ -81,16 +82,23 @@ const kosegenSayisi = (g: THREE.BufferGeometry) => (g.index ? g.index.count : g.
 
 // Her parçanın hangi rengi oyuncunun / müşterinin seçimine göre boyanır:
 // ten ve saç malzeme adından; kıyafette her bölümün en büyük rengi
-function parcalariHazirla(sahne: THREE.Object3D): Parca[] {
+// Saç parçası mı: paketteki saç malzemeleri "Hair…"; kadın formal başında
+// saç "Red" adlı (Kemal, 15 Ekim akşam: "kısa saç yok" — bu saç tanınmıyordu)
+function sacMalzemesi(model: string, ad: string) {
+  return ad.startsWith('Hair') || (model === 'kadin-formal' && ad === 'Red');
+}
+
+function parcalariHazirla(sahne: THREE.Object3D, model: string): Parca[] {
   const parcalar: Parca[] = [];
   sahne.traverse((o) => {
     const m = o as THREE.SkinnedMesh;
     if (!m.isSkinnedMesh) return;
     const mal = m.material as THREE.MeshStandardMaterial;
-    parcalar.push({ mesh: m, bolum: bolumBul(m), geometri: m.geometry, malzemeAdi: mal.name, renk: mal.color.clone(), rol: 'sabit', oran: 1 });
+    const bolum = bolumBul(m);
+    parcalar.push({ mesh: m, bolum, geometri: m.geometry, malzemeAdi: mal.name, renk: mal.color.clone(), rol: 'sabit', oran: 1, sac: bolum === 'bas' && sacMalzemesi(model, mal.name) });
   });
   const tenMi = (p: Parca) => p.malzemeAdi.startsWith('Skin');
-  const sacMi = (p: Parca) => p.malzemeAdi.startsWith('Hair') || p.malzemeAdi === 'Eyebrows' || p.malzemeAdi === 'Moustache';
+  const sacMi = (p: Parca) => p.sac || p.malzemeAdi === 'Eyebrows' || p.malzemeAdi === 'Moustache';
   const enBuyuk = (bolum: Bolum) =>
     parcalar.filter((p) => p.bolum === bolum && !tenMi(p)).sort((a, b) => kosegenSayisi(b.geometri) - kosegenSayisi(a.geometri))[0];
   const ust = enBuyuk('govde');
@@ -108,7 +116,7 @@ function parcalariHazirla(sahne: THREE.Object3D): Parca[] {
   const ana: Partial<Record<Rol, number>> = {};
   for (const p of parcalar) {
     if (p.rol === 'sabit') continue;
-    const asil = p.rol === 'ten' ? parcalar.find((x) => x.malzemeAdi === 'Skin') : p.rol === 'sac' ? parcalar.find((x) => x.malzemeAdi.startsWith('Hair')) : p;
+    const asil = p.rol === 'ten' ? parcalar.find((x) => x.malzemeAdi === 'Skin') : p.rol === 'sac' ? parcalar.find((x) => x.sac) : p;
     ana[p.rol] = Math.max(1e-4, parlaklik((asil ?? p).renk));
   }
   for (const p of parcalar) if (p.rol !== 'sabit') p.oran = Math.min(1.6, Math.max(0.35, parlaklik(p.renk) / ana[p.rol]!));
@@ -133,7 +141,7 @@ export function karakterleriYukle() {
       bedenler[i].forEach((g, j) => {
         g.scene.updateMatrixWorld(true);
         const kutu = new THREE.Box3().setFromObject(g.scene, true);
-        tabanlar[c][BEDENLER[c][j]] = { sahne: g.scene, parcalar: parcalariHazirla(g.scene), boy: kutu.max.y - kutu.min.y };
+        tabanlar[c][BEDENLER[c][j]] = { sahne: g.scene, parcalar: parcalariHazirla(g.scene, `${c}-${BEDENLER[c][j]}`), boy: kutu.max.y - kutu.min.y };
       }),
     );
     return {
@@ -272,7 +280,7 @@ export function karakterKur(v: Varyant, yuklu: Yuklu): Karakter {
   const govdeTaban = tabanlar[v.govde] ?? Object.values(tabanlar)[0];
   const basTaban = tabanlar[v.bas] ?? govdeTaban;
   const sacTaban = (v.sacBasi && tabanlar[v.sacBasi]) || basTaban;
-  const sacParcasi = (p: Parca) => p.malzemeAdi.startsWith('Hair');
+  const sacParcasi = (p: Parca) => p.sac;
   const kok = iskeletliKopya(govdeTaban.sahne);
   const kemikler: Record<string, THREE.Object3D> = {};
   const govdeMeshleri: THREE.SkinnedMesh[] = [];

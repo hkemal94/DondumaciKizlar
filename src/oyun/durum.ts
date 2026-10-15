@@ -103,6 +103,7 @@ import {
   ONLUKLER,
   KIYAFETLER,
   SAC_MODELLERI,
+  ONLUK_YOK,
   SAC_RENKLERI,
   TENLER,
   VARSAYILAN_CALISAN,
@@ -2384,6 +2385,24 @@ export function denemeDukkani() {
   haberVer('haber.deneme');
   acilisiKapat();
 }
+// Mola menüsünden ana sayfaya dönüş (Kemal, 15 Ekim akşam): dükkân kaydedilir,
+// açılış ekranı gelir; arkada yine oyuncunun kendi dükkânı görünür.
+export function anaSayfayaDon() {
+  if (!denemedeMi()) kaydet();
+  kayitAnahtari = KAYIT_ANAHTARI;
+  durumuSifirla();
+  kaydiYukle();
+  guncelle({ acilis: true, duraklatildi: false, gezme: false });
+}
+// Çıkış: kaydedip sekmeyi kapatmayı dener (tarayıcı izin verirse)
+export function kaydetVeKapat() {
+  if (!denemedeMi()) kaydet();
+  try {
+    window.close();
+  } catch {
+    // kapatılamadı; ekranda "kaydedildi" yazısı kalır
+  }
+}
 export function denemedeMi() {
   return kayitAnahtari === DENEME_ANAHTARI;
 }
@@ -2443,7 +2462,7 @@ export function calisaniDegistir(yeni: Partial<CalisanGorunumu>) {
   const c = { ...durum.calisan, ...yeni };
   if (yeni.ad !== undefined) c.ad = yeni.ad.slice(0, AD_EN_UZUN);
   if (yeni.beden && yeni.beden !== durum.calisan.beden) c.kiyafet = '';
-  if (yeni.onluk && !durum.acikOnlukler.includes(yeni.onluk)) return;
+  if (yeni.onluk && yeni.onluk !== ONLUK_YOK && !durum.acikOnlukler.includes(yeni.onluk)) return;
   guncelle({ calisan: c });
   kaydet();
 }
@@ -2494,7 +2513,7 @@ function calisaniOku(k: Partial<Kayit>): Pick<Durum, 'calisan' | 'acikOnlukler' 
       ten: typeof c.ten === 'number' && TENLER[c.ten] ? c.ten : VARSAYILAN_CALISAN.ten,
       sac: SAC_MODELLERI.includes(c.sac as never) ? (c.sac as CalisanGorunumu['sac']) : VARSAYILAN_CALISAN.sac,
       sacRengi: typeof c.sacRengi === 'number' && SAC_RENKLERI[c.sacRengi] ? c.sacRengi : VARSAYILAN_CALISAN.sacRengi,
-      onluk: typeof c.onluk === 'string' && acikOnlukler.includes(c.onluk) ? c.onluk : VARSAYILAN_CALISAN.onluk,
+      onluk: typeof c.onluk === 'string' && (acikOnlukler.includes(c.onluk) || c.onluk === ONLUK_YOK) ? c.onluk : VARSAYILAN_CALISAN.onluk,
       aksesuarlar: Array.isArray(c.aksesuarlar) ? c.aksesuarlar.filter((x) => acikAksesuarlar.includes(x)) : [],
       kiyafet: typeof c.kiyafet === 'string' && KIYAFETLER[c.beden === 'erkek' ? 'erkek' : 'kadin'].includes(c.kiyafet) ? c.kiyafet : '',
       uniforma: c.uniforma === true,

@@ -11,9 +11,9 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | | |
 |---|---|
 | Aşama | Oynanabilir sürüm, büyüme, karakterler, liman ve kişiselleştirme bitti. Sırada görsel kalite |
-| Son biten | 9a: ince arayüz, sağda açılan menüler, yol çizgileri ve sokak lambaları (bu PR) |
-| Şu an | 9a'nın denetimi; Kemal bir hafta oynayıp hata biriktirecek |
-| Sıradaki | 9b: vitrin ve bar için model aday sayfası (Kemal seçer) |
+| Son biten | 9b vitrin ve bar model adayları + Kemal'in 15 Ekim akşam hata listesi (bu PR) |
+| Şu an | Kemal aday sayfasından vitrin ve bar modellerini seçecek; bir hafta oynayıp hata biriktirecek |
+| Sıradaki | 9c: gerçekçi dondurma vitrini + hafif stok (Kemal'in aday seçimiyle) |
 | Yayın | Deneme sürümü webde; tarih yok, acele yok |
 
 ## Sıra (15 Ekim, belge 0.12)
@@ -29,7 +29,7 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | 6 | İngilizce | Bütün yazılar İngilizce; Ayarlar'da dil seçimi | Bitti ([#40](https://github.com/hkemal94/DondumaciKizlar/pull/40)) |
 | 7 | Ayar paneli | Bütün sayılar oyunda tek ayar dosyasında; KKM'de "Ayarlar" sekmesi (KKM deposunda ayrı PR) | Bitti ([#41](https://github.com/hkemal94/DondumaciKizlar/pull/41), KKM [#94](https://github.com/hkemal94/Kems-Company/pull/94)). Yazma yolu: GitHub anahtarı (Kemal, 15 Ekim) |
 | 8 | Exp sistemi | Ana seviye + dükkân ve çalışan seviyeleri; günlük hedefler; yıldızlar yorum gibi; sıra bazen uzun bazen boş; otomatik kamera ayarı; eşyalara konfor ve çekicilik | Soru turu bitti (15 Ekim). 8a exp + seviyeler + kilitler: bitti ([#42](https://github.com/hkemal94/DondumaciKizlar/pull/42)). 8b yetenekler: bitti ([#43](https://github.com/hkemal94/DondumaciKizlar/pull/43)). 8c günlük hedefler, yorumlar, sıra, otomatik kamera: bitti ([#44](https://github.com/hkemal94/DondumaciKizlar/pull/44)). Eşya konfor / çekicilik 10. maddeye kaldı |
-| 9 | İçecekler ve stok | Soru turu bitti (15 Ekim akşam, belge 0.13). 9a ince arayüz, sağda açılan menüler, yol çizgileri ve lambalar: bitti (bu PR). 9b vitrin ve bar model adayları → 9c gerçekçi vitrin + hafif stok → 9d içecekler (tek istasyon; limonata / ayran / buzlu çay → milkshake / frappe → Türk kahvesi, buzlu kahve, espresso → taze sıkma) | |
+| 9 | İçecekler ve stok | Soru turu bitti (15 Ekim akşam, belge 0.13). 9a ince arayüz, sağda açılan menüler, yol çizgileri ve lambalar: bitti ([#46](https://github.com/hkemal94/DondumaciKizlar/pull/46)). 9b vitrin ve bar model adayları: aday sayfası hazır (bu PR), Kemal seçecek → 9c gerçekçi vitrin + hafif stok → 9d içecekler (tek istasyon; limonata / ayran / buzlu çay → milkshake / frappe → Türk kahvesi, buzlu kahve, espresso → taze sıkma) | |
 | 10 | Sonra | Kayan yazıda müşteri yorumları (cümleler Kemal'in), eşya renkleri ve yumuşak yıpranma, gedikli müşteriler, hava durumu, duvar deseni, seyyar dondurma arabası, festival / bayramlar, yeni süslemeler, mevsim | |
 
 ## Paketler (eski adlarla)
@@ -73,13 +73,17 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 - Yetenekler (8b): Usta kepçe, Hızlı eller, Sohbet, Güler yüz; çalışan seviyesinden puan, üç basamaklı ağaç · [#43](https://github.com/hkemal94/DondumaciKizlar/pull/43)
 - Günlük hedefler, yorumlar, sıra dalgası, otomatik kamera ayarı (8c) · [#44](https://github.com/hkemal94/DondumaciKizlar/pull/44)
 - Hatalar: içecek / waffle istasyonundayken gün bitmiyordu; buzdolabı arkadan taşıyordu; İnşaat'ta tezgah / mutfak taşıma ipuçları; deneme dükkânı yeniden yerleşti · [#45](https://github.com/hkemal94/DondumaciKizlar/pull/45)
-- İnce arayüz (9a): ince kenar, yumuşak gölge, küçük yazı; menüler sağdan açılır; arka yolda çizgiler, yaya geçitleri, bordür, eski tip sokak lambaları · bu PR
+- İnce arayüz (9a): ince kenar, yumuşak gölge, küçük yazı; menüler sağdan açılır; arka yolda çizgiler, yaya geçitleri, bordür, eski tip sokak lambaları · [#46](https://github.com/hkemal94/DondumaciKizlar/pull/46)
+- Hatalar (15 Ekim akşam): mola menüsünde Ana sayfa, Çıkış, Tam ekran; buzdolabı duvardan taşmıyor; tente aşağı eğik, tabelayı kesmiyor; dükkânın arkasındaki ilk sıra alçak evler; yardımcı adayları hazır adla; saçlar gerçekte olanlarla (kadın 2, erkek 4); önlük "Yok"; İnşaat'ta "Ne yapmak istersin?" menüsü (tezgahı taşı, pencere ve kapı, duvarlar arasında oklarla gezme) · bu PR
+- Vitrin ve bar model adayları (9b): `docs/gorseller/vitrin-bar-adaylari/` · bu PR
 
 ## Bilinen eksikler
 
 - Telefonda akıcılık gerçek telefonda ölçülmedi; takılırsa Ayarlar → Grafik → Düşük
 - Bugünkü başlangıç dükkânının içi tezgahla dolu; halı için önce büyütmek gerekiyor
 - Çocuk müşteri yok (seçilen pakette çocuk yok)
+- Saç çeşidi az: pakette kadın için 2, erkek için 4 saç var; daha çoğu yeni model ister
+- Tam ekran iPhone Safari'de yok (tarayıcı izin vermiyor; düğme orada görünmez). "Çıkış" sekmeyi ancak tarayıcı izin verirse kapatır; vermezse "sekmeyi kapatabilirsin" yazar. Gün ortasında çıkınca o günün bütün ayrıntıları (sıradaki müşteriler, saat) saklanmaz
 
 ## Yayından önce
 

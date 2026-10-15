@@ -54,11 +54,13 @@ function DepoSusleri() {
           [-0.5, 0, 0.5].map((x, j) => <Kutu key={`${y}${x}`} konum={[x, y + 0.13, 0]} boyut={[0.3, 0.22, 0.3]} renkAdi={kasaRenkleri[(i + j) % 4]} />),
         )}
       </group>
-      {/* Buzdolabı (KayKit, belge 0.7): nane yeşili, önü dükkâna dönük */}
+      {/* Buzdolabı (KayKit, belge 0.7): nane yeşili, önü dükkâna dönük.
+          Kapaklarıyla ~1,7 m derin; ortası depodan 0,45 m öne alındı, arkası
+          duvarın içinde kalır (Kemal, 15 Ekim akşam: "dolap hâlâ dışarı taşıyor") */}
       <HazirModel
         yol="mutfak/fridge_A"
         ayar={{ grup: 'dukkan', yukseklik: 1.9, boya: [['#3ad7a7', '#a8eccf', 30], ['#19927f', '#7fc4a6', 30]] }}
-        konum={[0.7, 0, 0]}
+        konum={[0.7, 0, -0.45]}
         donus={Math.PI}
       />
       {/* Yerde üst üste kasalar (KayKit) */}

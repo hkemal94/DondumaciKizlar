@@ -23,6 +23,7 @@ import {
   kilitAcik,
   parselDurumu,
   parselFiyatiNe,
+  parselSec,
   tezgahKisaltilabilir,
   tezgahTasinabilir,
   tezgahUzatilabilir,
@@ -32,9 +33,22 @@ import {
   tezgahiUzat,
   useDurum,
 } from '../oyun/durum';
-import { DUVAR_FIYATI, YIKIM_FIYATI, parcaTuru, parselCoz, type Kenar } from '../oyun/dekorasyon';
+import { DUVAR_FIYATI, YIKIM_FIYATI, kenarAnahtari, kenarYeri, parcaTuru, parselCoz, sinirKenarlari, type Kenar } from '../oyun/dekorasyon';
 import { ortala } from '../sahne/kameraKarisimi';
 import { MUTFAK_FIYATI, MUTFAK_GERI_FIYATI, PARCA_BILGI, PARCA_TIPLERI } from '../oyun/makine';
+
+// Duvar parçaları dükkânın çevresinde sırayla (önden başlayıp dolaşarak):
+// panelden ◀ ▶ ile gezilir, 3B'de küçük şeride dokunmak gerekmez
+function siraliDuvarlar(kapali: string[]) {
+  const kenarlar = sinirKenarlari(kapali);
+  if (!kenarlar.length) return [];
+  const yerler = kenarlar.map((k) => ({ k, ...kenarYeri(k) }));
+  const ox = yerler.reduce((t, y) => t + y.x, 0) / yerler.length;
+  const oz = yerler.reduce((t, y) => t + y.z, 0) / yerler.length;
+  // Ön cephenin (denize bakan, −z) ortasından başlar
+  const aci = (y: { x: number; z: number }) => (Math.atan2(y.x - ox, -(y.z - oz)) + 2 * Math.PI) % (2 * Math.PI);
+  return yerler.sort((a, b) => aci(a) - aci(b)).map((y) => kenarAnahtari(y.k));
+}
 
 // İnşaat modunun paneli (belge 0.2–0.4): seçilen karenin yeri, durumu,
 // fiyatı; "Al", "Duvar ör / yık"; duvar parçası; tezgah bölümü. Mutfak
@@ -47,7 +61,27 @@ export function InsaatPaneli() {
     ortala();
   };
   let icerik = null;
-  if (secili === 'tezgah') {
+  const duvarlar = siraliDuvarlar(durum.kapaliParseller);
+  if (!secili) {
+    // Hiçbir şey seçili değil (Kemal, 15 Ekim akşam: "taşıma bölümünü, çerçeveyi,
+    // kapıyı bulamıyorum"): ne yapılabileceği düğme olarak
+    icerik = (
+      <>
+        <span className="insaat-yer">{m('insaat.neYapalim')}</span>
+        <div className="insaat-oklar">
+          <button className="dugme gel-al" onClick={() => parselSec('tezgah')}>
+            {m('insaat.tezgahiTasi')}
+          </button>
+          {duvarlar.length > 0 && (
+            <button className="dugme gel-al" onClick={() => parselSec(`duvar:${duvarlar[0]}`)}>
+              {m('insaat.pencereKapi')}
+            </button>
+          )}
+        </div>
+        <span className="insaat-durum">{m('insaat.kareIpucu')}</span>
+      </>
+    );
+  } else if (secili === 'tezgah') {
     // Tezgah bölümü (belge 0.3): taşı, uzat, kısalt. Oklar İnşaat'ın önden
     // bakışına göre: ekranın solu +x, yukarısı dükkânın arkası.
     const yonler: [MetinAnahtari, string, number, number][] = [
@@ -127,11 +161,24 @@ export function InsaatPaneli() {
     const [c, r, y] = anahtar.split(',');
     const k: Kenar = { c: Number(c), r: Number(r), y: y as Kenar['y'] };
     const simdiki = parcaTuru(k, durum.duvarParcalari);
+    const sira = duvarlar.indexOf(anahtar);
+    const git = (adim: number) => parselSec(`duvar:${duvarlar[(sira + adim + duvarlar.length) % duvarlar.length]}`);
     icerik = (
       <>
         <span className="insaat-yer">
           {m('insaat.parca')} · {m(`insaat.tur.${simdiki}` as MetinAnahtari)}
         </span>
+        {/* Duvar boyunca gez: seçili parça 3B'de beyaz yanar */}
+        <div className="insaat-oklar">
+          <button className="dugme dugme-simge" aria-label={m('insaat.oncekiDuvar')} onClick={() => git(-1)}>
+            ◀
+          </button>
+          <span className="insaat-durum">{m('insaat.duvarSirasi', { sira: sira + 1, toplam: duvarlar.length })}</span>
+          <button className="dugme dugme-simge" aria-label={m('insaat.sonrakiDuvar')} onClick={() => git(1)}>
+            ▶
+          </button>
+        </div>
+        <span className="insaat-durum">{m('insaat.duvarIpucu')}</span>
         <div className="insaat-oklar">
           {parcaSecenekleri(k, durum)
             .filter((s) => s.tur !== simdiki)
@@ -223,7 +270,16 @@ export function InsaatPaneli() {
   }
   return (
     <>
-      {icerik && <div className="insaat-panel">{icerik}</div>}
+      {icerik && (
+        <div className="insaat-panel">
+          {secili && (
+            <button className="dugme gel-kucuk" onClick={() => parselSec(null)}>
+              ← {m('insaat.menu')}
+            </button>
+          )}
+          {icerik}
+        </div>
+      )}
       <button className="dugme dugme-servis" onClick={bitir}>
         {m('insaat.bitti')}
       </button>

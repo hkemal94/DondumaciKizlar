@@ -81,7 +81,7 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Sipariş balonu | Müşterinin başının sağında, aşağı doğru açılır (üstteki ipucuyla çakışmasın; 13 Ekim) |
 | İpucu yazısı | Üst sıranın altında, ortada; dili sıcak (Kemal, 13 Ekim: "üst üste gelmiş, çok soğuk") |
 | Tepsi | Dükkânı geliştir → Yeni çeşitler'den **Tepsi** (geçici 400) alınınca siparişlerin bazıları **iki dondurma** ya da **iki süsleme** ister. İki dondurmalı siparişte ilk dondurma hazırlanınca **Tepsiye koy**'a basılır, sonra ikincisi hazırlanır, Servis et ikisini birden verir. Balonda iki dondurma yan yana görünür. Sıra kural değil |
-| Çalışan | Tezgahın arkasında, genel görünümde görünür (tezgah görünümünde kameranın yerinde olduğu için görünmez). Gün başında **Çalışan** düğmesiyle sağda panel açılır, kamera çalışana yaklaşır: ad, ten (5), saç (kısa, uzun, topuz, kıvırcık; 6 renk), önlük (mor, sarı, krem; parayla çizgili 150, puantiyeli 200), aksesuar (parayla küpe 100, bandana 120, gözlük 160, kasket 180; başa tek şey). Adı genel görünümde başının üstünde yazar. Kepçe dalarken öne eğilir. Fiyatlar geçici; çalışana hikâye yazılmaz |
+| Çalışan | Tezgahın arkasında, genel görünümde görünür (tezgah görünümünde kameranın yerinde olduğu için görünmez). Gün başında **Çalışan** düğmesiyle sağda panel açılır, kamera çalışana yaklaşır: ad, ten (5), saç (kadında kısa, dalgalı; erkekte kısa, kabarık, dik, yana taralı; 6 renk — 15 Ekim akşam: pakette olan saçlar), önlük (yok, mor, sarı, krem; parayla çizgili 150, puantiyeli 200), aksesuar (parayla küpe 100, bandana 120, gözlük 160, kasket 180; başa tek şey). Adı genel görünümde başının üstünde yazar. Kepçe dalarken öne eğilir. Fiyatlar geçici; çalışana hikâye yazılmaz |
 | Sahibi | Günde bir kez, rastgele bir saatte iskeleden gelir, kapıdan girer, dükkânda ve terasta biraz dolaşıp gider; başka bir şey yapmaz. Görünüşü **geçici** (mor elbise, topuz saç); kanonda görünüşü yok, Kemal belirleyecek |
 | Alanlar | (Kemal, 14 Ekim) Dükkânın **iki yanındaki boş alanlar** ve **yol kenarındaki teras** satın alınır; yalnız **dükkânın hizasındaki** teras başta açıktır. Alınan alana eşya konur; yan alan alınınca ahşap zemin döşenir. Dört alan: iki yan, iki yol kenarı. Yerleştirirken kilitli kareler gri görünür |
 | Dış süsler | (Kemal, 14 Ekim: "dükkân dışı için tabela benzeri ürünler; dekorasyonda market çok zayıf") Dokuz yeni eşya: bank, çöp kutusu, çiçekli kasa, ayaklı kara tahta, flama direği, sokak lambası, sepetli bisiklet, ışıklı tabela, dev külah. Hepsi **yalnız dışarıya** konur (şemsiyeli masa da). Tabela ve kara tahtada **yazı yok**, yalnız dondurma çizimleri. Bankta iki müşteri oturabilir. Mağazada iki başlık: "Oturma ve çiçek", "Dükkânın dışı için" |
@@ -449,12 +449,26 @@ konusunda komple assetlere ihtiyacımız olabilir."
 | İçecek hazırlama | **Karışık**: basit olanlar seçip ver, kahve ve milkshake mini oyunlu |
 | İçeceklerin açılması | Dükkân seviyesi + para (8a kilitleri gibi) |
 | Kahve | **İkisi de**: Türk kahvesi, buzlu kahve; espresso bazlılar |
-| Vitrin ve bar modelleri | Bugünkü küvetler gerçek dondurma vitrinine benzemiyor (gerçekte paslanmaz tepsilerde kabarık dondurma, önde kavisli cam). Önce izinli paketlerden aday sayfası, Kemal seçer (9b) |
+| Vitrin ve bar modelleri | Bugünkü küvetler gerçek dondurma vitrinine benzemiyor (gerçekte paslanmaz tepsilerde kabarık dondurma, önde kavisli cam). Önce izinli paketlerden aday sayfası, Kemal seçer (9b). Aday sayfası hazır: `docs/gorseller/vitrin-bar-adaylari/` (V vitrin/dolap, M makine, B bardak/şişe, D dondurma/meyve, T tezgah). İzinli paketlerde gerçek bir dondurma vitrini yok; V0 koddan çizildi (paslanmaz küvetler, kabarık dondurma, kavisli cam, küvetlerde farklı doluluk) |
 | Stok: azalma | Görünür doluluk: top alındıkça küvetteki dondurma alçalır, etiketin yanında küçük çubuk; biten çeşit o gün istenmez |
 | Stok: sipariş | Gün sonunda tek tuş "Hepsini doldur" (toplam fiyat), istenirse kalem kalem artı / eksi; düz liste |
 | Stok: kapsam | Dondurma, külah / kap / kup, süslemeler, içecek malzemeleri |
 | Stok: biterse | Biten istenmez; hepsi biterse dükkân o gün cezasız erken kapanır |
 | Sıra | 9a ince tasarım + yol → 9b vitrin ve bar aday sayfası → 9c gerçekçi vitrin + hafif stok → 9d içecekler |
+
+### 0.13.1 Hata listesi (Kemal, 15 Ekim akşam, oynarken)
+
+| Konu | Karar / yapılan |
+|---|---|
+| Mola menüsü | "Anasayfaya dönüş, çıkış yok": **Ana sayfa** (kaydeder, açılış ekranına döner) ve **Çıkış** (kaydeder, sekmeyi kapatmayı dener; tarayıcı izin vermezse "kaydedildi" yazar) |
+| Tam ekran | "Web'den oynadığımız için tam ekran düğmesi": mola menüsünde ve açılışta **Tam ekran**; açılınca ekran yatay kilitlenmeye çalışır. iPhone Safari izin vermiyor, orada düğme görünmez |
+| Arkadaki evler | Dükkânın tam arkasındaki ilk sıra yalnız alçak evlerden (görüntüyü kesmesin) |
+| Yardımcı adayları | "Hepsine sen bir isim yaz, ben değiştirebileyim": adaylar hazır adla gelir (görünüşüne uyan, dükkânda olmayan; 2000'lerin sık adları), kutudan değişir. Kanon değil |
+| Buzdolabı | Kapaklarıyla derin; arkası arka duvarın içinde kalacak kadar öne alındı |
+| Tente | "Tabelaları kesiyor, tenteler aşağı doğru olur": duvardan dışa doğru aşağı iner, pencerenin hemen üstünden başlar |
+| İnşaat | "Taşımayı, çerçeveyi, kapıyı bulamıyorum": hiçbir şey seçili değilken **Ne yapmak istersin?** (Tezgahı taşı / uzat, Pencere ve kapı). Pencere ve kapıda duvarlar arasında ◀ ▶ ile gezilir (ön cepheden başlar), seçili parça beyaz yanar. Panel sağda dar sütun |
+| Saçlar | "Kısa saç yok, bazılarının adı var kendi yok"; "çözemezsen adları olanlarla değiştir": pakette kadın için 2 (kısa, dalgalı), erkek için 4 (kısa, kabarık, dik, yana taralı) ayrı saç var; seçenekler bunlar. Kadının kısa saçı tanınmıyordu, düzeldi. Daha çok saç yeni model ister (sonra) |
+| Önlük | "Önlüğü çıkarma düğmesi": önlükte **Yok** seçeneği (üniformada yine mor önlük) |
 
 ## 1. Oyunun özeti ve vizyonu
 

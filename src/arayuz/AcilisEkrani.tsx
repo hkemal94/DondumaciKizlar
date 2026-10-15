@@ -3,6 +3,7 @@ import { denemeDukkani, kayitVar, kayittanDevamEt, yeniOyun } from '../oyun/duru
 import { m } from '../metinler';
 import { logoAdresi } from '../sahne/logo';
 import { Galeri } from './Galeri';
+import { tamEkraniDegistir, tamEkranVar, useTamEkran } from './tamEkran';
 
 // Açılış ekranı (Kemal, 14 Ekim; belge 0.8): arkada dükkânın sakin genel
 // görünümü, önde külahlı logo. Kayıt varsa Devam et öne çıkar; Yeni oyun
@@ -13,6 +14,7 @@ export function AcilisEkrani({ ayarlar }: { ayarlar: () => void }) {
   const [kayit] = useState(kayitVar);
   const [soruyor, setSoruyor] = useState(false);
   const [galeri, setGaleri] = useState(false);
+  const tamEkran = useTamEkran();
   if (galeri) return <Galeri kapat={() => setGaleri(false)} />;
   if (soruyor)
     return (
@@ -52,6 +54,11 @@ export function AcilisEkrani({ ayarlar }: { ayarlar: () => void }) {
         <button className="dugme" onClick={ayarlar}>
           {m('acilis.ayarlar')}
         </button>
+        {tamEkranVar() && (
+          <button className="dugme" onClick={() => void tamEkraniDegistir()}>
+            {m(tamEkran ? 'duraklat.tamEkrandanCik' : 'duraklat.tamEkran')}
+          </button>
+        )}
       </div>
     </div>
   );

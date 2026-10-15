@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { durumuOku, useDurum } from '../oyun/durum';
-import { ONLUK_ACIK, ONLUKLER, SAC_RENKLERI, TENLER, type CalisanGorunumu, type Onluk } from '../oyun/calisan';
+import { gecerliSac, ONLUK_ACIK, ONLUK_YOK, ONLUKLER, SAC_RENKLERI, TENLER, type CalisanGorunumu, type Onluk } from '../oyun/calisan';
 import { InsanKarakter, type Hareket } from './InsanKarakter';
 import type { Karakter, KarakterAksesuari, Varyant } from './karakterler';
 import { istasyonOdagi, kameraKarisimi, odak, tezgahOfseti } from './kameraKarisimi';
@@ -42,12 +42,6 @@ export function onlukDokusu(o: Onluk) {
 // Adın ekrandaki yeri: başının üstü (arayüz öğeyi buraya bağlar)
 export const calisanEtiketi: { oge: HTMLDivElement | null } = { oge: null };
 
-// Saç modeli → paketteki baş (belge 0.9; şapkalı ve baretli başlar seçilmez).
-// Saçlar ileride başlardan ayrılıp ayrı seçilebilir (Kemal, 14 Ekim gece)
-const SAC_BASI: Record<CalisanGorunumu['beden'], Record<CalisanGorunumu['sac'], string>> = {
-  kadin: { kisa: 'formal', uzun: 'casual', topuz: 'suit', kivircik: 'formal' },
-  erkek: { kisa: 'casual_2', uzun: 'casual_hoodie', topuz: 'suit', kivircik: 'beach' },
-};
 // Deneme için gündelik kıyafet (Kemal: "değiştirebilelim, şimdilik casual")
 const CALISAN_GOVDESI: Record<CalisanGorunumu['beden'], string> = { kadin: 'casual', erkek: 'casual_2' };
 // Dükkân üniforması (belge 0.12): sarı tişört, mor kasket, mor önlük
@@ -93,6 +87,7 @@ export function Calisan() {
   const hareket = useRef<Hareket>('dur');
   const v = useMemo(() => new THREE.Vector3(), []);
   // Üniformada önlük mor
+  const onlukVar = calisan.uniforma || calisan.onluk !== ONLUK_YOK;
   const onluk = ONLUKLER.find((o) => o.id === (calisan.uniforma ? 'mor' : calisan.onluk)) ?? ONLUKLER[0];
   const doku = useMemo(() => onlukDokusu(onluk), [onluk]);
   // Çalışan da müşterilerle aynı parçalardan (belge 0.9)
@@ -103,7 +98,7 @@ export function Calisan() {
       cinsiyet: calisan.beden,
       govde: calisan.kiyafet || CALISAN_GOVDESI[calisan.beden],
       bas: CALISAN_GOVDESI[calisan.beden],
-      sacBasi: SAC_BASI[calisan.beden][calisan.sac],
+      sacBasi: gecerliSac(calisan.beden, calisan.sac).bas,
       boy: CALISAN_BOYU[calisan.beden],
       ten: TENLER[calisan.ten],
       sac: SAC_RENKLERI[calisan.sacRengi],
@@ -144,7 +139,7 @@ export function Calisan() {
   return (
     <group ref={ref} position={CALISAN_YERI.toArray()} rotation={[0, Math.PI, 0]}>
       <group>
-        <InsanKarakter varyant={varyant} hareket={hareket} ekle={ONLUK_ACIK ? onlukTak : undefined} />
+        <InsanKarakter key={onlukVar ? 'onluklu' : 'onluksuz'} varyant={varyant} hareket={hareket} ekle={ONLUK_ACIK && onlukVar ? onlukTak : undefined} />
       </group>
     </group>
   );
