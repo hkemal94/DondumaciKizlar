@@ -11,9 +11,9 @@ demedikçe işler bu sırayla gider (belge 0.8).
 | | |
 |---|---|
 | Aşama | İlk oynanabilir sürüm bitti (iş sırası 1–5). Büyüme ve görünüş paketleri sürüyor |
-| Son biten | C2: Çatı; düz dam, teras + korkuluk, kiremit, ahşap + pergola (bu PR) |
-| Şu an | C2'nin denetimi: Kemal telefonda bakacak |
-| Sıradaki | C3: tabelalar (çatı, direk, neon, iskele kemeri) → C4: halı ve tablo |
+| Son biten | C3 + C4: tabelalar, halı ve tablo (bu PR; Kemal'in isteğiyle gece işleri tek PR) |
+| Şu an | C paketinin denetimi: Kemal telefonda bakacak |
+| Sıradaki | KKM'de yol haritası sekmesinin görünmemesi (Kemal'le birlikte) · sona kalanlar |
 | Yayın | Tarih yok; acele yok (Kemal, 14 Ekim gece) |
 
 ## Paketler
@@ -24,7 +24,7 @@ demedikçe işler bu sırayla gider (belge 0.8).
 | D | Karakterler: müşteri, çalışan, yardımcı, sahip yeni pakette; çalışanda beden seçimi | Bitti ([#28](https://github.com/hkemal94/DondumaciKizlar/pull/28)) |
 | KKM | KKM'deki oyun sayfasında bu yol haritası | Bitti ([#29](https://github.com/hkemal94/DondumaciKizlar/pull/29), KKM [#92](https://github.com/hkemal94/Kems-Company/pull/92)); Kemal KKM'de göremiyor, bakılıyor |
 | B | Liman haritası: Kemal'in KKM 2D haritasına göre dış dünya; kumsal, T iskele, mendirek (giriş solda), Liman İdare ve Deposu, araba yolu, mahalle, tekneler | Bitti ([#30](https://github.com/hkemal94/DondumaciKizlar/pull/30)) |
-| C | Kişiselleştirme (Sims gibi, belge 0.11): C1 boya, çerçeve, tente, zemin · C2 çatı · C3 tabelalar · C4 halı ve tablo | C1 bitti ([#31](https://github.com/hkemal94/DondumaciKizlar/pull/31)), C2 bitti (bu PR); C3–C4 sırada |
+| C | Kişiselleştirme (Sims gibi, belge 0.11): C1 boya, çerçeve, tente, zemin · C2 çatı · C3 tabelalar · C4 halı ve tablo | C1 bitti ([#31](https://github.com/hkemal94/DondumaciKizlar/pull/31)), C2 bitti ([#32](https://github.com/hkemal94/DondumaciKizlar/pull/32)), C3 ve C4 bitti (bu PR); C paketi tamam |
 | E | Hesap ve bulut kayıt: aynı dükkân telefonda ve bilgisayarda | Yayına yakın |
 
 ## Bitenler
@@ -40,7 +40,10 @@ demedikçe işler bu sırayla gider (belge 0.8).
 - A paketi ve haber şeridi · [#26](https://github.com/hkemal94/DondumaciKizlar/pull/26), [#27](https://github.com/hkemal94/DondumaciKizlar/pull/27)
 - Liman haritası: kumsal, T iskele, mendirek, liman yapıları, mahalle · [#30](https://github.com/hkemal94/DondumaciKizlar/pull/30)
 - Görünüş sekmesi: dış boya, iç duvar, çerçeve, tente, iç zemin; satın almadan önce deneme · [#31](https://github.com/hkemal94/DondumaciKizlar/pull/31)
-- Çatı: düz dam, teras + korkuluk, kiremit, ahşap + pergola · bu PR
+- Çatı: düz dam, teras + korkuluk, kiremit, ahşap + pergola · [#32](https://github.com/hkemal94/DondumaciKizlar/pull/32)
+- Tabelalar: çatı tabelası, direk tabela, pencerede neon, iskele kemeri; akşam yanar · bu PR
+- Halı ve tablo: paspas, yuvarlak halı, kilim, üç tablo, boş çerçeve; tablolar duvara asılır · bu PR
+- Düzeltme: sonradan duvarla kapatılan karelerde dışarının ahşap tahtası iç zemini (seçilen zemin, mutfak fayansı) örtüyordu · bu PR
 - Karakterler (eski Kenney karakterleri [#12](https://github.com/hkemal94/DondumaciKizlar/pull/12), [#13](https://github.com/hkemal94/DondumaciKizlar/pull/13) yerine) · [#28](https://github.com/hkemal94/DondumaciKizlar/pull/28)
 
 ## Sona kalanlar

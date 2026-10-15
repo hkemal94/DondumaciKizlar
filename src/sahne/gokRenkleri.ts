@@ -21,3 +21,7 @@ export function gezmeIsiginiDegistir(): GezmeIsigi {
   gezmeIsigi.mod = sira[(sira.indexOf(gezmeIsigi.mod) + 1) % sira.length];
   return gezmeIsigi.mod;
 }
+
+// Işıklı tabelaların parlaklığı (C3, belge 0.11): akşam yanar, sabah söner (0–1).
+// Işıklar her karede saate göre günceller.
+export const tabelaIsigi = { deger: 0 };

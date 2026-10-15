@@ -1,4 +1,4 @@
-import { useMemo, useRef, type ReactNode } from 'react';
+import { useCallback, useMemo, useRef, type ReactNode } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { gecerliDuvarModu, kameraKarisimi, tezgahOfsetiniGuncelle } from './kameraKarisimi';
 import {
@@ -25,6 +25,7 @@ import { logoDokusu, LOGO_DOSYALARI, type LogoTuru } from './logo';
 import { durumuOku, gecerliGorunus, kuveteBas, useDurum } from '../oyun/durum';
 import { gorunusSecenegi } from '../oyun/gorunus';
 import { zeminDokusu } from './zeminDokusu';
+import { CatiTabelasiYeri, DisTabelalar, NeonTabela } from './Tabelalar';
 
 // Dükkânın içi, tezgahın arkasından görünen hâli (birinci şahıs yakın plan).
 // Kodla çizilmiş geçici parçalar; asıl modeller sonra gelecek.
@@ -409,6 +410,17 @@ function Odalar() {
     const k: Kenar = { c, r: PARSEL - 1, y: 'k' };
     return kenarlar.some((x) => kenarAnahtari(x) === kenarAnahtari(k)) && parcaTuru(k, duvarParcalari) === 'duvar';
   };
+  const pencereMi = useCallback((k: Kenar) => parcaTuru(k, duvarParcalari) === 'pencere', [duvarParcalari]);
+  // En öndeki kapalı sıra: ortası ve ön kenarı
+  let onSol = Infinity, onSag = -Infinity;
+  for (const p of kapaliParseller) {
+    const { i, j } = parselCoz(p);
+    const s = parselSiniri(i, j);
+    if (s.onZ !== onZ) continue;
+    onSol = Math.min(onSol, s.solX);
+    onSag = Math.max(onSag, s.sagX);
+  }
+  const onSira = { x: (onSol + onSag) / 2, z: onZ };
   // Ön cephedeki logo: 0. sütunun en öndeki camının üstünde
   const onLogo = kenarlar.filter((k) => k.y === 'g' && k.c === 0 && parcaTuru(k, duvarParcalari) === 'pencere').sort((a, b) => a.r - b.r)[0];
   return (
@@ -437,7 +449,13 @@ function Odalar() {
       ))}
       <Tavan>
         <CatiKenarlari kenarlar={kenarlar} />
+        {/* Çatı tabelası: en öndeki sıranın ortasında (C3) */}
+        <CatiTabelasiYeri x={onSira.x} z={onSira.z + 0.45} />
       </Tavan>
+      <KesikDuvar yon={[0, -1]}>
+        <NeonTabela kenarlar={kenarlar} pencereMi={pencereMi} />
+      </KesikDuvar>
+      <DisTabelalar />
       {arkaDuvar(-2) && (
         <KesikDuvar yon={[0, 1]}>
           <MenuPanosu />

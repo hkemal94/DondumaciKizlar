@@ -110,8 +110,26 @@ export function gorunusuOku(ham: unknown, acik: string[]): Gorunus {
   return g;
 }
 
+// ---- Tabelalar (C3): birden çok takılabilir; her biri bir kez alınır, sonra takılıp çıkarılır.
+// Hepsinde dükkânın adı; ışıklılar akşam kendiliğinden yanar ----
+export type Tabela = 'cati' | 'direk' | 'neon' | 'kemer';
+export const TABELALAR: { id: Tabela; renk: string; ikinciRenk: string; fiyat: number }[] = [
+  { id: 'cati', renk: '#7a3fa8', ikinciRenk: '#ffc928', fiyat: 700 },
+  { id: 'direk', renk: '#3a3340', ikinciRenk: '#ffc928', fiyat: 400 },
+  { id: 'neon', renk: '#ff7ad9', ikinciRenk: '#7af0ff', fiyat: 500 },
+  { id: 'kemer', renk: '#a87650', ikinciRenk: '#ffd98a', fiyat: 900 },
+];
+export const tabelaAnahtari = (id: Tabela) => `tabela:${id}`;
+
+export function tabelalariOku(ham: unknown, acik: string[]): Tabela[] {
+  return Array.isArray(ham) ? TABELALAR.map((t) => t.id).filter((id) => ham.includes(id) && acik.includes(tabelaAnahtari(id))) : [];
+}
+
 export function acikGorunusleriOku(ham: unknown): string[] {
-  const bilinen = new Set(GORUNUS_GRUPLARI.flatMap((g) => GORUNUS_SECENEKLERI[g].map((s) => gorunusAnahtari(g, s.id))));
+  const bilinen = new Set([
+    ...GORUNUS_GRUPLARI.flatMap((g) => GORUNUS_SECENEKLERI[g].map((s) => gorunusAnahtari(g, s.id))),
+    ...TABELALAR.map((t) => tabelaAnahtari(t.id)),
+  ]);
   const liste = Array.isArray(ham) ? ham.filter((x): x is string => typeof x === 'string' && bilinen.has(x)) : [];
   return [...new Set([...BASLANGIC_ACIK_GORUNUSLER, ...liste])];
 }

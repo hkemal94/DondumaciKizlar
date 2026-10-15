@@ -34,7 +34,10 @@ function Cerceve({ esya }: { esya: Esya }) {
   });
   return (
     <group ref={grup}>
-      <EsyaModeli esya={esya} />
+      {/* Tablo duvarda içeri (+z) bakar; resimde önü görünsün */}
+      <group rotation={[0, esya.startsWith('tablo') ? Math.PI : 0, 0]}>
+        <EsyaModeli esya={esya} />
+      </group>
     </group>
   );
 }

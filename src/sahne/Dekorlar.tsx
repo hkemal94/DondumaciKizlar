@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { birimDolu, birimEngelli, birimIcMi, noktadakiEsya, noktayaKoy, useDurum, yerlesimiKaldir } from '../oyun/durum';
+import { birimDolu, birimDuvarlari, birimEngelliKatman, birimIcMi, dokunmaKatmani, noktadakiEsya, noktayaKoy, useDurum, yerlesimiKaldir } from '../oyun/durum';
 import {
   DUKKAN_PARSELLERI,
   ESYALAR,
@@ -7,11 +7,15 @@ import {
   birimCoz,
   birimOrtasi,
   esyaOlcusu,
+  esyaKatmani,
   esyaOrtasi,
+  kenarYeri,
   parselCoz,
   parselSiniri,
   type Esya,
+  type Yon,
 } from '../oyun/dekorasyon';
+import { IcSus, TABLO_YUKSEKLIGI } from './IcSusler';
 import { renk } from './renkler';
 import { HazirModel } from './HazirModel';
 import type { Boya } from './tasarimDili';
@@ -80,6 +84,7 @@ function KafeMasasi() {
 }
 
 export function EsyaModeli({ esya }: { esya: Esya }) {
+  if (esyaKatmani(esya) !== 'esya') return <IcSus esya={esya} />;
   if (esya === 'saksi') return <HazirModel yol="mobilya/pottedPlant" ayar={{ grup: 'dukkan', yukseklik: 0.95 }} />;
   if (esya === 'masa') return <KafeMasasi />;
   if (esya === 'bank') return <HazirModel yol="mobilya/benchCushion" ayar={{ grup: 'dukkan', en: 1.15, boya: MINDER }} donus={Math.PI} />;
@@ -172,7 +177,10 @@ const yesilMalzeme = new THREE.MeshBasicMaterial({ color: '#8fe36b', transparent
 
 function Kareler() {
   const durum = useDurum();
-  const disariya = !!ESYALAR.find((e) => e.id === durum.seciliEsya)?.disari;
+  const tanim = ESYALAR.find((e) => e.id === durum.seciliEsya);
+  const disariya = !!tanim?.disari;
+  const iceriye = !!tanim?.iceri;
+  const katman = durum.seciliEsya ? esyaKatmani(durum.seciliEsya) : 'esya';
   const kareler: { c: number; r: number; ic: boolean }[] = [];
   if (durum.seciliEsya)
     for (const p of durum.parseller) {
@@ -182,7 +190,9 @@ function Kareler() {
           const c = i * PARSEL + a;
           const r = j * PARSEL + b;
           const ic = birimIcMi(c, r, durum);
-          if ((ic && disariya) || birimEngelli(c, r, durum) || birimDolu(c, r, durum)) continue;
+          if ((ic && disariya) || (!ic && iceriye) || birimEngelliKatman(c, r, katman, durum) || birimDolu(c, r, durum, undefined, katman)) continue;
+          // Tablo: yalnız düz duvarın dibindeki kareler
+          if (katman === 'duvar' && !birimDuvarlari(c, r, durum).length) continue;
           kareler.push({ c, r, ic });
         }
     }
@@ -190,6 +200,24 @@ function Kareler() {
     <group>
       {kareler.map(({ c, r, ic }) => {
         const o = birimOrtasi(c, r);
+        if (katman === 'duvar') {
+          // Tablo: yeşil işaret duvarda, tablonun asılacağı yükseklikte; dokununca oraya asılır
+          const { x, z, nx, nz } = kenarYeri(birimDuvarlari(c, r, durum)[0]);
+          return (
+            <mesh
+              key={`${c},${r}`}
+              geometry={yesilKare}
+              material={yesilMalzeme}
+              position={[x - nx * 0.08, TABLO_YUKSEKLIGI, z - nz * 0.08]}
+              rotation={[0, Math.atan2(-nx, -nz), 0]}
+              onClick={(e) => {
+                if (e.delta > 12) return;
+                e.stopPropagation();
+                noktayaKoy(o.x, o.z);
+              }}
+            />
+          );
+        }
         return <mesh key={`${c},${r}`} geometry={yesilKare} material={yesilMalzeme} position={[o.x, ic ? 0.02 : 0.08, o.z]} rotation={[-Math.PI / 2, 0, 0]} />;
       })}
       <mesh
@@ -210,13 +238,17 @@ function Kareler() {
   );
 }
 
+// Duvar parçasının dönüşü (Dukkan.tsx ile aynı): yerel −z dışarı bakar
+const DUVAR_DONUSU: Record<Yon, number> = { g: 0, k: Math.PI, b: Math.PI / 2, d: -Math.PI / 2 };
+
 export function Dekorlar() {
   const durum = useDurum();
   const { isikSeviyesi, yerlesim, yerlestirme, parseller } = durum;
   return (
     <group>
       {parseller
-        .filter((p) => !DUKKAN_PARSELLERI.includes(p) && parselCoz(p).j >= 0)
+        // Duvarla kapatılan karelerde iç zemin görünür (seçilen zemin, halılar)
+        .filter((p) => !DUKKAN_PARSELLERI.includes(p) && parselCoz(p).j >= 0 && !durum.kapaliParseller.includes(p))
         .map((p) => (
           <ParselZemini key={p} anahtar={p} />
         ))}
@@ -232,26 +264,48 @@ export function Dekorlar() {
       {/* Yere konmuş eşyalar; yerleştirirken dokunulursa kalkar (taşımak için) */}
       {yerlesim.map((y) => {
         const { c, r } = birimCoz(y.hucre);
+        const katman = esyaKatmani(y.esya);
+        // Yerleştirirken yalnız seçili eşyanın katmanındakiler dokununca kalkar
+        // (halının üstüne masa konurken halı kalkmasın)
+        const secilen = dokunmaKatmani(durum);
+        const tutulur = yerlestirme && (secilen === null || secilen === katman);
+        const tikla = (e: { delta: number; stopPropagation: () => void }) => {
+          if (!tutulur || e.delta > 12) return;
+          e.stopPropagation();
+          yerlesimiKaldir(y);
+        };
+        if (katman === 'duvar') {
+          // Tablo: karenin dibindeki düz duvara asılır; köşede yön hangi duvar olduğunu seçer
+          const duvarlar = birimDuvarlari(c, r, durum);
+          if (!duvarlar.length) return null;
+          const k = duvarlar[y.yon % duvarlar.length];
+          const { x, z, nx, nz } = kenarYeri(k);
+          return (
+            <group key={`${y.hucre}:${y.esya}`} position={[x - nx * 0.06, 0, z - nz * 0.06]} rotation={[0, DUVAR_DONUSU[k.y], 0]} onClick={tikla}>
+              <group position={[0, 0, 0.03]}>
+                <EsyaModeli esya={y.esya} />
+              </group>
+              {tutulur && (
+                <mesh position={[0, TABLO_YUKSEKLIGI, 0.2]}>
+                  <boxGeometry args={[0.9, 0.8, 0.4]} />
+                  <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+                </mesh>
+              )}
+            </group>
+          );
+        }
         const o = esyaOrtasi(y.esya, c, r, y.yon);
         const { en, boy } = esyaOlcusu(y.esya, y.yon);
         const ic = birimIcMi(c, r, durum);
         return (
-          <group
-            key={`${y.hucre}:${y.esya}`}
-            position={[o.x, ic ? 0 : 0.06, o.z]}
-            onClick={(e) => {
-              if (!yerlestirme || e.delta > 12) return;
-              e.stopPropagation();
-              yerlesimiKaldir(y);
-            }}
-          >
+          <group key={`${y.hucre}:${y.esya}`} position={[o.x, ic ? 0 : 0.06, o.z]} onClick={tikla}>
             <group rotation={[0, (y.yon * Math.PI) / 2, 0]}>
               <EsyaModeli esya={y.esya} />
             </group>
-            {/* Yerleştirirken eşyayı kolay tutmak için görünmez kutu */}
-            {yerlestirme && (
-              <mesh position={[0, 0.7, 0]}>
-                <boxGeometry args={[en * 0.9, 1.4, boy * 0.9]} />
+            {/* Yerleştirirken eşyayı kolay tutmak için görünmez kutu (halıda yassı) */}
+            {tutulur && (
+              <mesh position={[0, katman === 'zemin' ? 0.05 : 0.7, 0]}>
+                <boxGeometry args={[en * 0.9, katman === 'zemin' ? 0.1 : 1.4, boy * 0.9]} />
                 <meshBasicMaterial transparent opacity={0} depthWrite={false} />
               </mesh>
             )}
