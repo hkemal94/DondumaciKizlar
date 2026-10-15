@@ -23,6 +23,7 @@ import {
   sabirOrani,
   haftaGunu,
   saatYazisi,
+  havaNe,
   servisEt,
   gunSonunuKapat,
   guneBasla,
@@ -53,6 +54,7 @@ import { IstasyonSecimi, MakineDugmeleri, MakineGostergesi, MakineSiparisResmi, 
 import { InsaatPaneli } from './InsaatPaneli';
 import { KameraDugmeleri } from './KameraDugmeleri';
 import { HaberSeridi } from './HaberSeridi';
+import type { Hava } from '../oyun/hava';
 import { AcilisEkrani, BulutSecimi } from './AcilisEkrani';
 import { AyarlarEkrani } from './AyarlarEkrani';
 import { useEkranAyari } from './ekranAyari';
@@ -441,6 +443,10 @@ function GunSaat() {
         <span className="saat-simge" aria-hidden />
         {saatYazisi(durum)}
       </div>
+      {/* Hava durumu (belge 0.15) */}
+      <div className="bilgi-kutusu hava-kutusu" title={m(`hava.${havaNe(durum)}` as MetinAnahtari)}>
+        <HavaSimgesi hava={havaNe(durum)} />
+      </div>
     </div>
   );
 }
@@ -462,6 +468,18 @@ function GunSonu({ stokAc }: { stokAc: () => void }) {
     ...(g.mesai > 0 ? ([[m('gunSonu.mesai', { saat: g.mesaiSaati }), <><span className="para-simge" aria-hidden /> −{g.mesai}</>]] as [string, React.ReactNode][]) : []),
     [m('gunSonu.memnuniyet'), <Yildizlar puan={ortalama} />],
     [m('gunSonu.toplam'), <><span className="para-simge" aria-hidden /> {durum.para}</>],
+    // Yarının tahmini (belge 0.15): stoğu ona göre doldurmak için
+    ...(durum.yarinHava
+      ? ([
+          [
+            m('gunSonu.yarin'),
+            <span className="hava-tahmin">
+              <HavaSimgesi hava={durum.yarinHava.sabah} /> {m(`hava.${durum.yarinHava.sabah}` as MetinAnahtari)}
+              {durum.yarinHava.degisim && <small> · {m('hava.sonra', { hava: m(`hava.${durum.yarinHava.degisim.hava}` as MetinAnahtari).toLocaleLowerCase() })}</small>}
+            </span>,
+          ],
+        ] as [string, React.ReactNode][])
+      : []),
   ];
   return (
     <div className="gun-sonu-zemin">
@@ -831,5 +849,29 @@ export function Arayuz() {
       {stokAcik && (durum.hazirlik || durum.gunSonu) && <StokEkrani kapat={() => setStokAcik(false)} />}
       {arkaAcik && durum.hazirlik && <ArkaTezgahEkrani kapat={() => setArkaAcik(false)} />}
     </div>
+  );
+}
+
+// Hava simgesi (belge 0.15): güneş, kızgın güneş, bulut, yağmur bulutu
+export function HavaSimgesi({ hava }: { hava: Hava }) {
+  return (
+    <svg viewBox="0 0 24 24" className="hava-simge" aria-hidden>
+      {(hava === 'gunesli' || hava === 'sicak') && (
+        <g>
+          <circle cx="12" cy="12" r={hava === 'sicak' ? 5.5 : 4.5} fill={hava === 'sicak' ? '#ff9f1c' : '#ffc928'} />
+          {Array.from({ length: 8 }, (_, i) => {
+            const a = (i * Math.PI) / 4;
+            const ic = hava === 'sicak' ? 7.5 : 6.5;
+            const dis = hava === 'sicak' ? 11 : 9.5;
+            return <line key={i} x1={12 + Math.cos(a) * ic} y1={12 + Math.sin(a) * ic} x2={12 + Math.cos(a) * dis} y2={12 + Math.sin(a) * dis} stroke={hava === 'sicak' ? '#ff9f1c' : '#ffc928'} strokeWidth="1.8" strokeLinecap="round" />;
+          })}
+        </g>
+      )}
+      {hava === 'bulutlu' && <circle cx="16" cy="8" r="4" fill="#ffc928" />}
+      {(hava === 'bulutlu' || hava === 'yagmurlu') && (
+        <path d="M6 17 a4 4 0 0 1 1-7.9 a5 5 0 0 1 9.6 1.2 a3.4 3.4 0 0 1 0.4 6.7 Z" fill={hava === 'yagmurlu' ? '#b9c3cf' : '#eef2f6'} stroke="#8d99a8" strokeWidth="1" />
+      )}
+      {hava === 'yagmurlu' && [8, 12, 16].map((x) => <line key={x} x1={x} y1="19" x2={x - 1.2} y2="22.5" stroke="#5aa9e6" strokeWidth="1.6" strokeLinecap="round" />)}
+    </svg>
   );
 }

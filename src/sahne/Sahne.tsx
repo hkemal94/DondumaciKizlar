@@ -1,9 +1,11 @@
 import { Suspense, useLayoutEffect } from 'react';
 import { Canvas, events, useFrame, useThree, type RootState } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
-import { albumCekildi, albumZamani, durumuOku, istasyonX, kayitYuvasi, saatDakikasi } from '../oyun/durum';
+import { albumCekildi, albumZamani, durumuOku, istasyonX, kayitYuvasi, saatDakikasi, havaNe } from '../oyun/durum';
 import { fotoEkle } from '../oyun/galeri';
-import { gezmeSaati, gokRenkleri, tabelaIsigi } from './gokRenkleri';
+import { gezmeSaati, gokRenkleri, havaGorunusu, tabelaIsigi } from './gokRenkleri';
+import type { Hava } from '../oyun/hava';
+import { Bulutlar, Yagmur } from './HavaEtkileri';
 import { useEkranAyari } from '../arayuz/ekranAyari';
 import * as THREE from 'three';
 import { Disari } from './Disari';
@@ -209,6 +211,18 @@ const GOK_UFUK_GUNDUZ = new THREE.Color(renk.gokUfuk);
 const GOK_UFUK_BATIM = new THREE.Color('#ffb07a');
 const GOK_UST_GECE = new THREE.Color('#0f1a3d');
 const GOK_UFUK_GECE = new THREE.Color('#2c3566');
+// Hava (belge 0.15): kapalı gök grisi, sıcakta solgun ufuk ve sarı güneş
+const GOK_UST_KAPALI = new THREE.Color('#8e9aa8');
+const GOK_UFUK_KAPALI = new THREE.Color('#bcc4cd');
+const GOK_UFUK_SICAK = new THREE.Color('#f6e3bd');
+const GUNES_SICAK = new THREE.Color('#ffd27a');
+const GUNES_KAPALI = new THREE.Color('#d9dee4');
+const HAVA_HEDEFI: Record<Hava, typeof havaGorunusu> = {
+  gunesli: { bulut: 0.1, yagmur: 0, sicak: 0, ruzgar: 0.2 },
+  sicak: { bulut: 0, yagmur: 0, sicak: 1, ruzgar: 0.05 },
+  bulutlu: { bulut: 0.75, yagmur: 0, sicak: 0, ruzgar: 1 },
+  yagmurlu: { bulut: 1, yagmur: 1, sicak: 0, ruzgar: 0.6 },
+};
 
 function Isiklar() {
   const { grafik } = useEkranAyari();
@@ -216,10 +230,15 @@ function Isiklar() {
   const yarimKure = useRef<THREE.HemisphereLight>(null);
   const icIsik = useRef<THREE.PointLight>(null);
   const { scene } = useThree();
-  useFrame(() => {
+  useFrame((_, dt) => {
     const isik = gunes.current;
     if (!isik) return;
     const d = durumuOku();
+    // Hava hedefe birkaç saniyede kayar; açılış ekranında hep açık gün batımı
+    const hedef = HAVA_HEDEFI[d.acilis ? 'gunesli' : havaNe(d)];
+    const k = Math.min(1, dt * 0.6);
+    for (const a of ['bulut', 'yagmur', 'sicak', 'ruzgar'] as const) havaGorunusu[a] += (hedef[a] - havaGorunusu[a]) * k;
+    const { bulut, yagmur, sicak } = havaGorunusu;
     // Gezerken gece / gündüz düğmesi ışığın saatini seçebilir
     // Açılış ekranında dükkân gün batımında (belge 0.12)
     const secilen = d.gezme ? gezmeSaati() : d.acilis ? ACILIS_SAATI : null;
@@ -230,14 +249,23 @@ function Isiklar() {
     // Tabelalar güneş batarken yanar (saat ~19), sabah 7'ye doğru söner
     tabelaIsigi.deger = Math.max(THREE.MathUtils.smoothstep(saat, 18.5, 19.5), 1 - THREE.MathUtils.smoothstep(saat, 6, 7));
 
-    isik.color.copy(OGLE).lerp(AKSAM, aksam);
-    isik.intensity = (2.6 - aksam * 1.2) * (1 - gece) + gece * 0.25;
+    isik.color.copy(OGLE).lerp(GUNES_SICAK, sicak * 0.8).lerp(AKSAM, aksam).lerp(GUNES_KAPALI, bulut * 0.5);
+    isik.intensity = ((2.6 - aksam * 1.2) * (1 - gece) + gece * 0.25) * (1 - bulut * 0.6 - yagmur * 0.15) * (1 + sicak * 0.2);
     isik.position.set(6 - aksam * 12, 11 - aksam * 7 + gece * 6, 5);
-    if (yarimKure.current) yarimKure.current.intensity = 0.9 - gece * 0.55;
+    if (yarimKure.current) yarimKure.current.intensity = (0.9 - gece * 0.55) * (1 - yagmur * 0.25 - bulut * 0.2);
     if (icIsik.current) icIsik.current.intensity = 2.5 + gece * 3;
 
     gokRenkleri.ust.copy(GOK_UST_GUNDUZ).lerp(GOK_UST_GECE, gece);
-    gokRenkleri.ufuk.copy(GOK_UFUK_GUNDUZ).lerp(GOK_UFUK_BATIM, batim).lerp(GOK_UFUK_GECE, gece);
+    gokRenkleri.ufuk.copy(GOK_UFUK_GUNDUZ).lerp(GOK_UFUK_SICAK, sicak * 0.45 * (1 - aksam)).lerp(GOK_UFUK_BATIM, batim * (1 - bulut * 0.6)).lerp(GOK_UFUK_GECE, gece);
+    // Kapalı hava: gök grileşir (gece pek fark etmez)
+    const kapali = Math.min(1, bulut * 0.55 + yagmur * 0.35) * (1 - gece * 0.7);
+    gokRenkleri.ust.lerp(GOK_UST_KAPALI, kapali);
+    gokRenkleri.ufuk.lerp(GOK_UFUK_KAPALI, kapali);
+    // Yağmurda uzak görünmez olur
+    if (scene.fog instanceof THREE.Fog) {
+      scene.fog.near = 90 - yagmur * 50;
+      scene.fog.far = 320 - yagmur * 150;
+    }
     if (scene.background instanceof THREE.Color) scene.background.copy(gokRenkleri.ufuk);
     if (scene.fog) scene.fog.color.copy(gokRenkleri.ufuk);
   });
@@ -311,6 +339,8 @@ export function Sahne() {
       <KameraYoneticisi />
       <FotografMakinesi />
       <Isiklar />
+      <Bulutlar />
+      <Yagmur />
       <Suspense fallback={null}>
         <Disari />
         <Dukkan />

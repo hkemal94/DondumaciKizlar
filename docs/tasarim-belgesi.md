@@ -514,6 +514,17 @@ konusunda komple assetlere ihtiyacımız olabilir."
 - Yerel eşyalar (Kemal, 16 Ekim: "oyun assetlerinin lokalize olması gerekmez mi"): izinli paketlerde yok; koddan çizildi ve arka tezgaha eklendi: ince belli çay bardakları (tabakta, demli çay), Türk kahvesi fincanları (yaldızlı, köpüklü), bakır cezve, iki katlı çaydanlık, 2000'lerin plastik su ısıtıcısı. 9d içeceklerde de bunlar kullanılacak. Kemal'in düzeltmeleri (16 Ekim): çay bardağının ağzı daraldı, cezvenin sapı gövdeye bakır boyunla bağlandı, çaydanlığın iki katına siyah kulp geldi.
 - Künyenin üçüncü satırı (Kemal: "o yer tutucuya bir yazı ekleyebilirsin"): "Düzada evreninden bir oyun".
 
+## 0.15 Hava durumu (Kemal, 16 Ekim soru turu)
+
+| Konu | Karar |
+|---|---|
+| Havalar | Dördü de: **güneşli**, **çok sıcak**, **bulutlu / rüzgârlı**, **yağmurlu** (yazın nadir sağanak) |
+| Etkisi | **Hafif**: çok sıcakta biraz daha çok müşteri ve içecek siparişi daha sık; bulutluda biraz, yağmurda biraz daha az müşteri. Ceza, kayıp yok |
+| Tahmin | Gün sonu ekranında **yarının tahmini**; stok ona göre doldurulur |
+| Gün içinde | **Bazen değişir**: açılıştan 3–7 saat sonra (güneş bulutlanır, bulut yağmura döner, yağmur açar…). Değişecekse tahminde "öğleden sonra … olabilir" yazar; değişince kayan yazıda haber |
+
+**Yapılanlar (0.15):** üst bilgide saatin yanında hava simgesi; gün sonunda "Yarın" satırı. Sıcakta güneş daha sarı ve parlak, ufuk solgun; bulutluda ışık ve gök griye döner, gökte low-poly bulutlar sürüklenir, flamalar ve deniz dalgaları hızlanır; yağmurda damlalar (dükkânın içine düşmez), uzak sisli, yağmur sesi, martılar susar. Hava değişince görüntü birkaç saniyede döner. İlk gün hep güneşli. Olasılıklar ve etkiler ayar dosyasında (`hava` bölümü; geçici: güneşli %50, sıcak %25, bulutlu %17, yağmurlu %8, değişim %20; müşteri sıklığı sıcak %115, bulutlu %95, yağmurlu %75; sıcakta içecek payı %150). Açılış ekranı hep açık gün batımı.
+
 ## 1. Oyunun özeti ve vizyonu
 
 ### 1.1 Tek cümlelik özet

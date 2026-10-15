@@ -129,6 +129,60 @@
         }
       }
     },
+    "hava": {
+      "ad": "Hava durumu",
+      "aciklama": "Belge 0.15 (Kemal, 16 Ekim): güneşli, çok sıcak, bulutlu / rüzgârlı, yağmurlu. Hafif etki: sıcakta biraz daha çok müşteri ve soğuk içecek, yağmurda biraz daha az müşteri. Gün sonunda yarının tahmini; bazen gün içinde değişir",
+      "ayarlar": {
+        "gunesliOlasilik": {
+          "ad": "Güneşli gün olasılığı",
+          "deger": 50,
+          "birim": "%"
+        },
+        "sicakOlasilik": {
+          "ad": "Çok sıcak gün olasılığı",
+          "deger": 25,
+          "birim": "%"
+        },
+        "bulutluOlasilik": {
+          "ad": "Bulutlu / rüzgârlı gün olasılığı",
+          "deger": 17,
+          "birim": "%"
+        },
+        "yagmurluOlasilik": {
+          "ad": "Yağmurlu gün olasılığı",
+          "deger": 8,
+          "birim": "%"
+        },
+        "degisimOlasilik": {
+          "ad": "Gün içinde havanın değişme olasılığı",
+          "deger": 20,
+          "birim": "%",
+          "not": "Değişirse açılıştan 3–7 saat sonra; tahminde \"öğleden sonra … olabilir\" yazar"
+        },
+        "sicakGelis": {
+          "ad": "Çok sıcakta müşteri sıklığı",
+          "deger": 115,
+          "birim": "%",
+          "not": "100 = normal; büyük sayı = daha çok müşteri"
+        },
+        "bulutluGelis": {
+          "ad": "Bulutluda müşteri sıklığı",
+          "deger": 95,
+          "birim": "%"
+        },
+        "yagmurluGelis": {
+          "ad": "Yağmurda müşteri sıklığı",
+          "deger": 75,
+          "birim": "%"
+        },
+        "sicakIcecek": {
+          "ad": "Çok sıcakta içecek isteme payı",
+          "deger": 150,
+          "birim": "%",
+          "not": "100 = normal; içecek standı varsa içecek siparişi bu kadar sık"
+        }
+      }
+    },
     "kepce": {
       "ad": "Kepçe",
       "aciklama": "Top doldurma mini oyunu",

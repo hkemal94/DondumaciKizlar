@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { renk } from './renkler';
-import { gokRenkleri } from './gokRenkleri';
+import { gokRenkleri, havaGorunusu } from './gokRenkleri';
 import { PARSEL, YURUYUS_Z, Z0, parselAnahtari } from '../oyun/dekorasyon';
 import { useDurum } from '../oyun/durum';
 import { ISKELE_ENI, Liman, kiyiZ } from './Liman';
@@ -62,6 +62,8 @@ function Gok() {
 // koyu mavi; kıyıda gelip giden köpük çizgisi.
 const DENIZ_Y = -0.9;
 const denizSaati = { value: 0 };
+// Rüzgârda ve yağmurda dalgalar büyür (belge 0.15)
+const denizDalgasi = { value: 1 };
 function Deniz() {
   const { geometri, malzeme } = useMemo(() => {
     const g = new THREE.PlaneGeometry(900, 640, 150, 100);
@@ -86,21 +88,23 @@ function Deniz() {
     const m = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.3, metalness: 0.05, flatShading: true });
     m.onBeforeCompile = (sh) => {
       sh.uniforms.saat = denizSaati;
+      sh.uniforms.dalga = denizDalgasi;
       sh.vertexShader = sh.vertexShader
-        .replace('#include <common>', '#include <common>\nuniform float saat;')
+        .replace('#include <common>', '#include <common>\nuniform float saat;\nuniform float dalga;')
         .replace(
           '#include <begin_vertex>',
           `#include <begin_vertex>
           float d1 = sin(position.x * 0.22 + saat * 0.9) * 0.16;
           float d2 = cos(position.z * 0.27 + saat * 0.7) * 0.14;
           float d3 = sin((position.x + position.z) * 0.12 + saat * 1.3) * 0.1;
-          transformed.y += d1 + d2 + d3;`,
+          transformed.y += (d1 + d2 + d3) * dalga;`,
         );
     };
     return { geometri: g, malzeme: m };
   }, []);
   useFrame(({ clock }) => {
     denizSaati.value = clock.elapsedTime;
+    denizDalgasi.value = 1 + havaGorunusu.ruzgar * 0.7 + havaGorunusu.yagmur * 0.3;
   });
   return <mesh geometry={geometri} material={malzeme} position={[0, DENIZ_Y, 0]} receiveShadow />;
 }

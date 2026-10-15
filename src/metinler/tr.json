@@ -645,5 +645,16 @@
   "bulut.secimNot": "Bu cihazdaki kayıt ile buluttaki farklı. Seçmediğin silinir.",
   "bulut.cihazdaki": "Bu cihazdaki",
   "bulut.buluttaki": "Buluttaki",
-  "bulut.ozet": "{gun}. gün · {para} jeton"
+  "bulut.ozet": "{gun}. gün · {para} jeton",
+  "hava.gunesli": "Güneşli",
+  "hava.sicak": "Çok sıcak",
+  "hava.bulutlu": "Bulutlu, rüzgârlı",
+  "hava.yagmurlu": "Yağmurlu",
+  "hava.sonra": "öğleden sonra {hava} olabilir",
+  "gunSonu.yarin": "Yarın",
+  "haber.hava.gunesli": "Hava açtı, güneş çıktı",
+  "haber.hava.sicak": "Hava iyice ısındı; soğuk içecek isteyen çok olur",
+  "haber.hava.bulutlu": "Hava bulutlandı, rüzgâr çıktı",
+  "haber.hava.yagmurlu": "Yağmur başladı; müşteri biraz azalır",
+  "yenilik.hava": "Hava durumu: güneşli, çok sıcak, bulutlu, yağmurlu günler; gün sonunda yarının tahmini"
 }

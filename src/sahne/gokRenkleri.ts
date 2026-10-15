@@ -25,3 +25,8 @@ export function gezmeIsiginiDegistir(): GezmeIsigi {
 // Işıklı tabelaların parlaklığı (C3, belge 0.11): akşam yanar, sabah söner (0–1).
 // Işıklar her karede saate göre günceller.
 export const tabelaIsigi = { deger: 0 };
+
+// Hava durumunun görünüşü (belge 0.15): 0–1 arası, ışık her karede yumuşakça
+// hedefe kaydırır (hava değişince birden değil, birkaç saniyede döner).
+// Bulutlar, yağmur, deniz ve flamalar buradan okur.
+export const havaGorunusu = { bulut: 0, yagmur: 0, sicak: 0, ruzgar: 0.2 };

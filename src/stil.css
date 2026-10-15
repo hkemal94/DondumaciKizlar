@@ -3152,3 +3152,27 @@ li.tamam .hedef-ad {
   font-weight: 500;
   opacity: 0.8;
 }
+
+/* Hava durumu (belge 0.15): üst bilgide simge, gün sonunda yarının tahmini */
+.hava-kutusu {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+.hava-simge {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+.hava-tahmin {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.hava-tahmin .hava-simge {
+  width: 16px;
+  height: 16px;
+}
+.hava-tahmin small {
+  font-size: 0.85em;
+  opacity: 0.8;
+}

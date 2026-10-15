@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { YURUYUS_Z } from '../oyun/dekorasyon';
-import { durumuOku, useDurum } from '../oyun/durum';
+import { durumuOku, havaNe, useDurum } from '../oyun/durum';
 import { useEkranAyari } from '../arayuz/ekranAyari';
 import { HazirModel } from './HazirModel';
 import { InsanKarakter, type Hareket } from './InsanKarakter';
@@ -277,7 +277,8 @@ function MartiSesi() {
     if (clock.elapsedTime < sonraki.current) return;
     sonraki.current = clock.elapsedTime + 18 + Math.random() * 17;
     const d = durumuOku();
-    if (d.kamera === 'dukkan' && !d.duraklatildi && !d.acilis) sesler.marti();
+    // Yağmurda martılar susar (belge 0.15)
+    if (d.kamera === 'dukkan' && !d.duraklatildi && !d.acilis && havaNe(d) !== 'yagmurlu') sesler.marti();
   });
   return null;
 }

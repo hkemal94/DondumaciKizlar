@@ -2,6 +2,7 @@ import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { renk } from './renkler';
+import { havaGorunusu } from './gokRenkleri';
 import { logoDokusu, LOGO_DOSYALARI } from './logo';
 
 // Dükkânın dışı için süsler (Kemal, 14 Ekim: "tabela benzeri ürünler").
@@ -147,7 +148,9 @@ export function Flama() {
   const bayrak = useRef<THREE.Group>(null);
   const tohum = useMemo(() => Math.random() * 10, []);
   useFrame(({ clock }) => {
-    if (bayrak.current) bayrak.current.rotation.y = Math.sin(clock.elapsedTime * 2.2 + tohum) * 0.25;
+    // Rüzgârlı havada daha hızlı ve geniş (belge 0.15)
+    const r = havaGorunusu.ruzgar;
+    if (bayrak.current) bayrak.current.rotation.y = Math.sin(clock.elapsedTime * (2.2 + r * 2) + tohum) * (0.2 + r * 0.3);
   });
   const sekil = useMemo(() => {
     const s = new THREE.Shape();
