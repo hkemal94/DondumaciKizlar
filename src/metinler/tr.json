@@ -544,5 +544,6 @@
   "stok.tur.icecek": "İçecekler",
   "menu.stok": "Stok",
   "siparis.birinci": "1: {adlar}",
-  "siparis.ikinci": "2: {adlar}"
+  "siparis.ikinci": "2: {adlar}",
+  "gunSonu.mesai": "Fazla mesai ({saat} saat)"
 }

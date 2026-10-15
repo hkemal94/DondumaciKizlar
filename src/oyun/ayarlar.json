@@ -724,7 +724,7 @@
     },
     "yardimci": {
       "ad": "Yardımcılar",
-      "aciklama": "İşe alma ve yevmiye",
+      "aciklama": "İşe alma, günlük ücret ve fazla mesai",
       "ayarlar": {
         "fiyat": {
           "ad": "İşe alma",
@@ -732,7 +732,7 @@
           "birim": "jeton"
         },
         "yevmiye": {
-          "ad": "Günlük yevmiye",
+          "ad": "Günlük ücret (yardımcı başına)",
           "deger": 40,
           "birim": "jeton"
         },
@@ -740,6 +740,12 @@
           "ad": "En çok yardımcı",
           "deger": 3,
           "birim": "kişi"
+        },
+        "mesaiSaatlik": {
+          "ad": "Fazla mesai ücreti (yardımcı başına, başlayan her saat)",
+          "deger": 10,
+          "birim": "jeton",
+          "not": "Kapanış saatinden sonra çalışılırsa (Kemal, 15 Ekim gece)"
         }
       }
     },

@@ -484,9 +484,10 @@ konusunda komple assetlere ihtiyacımız olabilir."
 | Yazılar | Eğitimde "İpucunu geç"; "yevmiye" yerine "günlük ücret" |
 | Süsleme düğmeleri | Hepsi aynı genişlikte |
 | İki dondurmalı sipariş | Balonda adlar ve süslemeler dondurma dondurma ayrı (1:, 2:) |
-| Mesai sonrası | Saat durmaz, kırmızı yanarak ilerler; kaça kadar çalışıldığı görünür. Fazla mesai ücreti henüz yok (Kemal'e sorulacak) |
+| Mesai sonrası | Saat durmaz, kırmızı yanarak ilerler; kaça kadar çalışıldığı görünür |
+| Fazla mesai ücreti | Kemal: "Evet". Kapanıştan sonra başlayan her saat için her yardımcıya ek ücret (geçici 10 jeton, ayar dosyasında `yardimci.mesaiSaatlik`); gün sonu kartında "Fazla mesai (N saat)" satırı; para 0'ın altına inmez |
 | Tablolar | Yerleştirmede elde başka eşya seçiliyken de duvardaki tabloya dokununca kalkar |
-| Sonraya kalanlar (soru) | Fazla mesai ücreti, tezgah / mutfak ışığı, mutfak dekorasyonu ve zemini, tezgah içi ürünleri seçme, giriş ekranı ve künye, iki cihazdan oynama (kayıt kodu / bulut), oyuncu kaydı ve kişisel bilgiler, kendi modellerin için rehber |
+| Sonraya kalanlar (soru) | Tezgah / mutfak ışığı, mutfak dekorasyonu ve zemini, tezgah içi ürünleri seçme, giriş ekranı ve künye, iki cihazdan oynama (kayıt kodu / bulut), oyuncu kaydı ve kişisel bilgiler, kendi modellerin için rehber |
 
 ## 1. Oyunun özeti ve vizyonu
 
