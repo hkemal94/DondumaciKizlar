@@ -211,8 +211,11 @@ function aksesuarKur(ak: KarakterAksesuari, bas: THREE.Box3, basOrtasi: THREE.Ve
     const k = new THREE.Box3().setFromObject(model);
     const s = (yuzEn * 0.92) / (k.max.x - k.min.x);
     model.scale.setScalar(s);
-    // Camların ortası göz hizasında, arka kenarı gözün hemen önünde
-    model.position.set(-((k.min.x + k.max.x) / 2) * s, -((k.min.y + k.max.y) / 2) * s, -k.min.z * s);
+    // Camların ortası göz hizasında; çerçeve (modelin ön %11'i) gözün hemen önünde,
+    // saplar başın içine uzanır. Eskiden sapların ucu gözün önüne geliyordu: cepheden
+    // doğru, yandan yüzden uzak görünüyordu (Kemal, 16 Ekim)
+    const cerceveArkasi = k.max.z - (k.max.z - k.min.z) * 0.11;
+    model.position.set(-((k.min.x + k.max.x) / 2) * s, -((k.min.y + k.max.y) / 2) * s, -cerceveArkasi * s);
     g.add(model);
     g.position.set(ortaX, gozY, gozOnu + 0.004);
   } else if (ak === 'hasirSapka') {
@@ -249,14 +252,19 @@ function aksesuarKur(ak: KarakterAksesuari, bas: THREE.Box3, basOrtasi: THREE.Ve
 
 // Ağız: yüzün alt üçte birinde, önünde ince bir yay
 const agizMalzemesi = new THREE.MeshStandardMaterial({ color: '#7a3b3b', roughness: 0.8 });
-function gulumseme(yuz: THREE.Box3, basOrtasi: THREE.Vector3) {
+function gulumseme(yuz: THREE.Box3, basOrtasi: THREE.Vector3, tenler: THREE.Object3D[]) {
   const en = Math.min(yuz.max.x - basOrtasi.x, basOrtasi.x - yuz.min.x) * 2;
   const boy = yuz.max.y - yuz.min.y;
   const yay = new THREE.Mesh(new THREE.TorusGeometry(en * AGIZ.genislik, en * 0.012, 4, 10, Math.PI), agizMalzemesi);
   yay.rotation.z = Math.PI; // yayın kolları yukarı: gülümseme
   const g = new THREE.Group();
   g.add(yay);
-  g.position.set(basOrtasi.x, yuz.min.y + boy * AGIZ.yukseklik, yuz.max.z - en * AGIZ.derinlik);
+  // Derinlik: ağız hizasında yüzün yüzeyi (önden ışın). Yüz kutusunun önü burnun
+  // ucu; çenede yüz daha geride, ağız yandan bakınca havada kalıyordu (16 Ekim)
+  const y = yuz.min.y + boy * AGIZ.yukseklik;
+  const isin = new THREE.Raycaster(new THREE.Vector3(basOrtasi.x, y, yuz.max.z + 1), new THREE.Vector3(0, 0, -1));
+  const vurus = isin.intersectObjects(tenler, false)[0];
+  g.position.set(basOrtasi.x, y, (vurus ? vurus.point.z : yuz.max.z) - en * AGIZ.derinlik);
   return g;
 }
 const AGIZ = { genislik: 0.1, yukseklik: 0.3, derinlik: 0.02 };
@@ -361,7 +369,8 @@ export function karakterKur(v: Varyant, yuklu: Yuklu): Karakter {
     const yuz = yuzKutusu.isEmpty() ? basKutusu : yuzKutusu;
     for (const ak of v.aksesuarlar) kemigeTak(basKemigi, aksesuarKur(ak, basKutusu, basOrtasi, yuklu, yuz, gozKutusu.isEmpty() ? null : gozKutusu));
     // Gülümseme (Kemal: "basit bir gülümseme, hep aynı"); yüz kutusu saçsız ölçülür
-    kemigeTak(basKemigi, gulumseme(yuzKutusu.isEmpty() ? basKutusu : yuzKutusu, basOrtasi));
+    const tenler = meshler.filter(({ parca }) => parca.rol === 'ten' && parca.bolum === 'bas').map(({ mesh }) => mesh);
+    kemigeTak(basKemigi, gulumseme(yuzKutusu.isEmpty() ? basKutusu : yuzKutusu, basOrtasi, tenler));
   }
   // Yükleyici kemik adlarındaki noktayı siler: UpperLeg.L → UpperLegL
   const kalcaKemigi = kemikler.UpperLegL;

@@ -2060,8 +2060,33 @@ a.dugme {
   pointer-events: auto;
 }
 .icecek-paneli {
-  flex-direction: column;
+  /* Açık içecekler çoğalınca yan yana sütunlara akar (9d) */
+  display: grid;
+  grid-template-rows: repeat(4, auto);
+  gap: 4px;
+  grid-auto-flow: column;
   align-items: stretch;
+}
+.icecek-dugme.hazirlanan {
+  background: #5c2a86;
+}
+.icecek-paneli .icecek-dugme {
+  font-size: 10.5px;
+  font-weight: 500;
+  padding: 1px 7px 1px 4px;
+  border-width: 1px;
+  border-radius: 8px;
+}
+.icecek-paneli .icecek-simge {
+  width: 13px;
+  height: 19px;
+}
+/* Basılı tutulan içecek: küçük saat işareti */
+.icecek-tut {
+  font-size: 9px;
+  margin-left: auto;
+  padding-left: 4px;
+  opacity: 0.85;
 }
 .waffle-grup {
   display: flex;
@@ -2085,7 +2110,7 @@ a.dugme {
   white-space: nowrap;
 }
 .icecek-simge {
-  width: 14px;
+  width: 17px;
   height: 24px;
   margin-right: 4px;
 }
