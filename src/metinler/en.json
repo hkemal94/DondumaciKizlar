@@ -443,5 +443,22 @@
   "duraklat.galeri": "Gallery",
   "haber.album": "This month's photo of your shop went into the album",
   "dil.tr": "Türkçe",
-  "dil.en": "English"
+  "dil.en": "English",
+  "seviye.baslik": "Levels",
+  "seviye.kisa": "Lv. {seviye}",
+  "seviye.ana": "Main level",
+  "seviye.dukkan": "Shop level",
+  "seviye.calisan": "Employee level",
+  "seviye.not": "Serving, PERFECT scoops and golden waffles give the employee exp; earnings and stars give the shop exp. All of it also counts toward the main level. The shop level unlocks new items and flavors.",
+  "seviye.atladi": "Level {seviye}!",
+  "seviye.yeni": "NEW!",
+  "seviye.satir": "{ad}: {seviye}",
+  "seviye.odul": "Level reward",
+  "seviye.hediye": "Gift: {ad} (in storage)",
+  "seviye.acilanlar": "Unlocked: {liste}",
+  "seviye.gerekli": "Shop level {seviye}",
+  "seviye.vitrin": "{boy}-tub display",
+  "haber.seviye": "Level {seviye}! Rewards at the end of the day",
+  "seviye.gerekliKisa": "Lv. {seviye}",
+  "seviye.dahaFazla": "{liste} and {sayi} more"
 }

@@ -1,4 +1,5 @@
 import { m, type MetinAnahtari } from '../metinler';
+import { Kilit } from './Seviye';
 import {
   duvarOr,
   duvarOrulebilir,
@@ -17,6 +18,8 @@ import {
   parcaSecenekleri,
   terasMi,
   parselAl,
+  araziKilidi,
+  kilitAcik,
   parselDurumu,
   parselFiyatiNe,
   tezgahKisaltilabilir,
@@ -100,7 +103,8 @@ export function InsaatPaneli() {
                     <button className="dugme dugme-simge" aria-label={m('insaat.parcaSaga')} disabled={!parcaEklenebilir(tur, -1, durum)} onClick={() => parcaEkle(tur, -1)}>
                       ▶
                     </button>
-                    {fiyat > 0 && (
+                    {fiyat > 0 && !kilitAcik(`parca.${tur}`, durum) && <Kilit anahtar={`parca.${tur}`} />}
+                    {fiyat > 0 && kilitAcik(`parca.${tur}`, durum) && (
                       <span className="gel-para">
                         <span className="para-simge" aria-hidden /> {fiyat}
                       </span>
@@ -198,9 +202,13 @@ export function InsaatPaneli() {
         ) : durumu === 'alinabilir' ? (
           <>
           {j >= 1 && <span className="insaat-durum">{m('insaat.mutfakIpucu')}</span>}
-          <button className="dugme gel-al" disabled={durum.para < fiyat} onClick={() => parselAl(secili)}>
-            {m('insaat.al')} <span className="para-simge" aria-hidden /> {fiyat}
-          </button>
+          {araziKilidi(durum) !== null ? (
+            <Kilit seviye={araziKilidi(durum)!} />
+          ) : (
+            <button className="dugme gel-al" disabled={durum.para < fiyat} onClick={() => parselAl(secili)}>
+              {m('insaat.al')} <span className="para-simge" aria-hidden /> {fiyat}
+            </button>
+          )}
           </>
         ) : (
           <span className="insaat-durum">{m('insaat.kilitli')}</span>

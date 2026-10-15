@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { m, type MetinAnahtari } from '../metinler';
+import { Kilit } from './Seviye';
 import {
+  yardimciKilidi,
   IYI_PAYI,
   MUKEMMEL_ALT,
   MUKEMMEL_UST,
@@ -382,9 +384,13 @@ export function YardimciEkrani({ kapat }: { kapat: () => void }) {
         {durum.yardimcilar.length >= EN_COK_YARDIMCI ? (
           <p className="gel-not">{m('yardimci.dolu')}</p>
         ) : durum.adaylar.length === 0 ? (
-          <button className="dugme" onClick={adaylariGetir}>
-            {m('yardimci.getir')}
-          </button>
+          yardimciKilidi(durum) !== null ? (
+            <Kilit seviye={yardimciKilidi(durum)!} />
+          ) : (
+            <button className="dugme" onClick={adaylariGetir}>
+              {m('yardimci.getir')}
+            </button>
+          )
         ) : (
           <div className="yardimci-liste">
             {durum.adaylar.map((a) => (

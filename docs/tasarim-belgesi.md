@@ -331,7 +331,7 @@ Sims gibi: dükkânın dışı ve içi oyuncunun zevkine göre. Geliştir'de yen
 | Tablolarda | Soyut renk desenleri, dondurma çizimleri, deniz / tekne siluetleri (Düzada'ya özel bir yer çizilmez), boş çerçeve (Kemal sonra doldurur). İleride reklam alınabilir |
 | Fiyat | Her seçenek bir kez alınır, alınanlar arasında geçiş bedava. Başlangıçtaki görünüş baştan açık. Fiyatlar geçici |
 | Satın almadan önce | Dokununca dükkân hemen öyle görünür (deneme); beğenilirse "Al", mağaza kapanınca alınmayan geri döner. Panel sağa çekilir, dükkân solda döndürülebilir |
-| Kilitler | Şimdilik yok. İleride her şey için bir deneyim (exp) sistemi: kimi para, kimi memnuniyet, servis edilen ürün / müşteri sayısı gibi ölçülerle açılır (ayrı çalışma) |
+| Kilitler | 8a'dan beri dükkân seviyesi kilitleri (0.12 exp tablosu). Eskiden: şimdilik yok. İleride her şey için bir deneyim (exp) sistemi: kimi para, kimi memnuniyet, servis edilen ürün / müşteri sayısı gibi ölçülerle açılır (ayrı çalışma) |
 | Sıra | 1) boya, çerçeve, tente, zemin → 2) çatı → 3) tabelalar → 4) halı ve tablo |
 | Önlük | Kemal: "berbat görünüyor, şimdilik kaldır." Daha iyisi yapılınca geri gelir |
 
@@ -395,10 +395,19 @@ yazılar kanon değildir.
 
 | Konu | Karar |
 |---|---|
-| Yapı | Bir ana seviye; altında ayrı seviyeler: **eşya almak için dükkânın seviyesi, yetenekler için çalışanın seviyesi** |
-| Kazanç | Servis edilen müşteri, memnuniyet / MÜKEMMEL toplar, kazanılan para, günlük hedefler |
-| Seviye atlayınca | Yeni şeyler satın alınabilir olur, küçük para ödülü, hediye eşya, yeni müşteri yüzleri / daha çok müşteri |
-| Yıldızlar | Exp ile birleşir; yıldız dükkânın yorumları gibi görünür (Kemal'in konsept çizimleri) |
+| Yapı | Bir ana seviye; altında ayrı seviyeler: **eşya almak için dükkânın seviyesi, yetenekler için çalışanın seviyesi**. **Tek exp havuzu** (15 Ekim, exp turu): her exp ana seviyeye ve türüne göre dükkân ya da çalışan seviyesine gider; ödüller ana seviyeden |
+| Kazanç | Servis edilen müşteri, memnuniyet / MÜKEMMEL toplar, kazanılan para, günlük hedefler. **El işi çalışana** (servis, MÜKEMMEL top, altın sarı waffle), **işletme dükkâna** (para, yıldız, günlük hedef) |
+| Seviye atlayınca | Yeni şeyler satın alınabilir olur, küçük para ödülü, hediye eşya, yeni müşteri yüzleri / daha çok müşteri. Gün içinde üstte kısa parlama; ödüller ve açılanlar **gün sonu kartında "YENİ!"** |
+| Dükkân seviyesi kilitleri | Eşyalar ve ışıklar, görünüş ve tabelalar, çeşitler, büyüme (vitrin, arazi kareleri, tezgah parçaları, yardımcılar). Seviye gelene kadar "Dükkân seviyesi N" görünür; gelince yine parayla alınır. Denemek (görünüş) kilitliyken de olur |
+| Eski kayıtlar | 1. seviyeden başlar; alınmış hiçbir şey kilitlenmez |
+| Yetenekler (8b) | Usta kepçe, Hızlı eller, Sohbet, Güler yüz. Çalışan her seviyede yetenek puanı kazanır, oyuncu ağaçta harcar; her yeteneğin 3 basamağı |
+| Günlük hedefler (8c) | Her sabah 3 hedef; tutunca exp ve biraz jeton, tutmazsa ceza yok |
+| Yıldızlar | Exp ile birleşir; yıldız dükkânın yorumları gibi görünür (Kemal'in konsept çizimleri). **Hem gün sonu kartında hem kayan yazıda** (8c): müşterinin yıldızı ve oyunun verisinden nedeni; cümleler Kemal'in |
+| Sıra (8c) | Saate göre dalga (öğleden sonra ve akşamüstü kalabalık) **ve** ara sıra birden gelen grup |
+| Otomatik kamera (8c) | Başta açık; Ayarlar'dan kapatılır |
+| Hız | İlk günler hızlı (ilk gün 2–3 seviye), sonra yavaşlar; 30. günde ana seviye ~15 |
+| Sayılar | Claude'un önerisi, Kemal "Başla" dedi (15 Ekim). Hepsi ayar dosyasında (`exp` ve `kilit` bölümleri), KKM → Ayarlar'dan değişir. Çalışan: servis +2, MÜKEMMEL top +1, altın waffle +1. Dükkân: her 10 jeton +1, 5 yıldız +2, 4 yıldız +1, günlük hedef +15. Ana eşik 30, her seviye +35; dükkân ve çalışan 20, +20. Ödül: seviye × 50 jeton, 5 seviyede bir hediye eşya (≤ 260 jeton), her seviye müşteri %2 sık (en çok %30). Kilit seviyesi fiyattan: ≤100 → 1, ≤200 → 2, ≤300 → 4, ≤500 → 6, ≤800 → 9, üstü 12; arazi her yeni kare için +2 seviye; ilk yardımcı 3, sonrakiler +3 |
+| Yapıldı (8a) | Exp, üç seviye, kilitler, üstte seviye rozeti (dokununca üç seviyenin çubuğu), "Seviye N!" parlaması, gün sonunda "YENİ!" (seviyeler, ödül jetonu, hediye, açılanlar). Deneme dükkânı ileri seviyede, kilitsiz |
 
 **Açılış ekranı ve galeri**
 
@@ -406,14 +415,14 @@ yazılar kanon değildir.
 |---|---|
 | Açılış | Arkada oyuncunun kendi dükkânı, gün batımında, yavaş dönen kamera. Yapıldı (5. adım): açılışta ışık gün batımı saatinde, kamera biraz geriden dükkânın çevresinde yavaşça döner; mor perde yalnız kenarlarda. Oyun başlayınca kamera oyuncunun bakışına döner |
 | Galeri | "Dükkânı gez"de çekilen fotoğraflar birikir. Yapıldı (5. adım): çekilen her fotoğraf galeriye girer; Galeri açılış ekranında (kayıt varsa) ve mola menüsünde. İki sekme: Fotoğraflarım / Albüm. Fotoğrafa dokununca büyür: Sil (bir kez daha sorar), İndir, Geri. Fotoğraflar kayıttan ayrı durur (baştan başlayınca silinmez); deneme dükkânının fotoğrafları ayrı |
-| Albüm | Dükkânın fotoğrafı **ayda bir** kendiliğinden çekilip albüme girer. Yapıldı (5. adım; **Claude'un önerisi, Kemal onaylamadı**): oyunda bir ay 30 gün; her ayın ilk günü 18.30'dan sonra genel görünümdeyken sabit bir açıdan çekilir (ekranda bir şey değişmez, haber şeridinde "albüme girdi" geçer). O akşam hep tezgahta kalınırsa ayın sonraki ilk fırsatında. Deneme dükkânında çekilmez |
+| Albüm | Dükkânın fotoğrafı **ayda bir** kendiliğinden çekilip albüme girer. Yapıldı (5. adım): oyunda **bir ay 30 gün** (Kemal onayladı, 15 Ekim); her ayın ilk günü 18.30'dan sonra genel görünümdeyken sabit bir açıdan çekilir (ekranda bir şey değişmez, haber şeridinde "albüme girdi" geçer). O akşam hep tezgahta kalınırsa ayın sonraki ilk fırsatında. Deneme dükkânında çekilmez |
 
 **Araçlar, dil, yayın**
 
 | Konu | Karar |
 |---|---|
-| Ayar paneli | Bütün fiyat, süre ve oranlar oyunda tek bir ayar dosyasına taşınır; **KKM'deki oyun sayfasında "Ayarlar" sekmesi** onları gösterir ve düzenler. Değişikliğin oyuna nasıl gideceği (KKM'ye GitHub anahtarı ya da kopyala-yapıştır) o adımda seçilir. Yapıldı (7. adım, oyun tarafı): 197 ayar 15 bölümde `src/oyun/ayarlar.json`'da; her ayarın Türkçe adı, birimi, gerekirse notu yanında. Oyun yalnız `deger`leri okur (`src/oyun/ayarlar.ts`); değerler eskisiyle birebir aynı. Puanlama (MÜKEMMEL = 5 yıldız gibi) ve ölçüler (kare 4 m) oyunun kuralı sayılıp kodda kaldı |
-| İngilizce | **Şimdi** eklenir (ileride başka diller için temel). Yapıldı (6. adım): bütün yazılar `src/metinler/en.json`'da; Ayarlar → Oyun → Dil: Türkçe / English. Seçim bu cihazda saklanır; hiç seçilmemişse telefonun dili Türkçeyse Türkçe, değilse İngilizce açılır. Ondalık sayılar dile göre (4,5 / 4.5). Dükkânın adı (logo) ve vitrindeki **DONDURMA** neonu oyun dünyasının parçası sayılıp Türkçe kaldı (**Kemal'e soruldu**) |
+| Ayar paneli | Bütün fiyat, süre ve oranlar oyunda tek bir ayar dosyasına taşınır; **KKM'deki oyun sayfasında "Ayarlar" sekmesi** onları gösterir ve düzenler. Değişikliğin oyuna nasıl gideceği (KKM'ye GitHub anahtarı ya da kopyala-yapıştır) o adımda seçilir. Yapıldı (7. adım, oyun tarafı): 197 ayar 15 bölümde `src/oyun/ayarlar.json`'da; her ayarın Türkçe adı, birimi, gerekirse notu yanında. Oyun yalnız `deger`leri okur (`src/oyun/ayarlar.ts`); değerler eskisiyle birebir aynı. Yazma yolu: **GitHub anahtarı** (Kemal, 15 Ekim; KKM → Oyun → Ayarlar → "Oyuna gönder" PR açar). Puanlama (MÜKEMMEL = 5 yıldız gibi) ve ölçüler (kare 4 m) oyunun kuralı sayılıp kodda kaldı |
+| İngilizce | **Şimdi** eklenir (ileride başka diller için temel). Yapıldı (6. adım): bütün yazılar `src/metinler/en.json`'da; Ayarlar → Oyun → Dil: Türkçe / English. Seçim bu cihazda saklanır; hiç seçilmemişse telefonun dili Türkçeyse Türkçe, değilse İngilizce açılır. Ondalık sayılar dile göre (4,5 / 4.5). Dükkânın adı (logo) ve vitrindeki **DONDURMA** neonu oyun dünyasının parçası; İngilizcede de **Türkçe kalır** (Kemal, 15 Ekim: "evet") |
 | Bulut kayıt | Yayına yakın, Google ile giriş |
 | Deneme yayını | Web |
 | Eski deneme araçları | `#deneme` (+5000) ve `#hizli` kaldırıldı; Deneme dükkânı yeter |
@@ -538,7 +547,7 @@ toparlamada kalktı (cevaplananlar bölüm 0'da; geçmişi GitHub'da).
 | Boş çerçeve resimleri | Kemal gönderecek |
 | Festival / bayram günleri, adları ve özel çeşitleri | Sonra; Kemal'in |
 | Ayar panelinin oyuna yazma yolu | ~~Açık~~ → **GitHub anahtarı** (Kemal, 15 Ekim): KKM → Oyun → Ayarlar'da "Oyuna gönder" oyunun deposunda PR açar; anahtar yalnız o tarayıcıda durur |
-| Exp sisteminin sayıları | Seviye eşikleri, ödüller, neyin hangi seviyede açılacağı: exp adımında tablo olarak sunulur |
+| Exp sisteminin sayıları | ~~Açık~~ → tablo sunuldu, Kemal "Başla" dedi (15 Ekim); bölüm 0.12 exp tablosu. KKM → Ayarlar'dan değişir |
 | Mahalle evleri | Paket adayları gösterilip Kemal seçecek |
 
 ### 7.1 Geçici sayılar

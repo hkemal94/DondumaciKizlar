@@ -35,12 +35,14 @@ import {
   tabelaAl,
   tabelaSec,
   type FiyatSeviyesi,
+  kilitAcik,
 } from '../oyun/durum';
 import { DIS_GRUPLAR, GORUNUS_GRUPLARI, GORUNUS_SECENEKLERI, TABELALAR, type GorunusGrubu, type GorunusSecenegi } from '../oyun/gorunus';
 import { dukkanKaydirma, duvarlar, ekrandaKaydir } from '../sahne/kameraKarisimi';
 import { CESITLER, FIYAT_ARALIGI, makulFiyat } from '../oyun/kuvetler';
 import { EN_YUKSEK_ISIK, ESYALAR, ISIK_SEVIYELERI, type Esya } from '../oyun/dekorasyon';
 import { m, ondalik, type MetinAnahtari } from '../metinler';
+import { Kilit } from './Seviye';
 import { logoAdresi } from '../sahne/logo';
 
 // Dükkânı geliştir (belge 2.4 ve 4; taslak 3): yeni çeşitler, fiyat,
@@ -212,7 +214,7 @@ function GrupSecimi({ grup }: { grup: GorunusGrubu }) {
             >
               <GorunusOrnegi s={x} />
               <span className="gorunus-ad">{m(`gorunus.${grup}.${x.id}` as MetinAnahtari)}</span>
-              {!acik && <Para miktar={x.fiyat} />}
+              {!acik && (kilitAcik(`gorunus.${grup}.${x.id}`, durum) ? <Para miktar={x.fiyat} /> : <Kilit anahtar={`gorunus.${grup}.${x.id}`} kisa />)}
             </button>
           );
         })}
@@ -221,9 +223,13 @@ function GrupSecimi({ grup }: { grup: GorunusGrubu }) {
         {denemede ? (
           <>
             <span className="gel-aciklama">{m('gorunus.deneniyor')}</span>
-            <button className="dugme gel-al" disabled={durum.para < s.fiyat} onClick={() => gorunusAl(grup, secili)}>
-              {m('gelistir.al')} <Para miktar={s.fiyat} />
-            </button>
+            {kilitAcik(`gorunus.${grup}.${secili}`, durum) ? (
+              <button className="dugme gel-al" disabled={durum.para < s.fiyat} onClick={() => gorunusAl(grup, secili)}>
+                {m('gelistir.al')} <Para miktar={s.fiyat} />
+              </button>
+            ) : (
+              <Kilit anahtar={`gorunus.${grup}.${secili}`} />
+            )}
           </>
         ) : (
           <span className="gel-aciklama">{m('gorunus.not')}</span>
@@ -255,8 +261,10 @@ function TabelaSecimi() {
               <span className="gorunus-ad">{m(`tabela.${t.id}` as MetinAnahtari)}</span>
               {acik ? (
                 <span className="gel-aciklama">{m(takili ? 'tabela.takili' : 'tabela.takiliDegil')}</span>
-              ) : (
+              ) : kilitAcik(`tabela.${t.id}`, durum) ? (
                 <Para miktar={t.fiyat} />
+              ) : (
+                <Kilit anahtar={`tabela.${t.id}`} kisa />
               )}
             </button>
           );
@@ -266,9 +274,13 @@ function TabelaSecimi() {
         {denenen ? (
           <>
             <span className="gel-aciklama">{m('gorunus.deneniyor')}</span>
-            <button className="dugme gel-al" disabled={durum.para < denenen.fiyat} onClick={() => tabelaAl(denenen.id)}>
-              {m('gelistir.al')} <Para miktar={denenen.fiyat} />
-            </button>
+            {kilitAcik(`tabela.${denenen.id}`, durum) ? (
+              <button className="dugme gel-al" disabled={durum.para < denenen.fiyat} onClick={() => tabelaAl(denenen.id)}>
+                {m('gelistir.al')} <Para miktar={denenen.fiyat} />
+              </button>
+            ) : (
+              <Kilit anahtar={`tabela.${denenen.id}`} />
+            )}
           </>
         ) : (
           <span className="gel-aciklama">{m('tabela.not')}</span>
@@ -352,7 +364,9 @@ export function Gelistir({ kapat, ilkSekme = 'dekorasyon' }: { kapat: () => void
                     </span>
                   )}
                 </span>
-                {sonrakiVitrin(durum) ? (
+                {sonrakiVitrin(durum) && !kilitAcik(`vitrin.${sonrakiVitrin(durum)!.boy}`, durum) ? (
+                  <Kilit anahtar={`vitrin.${sonrakiVitrin(durum)!.boy}`} />
+                ) : sonrakiVitrin(durum) ? (
                   <button className="dugme gel-al" disabled={durum.para < sonrakiVitrin(durum)!.fiyat} onClick={vitrinBuyut}>
                     {m('gelistir.al')} <Para miktar={sonrakiVitrin(durum)!.fiyat} />
                   </button>
@@ -369,6 +383,8 @@ export function Gelistir({ kapat, ilkSekme = 'dekorasyon' }: { kapat: () => void
                     <span className="gel-ad">{m(`cesit.${c.ad}` as MetinAnahtari)}</span>
                     {acik ? (
                       <span className="gel-durum">{m('gelistir.acik')}</span>
+                    ) : !kilitAcik(`cesit.${c.ad}`, durum) ? (
+                      <Kilit anahtar={`cesit.${c.ad}`} />
                     ) : !alinabilir ? (
                       // Memnuniyet eşiğine ulaşılmadı: düğme yerine şart
                       <span className="gel-durum gel-kilit">{m('cesit.yildizGerek', { yildiz: ondalik(c.yildiz ?? 0) })}</span>
@@ -428,7 +444,9 @@ export function Gelistir({ kapat, ilkSekme = 'dekorasyon' }: { kapat: () => void
                     · {durum.isikSeviyesi === 0 ? m('dekor.isikYok') : m(`dekor.isik.${durum.isikSeviyesi}` as MetinAnahtari)}
                   </span>
                 </span>
-                {durum.isikSeviyesi < EN_YUKSEK_ISIK ? (
+                {durum.isikSeviyesi < EN_YUKSEK_ISIK && !kilitAcik(`isik.${durum.isikSeviyesi + 1}`, durum) ? (
+                  <Kilit anahtar={`isik.${durum.isikSeviyesi + 1}`} />
+                ) : durum.isikSeviyesi < EN_YUKSEK_ISIK ? (
                   <button className="dugme gel-al" disabled={durum.para < ISIK_SEVIYELERI[durum.isikSeviyesi].fiyat} onClick={isikAl}>
                     {m(`dekor.isik.${durum.isikSeviyesi + 1}` as MetinAnahtari)} <Para miktar={ISIK_SEVIYELERI[durum.isikSeviyesi].fiyat} />
                   </button>
@@ -446,8 +464,8 @@ export function Gelistir({ kapat, ilkSekme = 'dekorasyon' }: { kapat: () => void
                     {ESYALAR.filter((e) => e.grup === grup).map((e) => (
                       <button
                         key={e.id}
-                        className="esya-kart"
-                        disabled={durum.para < e.fiyat}
+                        className={`esya-kart ${kilitAcik(`esya.${e.id}`, durum) ? '' : 'kilitli'}`}
+                        disabled={durum.para < e.fiyat || !kilitAcik(`esya.${e.id}`, durum)}
                         onClick={() => {
                           esyaAl(e.id);
                           setAlinan(e.id);
@@ -456,7 +474,7 @@ export function Gelistir({ kapat, ilkSekme = 'dekorasyon' }: { kapat: () => void
                         <img src={esyaResmi(e.id)} alt="" aria-hidden />
                         <span className="esya-kart-ad">{m(`esya.${e.id}` as MetinAnahtari)}</span>
                         <span className="esya-kart-alt">
-                          <Para miktar={e.fiyat} />
+                          {kilitAcik(`esya.${e.id}`, durum) ? <Para miktar={e.fiyat} /> : <Kilit anahtar={`esya.${e.id}`} kisa />}
                           {depodaki(e.id, durum) > 0 && <span className="esya-sayi">{depodaki(e.id, durum)}</span>}
                         </span>
                       </button>
