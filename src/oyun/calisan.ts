@@ -1,3 +1,4 @@
+import { AYAR, fiyatiAyarla } from './ayarlar';
 // Tezgahın arkasındaki çalışan (Kemal, 13 Ekim): oyuncu kişiselleştirir.
 // Ten, saç, önlük ve ad ücretsiz; desenli önlükler ve aksesuarlar parayla.
 // Fiyatlar geçici. Çalışana hikâye / geçmiş yazılmaz (Kemal'in).
@@ -20,21 +21,21 @@ export interface Onluk {
 // Daha iyisi yapılınca açılır (yol haritası, sona kalanlar); seçenekler ve kayıt duruyor.
 export const ONLUK_ACIK = true; // 15 Ekim: bedene oturan önlükle geri geldi (belge 0.12)
 
-export const ONLUKLER: Onluk[] = [
+export const ONLUKLER: Onluk[] = fiyatiAyarla([
   { id: 'mor', renk: '#7a3fa8', desen: 'duz', fiyat: 0 },
   { id: 'sari', renk: '#ffc928', desen: 'duz', fiyat: 0 },
   { id: 'krem', renk: '#f6ecd6', desen: 'duz', fiyat: 0 },
   { id: 'cizgili', renk: '#7a3fa8', ikinciRenk: '#ffc928', desen: 'cizgili', fiyat: 150 },
   { id: 'puantiye', renk: '#ff8fb1', ikinciRenk: '#fffaf2', desen: 'puantiye', fiyat: 200 },
-];
+], (o) => (AYAR.calisan as Record<string, number>)[`onluk.${o.id}`]);
 
 export type Aksesuar = 'bandana' | 'kasket' | 'gozluk' | 'kupe';
-export const AKSESUARLAR: { id: Aksesuar; fiyat: number; bas?: true }[] = [
+export const AKSESUARLAR: { id: Aksesuar; fiyat: number; bas?: true }[] = fiyatiAyarla([
   { id: 'kupe', fiyat: 100 },
   { id: 'bandana', fiyat: 120, bas: true },
   { id: 'gozluk', fiyat: 160 },
   { id: 'kasket', fiyat: 180, bas: true },
-];
+], (o) => (AYAR.calisan as Record<string, number>)[`aksesuar.${o.id}`]);
 
 // Beden (belge 0.9): oyuncu seçer, başta kadın
 export type Beden = 'kadin' | 'erkek';

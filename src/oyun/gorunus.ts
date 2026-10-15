@@ -1,3 +1,4 @@
+import { AYAR, fiyatiAyarla } from './ayarlar';
 // Dükkânın görünüşü (C paketi, belge 0.11; Kemal, 14 Ekim gece): dış boya,
 // iç duvar, pencere / kapı çerçevesi, tente, iç zemin ve çatı. Her seçenek bir kez
 // alınır, alınanlar arasında geçiş bedava. Başlangıçtaki görünüş her grupta
@@ -19,7 +20,7 @@ export interface GorunusSecenegi {
 }
 
 // Renkler paletin tonlarından (belge 0.7): krem, mor, sarı, Ege mavisi, sıva pembesi…
-export const GORUNUS_SECENEKLERI: Record<GorunusGrubu, GorunusSecenegi[]> = {
+const KOD_SECENEKLERI: Record<GorunusGrubu, GorunusSecenegi[]> = {
   disBoya: [
     { id: 'krem', renk: '#e9d6bd', fiyat: 0 },
     { id: 'beyaz', renk: '#f7f3ea', fiyat: 150 },
@@ -77,6 +78,10 @@ export const GORUNUS_SECENEKLERI: Record<GorunusGrubu, GorunusSecenegi[]> = {
     { id: 'pergola', renk: '#a87650', ikinciRenk: '#c99a6b', fiyat: 900 },
   ],
 };
+// Fiyatlar ayar dosyasından (7. adım)
+export const GORUNUS_SECENEKLERI = Object.fromEntries(
+  Object.entries(KOD_SECENEKLERI).map(([grup, l]) => [grup, fiyatiAyarla(l, (o) => (AYAR.gorunus as Record<string, number>)[`${grup}.${o.id}`])]),
+) as Record<GorunusGrubu, GorunusSecenegi[]>;
 
 export type Gorunus = Record<GorunusGrubu, string>;
 
@@ -113,12 +118,12 @@ export function gorunusuOku(ham: unknown, acik: string[]): Gorunus {
 // ---- Tabelalar (C3): birden çok takılabilir; her biri bir kez alınır, sonra takılıp çıkarılır.
 // Hepsinde dükkânın adı; ışıklılar akşam kendiliğinden yanar ----
 export type Tabela = 'cati' | 'direk' | 'neon' | 'kemer';
-export const TABELALAR: { id: Tabela; renk: string; ikinciRenk: string; fiyat: number }[] = [
+export const TABELALAR: { id: Tabela; renk: string; ikinciRenk: string; fiyat: number }[] = fiyatiAyarla([
   { id: 'cati', renk: '#7a3fa8', ikinciRenk: '#ffc928', fiyat: 700 },
   { id: 'direk', renk: '#3a3340', ikinciRenk: '#ffc928', fiyat: 400 },
   { id: 'neon', renk: '#ff7ad9', ikinciRenk: '#7af0ff', fiyat: 500 },
   { id: 'kemer', renk: '#a87650', ikinciRenk: '#ffd98a', fiyat: 900 },
-];
+], (t) => (AYAR.tabela as Record<string, number>)[t.id]);
 export const tabelaAnahtari = (id: Tabela) => `tabela:${id}`;
 
 export function tabelalariOku(ham: unknown, acik: string[]): Tabela[] {

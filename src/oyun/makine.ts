@@ -1,3 +1,4 @@
+import { AYAR } from './ayarlar';
 // Makineler, tezgah parçaları, istasyonlar ve yardımcılar (belge 0.5;
 // Kemal, 14 Ekim gece). Fiyatlar ve süreler geçici.
 
@@ -16,10 +17,10 @@ export const ISTASYONLAR: Istasyon[] = ['dondurma', 'waffle', 'icecek'];
 export type ParcaTipi = 'waffle' | 'icecek' | 'servis' | 'kose';
 export const PARCA_TIPLERI: ParcaTipi[] = ['waffle', 'icecek', 'servis', 'kose'];
 export const PARCA_BILGI: Record<ParcaTipi, { en: number; fiyat: number }> = {
-  waffle: { en: 2, fiyat: 600 },
-  icecek: { en: 2, fiyat: 400 },
-  servis: { en: 2, fiyat: 300 },
-  kose: { en: 1, fiyat: 100 },
+  waffle: { en: 2, fiyat: AYAR.makine.parcaWaffle },
+  icecek: { en: 2, fiyat: AYAR.makine.parcaIcecek },
+  servis: { en: 2, fiyat: AYAR.makine.parcaServis },
+  kose: { en: 1, fiyat: AYAR.makine.parcaKose },
 };
 // Eski kayıtlar: limonata sebili → içecek standı; ikinci vitrinin parası geri verilir
 export const IKINCI_VITRIN_IADESI = 500;
@@ -73,8 +74,8 @@ export const WAFFLE_GRUPLARI: { grup: 'cikolata' | 'meyve' | 'susleme'; suslemel
   { grup: 'susleme', suslemeler: ['findik', 'renkliSeker', 'hindistanCevizi', 'pudra'] },
 ];
 export const WAFFLE_SUSLEMELERI: WaffleSusleme[] = WAFFLE_GRUPLARI.flatMap((g) => g.suslemeler);
-export const WAFFLE_FIYATI = 6;
-export const MAKINE_SUSLEME_FIYATI = 1;
+export const WAFFLE_FIYATI = AYAR.makine.waffleFiyati;
+export const MAKINE_SUSLEME_FIYATI = AYAR.makine.makineSusleme;
 
 // İçecek standı (belge 0.6): şimdilik kutu / şişe içecekler (geçici liste)
 export type Icecek = 'gazoz' | 'kola' | 'soda' | 'visne' | 'seftali';
@@ -86,14 +87,14 @@ export const ICECEK_RENGI: Record<Icecek, string> = {
   visne: '#b0243f',
   seftali: '#f6a65a',
 };
-export const ICECEK_FIYATI = 2; // tanesi
-export const EN_COK_ICECEK = 3;
-export const MAKINE_MUKEMMEL_EKI = 2;
+export const ICECEK_FIYATI = AYAR.makine.icecekFiyati; // tanesi
+export const EN_COK_ICECEK = AYAR.makine.enCokIcecek;
+export const MAKINE_MUKEMMEL_EKI = AYAR.makine.makineMukemmelEki;
 
 // Waffle pişmesi: renk çubuğu bu sürede dolar; altın sarı aralığında açılmalı
-export const PISME_SURESI = 5000; // ms
-export const ALTIN_ALT = 0.6;
-export const ALTIN_UST = 0.84;
+export const PISME_SURESI = AYAR.makine.pismeSuresi; // ms
+export const ALTIN_ALT = AYAR.makine.altinAlt;
+export const ALTIN_UST = AYAR.makine.altinUst;
 export type Pisme = 'soluk' | 'altin' | 'yanik';
 export function pismeBul(oran: number): Pisme {
   return oran < ALTIN_ALT ? 'soluk' : oran <= ALTIN_UST ? 'altin' : 'yanik';
@@ -106,9 +107,9 @@ export interface MakineSiparisi {
 }
 
 // ---- Yardımcılar ----
-export const YARDIMCI_FIYATI = 300;
-export const YEVMIYE = 40;
-export const EN_COK_YARDIMCI = 3;
+export const YARDIMCI_FIYATI = AYAR.yardimci.fiyat;
+export const YEVMIYE = AYAR.yardimci.yevmiye;
+export const EN_COK_YARDIMCI = AYAR.yardimci.enCok;
 export interface Yardimci {
   id: number;
   ad: string;
@@ -137,5 +138,5 @@ export function adayUret(id: number): Yardimci {
 }
 
 // ---- Mutfak ----
-export const MUTFAK_FIYATI = 100; // kare başına (geçici)
-export const MUTFAK_GERI_FIYATI = 50;
+export const MUTFAK_FIYATI = AYAR.insaat.mutfak; // kare başına
+export const MUTFAK_GERI_FIYATI = AYAR.insaat.mutfakGeri;

@@ -1,3 +1,5 @@
+import { AYAR } from './ayarlar';
+
 // Dondurma çeşitleri ve vitrindeki küvetler.
 // İlk dört çeşit: Çilek, Çikolata, Fıstık, Kaymak (Kemal, 13 Ekim).
 // 29 çeşitlik liste (Kemal, 14 Ekim: "liste tamam, mango ve yaban mersini
@@ -41,7 +43,7 @@ export interface Cesit {
   yildiz?: number; // satın alınabilmesi için gereken memnuniyet ortalaması
 }
 
-export const CESITLER: Cesit[] = [
+const KOD_CESITLERI: Cesit[] = [
   { renk: '#ff6f7d', ad: 'cilek', fiyat: 0 },
   { renk: '#8a4b2e', ad: 'cikolata', fiyat: 0 },
   { renk: '#5fd08a', ad: 'fistik', fiyat: 0 },
@@ -74,27 +76,34 @@ export const CESITLER: Cesit[] = [
   { renk: '#f7a1c4', ad: 'gul', fiyat: 600, yildiz: 4.75 },
   { renk: '#7a4a2a', ad: 'kestane', fiyat: 600, yildiz: 4.75 },
 ];
+// Açma fiyatı ve gereken yıldız ayar dosyasından (7. adım)
+export const CESITLER: Cesit[] = KOD_CESITLERI.map((c) => {
+  const fiyat = (AYAR.cesitAcma as Record<string, number>)[c.ad] ?? c.fiyat;
+  const yildiz = (AYAR.cesitYildiz as Record<string, number>)[c.ad] ?? c.yildiz;
+  return yildiz === undefined ? { ...c, fiyat } : { ...c, fiyat, yildiz };
+});
 
 // Çeşit başına fiyat (Kemal, 14 Ekim): oyuncu her çeşidin top fiyatını ayrı
 // ya da hepsini birden ayarlar. "Makul" fiyattan pahalıya çıkan çeşit daha
 // seyrek istenir; çok pahalıysa müşteri biraz daha az memnun olur. Özel
 // çeşitlerin makul fiyatı yüksek. Sayılar geçici.
-export const FIYAT_ARALIGI: [number, number] = [5, 25];
+export const FIYAT_ARALIGI: [number, number] = [AYAR.cesitFiyati.enAz, AYAR.cesitFiyati.enCok];
 export function makulFiyat(cesit: number) {
   const y = CESITLER[cesit]?.yildiz;
-  return y === undefined ? 10 : y >= 4.75 ? 16 : y >= 4.5 ? 14 : 12;
+  const f = AYAR.cesitFiyati;
+  return y === undefined ? f.makulNormal : y >= 4.75 ? f.makul475 : y >= 4.5 ? f.makul45 : f.makul4;
 }
 
 export const BASLANGIC_CESITLERI = CESITLER.map((c, i) => (c.fiyat === 0 ? i : -1)).filter((i) => i >= 0);
 
 // Vitrin (Kemal, 14 Ekim): 4 küvetle başlar, parayla 12'ye büyür.
 // 6'dan fazlası iki sıra olur (arka sıra ve öndeki sıra).
-export const ILK_VITRIN = 4;
+export const ILK_VITRIN = AYAR.vitrin.ilkVitrin;
 export const VITRIN_BUYUTMELERI = [
-  { boy: 6, fiyat: 300 },
-  { boy: 8, fiyat: 600 },
-  { boy: 10, fiyat: 1000 },
-  { boy: 12, fiyat: 1500 },
+  { boy: 6, fiyat: AYAR.vitrin.buyut6 },
+  { boy: 8, fiyat: AYAR.vitrin.buyut8 },
+  { boy: 10, fiyat: AYAR.vitrin.buyut10 },
+  { boy: 12, fiyat: AYAR.vitrin.buyut12 },
 ];
 export const EN_BUYUK_VITRIN = 12;
 // İkinci vitrin (0.5) kaldırıldı (0.6): o zaman alınmış 14–20 küvet büyütmelerinin parası geri verilir

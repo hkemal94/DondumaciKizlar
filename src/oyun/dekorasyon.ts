@@ -1,3 +1,4 @@
+import { AYAR, fiyatiAyarla } from './ayarlar';
 // Dekorasyon (belge bölüm 4; Kemal, 13 Ekim): genel olanlar (ışıklandırma,
 // seviyeli) ve taşınabilir eşyalar (alınır, depoya gider, kareli zemine
 // elle yerleştirilir). Fiyatlar ve etkiler geçici.
@@ -27,7 +28,8 @@ export type Esya =
 // grup: mağazadaki başlık. disari: yalnız dükkânın dışına konur (14 Ekim:
 // "özellikle dükkân dışı için tabela benzeri ürünler").
 // iceri: yalnız dükkânın içine konur (halı, tablo; C4)
-export const ESYALAR: { id: Esya; fiyat: number; grup: 'oturma' | 'dis' | 'ic'; disari?: boolean; iceri?: boolean }[] = [
+// Fiyatlar ayar dosyasından (7. adım)
+export const ESYALAR: { id: Esya; fiyat: number; grup: 'oturma' | 'dis' | 'ic'; disari?: boolean; iceri?: boolean }[] = fiyatiAyarla([
   { id: 'saksi', fiyat: 60, grup: 'oturma' },
   { id: 'masa', fiyat: 200, grup: 'oturma' },
   { id: 'semsiyeliMasa', fiyat: 320, grup: 'oturma', disari: true },
@@ -47,7 +49,7 @@ export const ESYALAR: { id: Esya; fiyat: number; grup: 'oturma' | 'dis' | 'ic'; 
   { id: 'tabloDondurma', fiyat: 150, grup: 'ic', iceri: true },
   { id: 'tabloDeniz', fiyat: 180, grup: 'ic', iceri: true },
   { id: 'tabloBos', fiyat: 60, grup: 'ic', iceri: true },
-];
+], (e) => (AYAR.esya as Record<string, number>)[e.id]);
 
 // Katman (C4): halı yere serilir, üstüne eşya konabilir; tablo duvara asılır,
 // yerde yer kaplamaz. Aynı katmandakiler üst üste gelemez.
@@ -61,9 +63,9 @@ export function esyaKatmani(e: Esya): Katman {
 // Işıklandırma seviyeleri: 1 fenerler, 2 asma ampuller, 3 ışıklı şerit.
 // Her seviye bir öncekinin üstüne eklenir.
 export const ISIK_SEVIYELERI = [
-  { seviye: 1, fiyat: 120 },
-  { seviye: 2, fiyat: 300 },
-  { seviye: 3, fiyat: 600 },
+  { seviye: 1, fiyat: AYAR.isik.seviye1 },
+  { seviye: 2, fiyat: AYAR.isik.seviye2 },
+  { seviye: 3, fiyat: AYAR.isik.seviye3 },
 ];
 export const EN_YUKSEK_ISIK = ISIK_SEVIYELERI.length;
 
@@ -105,9 +107,10 @@ export function parselGecerli(i: number, j: number) {
 // Fiyat: ön teras pahalı, arka ucuz; iskele tarafı (x < 0) biraz daha
 // pahalı; her alımda artar. Sayılar geçici (belge: "bugünkü gibi").
 export function parselFiyati(i: number, j: number, alinanSayisi: number) {
-  const taban = j === -1 ? 250 : j === 0 ? 200 : 150;
-  const iskele = i < 0 ? 1.15 : 1;
-  return Math.round((taban * iskele * (1 + 0.2 * alinanSayisi)) / 10) * 10;
+  const a = AYAR.insaat;
+  const taban = j === -1 ? a.parselOn : j === 0 ? a.parselDukkan : a.parselArka;
+  const iskele = i < 0 ? a.iskeleCarpani : 1;
+  return Math.round((taban * iskele * (1 + a.parselArtisi * alinanSayisi)) / 10) * 10;
 }
 
 // ---- Birimler (1×1 m eşya yerleri) ----
@@ -179,7 +182,7 @@ export function esyaOrtasi(esya: Esya, c: number, r: number, yon: number) {
 export const TEZGAH_DERINLIGI = 3;
 export const TEZGAH_EN_KISA = 4;
 export const TEZGAH_EN_UZUN = 16;
-export const TEZGAH_METRE_FIYATI = 80; // geçici
+export const TEZGAH_METRE_FIYATI = AYAR.insaat.tezgahMetre;
 export interface TezgahYeri {
   c: number;
   r: number;
@@ -265,10 +268,10 @@ export function kenarAnahtari(k: Kenar) {
   return `${k.c},${k.r},${k.y}`;
 }
 
-export const DUVAR_FIYATI = 150; // kare başına (geçici)
-export const YIKIM_FIYATI = 50;
-export const PENCERE_FIYATI = 40; // 1 m
-export const KAPI_FIYATI = 250; // ikinci kapıdan başlayarak
+export const DUVAR_FIYATI = AYAR.insaat.duvar; // kare başına
+export const YIKIM_FIYATI = AYAR.insaat.yikim;
+export const PENCERE_FIYATI = AYAR.insaat.pencere; // 1 m
+export const KAPI_FIYATI = AYAR.insaat.kapi; // ikinci kapıdan başlayarak
 
 // Başta: kapı ön duvarın sol ucunda, yan duvarların ortasında 2 m pencere
 export const BASLANGIC_PARCALARI: Record<string, ParcaTuru> = {

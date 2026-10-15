@@ -110,9 +110,10 @@ import {
   type CalisanGorunumu,
 } from './calisan';
 import { DENEME_KAYDI } from './denemeDukkani';
+import { AYAR } from './ayarlar';
 // Geliştirme jetonu (belge 0.8): oyun yayınlanana kadar her açılışta para
 // en az bu kadar olur. Yayından önce 0 yapılır.
-export const GELISTIRME_JETONU = 10000;
+export const GELISTIRME_JETONU = AYAR.para.gelistirmeJetonu;
 
 // Oyunun durumu: kepçe mini oyunu (belge bölüm 3: altlık → kepçe →
 // yerleştir → servis) ve müşteri sırası (iş sırası 3).
@@ -120,8 +121,8 @@ export const GELISTIRME_JETONU = 10000;
 
 export type Altlik = 'kulah' | 'kap' | 'kup';
 // Kup parayla açılır (belge 3: "külah, kap ya da kup"; belge 4: tarif ağacı)
-export const KUP_FIYATI = 200;
-export const KUP_EKI = 5; // kuplu siparişe ek para
+export const KUP_FIYATI = AYAR.para.kupFiyati;
+export const KUP_EKI = AYAR.para.kupEki; // kuplu siparişe ek para
 export type Asama = 'altlikSec' | 'kepceBos' | 'dolduruyor' | 'servis';
 export type Sonuc = 'mukemmel' | 'iyi' | 'kucuk' | 'buyuk';
 
@@ -134,7 +135,7 @@ export interface Top {
 // Süsleme ve sos (belge bölüm 3, adım 4). Adlar yalnız yiyeceğin adı.
 export type Susleme = 'sos' | 'seker' | 'findik';
 export const SUSLEMELER: Susleme[] = ['sos', 'seker', 'findik'];
-export const SUSLEME_FIYATI = 3;
+export const SUSLEME_FIYATI = AYAR.para.suslemeFiyati;
 
 export interface Siparis {
   altlik: Altlik;
@@ -150,7 +151,7 @@ export interface Urun {
   susleme: Susleme[];
 }
 
-export const TEPSI_FIYATI = 400;
+export const TEPSI_FIYATI = AYAR.para.tepsiFiyati;
 
 export interface Musteri {
   id: number;
@@ -319,11 +320,11 @@ function bosOzet(): GunlukOzet {
 }
 
 // Gösterge ayarları
-export const MUKEMMEL_ALT = 0.62;
-export const MUKEMMEL_UST = 0.8;
-export const IYI_PAYI = 0.14;
-export const DOLUM_SURESI = 1000; // boştan tama, ms (Kemal: 1500 yavaştı)
-export const EN_COK_TOP = 3;
+export const MUKEMMEL_ALT = AYAR.kepce.mukemmelAlt;
+export const MUKEMMEL_UST = AYAR.kepce.mukemmelUst;
+export const IYI_PAYI = AYAR.kepce.iyiPayi;
+export const DOLUM_SURESI = AYAR.kepce.dolumSuresi; // boştan tama, ms (Kemal: 1500 yavaştı)
+export const EN_COK_TOP = AYAR.kepce.enCokTop;
 
 let durum: Durum = {
   asama: 'altlikSec',
@@ -511,17 +512,17 @@ export function geriAl() {
 
 // ---- Müşteri sırası (iş sırası 3) ----
 // Sayılar geçici: fiyat, gelme aralığı ve sıra uzunluğu denemeyle ayarlanacak.
-export const EN_COK_SIRA = 4;
-export const SERVIS_SIRASI = 3; // ikinci servis noktasının sırası
+export const EN_COK_SIRA = AYAR.gun.enCokSira;
+export const SERVIS_SIRASI = AYAR.gun.servisSirasi; // ikinci servis noktasının sırası
 // Kapalı alan büyüdükçe sıra uzar: başlangıçtaki iki kareden sonra her kare bir kişi (belge 0.2)
 export function enCokSira(d: Durum = durum) {
   return EN_COK_SIRA + Math.max(0, d.kapaliParseller.length - DUKKAN_PARSELLERI.length);
 }
-export const GELIS_ARALIGI: [number, number] = [5000, 9000]; // ms
-export const MUKEMMEL_EKI = 5;
-const BAHSIS_SERISI = 3; // kaçıncı arka arkaya mükemmel serviste bahşiş başlar
-const BAHSIS_EN_COK = 10;
-export const IYI_EKI = 2;
+export const GELIS_ARALIGI: [number, number] = [AYAR.gun.gelisEnAz, AYAR.gun.gelisEnCok]; // ms
+export const MUKEMMEL_EKI = AYAR.para.mukemmelEki;
+const BAHSIS_SERISI = AYAR.para.bahsisSerisi; // kaçıncı arka arkaya mükemmel serviste bahşiş başlar
+const BAHSIS_EN_COK = AYAR.para.bahsisEnCok;
+export const IYI_EKI = AYAR.para.iyiEki;
 export const MUSTERI_GORUNUM_SAYISI = 4;
 
 let sonId = 0;
@@ -843,12 +844,15 @@ export function haftaSonuMu(d: Durum = durum) {
 
 // O günün açılış ve kapanışı (gece yarısından sonrası 24+ olarak)
 export function calismaSaatleri(d: Durum = durum) {
-  return haftaSonuMu(d) ? { acilis: 10 * 60, kapanis: 26 * 60 } : { acilis: 11 * 60, kapanis: 24 * 60 };
+  const g = AYAR.gun;
+  return haftaSonuMu(d)
+    ? { acilis: g.haftaSonuAcilis * 60, kapanis: g.haftaSonuKapanis * 60 }
+    : { acilis: g.haftaIciAcilis * 60, kapanis: g.haftaIciKapanis * 60 };
 }
 
 // Bir adımın (5 oyun dakikası) gerçek süresi: hafta içi 156 adım × 0,77 sn ≈ 2 dk,
 // hafta sonu 192 adım ≈ 2,5 dk
-const ADIM_MS = 770;
+const ADIM_MS = AYAR.gun.adimMs;
 
 function gunUzunlugu(d: Durum = durum) {
   const { acilis, kapanis } = calismaSaatleri(d);
@@ -976,7 +980,7 @@ export function musteriTezgahaVardi(id: number) {
 // ---- Sabır (Kemal, 13 Ekim) ----
 // Hiç işlem yapılmadan oyun saatiyle bir saat geçerse öndeki müşteri
 // sıkılıp gider ve memnuniyete sıfır yıldız verir. Para kaybı yok.
-export const SABIR_DAKIKA = 80; // Kemal, 13 Ekim: gerçekte ~12 sn kalsın (saat hızlanınca 60'tan 80'e)
+export const SABIR_DAKIKA = AYAR.gun.sabirDakika; // Kemal, 13 Ekim: gerçekte ~12 sn kalsın (saat hızlanınca 60'tan 80'e)
 
 export function sabirOrani(d: Durum = durum) {
   if (d.sabirMusteri === null || ondekiMusteri(d)?.id !== d.sabirMusteri) return null;
@@ -1003,14 +1007,14 @@ function sabirKontrol() {
 // ---- İlerleme (belge 2.4 ve 4) ----
 // Hepsi geçici sayılar; Kemal'in onayını bekliyor (belge 7.4).
 export const FIYAT_ETKISI: Record<FiyatSeviyesi, { fiyat: number; gelis: number; memnuniyet: number }> = {
-  ucuz: { fiyat: 0.8, gelis: 0.8, memnuniyet: 0 },
-  normal: { fiyat: 1, gelis: 1, memnuniyet: 0 },
-  pahali: { fiyat: 1.3, gelis: 1.3, memnuniyet: 0.5 },
+  ucuz: { fiyat: AYAR.cekicilik.ucuzFiyat, gelis: AYAR.cekicilik.ucuzGelis, memnuniyet: AYAR.cekicilik.ucuzMemnuniyet },
+  normal: { fiyat: AYAR.cekicilik.normalFiyat, gelis: AYAR.cekicilik.normalGelis, memnuniyet: AYAR.cekicilik.normalMemnuniyet },
+  pahali: { fiyat: AYAR.cekicilik.pahaliFiyat, gelis: AYAR.cekicilik.pahaliGelis, memnuniyet: AYAR.cekicilik.pahaliMemnuniyet },
 };
 
 // Her yerleştirilmiş eşya ve her ışık seviyesi müşteri aralığını kısaltır (en çok %50)
-const ESYA_ETKISI = 0.04;
-const ISIK_ETKISI = 0.06;
+const ESYA_ETKISI = AYAR.cekicilik.esyaEtkisi;
+const ISIK_ETKISI = AYAR.cekicilik.isikEtkisi;
 
 // Oyuncunun koyduğu fiyat (genel seviyeden önce) ve müşterinin ödediği
 export function cesitFiyati(cesit: number, d: Durum = durum) {
@@ -1053,11 +1057,11 @@ export function fiyatlariKaydet() {
 }
 
 // Hafta sonu daha kalabalık (Kemal, 13 Ekim): müşteriler daha sık gelir
-const HAFTA_SONU_CARPANI = 0.65;
+const HAFTA_SONU_CARPANI = AYAR.gun.haftaSonuCarpani;
 
 function gelisCarpani() {
   const haftaSonu = haftaSonuMu() ? HAFTA_SONU_CARPANI : 1;
-  const cekicilik = Math.min(0.5, ESYA_ETKISI * durum.yerlesim.length + ISIK_ETKISI * durum.isikSeviyesi);
+  const cekicilik = Math.min(AYAR.cekicilik.cekicilikEnCok, ESYA_ETKISI * durum.yerlesim.length + ISIK_ETKISI * durum.isikSeviyesi);
   return FIYAT_ETKISI[durum.fiyatSeviyesi].gelis * (1 - cekicilik) * haftaSonu;
 }
 
@@ -1624,7 +1628,10 @@ const PISME_PUANI: Record<Pisme, number> = { altin: 5, soluk: 3, yanik: 2 };
 
 // Waffle ve içeceğin fiyatı: oyuncunun koyduğu × genel fiyat seviyesi
 export type MakineUrunu = 'waffle' | 'icecek';
-export const MAKINE_FIYAT_ARALIGI: Record<MakineUrunu, [number, number]> = { waffle: [3, 14], icecek: [1, 6] };
+export const MAKINE_FIYAT_ARALIGI: Record<MakineUrunu, [number, number]> = {
+  waffle: [AYAR.makine.waffleEnAz, AYAR.makine.waffleEnCok],
+  icecek: [AYAR.makine.icecekEnAz, AYAR.makine.icecekEnCok],
+};
 function makineFiyatiGecerli(u: MakineUrunu, f: unknown) {
   const [en, enCok] = MAKINE_FIYAT_ARALIGI[u];
   return typeof f === 'number' && Number.isInteger(f) && f >= en && f <= enCok ? f : null;
@@ -2259,8 +2266,8 @@ export function kayitYuvasi() {
 // Oyunda bir ay 30 gün. Her ayın ilk günü akşamüstü (18.30'dan sonra) genel
 // görünüme dönülünce dükkânın fotoğrafı kendiliğinden çekilir; o akşam
 // kaçarsa ayın sonraki ilk fırsatında. Deneme dükkânında çekilmez.
-export const AY_GUNU = 30;
-export const ALBUM_SAATI = 18.5;
+export const AY_GUNU = AYAR.gun.albumAyGunu;
+export const ALBUM_SAATI = AYAR.gun.albumSaati;
 export function albumAyi(d: Durum = durum) {
   return Math.floor((d.gun - 1) / AY_GUNU);
 }
