@@ -11,7 +11,7 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | | |
 |---|---|
 | Aşama | Oynanabilir sürüm, büyüme, karakterler, liman ve kişiselleştirme bitti. Sırada görsel kalite |
-| Son biten | Hava durumu + eşya konforu (bu PR) |
+| Son biten | Gece işleri: hava, eşya konforu, gedikli müşteriler, duvar deseni, eşya renkleri (bu PR) |
 | Şu an | Hataların denetimi; sıradaki soruları Kemal'e tek tek sor (belge 0.13.2 son satır) |
 | Sıradaki | Bulut kayıt: Kemal Firebase projesini kurar (`docs/bulut-kurulum.md`), dört değeri gönderir, Claude açar |
 | Yayın | Deneme sürümü webde; tarih yok, acele yok |
@@ -28,9 +28,9 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | 5 | Açılış ve galeri | Arkada kendi dükkânın gün batımında, galeri, ayda bir otomatik dükkân fotoğrafı | Bitti ([#39](https://github.com/hkemal94/DondumaciKizlar/pull/39)) |
 | 6 | İngilizce | Bütün yazılar İngilizce; Ayarlar'da dil seçimi | Bitti ([#40](https://github.com/hkemal94/DondumaciKizlar/pull/40)) |
 | 7 | Ayar paneli | Bütün sayılar oyunda tek ayar dosyasında; KKM'de "Ayarlar" sekmesi (KKM deposunda ayrı PR) | Bitti ([#41](https://github.com/hkemal94/DondumaciKizlar/pull/41), KKM [#94](https://github.com/hkemal94/Kems-Company/pull/94)). Yazma yolu: GitHub anahtarı (Kemal, 15 Ekim) |
-| 8 | Exp sistemi | Ana seviye + dükkân ve çalışan seviyeleri; günlük hedefler; yıldızlar yorum gibi; sıra bazen uzun bazen boş; otomatik kamera ayarı; eşyalara konfor ve çekicilik | Soru turu bitti (15 Ekim). 8a exp + seviyeler + kilitler: bitti ([#42](https://github.com/hkemal94/DondumaciKizlar/pull/42)). 8b yetenekler: bitti ([#43](https://github.com/hkemal94/DondumaciKizlar/pull/43)). 8c günlük hedefler, yorumlar, sıra, otomatik kamera: bitti ([#44](https://github.com/hkemal94/DondumaciKizlar/pull/44)). Eşya konfor / çekicilik: bitti (bu PR); renk ve yıpranma sonra |
+| 8 | Exp sistemi | Ana seviye + dükkân ve çalışan seviyeleri; günlük hedefler; yıldızlar yorum gibi; sıra bazen uzun bazen boş; otomatik kamera ayarı; eşyalara konfor ve çekicilik | Soru turu bitti (15 Ekim). 8a exp + seviyeler + kilitler: bitti ([#42](https://github.com/hkemal94/DondumaciKizlar/pull/42)). 8b yetenekler: bitti ([#43](https://github.com/hkemal94/DondumaciKizlar/pull/43)). 8c günlük hedefler, yorumlar, sıra, otomatik kamera: bitti ([#44](https://github.com/hkemal94/DondumaciKizlar/pull/44)). Eşya konfor / çekicilik ve renk: bitti (bu PR); yıpranma sonra |
 | 9 | İçecekler ve stok | Soru turu bitti (15 Ekim akşam, belge 0.13). 9a ince arayüz, sağda açılan menüler, yol çizgileri ve lambalar: bitti ([#46](https://github.com/hkemal94/DondumaciKizlar/pull/46)). 9b vitrin ve bar model adayları: bitti ([#47](https://github.com/hkemal94/DondumaciKizlar/pull/47)), Kemal seçti. 9c gerçekçi vitrin + hafif stok: bitti ([#49](https://github.com/hkemal94/DondumaciKizlar/pull/49)). 9d içecekler (tek istasyon, 15 içecek, basılı tutarak hazırlama, seviye + parayla açma): bitti ([#57](https://github.com/hkemal94/DondumaciKizlar/pull/57)) | Bitti |
-| 10 | Sonra | Kayan yazıda müşteri yorumları (cümleler Kemal'in), eşya renkleri ve yumuşak yıpranma, gedikli müşteriler, ~~hava durumu~~ (bitti, bu PR), duvar deseni, seyyar dondurma arabası, festival / bayramlar, yeni süslemeler, mevsim | |
+| 10 | Sonra | Kayan yazıda müşteri yorumları (cümleler Kemal'in), ~~eşya renkleri~~ (bitti, bu PR) ve yumuşak yıpranma, ~~gedikli müşteriler~~, ~~hava durumu~~, ~~duvar deseni~~ (bitti, bu PR), seyyar dondurma arabası, festival / bayramlar, yeni süslemeler, mevsim | |
 
 ## Paketler (eski adlarla)
 
@@ -87,7 +87,7 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 - Giriş ekranı düğmeleri ince ve yana uzun · [#56](https://github.com/hkemal94/DondumaciKizlar/pull/56)
 - 9d içecekler: 10 yeni içecek, kahve / milkshake / taze sıkma basılı tutarak; dolabın üstünde aletler; gözlükler yandan da yüze oturur, ağız yüzde · [#57](https://github.com/hkemal94/DondumaciKizlar/pull/57)
 - Küpeler kulak memesinde; hesap ve bulut kayıt kodu hazır (Google ile bağlan, iki kayıt farklıysa seçim), Firebase kurulumu bekliyor · [#58](https://github.com/hkemal94/DondumaciKizlar/pull/58)
-- Hava durumu: güneşli, çok sıcak, bulutlu, yağmurlu; hafif etki, gün sonunda yarının tahmini, bazen gün içinde değişir; eşyalara konfor ve çekicilik puanı · bu PR
+- Hava durumu: güneşli, çok sıcak, bulutlu, yağmurlu; hafif etki, gün sonunda yarının tahmini, bazen gün içinde değişir; eşyalara konfor ve çekicilik puanı; gedikli müşteriler; iç duvar deseni; masa / şemsiye / minder rengi · bu PR
 
 ## Bilinen eksikler
 

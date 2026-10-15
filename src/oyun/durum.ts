@@ -70,6 +70,9 @@ import {
   DUKKAN_PARSELLERI,
   EN_YUKSEK_ISIK,
   ESYALAR,
+  ESYA_RENKLERI,
+  RENKLI_ESYALAR,
+  type EsyaRengi,
   ISIK_SEVIYELERI,
   PARSEL,
   TEZGAH_DERINLIGI,
@@ -266,6 +269,7 @@ export interface Durum {
   yerlestirme: boolean;
   seciliEsya: Esya | null;
   seciliYon: number; // yerleştirirken eşyanın yönü (0 / 1)
+  seciliRenk: EsyaRengi; // yerleştirirken eşyanın rengi (belge 0.15e)
   // Çalışan (Kemal, 13 Ekim): oyuncunun kişiselleştirdiği
   calisan: CalisanGorunumu;
   acikOnlukler: string[];
@@ -350,6 +354,7 @@ export interface Yerlesim {
   esya: Esya;
   hucre: string; // köşe birim "c,r" (belge 0.3)
   yon: number; // 0 ya da 1 (90° çevrilmiş)
+  renk?: EsyaRengi; // masa örtüsü / şemsiye / minder rengi (belge 0.15e)
 }
 
 export type FiyatSeviyesi = 'ucuz' | 'normal' | 'pahali';
@@ -470,6 +475,7 @@ let durum: Durum = {
   yerlestirme: false,
   seciliEsya: null,
   seciliYon: 0,
+  seciliRenk: 'mor',
   calisan: { ...VARSAYILAN_CALISAN },
   acikOnlukler: ONLUKLER.filter((o) => o.fiyat === 0).map((o) => o.id),
   acikAksesuarlar: [],
@@ -1625,7 +1631,7 @@ export function noktayaKoy(x: number, z: number) {
   if (!yer) return;
   const kalan = depodaki(e) - 1;
   guncelle({
-    yerlesim: [...durum.yerlesim, { esya: e, hucre: birimAnahtari(yer.c, yer.r), yon: durum.seciliYon }],
+    yerlesim: [...durum.yerlesim, { esya: e, hucre: birimAnahtari(yer.c, yer.r), yon: durum.seciliYon, ...(RENKLI_ESYALAR.includes(e) ? { renk: durum.seciliRenk } : {}) }],
     depo: { ...durum.depo, [e]: kalan },
     // Depoda o eşya kalmadıysa başka bir eşyaya geç
     seciliEsya: kalan > 0 ? e : (ESYALAR.find((x) => x.id !== e && depodaki(x.id) > 0)?.id ?? null),
@@ -1640,7 +1646,13 @@ export function yerlesimiKaldir(y: Yerlesim) {
     depo: { ...durum.depo, [y.esya]: depodaki(y.esya) + 1 },
     seciliEsya: y.esya,
     seciliYon: y.yon,
+    seciliRenk: y.renk ?? durum.seciliRenk,
   });
+}
+
+// Yerleştirirken eşyanın rengini seç (belge 0.15e)
+export function esyaRengiSec(renk: EsyaRengi) {
+  guncelle({ seciliRenk: renk });
 }
 
 // Yerleştirirken eşyayı çevir (belge 0.3)
@@ -2309,7 +2321,7 @@ interface Kayit {
   parseller: string[];
   acikBolgeler?: EskiBolge[]; // eski kayıt (14 Ekim akşamı öncesi)
   depo: Partial<Record<Esya, number>>;
-  yerlesim: { esya: Esya; hucre: string | number; yon?: number }[];
+  yerlesim: { esya: Esya; hucre: string | number; yon?: number; renk?: string }[];
   tezgah?: TezgahYeri;
   tezgahAlinanBoy?: number;
   kapaliParseller?: string[];
@@ -2592,7 +2604,8 @@ function dekorasyonuOku(k: Partial<Kayit>) {
       if (typeof y.hucre === 'string' && !y.hucre.includes(':')) {
         const { c, r } = birimCoz(y.hucre);
         if (Number.isInteger(c) && Number.isInteger(r) && esyaSigar(y.esya, c, r, yon, deneme)) {
-          deneme.yerlesim.push({ esya: y.esya, hucre: birimAnahtari(c, r), yon });
+          const renk = ESYA_RENKLERI.find((x) => x.id === y.renk)?.id;
+          deneme.yerlesim.push({ esya: y.esya, hucre: birimAnahtari(c, r), yon, ...(renk ? { renk } : {}) });
           continue;
         }
         depo[y.esya] = (depo[y.esya] ?? 0) + 1;
@@ -2703,6 +2716,7 @@ function durumuSifirla() {
     yerlestirme: false,
     seciliEsya: null,
     seciliYon: 0,
+    seciliRenk: 'mor',
     calisan: { ...VARSAYILAN_CALISAN },
     acikOnlukler: ONLUKLER.filter((o) => o.fiyat === 0).map((o) => o.id),
     acikAksesuarlar: [],
