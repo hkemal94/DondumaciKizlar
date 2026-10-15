@@ -2385,7 +2385,7 @@ export function denemeDukkani() {
   haberVer('haber.deneme');
   acilisiKapat();
 }
-// Mola menüsünden ana sayfaya dönüş (Kemal, 15 Ekim akşam): dükkân kaydedilir,
+// Mola menüsünden Çıkış (Kemal, 15 Ekim akşam: giriş ekranına dönüş): dükkân kaydedilir,
 // açılış ekranı gelir; arkada yine oyuncunun kendi dükkânı görünür.
 export function anaSayfayaDon() {
   if (!denemedeMi()) kaydet();
@@ -2393,15 +2393,6 @@ export function anaSayfayaDon() {
   durumuSifirla();
   kaydiYukle();
   guncelle({ acilis: true, duraklatildi: false, gezme: false });
-}
-// Çıkış: kaydedip sekmeyi kapatmayı dener (tarayıcı izin verirse)
-export function kaydetVeKapat() {
-  if (!denemedeMi()) kaydet();
-  try {
-    window.close();
-  } catch {
-    // kapatılamadı; ekranda "kaydedildi" yazısı kalır
-  }
 }
 export function denemedeMi() {
   return kayitAnahtari === DENEME_ANAHTARI;

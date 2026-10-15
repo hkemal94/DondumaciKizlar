@@ -460,7 +460,7 @@ konusunda komple assetlere ihtiyacımız olabilir."
 
 | Konu | Karar / yapılan |
 |---|---|
-| Mola menüsü | "Anasayfaya dönüş, çıkış yok": **Ana sayfa** (kaydeder, açılış ekranına döner) ve **Çıkış** (kaydeder, sekmeyi kapatmayı dener; tarayıcı izin vermezse "kaydedildi" yazar) |
+| Mola menüsü | "Anasayfaya dönüş, çıkış yok"; "çıkış derken giriş ekranına dönmekten bahsettim, ana sayfa gibi düşün": tek düğme **Çıkış**, dükkânı kaydeder ve giriş (açılış) ekranına döner |
 | Tam ekran | "Web'den oynadığımız için tam ekran düğmesi": mola menüsünde ve açılışta **Tam ekran**; açılınca ekran yatay kilitlenmeye çalışır. iPhone Safari izin vermiyor, orada düğme görünmez |
 | Arkadaki evler | Dükkânın tam arkasındaki ilk sıra yalnız alçak evlerden (görüntüyü kesmesin) |
 | Yardımcı adayları | "Hepsine sen bir isim yaz, ben değiştirebileyim": adaylar hazır adla gelir (görünüşüne uyan, dükkânda olmayan; 2000'lerin sık adları), kutudan değişir. Kanon değil |

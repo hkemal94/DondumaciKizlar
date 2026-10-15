@@ -74,7 +74,7 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 - Günlük hedefler, yorumlar, sıra dalgası, otomatik kamera ayarı (8c) · [#44](https://github.com/hkemal94/DondumaciKizlar/pull/44)
 - Hatalar: içecek / waffle istasyonundayken gün bitmiyordu; buzdolabı arkadan taşıyordu; İnşaat'ta tezgah / mutfak taşıma ipuçları; deneme dükkânı yeniden yerleşti · [#45](https://github.com/hkemal94/DondumaciKizlar/pull/45)
 - İnce arayüz (9a): ince kenar, yumuşak gölge, küçük yazı; menüler sağdan açılır; arka yolda çizgiler, yaya geçitleri, bordür, eski tip sokak lambaları · [#46](https://github.com/hkemal94/DondumaciKizlar/pull/46)
-- Hatalar (15 Ekim akşam): mola menüsünde Ana sayfa, Çıkış, Tam ekran; buzdolabı duvardan taşmıyor; tente aşağı eğik, tabelayı kesmiyor; dükkânın arkasındaki ilk sıra alçak evler; yardımcı adayları hazır adla; saçlar gerçekte olanlarla (kadın 2, erkek 4); önlük "Yok"; İnşaat'ta "Ne yapmak istersin?" menüsü (tezgahı taşı, pencere ve kapı, duvarlar arasında oklarla gezme) · bu PR
+- Hatalar (15 Ekim akşam): mola menüsünde Çıkış (giriş ekranına döner) ve Tam ekran; buzdolabı duvardan taşmıyor; tente aşağı eğik, tabelayı kesmiyor; dükkânın arkasındaki ilk sıra alçak evler; yardımcı adayları hazır adla; saçlar gerçekte olanlarla (kadın 2, erkek 4); önlük "Yok"; İnşaat'ta "Ne yapmak istersin?" menüsü (tezgahı taşı, pencere ve kapı, duvarlar arasında oklarla gezme) · bu PR
 - Vitrin ve bar model adayları (9b): `docs/gorseller/vitrin-bar-adaylari/` · bu PR
 
 ## Bilinen eksikler
@@ -83,7 +83,7 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 - Bugünkü başlangıç dükkânının içi tezgahla dolu; halı için önce büyütmek gerekiyor
 - Çocuk müşteri yok (seçilen pakette çocuk yok)
 - Saç çeşidi az: pakette kadın için 2, erkek için 4 saç var; daha çoğu yeni model ister
-- Tam ekran iPhone Safari'de yok (tarayıcı izin vermiyor; düğme orada görünmez). "Çıkış" sekmeyi ancak tarayıcı izin verirse kapatır; vermezse "sekmeyi kapatabilirsin" yazar. Gün ortasında çıkınca o günün bütün ayrıntıları (sıradaki müşteriler, saat) saklanmaz
+- Tam ekran iPhone Safari'de yok (tarayıcı izin vermiyor; düğme orada görünmez). Gün ortasında Çıkış'a basılınca o günün sırası ve saati saklanmaz
 
 ## Yayından önce
 
