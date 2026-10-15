@@ -487,7 +487,8 @@ konusunda komple assetlere ihtiyacımız olabilir."
 | Mesai sonrası | Saat durmaz, kırmızı yanarak ilerler; kaça kadar çalışıldığı görünür |
 | Fazla mesai ücreti | Kemal: "Evet". Kapanıştan sonra başlayan her saat için her yardımcıya ek ücret (geçici 10 jeton, ayar dosyasında `yardimci.mesaiSaatlik`); gün sonu kartında "Fazla mesai (N saat)" satırı; para 0'ın altına inmez |
 | Tablolar | Yerleştirmede elde başka eşya seçiliyken de duvardaki tabloya dokununca kalkar |
-| Sonraya kalanlar (soru) | Tezgah / mutfak ışığı, mutfak dekorasyonu ve zemini, tezgah içi ürünleri seçme, giriş ekranı ve künye, iki cihazdan oynama (kayıt kodu / bulut), oyuncu kaydı ve kişisel bilgiler, kendi modellerin için rehber |
+| İş kısmına ışık | Kemal: "İkisi de, tezgah ışığı daha zayıf olsun". Tezgahın üstünde tavandan sarkan mor abajurlu küçük lambalar, hep yanık, tek ve zayıf ışık; mağazada **Duvar lambası** (aplik, 120 jeton): tablo gibi duvara asılır, mutfak duvarı dahil, yakına vuran sıcak ışık. Duvara asılanlar artık mutfağa da asılabiliyor |
+| Sonraya kalanlar (soru) | Mutfak dekorasyonu ve zemini, tezgah içi ürünleri seçme, giriş ekranı ve künye, iki cihazdan oynama (kayıt kodu / bulut), oyuncu kaydı ve kişisel bilgiler, kendi modellerin için rehber |
 
 ## 1. Oyunun özeti ve vizyonu
 

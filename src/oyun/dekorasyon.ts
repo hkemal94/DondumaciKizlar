@@ -23,7 +23,9 @@ export type Esya =
   | 'tabloSoyut'
   | 'tabloDondurma'
   | 'tabloDeniz'
-  | 'tabloBos';
+  | 'tabloBos'
+  // Duvar lambası (Kemal, 15 Ekim gece: "dükkânın iş kısmına ışık"); tablo gibi duvara asılır
+  | 'aplik';
 
 // grup: mağazadaki başlık. disari: yalnız dükkânın dışına konur (14 Ekim:
 // "özellikle dükkân dışı için tabela benzeri ürünler").
@@ -49,6 +51,7 @@ export const ESYALAR: { id: Esya; fiyat: number; grup: 'oturma' | 'dis' | 'ic'; 
   { id: 'tabloDondurma', fiyat: 150, grup: 'ic', iceri: true },
   { id: 'tabloDeniz', fiyat: 180, grup: 'ic', iceri: true },
   { id: 'tabloBos', fiyat: 60, grup: 'ic', iceri: true },
+  { id: 'aplik', fiyat: 120, grup: 'ic', iceri: true },
 ], (e) => (AYAR.esya as Record<string, number>)[e.id]);
 
 // Katman (C4): halı yere serilir, üstüne eşya konabilir; tablo duvara asılır,
@@ -56,7 +59,7 @@ export const ESYALAR: { id: Esya; fiyat: number; grup: 'oturma' | 'dis' | 'ic'; 
 export type Katman = 'esya' | 'zemin' | 'duvar';
 export function esyaKatmani(e: Esya): Katman {
   if (e === 'paspas' || e === 'haliYuvarlak' || e === 'haliKilim') return 'zemin';
-  if (e.startsWith('tablo')) return 'duvar';
+  if (e.startsWith('tablo') || e === 'aplik') return 'duvar';
   return 'esya';
 }
 
@@ -155,6 +158,7 @@ export const ESYA_BOYU: Record<Esya, { en: number; boy: number }> = {
   tabloDondurma: { en: 1, boy: 1 },
   tabloDeniz: { en: 1, boy: 1 },
   tabloBos: { en: 1, boy: 1 },
+  aplik: { en: 1, boy: 1 },
 };
 
 export function esyaOlcusu(esya: Esya, yon: number) {

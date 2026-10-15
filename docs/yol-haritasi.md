@@ -11,7 +11,7 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | | |
 |---|---|
 | Aşama | Oynanabilir sürüm, büyüme, karakterler, liman ve kişiselleştirme bitti. Sırada görsel kalite |
-| Son biten | Fazla mesai ücreti (bu PR) |
+| Son biten | Tezgah ışığı ve duvar lambası (bu PR) |
 | Şu an | Hataların denetimi; sıradaki soruları Kemal'e tek tek sor (belge 0.13.2 son satır) |
 | Sıradaki | 9d: içecekler (tek istasyon; seçilen dolap, makine ve bardaklarla) |
 | Yayın | Deneme sürümü webde; tarih yok, acele yok |
@@ -79,7 +79,8 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 - Mola menüsünde tek Çıkış: kaydedip giriş ekranına döner (Kemal: "ana sayfa gibi düşün") · [#48](https://github.com/hkemal94/DondumaciKizlar/pull/48)
 - Gerçekçi dondurma vitrini ve hafif stok (9c): paslanmaz küvetler, kavisli cam; dondurma stokla alçalır; biten istenmez, hepsi biterse erken kapanış; gün sonunda ve Ürünler → Stok'ta "Hepsini doldur" ya da kalem kalem · [#49](https://github.com/hkemal94/DondumaciKizlar/pull/49)
 - Hatalar (15 Ekim gece): tezgahta hedefler, gün sonunda çarpı, iki sıra küvet dokunuşu, gözlük ve küpe, 2 m ortalı ön tabela, iki dondurmalı balon, mesaiden sonra ilerleyen saat, eşit süsleme düğmeleri, tablolar taşınır, "İpucunu geç", "günlük ücret" · [#50](https://github.com/hkemal94/DondumaciKizlar/pull/50)
-- Fazla mesai ücreti: kapanıştan sonra her saat için yardımcılara ek; gün sonunda ayrı satır · bu PR
+- Fazla mesai ücreti: kapanıştan sonra her saat için yardımcılara ek; gün sonunda ayrı satır · [#51](https://github.com/hkemal94/DondumaciKizlar/pull/51)
+- İş kısmına ışık: tezgahın üstünde sarkan zayıf lambalar; mağazada duvar lambası (mutfak duvarına da asılır) · bu PR
 
 ## Bilinen eksikler
 

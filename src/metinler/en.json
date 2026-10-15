@@ -545,5 +545,6 @@
   "menu.stok": "Stock",
   "siparis.birinci": "1: {adlar}",
   "siparis.ikinci": "2: {adlar}",
-  "gunSonu.mesai": "Overtime ({saat} h)"
+  "gunSonu.mesai": "Overtime ({saat} h)",
+  "esya.aplik": "Wall lamp"
 }

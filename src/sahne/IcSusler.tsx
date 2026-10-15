@@ -206,6 +206,33 @@ function Tablo({ esya }: { esya: Esya }) {
   );
 }
 
+// Duvar lambası: pirinç kol, krem abajur, sıcak ampul; zayıf, yakına vuran ışık
+// (telefonda ağır olmasın diye kısa menzil)
+function Aplik() {
+  return (
+    <group position={[0, TABLO_YUKSEKLIGI + 0.25, 0]}>
+      <mesh position={[0, 0, 0.02]}>
+        <boxGeometry args={[0.12, 0.18, 0.03]} />
+        <meshStandardMaterial color="#b98a3e" metalness={0.4} roughness={0.5} />
+      </mesh>
+      <mesh position={[0, 0.02, 0.12]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.015, 0.015, 0.2, 6]} />
+        <meshStandardMaterial color="#b98a3e" metalness={0.4} roughness={0.5} />
+      </mesh>
+      <mesh position={[0, 0.04, 0.24]}>
+        <cylinderGeometry args={[0.07, 0.12, 0.14, 12, 1, true]} />
+        <meshStandardMaterial color="#fbefd8" emissive="#ffd99a" emissiveIntensity={0.5} side={THREE.DoubleSide} roughness={0.8} />
+      </mesh>
+      <mesh position={[0, 0.01, 0.24]}>
+        <sphereGeometry args={[0.04, 8, 6]} />
+        <meshStandardMaterial color="#fff3c4" emissive="#ffd98a" emissiveIntensity={1.4} />
+      </mesh>
+      <pointLight position={[0, -0.05, 0.35]} color="#ffd9a0" intensity={1.2} distance={3.2} decay={2} />
+    </group>
+  );
+}
+
 export function IcSus({ esya }: { esya: Esya }) {
+  if (esya === 'aplik') return <Aplik />;
   return esya.startsWith('tablo') ? <Tablo esya={esya} /> : <Hali esya={esya} />;
 }

@@ -562,6 +562,36 @@ export function TezgahGrubu({ children }: { children: ReactNode }) {
   return <group ref={ref}>{children}</group>;
 }
 
+// Tezgah ışığı (Kemal, 15 Ekim gece: "dükkânın iş kısmına ışık; tezgah ışığı
+// daha zayıf olsun"): tezgahın üstünde tavandan sarkan küçük lambalar, hep
+// yanık. Tek ve zayıf bir ışık kaynağı (telefonda ağır olmasın), gerisi parlayan ampul.
+function TezgahIsigi() {
+  const { tezgah } = useDurum();
+  const sayi = Math.max(2, Math.round(tezgah.boy / 2.2));
+  const xler = Array.from({ length: sayi }, (_, i) => (i - (sayi - 1) / 2) * (tezgah.boy / sayi));
+  return (
+    <group>
+      {xler.map((x) => (
+        <group key={x} position={[x, 0, -0.15]}>
+          <mesh position={[0, (TAVAN + 2.62) / 2, 0]}>
+            <cylinderGeometry args={[0.006, 0.006, TAVAN - 2.62, 4]} />
+            <meshStandardMaterial color="#2f2a33" />
+          </mesh>
+          <mesh position={[0, 2.56, 0]}>
+            <cylinderGeometry args={[0.06, 0.2, 0.16, 12, 1, true]} />
+            <meshStandardMaterial color={renk.mor} side={THREE.DoubleSide} roughness={0.7} />
+          </mesh>
+          <mesh position={[0, 2.5, 0]}>
+            <sphereGeometry args={[0.055, 8, 6]} />
+            <meshStandardMaterial color="#fff3c4" emissive="#ffd98a" emissiveIntensity={1.6} />
+          </mesh>
+        </group>
+      ))}
+      <pointLight position={[0, 2.35, -0.15]} color="#ffdcae" intensity={2.2} distance={Math.max(5, tezgah.boy)} decay={1.6} />
+    </group>
+  );
+}
+
 // Bölümün iki ucundaki saksılar (boyla birlikte uçlara gider)
 function BolumSaksilari() {
   const { tezgah } = useDurum();
@@ -980,6 +1010,7 @@ export function Dukkan() {
       <TezgahGrubu>
         <Tezgah />
         <ArkaTezgah />
+        <TezgahIsigi />
         <BolumSaksilari />
         <TezgahParcalari />
       </TezgahGrubu>
