@@ -419,5 +419,15 @@
   "ekran.grafik.dusuk": "Düşük",
   "ekran.grafik.orta": "Orta",
   "ekran.grafik.yuksek": "Yüksek",
-  "ekran.grafikNot": "Telefon ısınır ya da takılırsa Düşük'ü seç: gölgeler, uzak mahalle ve kalabalığın bir kısmı kapanır."
+  "ekran.grafikNot": "Telefon ısınır ya da takılırsa Düşük'ü seç: gölgeler, uzak mahalle ve kalabalığın bir kısmı kapanır.",
+  "calisan.kiyafet": "Kıyafet",
+  "calisan.uniforma": "Dükkân üniforması",
+  "kiyafet.casual": "Gündelik",
+  "kiyafet.formal": "Şık",
+  "kiyafet.worker": "İş",
+  "kiyafet.suit": "Takım",
+  "kiyafet.casual_2": "Gündelik",
+  "kiyafet.casual_hoodie": "Kapüşonlu",
+  "kiyafet.beach": "Plaj",
+  "kiyafet.farmer": "Tulum"
 }

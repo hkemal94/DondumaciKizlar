@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { durumuOku, useDurum } from '../oyun/durum';
 import { ONLUK_ACIK, ONLUKLER, SAC_RENKLERI, TENLER, type CalisanGorunumu, type Onluk } from '../oyun/calisan';
 import { InsanKarakter, type Hareket } from './InsanKarakter';
-import type { Karakter, Varyant } from './karakterler';
+import type { Karakter, KarakterAksesuari, Varyant } from './karakterler';
 import { istasyonOdagi, kameraKarisimi, odak, tezgahOfseti } from './kameraKarisimi';
 import { renk } from './renkler';
 
@@ -15,7 +15,7 @@ import { renk } from './renkler';
 export const CALISAN_YERI = new THREE.Vector3(0, 0, 0.75);
 
 // Önlük deseni: düz, çizgili ya da puantiyeli doku
-function onlukDokusu(o: Onluk) {
+export function onlukDokusu(o: Onluk) {
   const c = document.createElement('canvas');
   c.width = 64;
   c.height = 64;
@@ -50,44 +50,77 @@ const SAC_BASI: Record<CalisanGorunumu['beden'], Record<CalisanGorunumu['sac'], 
 };
 // Deneme için gündelik kıyafet (Kemal: "değiştirebilelim, şimdilik casual")
 const CALISAN_GOVDESI: Record<CalisanGorunumu['beden'], string> = { kadin: 'casual', erkek: 'casual_2' };
+// Dükkân üniforması (belge 0.12): sarı tişört, mor kasket, mor önlük
+export const UNIFORMA_USTU = '#ffc928';
+export function uniformaAksesuari(aksesuarlar: KarakterAksesuari[]): KarakterAksesuari[] {
+  return aksesuarlar.some((a) => a === 'bandana' || a === 'kasket') ? aksesuarlar : [...aksesuarlar, 'kasket'];
+}
 const CALISAN_BOYU: Record<CalisanGorunumu['beden'], number> = { kadin: 1.68, erkek: 1.76 };
+
+// Bedene oturan önlük (belge 0.12; Kemal: "önlük berbat görünüyor"): gövdenin
+// önünü saran iki kavisli parça. Etek kalçaya, göğüslük göğse bağlı;
+// eğilince ve yürürken bedenle birlikte oynar.
+export function onlukTakici(malzeme: THREE.Material) {
+  return (k: Karakter) => {
+    const bel = k.kalca * 1.12;
+    const diz = k.kalca * 0.5;
+    const gogus = k.kalca * 1.42;
+    const yariEn = k.kalca * 0.2; // kollar kesite girmesin
+    // Bedenin o hizadaki gerçek kesitine göre oval bir kabuk (önü +z)
+    const kabuk = (alt: number, ust: number, aci: number, bolum: number, acilma: number) => {
+      const ks = k.kesit(alt, ust, yariEn);
+      const orta = ks.getCenter(new THREE.Vector3());
+      const boyut = ks.getSize(new THREE.Vector3());
+      const rz = boyut.z / 2 + 0.012;
+      const geo = new THREE.CylinderGeometry(rz, rz * acilma, ust - alt, bolum, 1, true, -aci / 2, aci);
+      const m = new THREE.Mesh(geo, malzeme);
+      m.scale.x = (boyut.x / 2 + 0.012) / rz;
+      m.position.set(orta.x, (alt + ust) / 2, orta.z);
+      return m;
+    };
+    // Etek: belden dizlere, aşağı doğru hafif açılır; bacakların önünü sarar
+    k.tak('Hips', kabuk(diz, bel, 2.2, 14, 1.12));
+    // Göğüslük: belden göğse, daha dar
+    k.tak('Chest', kabuk(bel, gogus, 1.3, 10, 1));
+    // Bel bağı
+    k.tak('Hips', kabuk(bel - 0.04, bel + 0.03, 3.4, 16, 1));
+  };
+}
 
 export function Calisan() {
   const { calisan } = useDurum();
   const ref = useRef<THREE.Group>(null);
   const hareket = useRef<Hareket>('dur');
   const v = useMemo(() => new THREE.Vector3(), []);
-  const onluk = ONLUKLER.find((o) => o.id === calisan.onluk) ?? ONLUKLER[0];
+  // Üniformada önlük mor
+  const onluk = ONLUKLER.find((o) => o.id === (calisan.uniforma ? 'mor' : calisan.onluk)) ?? ONLUKLER[0];
   const doku = useMemo(() => onlukDokusu(onluk), [onluk]);
   // Çalışan da müşterilerle aynı parçalardan (belge 0.9)
-  const varyant = useMemo<Varyant>(
-    () => ({
+  // Yüz hep aynı baştan; saç ayrı seçilir (belge 0.12: saçlar başlardan ayrıldı),
+  // kıyafet paketteki bedenlerden; üniformada sarı tişört ve mor kasket
+  const varyant = useMemo<Varyant>(() => {
+    return {
       cinsiyet: calisan.beden,
-      govde: CALISAN_GOVDESI[calisan.beden],
-      bas: SAC_BASI[calisan.beden][calisan.sac],
+      govde: calisan.kiyafet || CALISAN_GOVDESI[calisan.beden],
+      bas: CALISAN_GOVDESI[calisan.beden],
+      sacBasi: SAC_BASI[calisan.beden][calisan.sac],
       boy: CALISAN_BOYU[calisan.beden],
       ten: TENLER[calisan.ten],
       sac: SAC_RENKLERI[calisan.sacRengi],
-      ust: '#f6ecd6',
+      ust: calisan.uniforma ? UNIFORMA_USTU : '#f6ecd6',
       alt: '#2f7fb3',
       ayakkabi: '#7a5236',
-      aksesuarlar: calisan.aksesuarlar,
-    }),
-    [calisan.beden, calisan.sac, calisan.ten, calisan.sacRengi, calisan.aksesuarlar],
-  );
+      aksesuarlar: calisan.uniforma ? uniformaAksesuari(calisan.aksesuarlar) : calisan.aksesuarlar,
+    };
+  }, [calisan.beden, calisan.sac, calisan.ten, calisan.sacRengi, calisan.aksesuarlar, calisan.kiyafet, calisan.uniforma]);
   // Önlük gövdenin önüne takılır; renk ve desen değişince doku yenilenir
-  const onlukMalzemesi = useMemo(() => new THREE.MeshStandardMaterial({ roughness: 0.85 }), []);
+  const onlukMalzemesi = useMemo(() => new THREE.MeshStandardMaterial({ roughness: 0.85, side: THREE.DoubleSide }), []);
   onlukMalzemesi.map = doku;
   onlukMalzemesi.needsUpdate = true;
-  // Önlük: göğüsten dizlere, gövdenin önünde; kalçaya bağlı (eğilince onunla eğilir)
-  const onlukTak = (k: Karakter) => {
-    const boy = k.kalca * 0.75;
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(0.36, boy), onlukMalzemesi);
-    m.position.set(0, k.kalca * 1.05, k.govdeKutusu.max.z * 0.62);
-    k.tak('Hips', m);
-  };
+  const onlukTak = useMemo(() => onlukTakici(onlukMalzemesi), [onlukMalzemesi]);
 
-  useFrame(({ camera, size }) => {
+  const selamZamani = useRef(15);
+  useFrame(({ camera, size, clock }) => {
     const g = ref.current;
     if (!g) return;
     g.visible = kameraKarisimi.deger > 0.12;
@@ -95,7 +128,11 @@ export function Calisan() {
     // Oyuncunun istasyonunda durur (belge 0.5)
     g.position.x = CALISAN_YERI.x + istasyonOdagi.x;
     // Kepçe dalarken ya da makinede çalışırken uzanır
-    hareket.current = d.asama === 'dolduruyor' || ['dokuluyor', 'doluyor'].includes(d.makine.asama) ? 'calis' : 'dur';
+    const calisiyor = d.asama === 'dolduruyor' || ['dokuluyor', 'doluyor'].includes(d.makine.asama);
+    // Boştayken genel görünümde ara sıra el sallar (belge 0.12)
+    const t = clock.elapsedTime;
+    if (t > selamZamani.current + 2) selamZamani.current = t + 25 + Math.random() * 20;
+    hareket.current = calisiyor ? 'calis' : g.visible && t > selamZamani.current ? 'selam' : 'dur';
     const etiket = calisanEtiketi.oge;
     if (etiket) {
       v.set(g.position.x + tezgahOfseti.x, 2.0, CALISAN_YERI.z + tezgahOfseti.z).project(camera);

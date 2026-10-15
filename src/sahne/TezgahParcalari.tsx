@@ -6,6 +6,7 @@ import { ICECEKLER, ICECEK_RENGI, parcaYerleri, type Icecek, type ParcaYeri, typ
 import { renk } from './renkler';
 import { InsanKarakter, type Hareket } from './InsanKarakter';
 import { rastgeleVaryant } from './karakterler';
+import { onlukTakici, uniformaAksesuari, UNIFORMA_USTU } from './Calisan';
 
 // Tezgah parçaları (belge 0.5, 0.6): tezgah bölümünün uçlarına eklenen waffle
 // makinesi, içecek standı, ikinci servis noktası ve köşe.
@@ -296,19 +297,22 @@ function Parca({ p }: { p: ParcaYeri }) {
   );
 }
 
-// Yardımcı: kendi istasyonunun arkasında, önlüklü; sipariş hazırlarken çalışır
-function YardimciKarakter({ y, x }: { y: Yardimci; x: number }) {
+// Yardımcı: kendi istasyonunun arkasında; sipariş hazırlarken çalışır.
+// Dükkân üniforması açıksa o da giyer (belge 0.12)
+const yardimciOnlugu = new THREE.MeshStandardMaterial({ roughness: 0.85, side: THREE.DoubleSide, color: renk.mor });
+const yardimciOnlukTak = onlukTakici(yardimciOnlugu);
+function YardimciKarakter({ y, x, uniforma }: { y: Yardimci; x: number; uniforma: boolean }) {
   const varyant = useMemo(() => {
     const v = rastgeleVaryant(y.tohum);
-    return { ...v, aksesuarlar: [] };
-  }, [y.tohum]);
+    return uniforma ? { ...v, ust: UNIFORMA_USTU, aksesuarlar: uniformaAksesuari([]) } : { ...v, aksesuarlar: [] };
+  }, [y.tohum, uniforma]);
   const hareket = useRef<Hareket>('dur');
   useFrame(() => {
     hareket.current = yardimciCalisiyor(y.id) ? 'calis' : 'dur';
   });
   return (
     <group position={[x, 0, 0.75]} rotation={[0, Math.PI, 0]}>
-      <InsanKarakter varyant={varyant} hareket={hareket} />
+      <InsanKarakter varyant={varyant} hareket={hareket} ekle={uniforma ? yardimciOnlukTak : undefined} />
     </group>
   );
 }
@@ -328,7 +332,7 @@ export function TezgahParcalari() {
       ))}
       {!d.hazirlik &&
         yardimcilar.map(({ y, x }) => (
-          <YardimciKarakter key={y.id} y={y} x={x} />
+          <YardimciKarakter key={y.id} y={y} x={x} uniforma={d.calisan.uniforma} />
         ))}
     </group>
   );

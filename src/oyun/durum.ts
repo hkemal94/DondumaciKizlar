@@ -101,6 +101,7 @@ import {
   AD_EN_UZUN,
   AKSESUARLAR,
   ONLUKLER,
+  KIYAFETLER,
   SAC_MODELLERI,
   SAC_RENKLERI,
   TENLER,
@@ -2271,6 +2272,7 @@ export function gezmeyiBitir() {
 export function calisaniDegistir(yeni: Partial<CalisanGorunumu>) {
   const c = { ...durum.calisan, ...yeni };
   if (yeni.ad !== undefined) c.ad = yeni.ad.slice(0, AD_EN_UZUN);
+  if (yeni.beden && yeni.beden !== durum.calisan.beden) c.kiyafet = '';
   if (yeni.onluk && !durum.acikOnlukler.includes(yeni.onluk)) return;
   guncelle({ calisan: c });
   kaydet();
@@ -2324,6 +2326,8 @@ function calisaniOku(k: Partial<Kayit>): Pick<Durum, 'calisan' | 'acikOnlukler' 
       sacRengi: typeof c.sacRengi === 'number' && SAC_RENKLERI[c.sacRengi] ? c.sacRengi : VARSAYILAN_CALISAN.sacRengi,
       onluk: typeof c.onluk === 'string' && acikOnlukler.includes(c.onluk) ? c.onluk : VARSAYILAN_CALISAN.onluk,
       aksesuarlar: Array.isArray(c.aksesuarlar) ? c.aksesuarlar.filter((x) => acikAksesuarlar.includes(x)) : [],
+      kiyafet: typeof c.kiyafet === 'string' && KIYAFETLER[c.beden === 'erkek' ? 'erkek' : 'kadin'].includes(c.kiyafet) ? c.kiyafet : '',
+      uniforma: c.uniforma === true,
     },
   };
 }

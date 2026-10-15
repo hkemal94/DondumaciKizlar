@@ -25,7 +25,10 @@ export type KarakterAksesuari = 'gozluk' | 'gunesGozlugu' | 'hasirSapka' | 'kask
 export interface Varyant {
   cinsiyet: Cinsiyet;
   govde: string; // BEDENLER'den
-  bas: string; // aynı cinsiyetten bir bedenin başı (saçıyla)
+  bas: string; // aynı cinsiyetten bir bedenin başı (yüzü; saç ayrı seçilmezse saçıyla)
+  // Saç başka bir bedenin başından (belge 0.12: "saçları başlardan ayır");
+  // bütün başlar aynı iskelette olduğu için saç parçası öteki yüze oturur
+  sacBasi?: string;
   boy: number; // metre
   ten: string;
   sac: string;
@@ -226,6 +229,20 @@ function aksesuarKur(ak: KarakterAksesuari, bas: THREE.Box3, basOrtasi: THREE.Ve
   return g;
 }
 
+// Ağız: yüzün alt üçte birinde, önünde ince bir yay
+const agizMalzemesi = new THREE.MeshStandardMaterial({ color: '#7a3b3b', roughness: 0.8 });
+function gulumseme(yuz: THREE.Box3, basOrtasi: THREE.Vector3) {
+  const en = Math.min(yuz.max.x - basOrtasi.x, basOrtasi.x - yuz.min.x) * 2;
+  const boy = yuz.max.y - yuz.min.y;
+  const yay = new THREE.Mesh(new THREE.TorusGeometry(en * AGIZ.genislik, en * 0.012, 4, 10, Math.PI), agizMalzemesi);
+  yay.rotation.z = Math.PI; // yayın kolları yukarı: gülümseme
+  const g = new THREE.Group();
+  g.add(yay);
+  g.position.set(basOrtasi.x, yuz.min.y + boy * AGIZ.yukseklik, yuz.max.z - en * AGIZ.derinlik);
+  return g;
+}
+const AGIZ = { genislik: 0.1, yukseklik: 0.3, derinlik: 0.02 };
+
 // Bir nesneyi kemiğe, dünyadaki (dinlenme duruşundaki) yerini koruyarak bağlar
 function kemigeTak(kemik: THREE.Object3D, nesne: THREE.Object3D) {
   nesne.updateMatrix();
@@ -245,12 +262,17 @@ export interface Karakter {
   // Bir nesneyi kemiğe bağlar; nesnenin yeri karakterin dinlenme duruşunda,
   // ayakların ortasına göre metre cinsinden verilir (önlük gibi)
   tak: (kemikAdi: string, nesne: THREE.Object3D) => void;
+  // Gövdenin iki yükseklik arasındaki kesiti (dinlenme duruşu, metre); kollar
+  // dışarıda kalsın diye ortadan en çok yariEn kadar yana bakılır
+  kesit: (altY: number, ustY: number, yariEn: number) => THREE.Box3;
 }
 
 export function karakterKur(v: Varyant, yuklu: Yuklu): Karakter {
   const tabanlar = yuklu.tabanlar[v.cinsiyet];
   const govdeTaban = tabanlar[v.govde] ?? Object.values(tabanlar)[0];
   const basTaban = tabanlar[v.bas] ?? govdeTaban;
+  const sacTaban = (v.sacBasi && tabanlar[v.sacBasi]) || basTaban;
+  const sacParcasi = (p: Parca) => p.malzemeAdi.startsWith('Hair');
   const kok = iskeletliKopya(govdeTaban.sahne);
   const kemikler: Record<string, THREE.Object3D> = {};
   const govdeMeshleri: THREE.SkinnedMesh[] = [];
@@ -261,16 +283,21 @@ export function karakterKur(v: Varyant, yuklu: Yuklu): Karakter {
   // Baş başka bedenden geliyorsa: kendi başı çıkar, onunki aynı iskelete bağlanır
   const ornek = govdeMeshleri.find((m) => bolumBul(m) !== 'bas') ?? govdeMeshleri[0];
   const meshler: { mesh: THREE.SkinnedMesh; parca: Parca }[] = [];
-  const basParcalari = basTaban.parcalar.filter((p) => p.bolum === 'bas');
+  // Yüz başın kendisinden, saç (ayrı seçildiyse) öteki başın saç parçalarından
+  const basAyri = basTaban !== govdeTaban || sacTaban !== basTaban;
+  const basParcalari = [
+    ...basTaban.parcalar.filter((p) => p.bolum === 'bas' && (sacTaban === basTaban || !sacParcasi(p))),
+    ...(sacTaban !== basTaban ? sacTaban.parcalar.filter((p) => p.bolum === 'bas' && sacParcasi(p)) : []),
+  ];
   govdeMeshleri.forEach((m, i) => {
     const p = govdeTaban.parcalar[i];
-    if (p.bolum === 'bas' && basTaban !== govdeTaban) {
+    if (p.bolum === 'bas' && basAyri) {
       m.parent?.remove(m);
       return;
     }
     meshler.push({ mesh: m, parca: p });
   });
-  if (basTaban !== govdeTaban) {
+  if (basAyri) {
     // Kemikler bu karakterin; kemik ayarları (dosya küçültülürken ölçü bilgisi
     // buraya gömülü) başın kendi dosyasından
     for (const p of basParcalari) {
@@ -308,6 +335,10 @@ export function karakterKur(v: Varyant, yuklu: Yuklu): Karakter {
   if (basKemigi) {
     const basOrtasi = basKemigi.getWorldPosition(new THREE.Vector3());
     for (const ak of v.aksesuarlar) kemigeTak(basKemigi, aksesuarKur(ak, basKutusu, basOrtasi, yuklu));
+    // Gülümseme (Kemal: "basit bir gülümseme, hep aynı"); yüz kutusu saçsız ölçülür
+    const yuzKutusu = new THREE.Box3();
+    for (const { mesh, parca } of meshler) if (parca.rol === 'ten' && parca.bolum === 'bas') yuzKutusu.expandByObject(mesh, true);
+    kemigeTak(basKemigi, gulumseme(yuzKutusu.isEmpty() ? basKutusu : yuzKutusu, basOrtasi));
   }
   // Yükleyici kemik adlarındaki noktayı siler: UpperLeg.L → UpperLegL
   const kalcaKemigi = kemikler.UpperLegL;
@@ -341,7 +372,23 @@ export function karakterKur(v: Varyant, yuklu: Yuklu): Karakter {
     const kemik = kemikler[kemikAdi];
     if (kemik) kemigeTak(kemik, nesne);
   };
-  return { kok, karistirici, eylemler, govdeKemigi: kemikler.Chest ?? null, govdeKutusu, kalca, oturt, tak };
+  // Kesit: köşeler dinlenme duruşunda okunur (yalnız önlük gibi takılanlar
+  // istediğinde; yayalarda boşuna hesaplanmasın)
+  const ortaX = (govdeKutusu.min.x + govdeKutusu.max.x) / 2;
+  const n = new THREE.Vector3();
+  const kesit = (altY: number, ustY: number, yariEn: number) => {
+    const k = new THREE.Box3();
+    for (const { mesh, parca } of meshler) {
+      if (parca.bolum === 'bas') continue;
+      const sayi = mesh.geometry.attributes.position.count;
+      for (let i = 0; i < sayi; i++) {
+        mesh.getVertexPosition(i, n).applyMatrix4(mesh.matrixWorld);
+        if (n.y >= altY && n.y <= ustY && Math.abs(n.x - ortaX) <= yariEn) k.expandByPoint(n);
+      }
+    }
+    return k;
+  };
+  return { kok, karistirici, eylemler, govdeKemigi: kemikler.Chest ?? null, govdeKutusu, kalca, oturt, tak, kesit };
 }
 
 // ---- Rastgele müşteri ----

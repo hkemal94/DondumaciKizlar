@@ -18,7 +18,7 @@ export interface Onluk {
 
 // Önlük şimdilik kaldırıldı (Kemal, 14 Ekim gece: "berbat görünüyor").
 // Daha iyisi yapılınca açılır (yol haritası, sona kalanlar); seçenekler ve kayıt duruyor.
-export const ONLUK_ACIK = false;
+export const ONLUK_ACIK = true; // 15 Ekim: bedene oturan önlükle geri geldi (belge 0.12)
 
 export const ONLUKLER: Onluk[] = [
   { id: 'mor', renk: '#7a3fa8', desen: 'duz', fiyat: 0 },
@@ -48,7 +48,17 @@ export interface CalisanGorunumu {
   sacRengi: number;
   onluk: string;
   aksesuarlar: Aksesuar[];
+  // Kıyafet (belge 0.12): paketteki bedenlerden biri; boşsa gündelik
+  kiyafet: string;
+  // Dükkân üniforması: sarı tişört, mor önlük, (başta bir şey yoksa) mor kasket
+  uniforma: boolean;
 }
+
+// Kıyafet seçenekleri (Kemal'in 14 Ekim'de seçtiği bedenler)
+export const KIYAFETLER: Record<Beden, string[]> = {
+  kadin: ['casual', 'formal', 'worker', 'suit'],
+  erkek: ['casual_2', 'casual_hoodie', 'beach', 'farmer', 'worker', 'suit'],
+};
 
 export const VARSAYILAN_CALISAN: CalisanGorunumu = {
   ad: '',
@@ -58,6 +68,8 @@ export const VARSAYILAN_CALISAN: CalisanGorunumu = {
   sacRengi: 1,
   onluk: 'mor',
   aksesuarlar: [],
+  kiyafet: '',
+  uniforma: false,
 };
 
 export const AD_EN_UZUN = 14;

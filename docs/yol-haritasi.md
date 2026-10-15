@@ -11,9 +11,9 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | | |
 |---|---|
 | Aşama | Oynanabilir sürüm, büyüme, karakterler, liman ve kişiselleştirme bitti. Sırada görsel kalite |
-| Son biten | 3. adım: liman canlılığı (bu PR) |
-| Şu an | 3. adımın denetimi |
-| Sıradaki | 4. adım: karakterler (gülümseme, önlük ve üniforma, hareketler, kıyafet seçimi, saç) |
+| Son biten | 4. adım: karakterler (bu PR) |
+| Şu an | 4. adımın denetimi |
+| Sıradaki | 5. adım: açılış ekranı ve galeri |
 | Yayın | Deneme sürümü webde; tarih yok, acele yok |
 
 ## Sıra (15 Ekim, belge 0.12)
@@ -23,8 +23,8 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | 0 | Toparlama | Belge, CLAUDE.md ve yol haritası güncel kararlarla; `#deneme`, `#hizli` kalktı | Bitti ([#34](https://github.com/hkemal94/DondumaciKizlar/pull/34)) |
 | 1 | Hatalar ve düzen | Mutfak İnşaat'tan kurulunca dolaplar doğru yönde; büyük vitrin camı; müşteri gelince açılıp kapanan kapı + zil; araya giren ev yarı saydam; menü dört grup (Dükkân / Ekip / Ürünler / Mağaza) | Bitti ([#35](https://github.com/hkemal94/DondumaciKizlar/pull/35)) |
 | 2 | Dış dünya | Ege evleri (önce paket adayları, Kemal seçer), taş sokaklar, bahçeler, zeytin / çam / begonvil, kum yalnız sahilde; deniz ve kumsal açılış konsept görseli gibi (dalga, köpük, kaya); boşluklar dolar | Bitti ([#36](https://github.com/hkemal94/DondumaciKizlar/pull/36)) |
-| 3 | Liman canlılığı | Yürüyüş yolu sise kadar, iki yanı ışıklı; sokak lambaları, arabalar, yayalar, martı ve kediler, tekne çeşitleri; ortam sesi; eğik mahalle sokakları ve sis; Ayarlar'da grafik kalitesi | Bitti (bu PR) |
-| 4 | Karakterler | Gülümseme, bedene oturan önlük + dükkân üniforması, el sallama ve mutlu / mutsuz ayrılış, kıyafet seçimi, saçları başlardan ayırma denemesi | |
+| 3 | Liman canlılığı | Yürüyüş yolu sise kadar, iki yanı ışıklı; sokak lambaları, arabalar, yayalar, martı ve kediler, tekne çeşitleri; ortam sesi; eğik mahalle sokakları ve sis; Ayarlar'da grafik kalitesi | Bitti ([#37](https://github.com/hkemal94/DondumaciKizlar/pull/37)) |
+| 4 | Karakterler | Gülümseme, bedene oturan önlük + dükkân üniforması, el sallama ve mutlu / mutsuz ayrılış, kıyafet seçimi, saçları başlardan ayırma denemesi | Bitti (bu PR) |
 | 5 | Açılış ve galeri | Arkada kendi dükkânın gün batımında, galeri, ayda bir otomatik dükkân fotoğrafı | |
 | 6 | İngilizce | Bütün yazılar İngilizce; Ayarlar'da dil seçimi | |
 | 7 | Ayar paneli | Bütün sayılar oyunda tek ayar dosyasında; KKM'de "Ayarlar" sekmesi (KKM deposunda ayrı PR) | |
@@ -64,7 +64,8 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 - Toparlama: belge ve CLAUDE.md güncel kararlarla düzenlendi, açık sorular yeniden yazıldı, eski deneme araçları (`#deneme`, `#hizli`) kalktı · [#34](https://github.com/hkemal94/DondumaciKizlar/pull/34)
 - Hatalar ve düzen: mutfak dolapları doğru yönde, büyük vitrin camı, yaklaşınca açılan kapı ve zil, araya giren bina yarı saydam, dört gruplu menü · [#35](https://github.com/hkemal94/DondumaciKizlar/pull/35)
 - Dış dünya: Ege evleri (Quaternius + Kenney, Kemal seçti), taş sokaklar, bahçeler, zeytin / çam / begonvil; dalgalı deniz ve köpük; plajda şezlong, şemsiye, sandal, kaya · [#36](https://github.com/hkemal94/DondumaciKizlar/pull/36)
-- Liman canlılığı: sise kadar uzanan fenerli yürüyüş yolu, arabalar, gezenler, martılar, kediler, yeni tekneler, martı sesi, eğik sokaklar ve kiremit damlar, Ayarlar'da grafik kalitesi · bu PR
+- Liman canlılığı: sise kadar uzanan fenerli yürüyüş yolu, arabalar, gezenler, martılar, kediler, yeni tekneler, martı sesi, eğik sokaklar ve kiremit damlar, Ayarlar'da grafik kalitesi · [#37](https://github.com/hkemal94/DondumaciKizlar/pull/37)
+- Karakterler: gülümseme, bedene oturan önlük, dükkân üniforması (yardımcılar da giyer), kıyafet seçimi, saçlar başlardan ayrı; el sallama, memnun / memnun olmayan ayrılış · bu PR
 
 ## Bilinen eksikler
 
