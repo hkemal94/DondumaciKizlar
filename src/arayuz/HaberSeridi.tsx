@@ -12,7 +12,7 @@ export function HaberSeridi({ ipucu }: { ipucu: string | null }) {
   const { haberler } = useDurum();
   const enYeni = haberler[0];
   // Yorumun nedeni bir yazı anahtarı olarak gelir; o anki dilde yazılır (8c)
-  const degerler = enYeni?.degerler && { ...enYeni.degerler, ...(typeof enYeni.degerler.neden === 'string' ? { neden: m(enYeni.degerler.neden as MetinAnahtari) } : {}) };
+  const degerler = enYeni?.degerler && { ...enYeni.degerler, ...(typeof enYeni.degerler.neden === 'string' ? { neden: m(enYeni.degerler.neden as MetinAnahtari) } : {}), ...(typeof enYeni.degerler.cesit === 'string' ? { cesit: m(enYeni.degerler.cesit as MetinAnahtari) } : {}) };
   const yazilar = [...(ipucu ? [ipucu] : []), ...(enYeni ? [m(enYeni.anahtar as MetinAnahtari, degerler)] : [])];
   const metin = yazilar.join('   •   ');
   // Hangi yazının geçişi bitti: metin ya da yeni haber değişince şerit yeniden başlar

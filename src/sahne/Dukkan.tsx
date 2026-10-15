@@ -27,7 +27,7 @@ import { Mutfak } from './Mutfak';
 import { logoDokusu, LOGO_DOSYALARI, type LogoTuru } from './logo';
 import { durumuOku, gecerliGorunus, kuveteBas, useDurum } from '../oyun/durum';
 import { gorunusSecenegi } from '../oyun/gorunus';
-import { zeminDokusu } from './zeminDokusu';
+import { duvarDokusu, zeminDokusu } from './zeminDokusu';
 import { tasDokusu } from './Mahalle';
 import { CatiTabelasiYeri, DisTabelalar, NeonTabela } from './Tabelalar';
 import { yuruyenler } from './yuruyenler';
@@ -72,6 +72,7 @@ function useGorunusRenkleri() {
   return {
     dis: gorunusSecenegi('disBoya', g.disBoya).renk,
     ic: gorunusSecenegi('icBoya', g.icBoya).renk,
+    icSecenek: gorunusSecenegi('icBoya', g.icBoya),
     cerceve: gorunusSecenegi('cerceve', g.cerceve).renk,
     tente: [tente.renk, tente.ikinciRenk ?? tente.renk] as const,
     zemin: gorunusSecenegi('zemin', g.zemin),
@@ -81,13 +82,26 @@ function useGorunusRenkleri() {
 
 // Duvar kutusu: dışa bakan yüz (yerel −z) dış boya, içe bakan (+z) iç boya
 function IkiYuzKutu({ konum, boyut }: { konum: [number, number, number]; boyut: [number, number, number] }) {
-  const { dis, ic } = useGorunusRenkleri();
+  const { dis, ic, icSecenek } = useGorunusRenkleri();
+  // İç duvar deseni (belge 0.15d): kutunun boyuna göre 50 cm'de bir tekrar eder
+  const desen = useMemo(() => {
+    const d = duvarDokusu(icSecenek);
+    if (!d) return null;
+    const k = d.clone();
+    k.repeat.set(boyut[0] * 2, boyut[1] * 2);
+    k.needsUpdate = true;
+    return k;
+  }, [icSecenek, boyut[0], boyut[1]]);
   return (
     <mesh position={konum} receiveShadow>
       <boxGeometry args={boyut} />
-      {[dis, dis, dis, dis, ic, dis].map((r, i) => (
-        <meshStandardMaterial key={i} attach={`material-${i}`} color={r} roughness={0.8} />
-      ))}
+      {[dis, dis, dis, dis, ic, dis].map((r, i) =>
+        i === 4 && desen ? (
+          <meshStandardMaterial key={`d${i}`} attach={`material-${i}`} map={desen} roughness={0.8} />
+        ) : (
+          <meshStandardMaterial key={i} attach={`material-${i}`} color={r} roughness={0.8} />
+        ),
+      )}
     </mesh>
   );
 }
