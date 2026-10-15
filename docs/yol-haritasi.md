@@ -11,9 +11,9 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | | |
 |---|---|
 | Aşama | Oynanabilir sürüm, büyüme, karakterler, liman ve kişiselleştirme bitti. Sırada görsel kalite |
-| Son biten | 5. adım: açılış ve galeri (bu PR) |
-| Şu an | 5. adımın denetimi |
-| Sıradaki | 6. adım: İngilizce |
+| Son biten | 6. adım: İngilizce (bu PR) |
+| Şu an | 6. adımın denetimi |
+| Sıradaki | 7. adım: ayar dosyası ve KKM'de Ayarlar sekmesi |
 | Yayın | Deneme sürümü webde; tarih yok, acele yok |
 
 ## Sıra (15 Ekim, belge 0.12)
@@ -25,8 +25,8 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | 2 | Dış dünya | Ege evleri (önce paket adayları, Kemal seçer), taş sokaklar, bahçeler, zeytin / çam / begonvil, kum yalnız sahilde; deniz ve kumsal açılış konsept görseli gibi (dalga, köpük, kaya); boşluklar dolar | Bitti ([#36](https://github.com/hkemal94/DondumaciKizlar/pull/36)) |
 | 3 | Liman canlılığı | Yürüyüş yolu sise kadar, iki yanı ışıklı; sokak lambaları, arabalar, yayalar, martı ve kediler, tekne çeşitleri; ortam sesi; eğik mahalle sokakları ve sis; Ayarlar'da grafik kalitesi | Bitti ([#37](https://github.com/hkemal94/DondumaciKizlar/pull/37)) |
 | 4 | Karakterler | Gülümseme, bedene oturan önlük + dükkân üniforması, el sallama ve mutlu / mutsuz ayrılış, kıyafet seçimi, saçları başlardan ayırma denemesi | Bitti ([#38](https://github.com/hkemal94/DondumaciKizlar/pull/38)) |
-| 5 | Açılış ve galeri | Arkada kendi dükkânın gün batımında, galeri, ayda bir otomatik dükkân fotoğrafı | Bitti (bu PR) |
-| 6 | İngilizce | Bütün yazılar İngilizce; Ayarlar'da dil seçimi | |
+| 5 | Açılış ve galeri | Arkada kendi dükkânın gün batımında, galeri, ayda bir otomatik dükkân fotoğrafı | Bitti ([#39](https://github.com/hkemal94/DondumaciKizlar/pull/39)) |
+| 6 | İngilizce | Bütün yazılar İngilizce; Ayarlar'da dil seçimi | Bitti (bu PR) |
 | 7 | Ayar paneli | Bütün sayılar oyunda tek ayar dosyasında; KKM'de "Ayarlar" sekmesi (KKM deposunda ayrı PR) | |
 | 8 | Exp sistemi | Ana seviye + dükkân ve çalışan seviyeleri; günlük hedefler; yıldızlar yorum gibi; sıra bazen uzun bazen boş; otomatik kamera ayarı; eşyalara konfor ve çekicilik | |
 | 9 | İçecekler ve stok | Limonata / ayran / buzlu çay → milkshake / frappe → kahve → taze sıkma; hafif stok ve gün sonu sipariş ekranı | |
@@ -66,7 +66,8 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 - Dış dünya: Ege evleri (Quaternius + Kenney, Kemal seçti), taş sokaklar, bahçeler, zeytin / çam / begonvil; dalgalı deniz ve köpük; plajda şezlong, şemsiye, sandal, kaya · [#36](https://github.com/hkemal94/DondumaciKizlar/pull/36)
 - Liman canlılığı: sise kadar uzanan fenerli yürüyüş yolu, arabalar, gezenler, martılar, kediler, yeni tekneler, martı sesi, eğik sokaklar ve kiremit damlar, Ayarlar'da grafik kalitesi · [#37](https://github.com/hkemal94/DondumaciKizlar/pull/37)
 - Karakterler: gülümseme, bedene oturan önlük, dükkân üniforması (yardımcılar da giyer), kıyafet seçimi, saçlar başlardan ayrı; el sallama, memnun / memnun olmayan ayrılış · [#38](https://github.com/hkemal94/DondumaciKizlar/pull/38)
-- Açılış ve galeri: açılışta kendi dükkânın gün batımında, dönen kamera; Galeri (Fotoğraflarım / Albüm), gezerken çekilen fotoğraflar birikir, ayda bir dükkânın fotoğrafı kendiliğinden albüme girer · bu PR
+- Açılış ve galeri: açılışta kendi dükkânın gün batımında, dönen kamera; Galeri (Fotoğraflarım / Albüm), gezerken çekilen fotoğraflar birikir, ayda bir dükkânın fotoğrafı kendiliğinden albüme girer · [#39](https://github.com/hkemal94/DondumaciKizlar/pull/39)
+- İngilizce: bütün yazılar İngilizce, Ayarlar'da Türkçe / English; telefonun diline göre açılır · bu PR
 
 ## Bilinen eksikler
 

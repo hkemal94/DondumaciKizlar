@@ -62,8 +62,8 @@ Tam liste belgenin 7. bölümünde. Başlıcaları:
   geçmişleri Kemal'in işi. Mekanik için yer tutucu gerekiyorsa açıkça
   "[YER TUTUCU]" diye işaretle; gerçek metin gibi görünmesin.
 - Ekrandaki her yazı tek bir çeviri dosyasından gelir
-  (`src/metinler/tr.json`); koda gömülmez. İngilizce sıradaki işlerden
-  (belge 0.12); yeni yazı eklenince İngilizcesi de eklenir.
+  (`src/metinler/tr.json`); koda gömülmez. İngilizcesi `src/metinler/en.json`'da
+  (6. adım); yeni yazı eklenince İngilizcesi de eklenir (eksikse derleme hata verir).
 
 ## 3B modeller
 

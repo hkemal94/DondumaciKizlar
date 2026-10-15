@@ -38,7 +38,7 @@ import {
   tepsiyeKoyabilir,
   useDurum,
 } from '../oyun/durum';
-import { m, type MetinAnahtari } from '../metinler';
+import { m, useDil, type MetinAnahtari } from '../metinler';
 import { logoAdresi } from '../sahne/logo';
 import { CESITLER } from '../oyun/kuvetler';
 import { balon } from '../sahne/Musteriler';
@@ -584,6 +584,8 @@ function useYakinlastirma(etkin: boolean) {
 
 export function Arayuz() {
   const durum = useDurum();
+  // Dil değişince bütün arayüz yeni dille yeniden çizilir (6. adım)
+  useDil();
   const [gelistirAcik, setGelistirAcik] = useState(false);
   // Menü grubundan hangi sekmeyle açılacağı (belge 0.12: Mağaza → eşyalar)
   const [gelistirSekmesi, setGelistirSekmesi] = useState<GelistirSekmesi>('dekorasyon');

@@ -106,7 +106,6 @@
   "ayarlar.ekran": "Ekran",
   "ayarlar.oyun": "Oyun",
   "ayarlar.dil": "Dil",
-  "ayarlar.dilYakinda": "İngilizce yakında",
   "ayarlar.kapat": "Tamam",
   "sonuc.bahsis": "bahşiş +{miktar}",
   "gunSonu.bahsis": "Bahşiş",
@@ -442,5 +441,7 @@
   "galeri.kapat": "Kapat",
   "acilis.galeri": "Galeri",
   "duraklat.galeri": "Galeri",
-  "haber.album": "Dükkânın bu ayki fotoğrafı albüme girdi"
+  "haber.album": "Dükkânın bu ayki fotoğrafı albüme girdi",
+  "dil.tr": "Türkçe",
+  "dil.en": "English"
 }
