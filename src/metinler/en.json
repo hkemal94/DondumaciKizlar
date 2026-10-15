@@ -505,5 +505,8 @@
   "hedef.waffle": "{hedef} waffles",
   "hedef.icecek": "{hedef} drink customers",
   "hedef.odul": "Each: +{jeton} coins, +{exp} exp",
-  "ekran.otoKamera": "Go to the counter automatically when an order comes"
+  "ekran.otoKamera": "Go to the counter automatically when an order comes",
+  "insaat.tezgahMutfak": "The kitchen is behind. To move the counter back, first pick that kitchen square and “Turn back into shop”.",
+  "insaat.tezgahKapali": "The back isn't indoors. Buy the square behind and build a wall first.",
+  "insaat.mutfakTasi": "To move the kitchen: “Turn back into shop” here, then “Add to kitchen” on another back square."
 }

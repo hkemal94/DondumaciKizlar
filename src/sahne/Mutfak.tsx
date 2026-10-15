@@ -42,8 +42,8 @@ function DepoSusleri() {
   const kasaRenkleri = ['#ffc928', '#9b5fc9', '#5fd08a', '#ff6f7d'];
   return (
     <group>
-      {/* Raf */}
-      <group position={[-0.9, 0, 0]}>
+      {/* Raf: sığ, arka duvara dayalı */}
+      <group position={[-0.9, 0, 0.37]}>
         {[0.05, 0.6, 1.15, 1.7].map((y) => (
           <Kutu key={y} konum={[0, y, 0]} boyut={[1.6, 0.05, 0.45]} renkAdi={renk.ahsapAcik} />
         ))}
@@ -99,8 +99,10 @@ export function Mutfak() {
                 <Kutu konum={[b.x, 0.92, b.z]} boyut={[b.en + 0.06, 0.05, b.boy + 0.12]} renkAdi={renk.tezgahUst} />
               </group>
             ))}
-            {/* Depo arka duvarın dibinde, önü dükkâna (−z) dönük */}
-            <group position={[ox, 0, s.arkaZ - 0.45]}>
+            {/* Depo arka duvarın dibinde, önü dükkâna (−z) dönük. Buzdolabı
+                derin (~1 m): ortası duvardan 0,65 m içeride, arkası taşmasın
+                (Kemal, 15 Ekim: "buzdolabı hâlâ arkadan taşıyor") */}
+            <group position={[ox, 0, s.arkaZ - 0.65]}>
               <DepoSusleri />
             </group>
           </group>

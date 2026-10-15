@@ -18,6 +18,7 @@ import {
   parcaSecenekleri,
   terasMi,
   parselAl,
+  tezgahEngeli,
   araziKilidi,
   kilitAcik,
   parselDurumu,
@@ -60,6 +61,9 @@ export function InsaatPaneli() {
       <>
         <span className="insaat-yer">{m('insaat.tezgah', { boy: durum.tezgah.boy })}</span>
         <span className="insaat-durum">{m('insaat.tezgahNot')}</span>
+        {/* Arkaya gidemiyorsa nedeni ve ne yapılacağı */}
+        {tezgahEngeli(0, 1, durum) === 'mutfak' && <span className="insaat-durum">{m('insaat.tezgahMutfak')}</span>}
+        {tezgahEngeli(0, 1, durum) === 'kapali' && <span className="insaat-durum">{m('insaat.tezgahKapali')}</span>}
         <div className="insaat-oklar">
           {yonler.map(([ad, ok, dc, dr]) => (
             <button key={ad} className="dugme dugme-simge" aria-label={m(ad)} disabled={!tezgahTasinabilir(dc, dr, durum)} onClick={() => tezgahiTasi(dc, dr)}>
@@ -160,6 +164,7 @@ export function InsaatPaneli() {
           // Mutfak (belge 0.5): yeniden dükkâna çevrilebilir
           <>
             <span className="insaat-durum">{m('insaat.mutfak')}</span>
+            <span className="insaat-durum">{m('insaat.mutfakTasi')}</span>
             <button className="dugme gel-al" disabled={durum.para < MUTFAK_GERI_FIYATI} onClick={() => mutfaktanCikar(secili)}>
               {m('insaat.dukkanaCevir')} <span className="para-simge" aria-hidden /> {MUTFAK_GERI_FIYATI}
             </button>
