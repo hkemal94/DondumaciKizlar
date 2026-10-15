@@ -1,8 +1,18 @@
+import { useState } from 'react';
 import { m, type MetinAnahtari } from '../metinler';
 
-// Gün başı menüsü (Kemal, 14 Ekim: "menü sistemi yok, her şey ortada"):
-// işler tek şeritte, küçük simge ve kısa adla. İnşaat 14 Ekim'de eklendi.
-export type MenuIsi = 'gelistir' | 'vitrin' | 'yerlestir' | 'insaat' | 'calisan' | 'yardimci';
+// Gün başı menüsü (Kemal, 14 Ekim: "menü sistemi yok, her şey ortada").
+// 15 Ekim (belge 0.12): işe göre dört grup — Dükkân (inşaat, yerleştir,
+// görünüş), Ekip (çalışan, yardımcılar), Ürünler (vitrin, çeşitler, fiyat),
+// Mağaza (satın almalar). Gruba dokununca üstünde alt işler açılır.
+export type MenuIsi = 'gelistir' | 'vitrin' | 'yerlestir' | 'insaat' | 'calisan' | 'yardimci' | 'gorunus' | 'cesitler' | 'fiyat';
+type Grup = 'dukkan' | 'ekip' | 'urunler' | 'magaza';
+const GRUPLAR: { id: Grup; simge: MenuIsi; isler: MenuIsi[] }[] = [
+  { id: 'dukkan', simge: 'insaat', isler: ['insaat', 'yerlestir', 'gorunus'] },
+  { id: 'ekip', simge: 'yardimci', isler: ['calisan', 'yardimci'] },
+  { id: 'urunler', simge: 'vitrin', isler: ['vitrin', 'cesitler', 'fiyat'] },
+  { id: 'magaza', simge: 'gelistir', isler: [] },
+];
 
 function Simge({ is }: { is: MenuIsi }) {
   const ortak = { fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
@@ -14,6 +24,31 @@ function Simge({ is }: { is: MenuIsi }) {
         <path d="M3 9 Q6 12 9 9 Q12 12 15 9 Q18 12 21 9" {...ortak} />
         <path d="M5 11 V20 H19 V11" {...ortak} />
         <path d="M10 20 V15 H14 V20" {...ortak} />
+      </svg>
+    );
+  if (is === 'gorunus')
+    // Boya fırçası
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden>
+        <path d="M4 4 H16 V9 H4 Z" {...ortak} />
+        <path d="M16 6.5 H19 V12 H11 V15" {...ortak} />
+        <path d="M10 15 H12 V21 H10 Z" {...ortak} />
+      </svg>
+    );
+  if (is === 'cesitler')
+    // Külah
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden>
+        <circle cx="12" cy="8" r="4.5" {...ortak} />
+        <path d="M7.5 10 L12 21 L16.5 10" {...ortak} />
+      </svg>
+    );
+  if (is === 'fiyat')
+    // Etiket
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden>
+        <path d="M3 12 L12 3 H21 V12 L12 21 Z" {...ortak} />
+        <circle cx="16.5" cy="7.5" r="1.5" {...ortak} />
       </svg>
     );
   if (is === 'vitrin')
@@ -60,12 +95,45 @@ function Simge({ is }: { is: MenuIsi }) {
 }
 
 export function MenuSeridi({ sec }: { sec: (is: MenuIsi) => void }) {
+  const [acik, setAcik] = useState<Grup | null>(null);
+  const grup = GRUPLAR.find((g) => g.id === acik);
   return (
     <nav className="menu-seridi" aria-label={m('menu.baslik')}>
-      {(['gelistir', 'vitrin', 'yerlestir', 'insaat', 'calisan', 'yardimci'] as const).map((is) => (
-        <button key={is} className="menu-dugme" data-egitim={is} onClick={() => sec(is)}>
-          <Simge is={is} />
-          <span>{m(`menu.${is}` as MetinAnahtari)}</span>
+      {grup && grup.isler.length > 0 && (
+        <div className="menu-alt" role="menu">
+          {grup.isler.map((is) => (
+            <button
+              key={is}
+              role="menuitem"
+              className="menu-dugme"
+              data-egitim={is}
+              onClick={() => {
+                setAcik(null);
+                sec(is);
+              }}
+            >
+              <Simge is={is} />
+              <span>{m(`menu.${is}` as MetinAnahtari)}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      {GRUPLAR.map((g) => (
+        <button
+          key={g.id}
+          className={`menu-dugme ${acik === g.id ? 'secili' : ''}`}
+          aria-expanded={g.isler.length ? acik === g.id : undefined}
+          // Eğitimin işaret ettiği iş kapalı grubun içindeyse el grubu gösterir
+          data-egitim={acik !== g.id && g.isler.includes('vitrin') ? 'vitrin' : undefined}
+          onClick={() => {
+            if (!g.isler.length) {
+              setAcik(null);
+              sec('gelistir');
+            } else setAcik(acik === g.id ? null : g.id);
+          }}
+        >
+          <Simge is={g.simge} />
+          <span>{m(`menu.grup.${g.id}` as MetinAnahtari)}</span>
         </button>
       ))}
     </nav>

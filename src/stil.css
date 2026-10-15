@@ -2164,3 +2164,20 @@ a.dugme {
 .gorunus-alt .gel-aciklama {
   font-size: 11px;
 }
+
+/* Menü grupları (belge 0.12): gruba dokununca üstünde alt işler açılır */
+.menu-alt {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 14px;
+  background: var(--mor-koyu);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.2);
+}
+.menu-dugme.secili {
+  background: rgba(255, 255, 255, 0.14);
+}

@@ -99,7 +99,8 @@ export function Mutfak() {
                 <Kutu konum={[b.x, 0.92, b.z]} boyut={[b.en + 0.06, 0.05, b.boy + 0.12]} renkAdi={renk.tezgahUst} />
               </group>
             ))}
-            <group position={[ox, 0, s.arkaZ - 0.4]} rotation={[0, Math.PI, 0]}>
+            {/* Depo arka duvarın dibinde, önü dükkâna (−z) dönük */}
+            <group position={[ox, 0, s.arkaZ - 0.45]}>
               <DepoSusleri />
             </group>
           </group>

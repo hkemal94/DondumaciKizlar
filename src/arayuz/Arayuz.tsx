@@ -42,9 +42,9 @@ import { m, type MetinAnahtari } from '../metinler';
 import { logoAdresi } from '../sahne/logo';
 import { CESITLER } from '../oyun/kuvetler';
 import { balon } from '../sahne/Musteriler';
-import { Gelistir } from './Gelistir';
+import { Gelistir, type GelistirSekmesi } from './Gelistir';
 import { VitrinEkrani } from './VitrinEkrani';
-import { MenuSeridi } from './MenuSeridi';
+import { MenuSeridi, type MenuIsi } from './MenuSeridi';
 import { IstasyonSecimi, MakineDugmeleri, MakineGostergesi, MakineSiparisResmi, YardimciEkrani, makineIpucu, makineSiparisAdlari } from './MakineArayuzu';
 import { InsaatPaneli } from './InsaatPaneli';
 import { KameraDugmeleri } from './KameraDugmeleri';
@@ -585,6 +585,8 @@ function useYakinlastirma(etkin: boolean) {
 export function Arayuz() {
   const durum = useDurum();
   const [gelistirAcik, setGelistirAcik] = useState(false);
+  // Menü grubundan hangi sekmeyle açılacağı (belge 0.12: Mağaza → eşyalar)
+  const [gelistirSekmesi, setGelistirSekmesi] = useState<GelistirSekmesi>('dekorasyon');
   const [calisanAcik, setCalisanAcik] = useState(false);
   const [vitrinAcik, setVitrinAcik] = useState(false);
   const [ayarlarAcik, setAyarlarAcik] = useState(false);
@@ -742,8 +744,12 @@ export function Arayuz() {
       {!tezgahta && durum.hazirlik && !durum.yerlestirme && !durum.insaat && !durum.gunSonu && !calisanAcik && !gelistirAcik && !durum.istasyonSecimi && !yardimciAcik && (
         <MenuSeridi
           sec={(is) => {
-            if (is === 'gelistir') setGelistirAcik(true);
-            else if (is === 'vitrin') {
+            const sekmeler: Partial<Record<MenuIsi, GelistirSekmesi>> = { gelistir: 'dekorasyon', gorunus: 'gorunus', cesitler: 'cesitler', fiyat: 'fiyat' };
+            const sekmesi = sekmeler[is];
+            if (sekmesi) {
+              setGelistirSekmesi(sekmesi);
+              setGelistirAcik(true);
+            } else if (is === 'vitrin') {
               setVitrinAcik(true);
               egitimGor('vitrin');
             } else if (is === 'yerlestir') yerlestirmeyiAc();
@@ -756,7 +762,7 @@ export function Arayuz() {
           }}
         />
       )}
-      {gelistirAcik && durum.hazirlik && <Gelistir kapat={() => setGelistirAcik(false)} />}
+      {gelistirAcik && durum.hazirlik && <Gelistir ilkSekme={gelistirSekmesi} kapat={() => setGelistirAcik(false)} />}
       {calisanAcik && durum.hazirlik && <CalisanEkrani kapat={() => setCalisanAcik(false)} />}
       {vitrinAcik && durum.hazirlik && <VitrinEkrani kapat={() => setVitrinAcik(false)} />}
       {!calisanAcik && !gelistirAcik && <EgitimEli vitrinAcik={vitrinAcik} />}

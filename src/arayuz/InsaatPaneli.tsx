@@ -183,6 +183,8 @@ export function InsaatPaneli() {
           // Açık alan: duvar örülüp kapalı alana katılabilir
           <>
             <span className="insaat-durum">{m('insaat.sahip')}</span>
+            {/* Arka kare: mutfağın yolu (önce duvar, sonra "Mutfağa kat") */}
+            {j >= 1 && <span className="insaat-durum">{m('insaat.mutfakIpucu')}</span>}
             {terasMi(secili) ? (
               <span className="insaat-durum">{m('insaat.terasDuvarsiz')}</span>
             ) : duvarOrulebilir(secili, durum) ? (
@@ -194,9 +196,12 @@ export function InsaatPaneli() {
             )}
           </>
         ) : durumu === 'alinabilir' ? (
+          <>
+          {j >= 1 && <span className="insaat-durum">{m('insaat.mutfakIpucu')}</span>}
           <button className="dugme gel-al" disabled={durum.para < fiyat} onClick={() => parselAl(secili)}>
             {m('insaat.al')} <span className="para-simge" aria-hidden /> {fiyat}
           </button>
+          </>
         ) : (
           <span className="insaat-durum">{m('insaat.kilitli')}</span>
         )}

@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { renk } from './renkler';
 import { HazirModel } from './HazirModel';
+import { SaydamEngel } from './SaydamEngel';
 
 // Liman (belge 0.10; Kemal, 14 Ekim gece): Kemal'in KKM "2D · kur"
 // haritasından ölçülüp oyunun yönüne çevrildi. Dükkânın önü denize bakar
@@ -298,7 +299,10 @@ function Mahalle() {
         ['binalar/building-f', 2, 8.5],
         ['binalar/building-c', 30, 7],
       ].map(([yol, x, boy]) => (
-        <HazirModel key={String(x)} yol={String(yol)} ayar={{ grup: 'liman', yukseklik: Number(boy), boya: [['#6e7390', renk.pembeSiva, 24]] }} konum={[Number(x), 0, MAHALLE_BASI + 6]} donus={Math.PI} />
+        // Kamerayla dükkân arasına girerse yarı saydam (Kemal, 15 Ekim)
+        <SaydamEngel key={String(x)}>
+          <HazirModel yol={String(yol)} ayar={{ grup: 'liman', yukseklik: Number(boy), boya: [['#6e7390', renk.pembeSiva, 24]] }} konum={[Number(x), 0, MAHALLE_BASI + 6]} donus={Math.PI} />
+        </SaydamEngel>
       ))}
     </group>
   );

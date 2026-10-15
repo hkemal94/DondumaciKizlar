@@ -272,7 +272,7 @@
   "pisme.soluk": "Soluk",
   "pisme.altin": "ALTIN SARI!",
   "pisme.yanik": "Yandı",
-  "menu.yardimci": "Yardımcı",
+  "menu.yardimci": "Yardımcılar",
   "urun.dondurma": "Dondurma",
   "urun.waffle": "Waffle",
   "waffle.cilek": "Çilek",
@@ -406,5 +406,13 @@
   "esya.tabloDondurma": "Tablo: dondurma",
   "esya.tabloDeniz": "Tablo: deniz",
   "esya.tabloBos": "Boş çerçeve [YER TUTUCU]",
-  "dekor.icNot": "Halı yere serilir, üstüne masa konabilir. Tablo düz duvarın dibindeki kareye konur ve o duvara asılır; köşede çevirince öbür duvara geçer."
+  "dekor.icNot": "Halı yere serilir, üstüne masa konabilir. Tablo düz duvarın dibindeki kareye konur ve o duvara asılır; köşede çevirince öbür duvara geçer.",
+  "insaat.mutfakIpucu": "Arka kareye duvar örünce “Mutfağa kat” çıkar: buzdolabı ve raflar gelir.",
+  "menu.grup.dukkan": "Dükkân",
+  "menu.grup.ekip": "Ekip",
+  "menu.grup.urunler": "Ürünler",
+  "menu.grup.magaza": "Mağaza",
+  "menu.gorunus": "Görünüş",
+  "menu.cesitler": "Çeşitler",
+  "menu.fiyat": "Fiyat"
 }

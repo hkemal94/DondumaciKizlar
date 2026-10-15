@@ -5,6 +5,7 @@ import { calismaSaatleri, dukkanKapilari, durumuOku } from '../oyun/durum';
 import { YURUYUS_Z, kenarYeri } from '../oyun/dekorasyon';
 import { InsanKarakter, type Hareket } from './InsanKarakter';
 import type { Varyant } from './karakterler';
+import { yuruyenler } from './yuruyenler';
 
 // Dükkânın sahibi (Kemal, 13 Ekim: "arada dükkânda gezsin"). Kanondaki kadın;
 // adı ve görünüşü yok — buradaki görünüş GEÇİCİ (mor elbise, topuz saç),
@@ -72,6 +73,9 @@ export function Sahip() {
     const ic = icRef.current;
     if (!g || !ic) return;
     const d = durumuOku();
+    // Kapı yanındayken kapı açılsın diye yeri paylaşılır
+    if (g.visible) yuruyenler.set('sahip', g.position);
+    else yuruyenler.delete('sahip');
 
     // Her gün için rastgele bir ziyaret saati (açılıştan 1,5 saat sonra ile kapanıştan 2 saat önce arası)
     if (plan.current.gun !== d.gun) {
