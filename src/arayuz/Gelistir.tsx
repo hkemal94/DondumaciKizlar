@@ -38,6 +38,8 @@ import {
   kilitAcik,
   icecekAc,
   istasyonKurulu,
+  dukkanPuanlari,
+  konforEki,
 } from '../oyun/durum';
 import { ICECEKLER, ICECEK_TANIMI, icecekAcmaFiyati } from '../oyun/makine';
 import { IcecekResmi } from './MakineArayuzu';
@@ -476,6 +478,17 @@ export function Gelistir({ kapat, ilkSekme = 'dekorasyon' }: { kapat: () => void
             <div className="gel-liste">
               {/* Genel: ışıklandırma seviyeleri */}
               <div className="gel-baslik">{m('dekor.genel')}</div>
+              {/* Yerleşen eşyaların toplam konforu ve çekiciliği (belge 0.15b) */}
+              <div className="gel-kart acik dukkan-puanlari">
+                <span className="gel-ad">
+                  {m('esya.konfor')} <b>{dukkanPuanlari(durum).konfor}</b>
+                  <span className="gel-aciklama"> · {m('dekor.konforEtki', { ek: ondalik(konforEki(durum), 2) })}</span>
+                </span>
+                <span className="gel-ad">
+                  {m('esya.cekicilik')} <b>{dukkanPuanlari(durum).cekicilik}</b>
+                  <span className="gel-aciklama"> · {m('dekor.cekicilikEtki')}</span>
+                </span>
+              </div>
               <div className="gel-kart acik">
                 <span className="gel-ad">
                   {m('dekor.isik')}
@@ -513,6 +526,12 @@ export function Gelistir({ kapat, ilkSekme = 'dekorasyon' }: { kapat: () => void
                       >
                         <img src={esyaResmi(e.id)} alt="" aria-hidden />
                         <span className="esya-kart-ad">{m(`esya.${e.id}` as MetinAnahtari)}</span>
+                        {(e.konfor > 0 || e.cekicilik > 0) && (
+                          <span className="esya-kart-puan">
+                            {e.konfor > 0 && <span title={m('esya.konfor')}>{m('esya.konforKisa', { n: e.konfor })}</span>}
+                            {e.cekicilik > 0 && <span title={m('esya.cekicilik')}>{m('esya.cekicilikKisa', { n: e.cekicilik })}</span>}
+                          </span>
+                        )}
                         <span className="esya-kart-alt">
                           {kilitAcik(`esya.${e.id}`, durum) ? <Para miktar={e.fiyat} /> : <Kilit anahtar={`esya.${e.id}`} kisa />}
                           {depodaki(e.id, durum) > 0 && <span className="esya-sayi">{depodaki(e.id, durum)}</span>}

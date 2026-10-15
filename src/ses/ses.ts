@@ -23,6 +23,8 @@ let ctx: AudioContext | null = null;
 let muzikKazanci: GainNode | null = null;
 let efektKazanci: GainNode | null = null;
 let denizKazanci: GainNode | null = null;
+let yagmurKazanci: GainNode | null = null;
+let ruzgarSesKazanci: GainNode | null = null;
 
 // Ayar çubukları: kaydedilir ve anında uygulanır
 export function sesAyariniYaz(yeni: SesAyari) {
@@ -110,7 +112,20 @@ function denizBaslat() {
   ruzgarSuzgeci.Q.value = 0.6;
   const ruzgarKazanci = c.createGain();
   ruzgarKazanci.gain.value = 0.06;
+  ruzgarSesKazanci = ruzgarKazanci;
   ruzgar.connect(ruzgarSuzgeci).connect(ruzgarKazanci).connect(denizKazanci);
+
+  // Yağmur (belge 0.15): tiz hışırtı, hava yağmurluyken açılır
+  const yagmur = c.createBufferSource();
+  yagmur.buffer = gurultu(4);
+  yagmur.loop = true;
+  const yagmurSuzgeci = c.createBiquadFilter();
+  yagmurSuzgeci.type = 'highpass';
+  yagmurSuzgeci.frequency.value = 2200;
+  yagmurKazanci = c.createGain();
+  yagmurKazanci.gain.value = 0;
+  yagmur.connect(yagmurSuzgeci).connect(yagmurKazanci).connect(efektKazanci!);
+  yagmur.start();
 
   dalga.start();
   ruzgar.start();
@@ -121,6 +136,13 @@ function denizBaslat() {
 export function geceAyari(gece: number) {
   if (!ctx || !denizKazanci) return;
   denizKazanci.gain.setTargetAtTime(0.35 - gece * 0.17, ctx.currentTime, 1.5);
+}
+
+// Hava (belge 0.15): yağmur sesi ve rüzgâr (0–1)
+export function havaSesi(yagmur: number, ruzgar: number) {
+  if (!ctx) return;
+  yagmurKazanci?.gain.setTargetAtTime(yagmur * 0.9, ctx.currentTime, 2);
+  ruzgarSesKazanci?.gain.setTargetAtTime(0.06 + ruzgar * 0.12, ctx.currentTime, 2);
 }
 
 // ---- Kısa sesler ----

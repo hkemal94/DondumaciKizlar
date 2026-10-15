@@ -116,6 +116,7 @@ import {
 } from './calisan';
 import { DENEME_KAYDI } from './denemeDukkani';
 import { AYAR } from './ayarlar';
+import { anlikHava, havaGelisCarpani, havaIcecekCarpani, havaPlaniOku, havaPlaniUret, type HavaPlani } from './hava';
 import { BASLANGIC_URUNLERI, TEZGAH_URUNLERI, dizilisiOku, varsayilanDizilis, yuvaSayisi } from './tezgahUrunleri';
 import { altlikAnahtari, artir, azalt, birimMaliyet, dondurmaAnahtari, eksik, icecekAnahtari, kapasite, miktar, stokKalemleri, stokuOku, suslemeAnahtari, type Stok } from './stok';
 import { ekranAyariniOku } from '../arayuz/ekranAyari';
@@ -309,6 +310,9 @@ export interface Durum {
   oyuncuAdi: string;
   // Açık içecekler (9d, belge 0.13)
   acikIcecekler: Icecek[];
+  // Hava durumu (belge 0.15): bugünün planı; yarınki gün sonunda belli olur
+  havaPlani: HavaPlani;
+  yarinHava: HavaPlani | null;
 }
 
 // Waffle yapımı (belge 0.5) ve içecek standı (0.6)
@@ -447,6 +451,8 @@ let durum: Durum = {
   oyuncuId: '',
   oyuncuAdi: '',
   acikIcecekler: [...BASLANGIC_ICECEKLERI],
+  havaPlani: { sabah: 'gunesli', degisim: null },
+  yarinHava: null,
   insaat: false,
   seciliParsel: null,
   yerlestirme: false,
@@ -731,7 +737,8 @@ function rastgeleUrun(): Istasyon | null {
   // Stokta olmayan ürün istenmez (9c)
   const acik = acikIstasyonlar().filter((i) => (i === 'dondurma' ? dondurmaVar() : i === 'icecek' ? icecekVar() : true));
   if (!acik.length) return null;
-  const agirlik = (i: Istasyon) => (i === 'dondurma' ? 3 : 1.5);
+  // Çok sıcakta içecek daha sık istenir (belge 0.15)
+  const agirlik = (i: Istasyon) => (i === 'dondurma' ? 3 : i === 'icecek' ? 1.5 * havaIcecekCarpani(havaNe()) : 1.5);
   let z = Math.random() * acik.reduce((t, i) => t + agirlik(i), 0);
   for (const i of acik) {
     z -= agirlik(i);
@@ -801,7 +808,7 @@ export function musteriDongusu(simdi: number) {
       ? AYAR.sira.grupAraligi
       : siradaki === 0
         ? 1500
-        : ((en + Math.random() * (enCok - en)) * gelisCarpani()) / saatYogunlugu();
+        : ((en + Math.random() * (enCok - en)) * gelisCarpani()) / (saatYogunlugu() * havaGelisCarpani(havaNe()));
   if (grupKalan > 0) grupKalan--;
   const siparis = egitim ? { altlik: 'kulah' as const, kuvetler: [durum.vitrin[0]], susleme: [] } : urun === 'dondurma' ? rastgeleSiparis() : rastgeleDondurma(3, false);
   if (!siparis && urun === 'dondurma') {
@@ -1060,6 +1067,9 @@ export function zamanIlerlet(gecenMs: number) {
       birikenMs -= adim * ADIM_MS;
       const uzunluk = gunUzunlugu();
       const dakika = Math.min(uzunluk, durum.dakika + adim * ADIM);
+      // Hava gün içinde değişti (belge 0.15): kayan yazıda haber
+      const dg = durum.havaPlani.degisim;
+      if (dg && durum.dakika < dg.dakika && dakika >= dg.dakika) haberVer(`haber.hava.${dg.hava}`);
       guncelle({ dakika, acik: dakika < uzunluk });
     }
     sabirKontrol();
@@ -1086,7 +1096,7 @@ export function zamanIlerlet(gecenMs: number) {
     // her yardımcıya ek ücret; para yine 0'ın altına inmez
     const mesaiSaati = Math.ceil(Math.max(0, durum.dakika - gunUzunlugu()) / 60);
     const mesai = Math.min(durum.para - yevmiye, mesaiSaati * durum.yardimcilar.length * AYAR.yardimci.mesaiSaatlik);
-    guncelle({ gunSonu: true, para: durum.para - yevmiye - mesai, gunluk: { ...durum.gunluk, yevmiye, mesai, mesaiSaati } });
+    guncelle({ gunSonu: true, para: durum.para - yevmiye - mesai, gunluk: { ...durum.gunluk, yevmiye, mesai, mesaiSaati }, yarinHava: durum.yarinHava ?? havaPlaniUret() });
     kaydet();
   }
 }
@@ -1115,6 +1125,8 @@ export function gunSonunuKapat() {
     ...(durum.otomatikVitrin ? { vitrin: otomatikVitrin(dunkuSatislar) } : {}),
     gun: durum.gun + 1,
     dakika: 0,
+    havaPlani: durum.yarinHava ?? havaPlaniUret(),
+    yarinHava: null,
     acik: true,
     gunSonu: false,
     hazirlik: true,
@@ -1141,6 +1153,11 @@ export function guneBasla() {
     return;
   }
   gunuBaslat();
+}
+
+// Şu anki hava (belge 0.15)
+export function havaNe(d: Durum = durum) {
+  return anlikHava(d.havaPlani, d.dakika);
 }
 
 export function haberVer(anahtar: string, degerler?: Haber['degerler']) {
@@ -1219,7 +1236,21 @@ export const FIYAT_ETKISI: Record<FiyatSeviyesi, { fiyat: number; gelis: number;
 };
 
 // Her yerleştirilmiş eşya ve her ışık seviyesi müşteri aralığını kısaltır (en çok %50)
-const ESYA_ETKISI = AYAR.cekicilik.esyaEtkisi;
+// Eşyaların toplam konfor ve çekicilik puanı (belge 0.15b)
+export function dukkanPuanlari(d: Durum = durum) {
+  let konfor = 0;
+  let cekicilik = 0;
+  for (const y of d.yerlesim) {
+    const e = ESYALAR.find((x) => x.id === y.esya);
+    konfor += e?.konfor ?? 0;
+    cekicilik += e?.cekicilik ?? 0;
+  }
+  return { konfor, cekicilik };
+}
+// Konforun memnuniyete eki (yıldız)
+export function konforEki(d: Durum = durum) {
+  return Math.min(AYAR.cekicilik.konforEnCok, dukkanPuanlari(d).konfor * AYAR.cekicilik.konforPuani);
+}
 const ISIK_ETKISI = AYAR.cekicilik.isikEtkisi;
 
 // Oyuncunun koyduğu fiyat (genel seviyeden önce) ve müşterinin ödediği
@@ -1267,7 +1298,7 @@ const HAFTA_SONU_CARPANI = AYAR.gun.haftaSonuCarpani;
 
 function gelisCarpani() {
   const haftaSonu = haftaSonuMu() ? HAFTA_SONU_CARPANI : 1;
-  const cekicilik = Math.min(AYAR.cekicilik.cekicilikEnCok, ESYA_ETKISI * durum.yerlesim.length + ISIK_ETKISI * durum.isikSeviyesi);
+  const cekicilik = Math.min(AYAR.cekicilik.cekicilikEnCok, AYAR.cekicilik.cekicilikPuani * dukkanPuanlari().cekicilik + ISIK_ETKISI * durum.isikSeviyesi);
   // Ana seviye arttıkça müşteriler biraz daha sık gelir (8. adım)
   const seviyeEtkisi = Math.min(AYAR.exp.musteriArtisiEnCok, AYAR.exp.musteriArtisi * (seviye('ana', durum.exp.ana) - 1));
   return FIYAT_ETKISI[durum.fiyatSeviyesi].gelis * (1 - cekicilik) * (1 - seviyeEtkisi) * haftaSonu;
@@ -1915,7 +1946,9 @@ function makineSonucu(urun: Istasyon, m: MakineDurumu, istenen: MakineSiparisi) 
 }
 
 // calisanExp: müşteriye oyuncu kendisi servis ettiyse (yardımcının servisinde 0)
-function musteriyiUgurla(id: number, miktar: number, puan: number, mukemmel: boolean, ek: Partial<Durum> = {}, calisanExp = 0, neden: YorumNedeni = 'iyi') {
+function musteriyiUgurla(id: number, miktar: number, hamPuan: number, mukemmel: boolean, ek: Partial<Durum> = {}, calisanExp = 0, neden: YorumNedeni = 'iyi') {
+  // Dükkânın konforu memnuniyete küçük bir ek yapar (belge 0.15b), en çok 5 yıldız
+  const puan = Math.min(5, hamPuan + konforEki());
   const musteri = durum.musteriler.find((x) => x.id === id);
   guncelle({
     para: durum.para + miktar,
@@ -2264,6 +2297,8 @@ interface Kayit {
   oyuncuId?: string;
   oyuncuAdi?: string;
   acikIcecekler?: string[];
+  havaPlani?: HavaPlani;
+  yarinHava?: HavaPlani | null;
 }
 
 function kaydet() {
@@ -2313,6 +2348,8 @@ function kaydet() {
     oyuncuId: durum.oyuncuId,
     oyuncuAdi: durum.oyuncuAdi,
     acikIcecekler: durum.acikIcecekler,
+    havaPlani: durum.havaPlani,
+    yarinHava: durum.yarinHava,
   };
   try {
     const ham = JSON.stringify(k);
@@ -2370,6 +2407,8 @@ export function kaydiYukle() {
       // Oyuncu ID'si: eski kayıtta yoksa şimdi verilir (bir sonraki kayıtta yazılır)
       oyuncuId: typeof k.oyuncuId === 'string' && /^DK-[A-Z2-9]{6}$/.test(k.oyuncuId) ? k.oyuncuId : yeniOyuncuId(),
       oyuncuAdi: typeof k.oyuncuAdi === 'string' ? k.oyuncuAdi.slice(0, OYUNCU_ADI_EN_UZUN) : '',
+      havaPlani: havaPlaniOku(k.havaPlani) ?? { sabah: 'gunesli', degisim: null },
+      yarinHava: havaPlaniOku(k.yarinHava),
       acikIcecekler: [...new Set([...BASLANGIC_ICECEKLERI, ...(Array.isArray(k.acikIcecekler) ? (k.acikIcecekler.filter((x) => ICECEKLER.includes(x as Icecek)) as Icecek[]) : [])])],
     });
     // Eski parçaların parası geri verildiyse hemen kaydedilir (bir kez verilsin)
@@ -2608,6 +2647,8 @@ function durumuSifirla() {
     oyuncuId: yeniOyuncuId(),
     oyuncuAdi: '',
     acikIcecekler: [...BASLANGIC_ICECEKLERI],
+    havaPlani: { sabah: 'gunesli', degisim: null },
+    yarinHava: null,
     insaat: false,
     seciliParsel: null,
     yerlestirme: false,
