@@ -25,6 +25,7 @@ import { logoDokusu, LOGO_DOSYALARI, type LogoTuru } from './logo';
 import { durumuOku, gecerliGorunus, kuveteBas, useDurum } from '../oyun/durum';
 import { gorunusSecenegi } from '../oyun/gorunus';
 import { zeminDokusu } from './zeminDokusu';
+import { tasDokusu } from './Mahalle';
 import { CatiTabelasiYeri, DisTabelalar, NeonTabela } from './Tabelalar';
 import { yuruyenler } from './yuruyenler';
 import { sesler } from '../ses/ses';
@@ -431,6 +432,13 @@ function IcZemin({ konum }: { konum: [number, number, number] }) {
   );
 }
 
+// Dükkânın çevresindeki kaldırım: mahalle sokaklarıyla aynı taş döşeme (belge 0.12)
+const kaldirimDokusu = (() => {
+  const d = tasDokusu();
+  d.repeat.set(92 / 4, 14.4 / 4);
+  return d;
+})();
+
 function Odalar() {
   const { kapaliParseller, duvarParcalari } = useDurum();
   const kenarlar = useMemo(() => sinirKenarlari(kapaliParseller), [kapaliParseller]);
@@ -518,7 +526,7 @@ function Odalar() {
       {/* Dükkânın etrafındaki taş kaldırım; derzler arazi karelerinin sınırında (4 m) */}
       <mesh position={[0, -0.12, 4.6]} receiveShadow>
         <boxGeometry args={[92, 0.1, 14.4]} />
-        <meshStandardMaterial color="#d9c9ad" roughness={1} />
+        <meshStandardMaterial map={kaldirimDokusu} roughness={1} />
       </mesh>
       {Array.from({ length: 23 }, (_, n) => (n - 11) * 4).map((x) => (
         <mesh key={x} position={[x, -0.065, 4.6]}>

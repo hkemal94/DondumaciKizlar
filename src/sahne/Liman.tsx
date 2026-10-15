@@ -3,7 +3,8 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { renk } from './renkler';
 import { HazirModel } from './HazirModel';
-import { SaydamEngel } from './SaydamEngel';
+import { Mahalle } from './Mahalle';
+import { KumsalSusleri } from './KumsalSusleri';
 
 // Liman (belge 0.10; Kemal, 14 Ekim gece): Kemal'in KKM "2D · kur"
 // haritasından ölçülüp oyunun yönüne çevrildi. Dükkânın önü denize bakar
@@ -38,7 +39,6 @@ export function kiyiZ(x: number) {
 const TERAS_ONU = -8.6;
 const YOL_ON = 15; // araba yolunun ön kenarı
 const YOL_ENI = 7;
-const MAHALLE_BASI = YOL_ON + YOL_ENI + 4;
 export const ISKELE_ENI = 4;
 const ISKELE_UCU = -127;
 const T_ENI = 44;
@@ -48,30 +48,40 @@ const T_DERINLIGI = 7;
 function Kumsal() {
   const geometri = useMemo(() => {
     const xs: number[] = [];
-    for (let x = -500; x <= 500; x += 10) xs.push(x);
-    // Her x için üç nokta: yol önü, su kenarının biraz gerisi, suyun içi
-    const sira = (x: number) => [
-      [x, -0.06, YOL_ON],
-      [x, -0.3, kiyiZ(x) + 1.5],
+    for (let x = -500; x <= 500; x += 5) xs.push(x);
+    // Her x için noktalar: yol önünden kıyıya dört ara nokta (kuru kum, hafif
+    // ton farkları), su kenarının biraz gerisi (ıslak), suyun içi
+    const SATIR = 7;
+    const sira = (x: number) => {
+      const kiyi = kiyiZ(x) + 1.5;
+      const l: number[][] = [];
+      for (let k = 0; k < 5; k++) {
+        const t = k / 5;
+        l.push([x, -0.06 - t * 0.12, YOL_ON + (kiyi - YOL_ON) * t]);
+      }
+      l.push([x, -0.3, kiyi]);
       // Su kenarında dik iner: dalgalar kıyıyı tırtıklı göstermesin
-      [x, -2.4, kiyiZ(x) - 2],
-    ];
+      l.push([x, -2.4, kiyiZ(x) - 2]);
+      return l;
+    };
     const konum: number[] = [];
     const renkler: number[] = [];
     const kuru = new THREE.Color(renk.kum);
     const islak = new THREE.Color(renk.kaya);
+    let tohum = 5;
+    const r = () => ((tohum = (tohum * 16807) % 2147483647) - 1) / 2147483646;
     for (const x of xs) {
       for (const [i, n] of sira(x).entries()) {
         konum.push(n[0], n[1], n[2]);
-        const c = i === 0 ? kuru : i === 1 ? kuru.clone().lerp(islak, 0.3) : islak;
+        const c = i < 5 ? kuru.clone().offsetHSL(0, (r() - 0.5) * 0.04, (r() - 0.5) * 0.05 - i * 0.008) : i === 5 ? kuru.clone().lerp(islak, 0.45) : islak;
         renkler.push(c.r, c.g, c.b);
       }
     }
     const indis: number[] = [];
     for (let i = 0; i < xs.length - 1; i++)
-      for (let j = 0; j < 2; j++) {
-        const a = i * 3 + j,
-          b = (i + 1) * 3 + j;
+      for (let j = 0; j < SATIR - 1; j++) {
+        const a = i * SATIR + j,
+          b = (i + 1) * SATIR + j;
         indis.push(a, b, a + 1, b, b + 1, a + 1);
       }
     const g = new THREE.BufferGeometry();
@@ -92,11 +102,6 @@ function Kumsal() {
 function YolVeZemin() {
   return (
     <group>
-      {/* Mahallenin zemini */}
-      <mesh position={[0, -0.08, (YOL_ON + 420) / 2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[1000, 420 - YOL_ON]} />
-        <meshStandardMaterial color={renk.duvar} roughness={1} />
-      </mesh>
       {/* Araba yolu ve iki yanında kaldırım */}
       <mesh position={[0, -0.03, YOL_ON + YOL_ENI / 2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[1000, YOL_ENI]} />
@@ -217,97 +222,6 @@ function LimanYapilari() {
   );
 }
 
-// ---- Mahalle: sokaklar ve alçak evler (uzakta sade; tek çizimde yüzlerce ev) ----
-const DUVAR_RENKLERI = [renk.duvar, renk.krem, renk.pembeSiva, renk.tekneGovde, renk.kum];
-function Mahalle() {
-  const { evler, catilar, bahceler } = useMemo(() => {
-    let s = 7;
-    const r = () => {
-      s = (s * 16807) % 2147483647;
-      return (s - 1) / 2147483646;
-    };
-    const ev: { x: number; z: number; en: number; der: number; boy: number; renk: string; don: number }[] = [];
-    const bahce: { x: number; z: number; en: number; der: number }[] = [];
-    // Kıyıya paralel sokaklar 34 m'de bir, dik sokaklar 44 m'de bir; araları iki sıra ev
-    for (let z0 = MAHALLE_BASI; z0 < 300; z0 += 34) {
-      for (let x0 = -420; x0 < 420; x0 += 44) {
-        for (const sira of [0, 1]) {
-          for (let k = 0; k < 3; k++) {
-            if (r() < 0.12) continue;
-            // Ön sıranın ortası ayrıntılı binaların yeri
-            if (z0 === MAHALLE_BASI && sira === 0 && Math.abs(x0 + 4 + k * 12.5) < 48) continue;
-            const en = 7 + r() * 3;
-            const der = 7 + r() * 2;
-            const x = x0 + 4 + k * 12.5 + en / 2;
-            const z = z0 + (sira ? 26 - der / 2 : 3 + der / 2);
-            ev.push({ x, z, en, der, boy: r() < 0.4 ? 6.8 : 3.8, renk: DUVAR_RENKLERI[Math.floor(r() * DUVAR_RENKLERI.length)], don: (r() - 0.5) * 0.08 });
-            if (r() < 0.5) bahce.push({ x, z: z + (sira ? -der / 2 - 2.5 : der / 2 + 2.5), en: en + 1, der: 4 });
-          }
-        }
-      }
-    }
-    const kutu = new THREE.BoxGeometry(1, 1, 1);
-    kutu.translate(0, 0.5, 0);
-    const evMesh = new THREE.InstancedMesh(kutu, new THREE.MeshStandardMaterial({ roughness: 0.95 }), ev.length);
-    const cati = new THREE.ConeGeometry(0.75, 1, 4);
-    cati.rotateY(Math.PI / 4);
-    cati.translate(0, 0.5, 0);
-    const catiMesh = new THREE.InstancedMesh(cati, new THREE.MeshStandardMaterial({ color: renk.kiremit, roughness: 0.9, flatShading: true }), ev.length);
-    const bahceMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 0.1, 1), new THREE.MeshStandardMaterial({ color: renk.tepe, roughness: 1 }), bahce.length);
-    const m = new THREE.Matrix4();
-    const q = new THREE.Quaternion();
-    const c = new THREE.Color();
-    ev.forEach((e, i) => {
-      q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), e.don);
-      m.compose(new THREE.Vector3(e.x, 0, e.z), q, new THREE.Vector3(e.en, e.boy, e.der));
-      evMesh.setMatrixAt(i, m);
-      evMesh.setColorAt(i, c.set(e.renk));
-      m.compose(new THREE.Vector3(e.x, e.boy, e.z), q, new THREE.Vector3(e.en * 1.02, 2.2, e.der * 1.02));
-      catiMesh.setMatrixAt(i, m);
-    });
-    bahce.forEach((b, i) => {
-      m.compose(new THREE.Vector3(b.x, -0.02, b.z), new THREE.Quaternion(), new THREE.Vector3(b.en, 1, b.der));
-      bahceMesh.setMatrixAt(i, m);
-    });
-    for (const im of [evMesh, catiMesh]) {
-      im.castShadow = false;
-      im.receiveShadow = true;
-    }
-    return { evler: evMesh, catilar: catiMesh, bahceler: bahceMesh };
-  }, []);
-  return (
-    <group>
-      <primitive object={evler} />
-      <primitive object={catilar} />
-      <primitive object={bahceler} />
-      {/* Sokaklar: kıyıya paralel ve dik */}
-      {Array.from({ length: 8 }, (_, i) => (
-        <mesh key={`p${i}`} position={[0, -0.05, MAHALLE_BASI + i * 34 - 2]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[1000, 4]} />
-          <meshStandardMaterial color={renk.kaya} roughness={1} />
-        </mesh>
-      ))}
-      {Array.from({ length: 20 }, (_, i) => (
-        <mesh key={`d${i}`} position={[-420 + i * 44 + 1, -0.05, (MAHALLE_BASI + 300) / 2]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[4, 300 - MAHALLE_BASI]} />
-          <meshStandardMaterial color={renk.kaya} roughness={1} />
-        </mesh>
-      ))}
-      {/* Yolun hemen arkasındaki ön sıra: ayrıntılı binalar */}
-      {[
-        ['binalar/building-c', -26, 7],
-        ['binalar/building-f', 2, 8.5],
-        ['binalar/building-c', 30, 7],
-      ].map(([yol, x, boy]) => (
-        // Kamerayla dükkân arasına girerse yarı saydam (Kemal, 15 Ekim)
-        <SaydamEngel key={String(x)}>
-          <HazirModel yol={String(yol)} ayar={{ grup: 'liman', yukseklik: Number(boy), boya: [['#6e7390', renk.pembeSiva, 24]] }} konum={[Number(x), 0, MAHALLE_BASI + 6]} donus={Math.PI} />
-        </SaydamEngel>
-      ))}
-    </group>
-  );
-}
-
 // ---- Tekneler: limanın içinde, iskeleye bağlı; biri girişten girip çıkar ----
 function Tekne({ yol, konum, en, donus = 0, faz = 0 }: { yol: string; konum: [number, number, number]; en: number; donus?: number; faz?: number }) {
   const ref = useRef<THREE.Group>(null);
@@ -376,6 +290,7 @@ export function Liman() {
   return (
     <group>
       <Kumsal />
+      <KumsalSusleri />
       <YolVeZemin />
       <TIskele />
       <Mendirek />

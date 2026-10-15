@@ -5,7 +5,7 @@ import { renk } from './renkler';
 import { gokRenkleri } from './gokRenkleri';
 import { PARSEL, YURUYUS_Z, Z0, parselAnahtari } from '../oyun/dekorasyon';
 import { useDurum } from '../oyun/durum';
-import { ISKELE_ENI, Liman } from './Liman';
+import { ISKELE_ENI, Liman, kiyiZ } from './Liman';
 
 // Dükkânın penceresinden görünen dış dünya: gök, deniz, önündeki ahşap
 // teras ve Liman (kumsal, T iskele, mendirek, mahalle, tekneler; belge 0.10,
@@ -56,31 +56,98 @@ function Gok() {
   );
 }
 
+// Deniz (belge 0.12; Kemal: "ne deniz bir şeye benziyor ne kumsal"): açılış
+// konsept görseli gibi yumuşak low-poly. Dalgalar ekran kartında hesaplanır
+// (köşeler her karede telefonda taşınmaz); kıyıya yakın açık turkuaz, açıkta
+// koyu mavi; kıyıda gelip giden köpük çizgisi.
+const DENIZ_Y = -0.9;
+const denizSaati = { value: 0 };
 function Deniz() {
-  const ref = useRef<THREE.Mesh>(null);
-  const geometri = useMemo(() => {
-    const g = new THREE.PlaneGeometry(1000, 700, 60, 40);
+  const { geometri, malzeme } = useMemo(() => {
+    const g = new THREE.PlaneGeometry(900, 640, 150, 100);
     g.rotateX(-Math.PI / 2);
-    return g;
-  }, []);
-  const temel = useMemo(() => Float32Array.from(geometri.attributes.position.array), [geometri]);
-
-  useFrame(({ clock }) => {
-    const t = clock.elapsedTime;
-    const konum = geometri.attributes.position as THREE.BufferAttribute;
+    g.translate(0, 0, -15 - 320);
+    // Renk: kıyıdan uzaklaştıkça koyulaşır
+    const konum = g.attributes.position;
+    const renkler: number[] = [];
+    const sig = new THREE.Color('#5fc4c9');
+    const orta = new THREE.Color(renk.denizSig);
+    const derin = new THREE.Color('#1f5f8f');
+    const c = new THREE.Color();
     for (let i = 0; i < konum.count; i++) {
-      const x = temel[i * 3];
-      const z = temel[i * 3 + 2];
-      konum.setY(i, Math.sin(x * 0.35 + t * 0.9) * 0.12 + Math.cos(z * 0.4 + t * 0.7) * 0.1);
+      const x = konum.getX(i);
+      const z = konum.getZ(i);
+      const uzak = Math.max(0, kiyiZ(x) - z);
+      if (uzak < 30) c.copy(sig).lerp(orta, uzak / 30);
+      else c.copy(orta).lerp(derin, Math.min(1, (uzak - 30) / 220));
+      renkler.push(c.r, c.g, c.b);
     }
-    konum.needsUpdate = true;
+    g.setAttribute('color', new THREE.Float32BufferAttribute(renkler, 3));
+    const m = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.3, metalness: 0.05, flatShading: true });
+    m.onBeforeCompile = (sh) => {
+      sh.uniforms.saat = denizSaati;
+      sh.vertexShader = sh.vertexShader
+        .replace('#include <common>', '#include <common>\nuniform float saat;')
+        .replace(
+          '#include <begin_vertex>',
+          `#include <begin_vertex>
+          float d1 = sin(position.x * 0.22 + saat * 0.9) * 0.16;
+          float d2 = cos(position.z * 0.27 + saat * 0.7) * 0.14;
+          float d3 = sin((position.x + position.z) * 0.12 + saat * 1.3) * 0.1;
+          transformed.y += d1 + d2 + d3;`,
+        );
+    };
+    return { geometri: g, malzeme: m };
+  }, []);
+  useFrame(({ clock }) => {
+    denizSaati.value = clock.elapsedTime;
   });
+  return <mesh geometry={geometri} material={malzeme} position={[0, DENIZ_Y, 0]} receiveShadow />;
+}
 
-  return (
-    <mesh ref={ref} geometry={geometri} position={[0, -0.9, -15 - 350]} receiveShadow>
-      <meshStandardMaterial color={renk.denizSig} roughness={0.35} metalness={0.05} flatShading />
-    </mesh>
-  );
+// Kıyıda köpük: su ile kumun buluştuğu yerde gelip giden beyaz şerit
+function Kopuk() {
+  const { geometri, malzeme } = useMemo(() => {
+    const konum: number[] = [];
+    const uv: number[] = [];
+    const indis: number[] = [];
+    let n = 0;
+    for (let x = -450; x <= 450; x += 4) {
+      const z = kiyiZ(x);
+      // Köpük suyun kuma değdiği yerin biraz dışından içine
+      konum.push(x, DENIZ_Y + 0.22, z - 2.2, x, DENIZ_Y + 0.22, z + 1.2);
+      uv.push(x / 18, 0, x / 18, 1);
+      if (n > 0) {
+        const a = (n - 1) * 2;
+        indis.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
+      }
+      n++;
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(konum, 3));
+    g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+    g.setIndex(indis);
+    const m = new THREE.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      uniforms: { saat: denizSaati },
+      vertexShader: /* glsl */ `
+        varying vec2 vUv;
+        void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+      fragmentShader: /* glsl */ `
+        uniform float saat;
+        varying vec2 vUv;
+        void main() {
+          // Dalga kıyıya gelip çekilir: köpük bandı v ekseninde ileri geri
+          float gelis = 0.45 + 0.25 * sin(saat * 0.8 + vUv.x * 0.9);
+          float bant = smoothstep(gelis - 0.28, gelis, vUv.y) * (1.0 - smoothstep(gelis, gelis + 0.06, vUv.y));
+          float benek = 0.7 + 0.3 * sin(vUv.x * 9.0 + saat * 1.7) * sin(vUv.x * 4.0 - saat);
+          gl_FragColor = vec4(1.0, 1.0, 1.0, bant * benek * 0.85);
+        }`,
+    });
+    return { geometri: g, malzeme: m };
+  }, []);
+  return <mesh geometry={geometri} material={malzeme} renderOrder={2} />;
 }
 
 function Tepe({
@@ -192,6 +259,7 @@ export function Disari() {
     <group>
       <Gok />
       <Deniz />
+      <Kopuk />
       <Teras />
       <Liman />
       {/* Mahallenin ardındaki tepeler (uzakta, sisin içinde) */}
