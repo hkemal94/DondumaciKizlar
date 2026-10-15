@@ -17,8 +17,7 @@ import {
   insaataBasla,
   yerlestirmeyiKapat,
   IYI_PAYI,
-  MUKEMMEL_ALT,
-  MUKEMMEL_UST,
+  mukemmelAraligi,
   ondekiMusteri,
   ortalamaMemnuniyet,
   sabirOrani,
@@ -40,6 +39,7 @@ import {
 } from '../oyun/durum';
 import { m, useDil, type MetinAnahtari } from '../metinler';
 import { GunYenilikleri, SeviyeParlamasi, SeviyeRozeti } from './Seviye';
+import { YetenekEkrani } from './YetenekEkrani';
 import { logoAdresi } from '../sahne/logo';
 import { CESITLER } from '../oyun/kuvetler';
 import { balon } from '../sahne/Musteriler';
@@ -76,6 +76,8 @@ function yayYolu(bas: number, son: number) {
 
 function Gosterge() {
   const ibre = useRef<SVGLineElement>(null);
+  // Usta kepçe yeteneğiyle genişler (8b)
+  const { alt, ust } = mukemmelAraligi(useDurum());
   useEffect(() => {
     let istek = 0;
     const dongu = () => {
@@ -91,8 +93,8 @@ function Gosterge() {
     <div className="gosterge">
       <svg viewBox="0 0 180 100" aria-hidden>
         <path d={yayYolu(0, 1)} className="yay-zemin" />
-        <path d={yayYolu(MUKEMMEL_ALT - IYI_PAYI, MUKEMMEL_UST + IYI_PAYI)} className="yay-iyi" />
-        <path d={yayYolu(MUKEMMEL_ALT, MUKEMMEL_UST)} className="yay-mukemmel" />
+        <path d={yayYolu(alt - IYI_PAYI, ust + IYI_PAYI)} className="yay-iyi" />
+        <path d={yayYolu(alt, ust)} className="yay-mukemmel" />
         <line ref={ibre} x1="90" y1="86" x2="20" y2="86" className="ibre" />
         <circle cx="90" cy="86" r="6" className="ibre-merkez" />
       </svg>
@@ -599,6 +601,7 @@ export function Arayuz() {
   const [vitrinAcik, setVitrinAcik] = useState(false);
   const [ayarlarAcik, setAyarlarAcik] = useState(false);
   const [yardimciAcik, setYardimciAcik] = useState(false);
+  const [yetenekAcik, setYetenekAcik] = useState(false);
   useYakinlastirma(durum.kamera === 'dukkan');
 
   // Parmak ekranın neresinde kalkarsa kalksın kepçe bırakılır.
@@ -750,7 +753,7 @@ export function Arayuz() {
           )}
         </div>
       )}
-      {!tezgahta && durum.hazirlik && !durum.yerlestirme && !durum.insaat && !durum.gunSonu && !calisanAcik && !gelistirAcik && !durum.istasyonSecimi && !yardimciAcik && (
+      {!tezgahta && durum.hazirlik && !durum.yerlestirme && !durum.insaat && !durum.gunSonu && !calisanAcik && !gelistirAcik && !durum.istasyonSecimi && !yardimciAcik && !yetenekAcik && (
         <MenuSeridi
           sec={(is) => {
             const sekmeler: Partial<Record<MenuIsi, GelistirSekmesi>> = { gelistir: 'dekorasyon', gorunus: 'gorunus', cesitler: 'cesitler', fiyat: 'fiyat' };
@@ -763,6 +766,7 @@ export function Arayuz() {
               egitimGor('vitrin');
             } else if (is === 'yerlestir') yerlestirmeyiAc();
             else if (is === 'yardimci') setYardimciAcik(true);
+            else if (is === 'yetenek') setYetenekAcik(true);
             else if (is === 'insaat') {
               insaataBasla();
               insaatKamerasi();
@@ -781,6 +785,7 @@ export function Arayuz() {
       <GunSonu />
       <IstasyonSecimi />
       {yardimciAcik && durum.hazirlik && <YardimciEkrani kapat={() => setYardimciAcik(false)} />}
+      {yetenekAcik && durum.hazirlik && <YetenekEkrani kapat={() => setYetenekAcik(false)} />}
     </div>
   );
 }
