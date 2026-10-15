@@ -226,11 +226,13 @@ function KapiParcasi({ x, z }: { x: number; z: number }) {
   );
 }
 
-// Ön parçaların dışındaki tente şeridi (seçilen iki renk) ve içerideki ampuller
+// Ön parçaların dışındaki tente şeridi (seçilen iki renk) ve içerideki ampuller.
+// Tente duvardan dışa doğru aşağı iner ve pencerenin hemen üstünden başlar;
+// yukarı kalkık olunca cephedeki logoyu kesiyordu (Kemal, 15 Ekim akşam)
 function TenteParcasi() {
   const { tente } = useGorunusRenkleri();
   return (
-    <group position={[0, PENCERE_UST + 0.12, -0.55]} rotation={[0.32, 0, 0]}>
+    <group position={[0, PENCERE_UST - 0.05, -0.53]} rotation={[-0.32, 0, 0]}>
       {[-0.25, 0.25].map((x, i) => (
         <mesh key={x} position={[x, 0, 0]} castShadow>
           <boxGeometry args={[0.5, 0.04, 1.1]} />

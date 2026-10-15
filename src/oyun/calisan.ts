@@ -4,8 +4,27 @@ import { AYAR, fiyatiAyarla } from './ayarlar';
 // Fiyatlar geçici. Çalışana hikâye / geçmiş yazılmaz (Kemal'in).
 
 export const TENLER = ['#f3cfae', '#e3b08a', '#c98e66', '#9a6545', '#6b4430'];
-export const SAC_MODELLERI = ['kisa', 'uzun', 'topuz', 'kivircik'] as const;
+// Saçlar paketteki başlardan gelir (Kemal, 15 Ekim akşam: "adı var kendi yok";
+// "çözemezsen adları olanlarla değiştir"). Pakette kadın için iki, erkek için
+// dört ayrı saç var; adlar gerçekte görünene göre. Daha çok saç yeni model ister.
+export const SAC_MODELLERI = ['kisa', 'dalgali', 'kabarik', 'dik', 'yanaTarali'] as const;
 export type SacModeli = (typeof SAC_MODELLERI)[number];
+export const SACLAR: Record<'kadin' | 'erkek', { id: SacModeli; bas: string }[]> = {
+  kadin: [
+    { id: 'kisa', bas: 'casual' },
+    { id: 'dalgali', bas: 'formal' },
+  ],
+  erkek: [
+    { id: 'kisa', bas: 'casual_2' },
+    { id: 'kabarik', bas: 'casual_hoodie' },
+    { id: 'dik', bas: 'beach' },
+    { id: 'yanaTarali', bas: 'suit' },
+  ],
+};
+// Bedende olmayan saç seçiliyse (beden değişince, eski kayıt) ilki
+export function gecerliSac(beden: 'kadin' | 'erkek', sac: string) {
+  return SACLAR[beden].find((s) => s.id === sac) ?? SACLAR[beden][0];
+}
 export const SAC_RENKLERI = ['#2b211c', '#5a3825', '#8a5a34', '#c98a4a', '#e8cf8a', '#7a3fa8'];
 
 export type Desen = 'duz' | 'cizgili' | 'puantiye';
@@ -20,6 +39,9 @@ export interface Onluk {
 // Önlük şimdilik kaldırıldı (Kemal, 14 Ekim gece: "berbat görünüyor").
 // Daha iyisi yapılınca açılır (yol haritası, sona kalanlar); seçenekler ve kayıt duruyor.
 export const ONLUK_ACIK = true; // 15 Ekim: bedene oturan önlükle geri geldi (belge 0.12)
+
+// Önlüksüz (Kemal, 15 Ekim akşam: "önlüğü çıkarma düğmesi olsun"); üniformada yine mor önlük
+export const ONLUK_YOK = 'yok';
 
 export const ONLUKLER: Onluk[] = fiyatiAyarla([
   { id: 'mor', renk: '#7a3fa8', desen: 'duz', fiyat: 0 },
@@ -65,7 +87,7 @@ export const VARSAYILAN_CALISAN: CalisanGorunumu = {
   ad: '',
   beden: 'kadin',
   ten: 1,
-  sac: 'topuz',
+  sac: 'kisa',
   sacRengi: 1,
   onluk: 'mor',
   aksesuarlar: [],

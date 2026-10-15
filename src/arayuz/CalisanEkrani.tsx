@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { aksesuarAl, aksesuarDegistir, calisaniDegistir, onlukAl, useDurum } from '../oyun/durum';
-import { AD_EN_UZUN, AKSESUARLAR, BEDEN_SECENEKLERI, KIYAFETLER, ONLUK_ACIK, ONLUKLER, SAC_MODELLERI, SAC_RENKLERI, TENLER } from '../oyun/calisan';
+import { AD_EN_UZUN, AKSESUARLAR, BEDEN_SECENEKLERI, KIYAFETLER, ONLUK_ACIK, ONLUK_YOK, ONLUKLER, gecerliSac, SACLAR, SAC_RENKLERI, TENLER } from '../oyun/calisan';
 import { m, type MetinAnahtari } from '../metinler';
 import { logoAdresi } from '../sahne/logo';
 import { odak } from '../sahne/kameraKarisimi';
@@ -92,8 +92,8 @@ export function CalisanEkrani({ kapat }: { kapat: () => void }) {
         <div className="calisan-satir">
           <span className="gel-baslik">{m('calisan.sac')}</span>
           <div className="secenek-cipleri">
-            {SAC_MODELLERI.map((s) => (
-              <button key={s} className={`cip ${c.sac === s ? 'secili' : ''}`} onClick={() => calisaniDegistir({ sac: s })}>
+            {SACLAR[c.beden].map(({ id: s }) => (
+              <button key={s} className={`cip ${gecerliSac(c.beden, c.sac).id === s ? 'secili' : ''}`} onClick={() => calisaniDegistir({ sac: s })}>
                 {m(`sac.${s}` as MetinAnahtari)}
               </button>
             ))}
@@ -108,6 +108,9 @@ export function CalisanEkrani({ kapat }: { kapat: () => void }) {
         {ONLUK_ACIK && <div className="calisan-satir">
           <span className="gel-baslik">{m('calisan.onluk')}</span>
           <div className="secenek-cipleri">
+            <button className={`cip ${c.onluk === ONLUK_YOK ? 'secili' : ''}`} onClick={() => calisaniDegistir({ onluk: ONLUK_YOK })}>
+              {m('onluk.yok')}
+            </button>
             {ONLUKLER.map((o) => {
               const acik = durum.acikOnlukler.includes(o.id);
               return acik ? (

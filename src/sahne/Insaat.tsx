@@ -91,7 +91,7 @@ function DuvarSecici({ secili }: { secili: string | null }) {
               parselSec(`duvar:${anahtar}`);
             }}
           >
-            <planeGeometry args={[0.92, 0.45]} />
+            <planeGeometry args={[0.92, 0.7]} />
             <meshBasicMaterial color={buSecili ? '#ffffff' : PARCA_RENGI[parcaTuru(k, duvarParcalari)]} transparent opacity={buSecili ? 0.95 : 0.8} depthWrite={false} />
           </mesh>
         );

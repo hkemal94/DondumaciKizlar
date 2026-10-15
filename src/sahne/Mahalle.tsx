@@ -45,6 +45,9 @@ const EV_TIPLERI: { yol: string; boy: number; agirlik: number }[] = [
   { yol: 'k-tower-d', boy: 12, agirlik: 0.7 },
 ];
 
+// Alçak ev tipleri (dükkânın hemen arkasındaki sıra için)
+const ALCAK_EVLER = EV_TIPLERI.map((t, i) => (t.boy <= 7 ? i : -1)).filter((i) => i >= 0);
+
 // Duvar renkleri: çoğu beyaz badana, aralarda krem, sıva pembesi, açık sarı
 const DUVARLAR = ['#f6f3ec', '#f6f3ec', '#f6f3ec', '#f6f3ec', '#f1e6d2', '#efd9cc', '#f3e5b5', '#f6f3ec', '#e6eef0'];
 
@@ -240,6 +243,10 @@ function yerleriHesapla(satirSayisi: number, xSiniri: number) {
   for (let x = -xSiniri; x < xSiniri; x += 14) agaclar.push({ x: x + r() * 3, z: YOL_ON + YOL_ENI + 2.2, tur: 'zeytin', boy: 3.5 + r() * 1.5 });
   // Eğik sokaklar: bütün yerler içeri gittikçe kayar (yol kenarı ağaçları hariç)
   for (const e of evler) e.x += kay(e.z);
+  // Dükkânın tam arkasındaki ilk sıra yalnız alçak evlerden (Kemal, 15 Ekim
+  // akşam: yüksek evler genel görünümde dükkânı kesiyordu)
+  const ilkSira = MAHALLE_BASI + 5;
+  for (const e of evler) if (Math.abs(e.z - ilkSira) < 0.5 && Math.abs(e.x) < 60 && EV_TIPLERI[e.tip].boy > 7) e.tip = ALCAK_EVLER[e.tip % ALCAK_EVLER.length];
   for (const b of bahceler) b.x += kay(b.z);
   for (const a of agaclar) if (a.z > MAHALLE_BASI - 1) a.x += kay(a.z);
   // Dükkânın hemen arkasındaki evler ayrı (kamerayla dükkân arasına girince solarlar)

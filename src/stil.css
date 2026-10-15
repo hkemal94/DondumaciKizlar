@@ -2704,3 +2704,26 @@ li.tamam .hedef-ad {
   grid-template-columns: 1fr;
   gap: 4px;
 }
+
+/* Mola menüsünün altında Ana sayfa ve Çıkış yan yana (15 Ekim akşam) */
+.duraklat-alt {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.duraklat-alt .dugme {
+  flex: 1;
+  margin: 0;
+}
+
+/* İnşaat paneli sağda dar bir sütun (15 Ekim akşam): sahne ve seçili duvar görünsün */
+.insaat-panel {
+  width: min(290px, 40vw);
+  max-height: calc(100vh - 130px);
+  max-height: calc(100dvh - 130px);
+  overflow-y: auto;
+  font-size: 12px;
+}
+.insaat-panel .insaat-parca {
+  gap: 4px;
+}

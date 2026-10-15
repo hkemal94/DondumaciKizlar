@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { devamEt, duraklat, duraklatilabilir, gezmeyeBasla, gezmeyiBitir, kayitYuvasi, useDurum } from '../oyun/durum';
+import { anaSayfayaDon, devamEt, duraklat, kaydetVeKapat, duraklatilabilir, gezmeyeBasla, gezmeyiBitir, kayitYuvasi, useDurum } from '../oyun/durum';
 import { fotoEkle } from '../oyun/galeri';
 import { Galeri } from './Galeri';
+import { tamEkraniDegistir, tamEkranVar, useTamEkran } from './tamEkran';
 import { m, type MetinAnahtari } from '../metinler';
 import { logoAdresi } from '../sahne/logo';
 import { gezmeIsigi, gezmeIsiginiDegistir } from '../sahne/gokRenkleri';
@@ -23,8 +24,24 @@ export function DuraklatDugmesi() {
 export function DuraklatMenusu({ ayarlar }: { ayarlar: () => void }) {
   const durum = useDurum();
   const [galeri, setGaleri] = useState(false);
+  const [cikis, setCikis] = useState(false);
+  const tamEkran = useTamEkran();
   if (!durum.duraklatildi || durum.gezme) return null;
   if (galeri) return <Galeri kapat={() => setGaleri(false)} />;
+  // Çıkış: kayıt alındı; tarayıcı sekmeyi kapatmazsa bu yazı kalır
+  if (cikis)
+    return (
+      <div className="gun-sonu-zemin">
+        <div className="gun-sonu duraklat-menu" role="dialog" aria-labelledby="cikis-baslik">
+          <img className="baslik-logo" src={logoAdresi('yazi')} alt="" aria-hidden />
+          <h2 id="cikis-baslik">{m('duraklat.kaydedildi')}</h2>
+          <p className="gel-not">{m('duraklat.kapatabilirsin')}</p>
+          <button className="dugme dugme-yeni-gun" onClick={() => setCikis(false)}>
+            {m('duraklat.devam')}
+          </button>
+        </div>
+      </div>
+    );
   return (
     <div className="gun-sonu-zemin">
       <div className="gun-sonu duraklat-menu" role="dialog" aria-labelledby="duraklat-baslik">
@@ -42,6 +59,25 @@ export function DuraklatMenusu({ ayarlar }: { ayarlar: () => void }) {
         <button className="dugme" onClick={ayarlar}>
           {m('acilis.ayarlar')}
         </button>
+        {tamEkranVar() && (
+          <button className="dugme" onClick={() => void tamEkraniDegistir()}>
+            {m(tamEkran ? 'duraklat.tamEkrandanCik' : 'duraklat.tamEkran')}
+          </button>
+        )}
+        <div className="duraklat-alt">
+          <button className="dugme" onClick={anaSayfayaDon}>
+            {m('duraklat.anaSayfa')}
+          </button>
+          <button
+            className="dugme"
+            onClick={() => {
+              kaydetVeKapat();
+              setCikis(true);
+            }}
+          >
+            {m('duraklat.cikis')}
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { m, type MetinAnahtari } from '../metinler';
 import { Kilit } from './Seviye';
+import { adOner } from '../oyun/adOnerileri';
+import { rastgeleVaryant } from '../sahne/karakterler';
 import {
   yardimciKilidi,
   IYI_PAYI,
@@ -352,6 +354,14 @@ function IstasyonResmi({ ist }: { ist: Istasyon }) {
 export function YardimciEkrani({ kapat }: { kapat: () => void }) {
   const durum = useDurum();
   const [adlar, setAdlar] = useState<Record<number, string>>({});
+  // Adaylar hazır adla gelir (görünüşüne uyan, dükkânda olmayan); kutudan değişir
+  const hazirAdlar: Record<number, string> = {};
+  const kullanilan = durum.yardimcilar.map((y) => y.ad);
+  for (const a of durum.adaylar) {
+    const ad = adOner(a.tohum, rastgeleVaryant(a.tohum).cinsiyet === 'kadin', kullanilan);
+    hazirAdlar[a.id] = ad;
+    kullanilan.push(ad);
+  }
   return (
     <div className="gun-sonu-zemin sag-zemin">
       <div className="gun-sonu yardimci-ekrani" role="dialog" aria-labelledby="yardimci-baslik">
@@ -400,13 +410,13 @@ export function YardimciEkrani({ kapat }: { kapat: () => void }) {
                   className="yardimci-ad"
                   maxLength={AD_EN_UZUN}
                   placeholder={m('yardimci.adYaz')}
-                  value={adlar[a.id] ?? ''}
+                  value={adlar[a.id] ?? hazirAdlar[a.id]}
                   onChange={(e) => setAdlar({ ...adlar, [a.id]: e.target.value })}
                 />
                 <button
                   className="dugme gel-al"
-                  disabled={!yardimciAlinabilir(durum) || !(adlar[a.id] ?? '').trim()}
-                  onClick={() => yardimciAl(a.id, adlar[a.id] ?? '')}
+                  disabled={!yardimciAlinabilir(durum) || !(adlar[a.id] ?? hazirAdlar[a.id]).trim()}
+                  onClick={() => yardimciAl(a.id, adlar[a.id] ?? hazirAdlar[a.id])}
                 >
                   {m('yardimci.al')} <span className="para-simge" aria-hidden /> {YARDIMCI_FIYATI}
                 </button>
