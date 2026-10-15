@@ -26,7 +26,7 @@
   "gezme.ipucu": "Bir parmakla kaydır; iki parmakla çevir, yakınlaş, yukarı aşağı eğ",
   "gezme.foto": "Fotoğraf çek",
   "gezme.fotoAlt": "Dükkânının fotoğrafı",
-  "gezme.fotoNot": "Kaydetmek için resme basılı tut.",
+  "gezme.fotoNot": "Galeriye eklendi. Kaydetmek için resme basılı tut.",
   "gezme.indir": "İndir",
   "gezme.isik.simdi": "Saat: şimdi",
   "gezme.isik.gunduz": "Gündüz",
@@ -429,5 +429,18 @@
   "kiyafet.casual_2": "Gündelik",
   "kiyafet.casual_hoodie": "Kapüşonlu",
   "kiyafet.beach": "Plaj",
-  "kiyafet.farmer": "Tulum"
+  "kiyafet.farmer": "Tulum",
+  "galeri.baslik": "Galeri",
+  "galeri.fotolar": "Fotoğraflarım",
+  "galeri.album": "Albüm",
+  "galeri.bos": "Henüz fotoğraf yok. Molada \"Dükkânı gez\" deyip fotoğraf çekebilirsin.",
+  "galeri.albumBos": "Dükkânın fotoğrafı her ayın ilk akşamı kendiliğinden çekilip buraya girer.",
+  "galeri.gun": "Gün {gun}",
+  "galeri.sil": "Sil",
+  "galeri.silEvet": "Evet, sil",
+  "galeri.geri": "Geri",
+  "galeri.kapat": "Kapat",
+  "acilis.galeri": "Galeri",
+  "duraklat.galeri": "Galeri",
+  "haber.album": "Dükkânın bu ayki fotoğrafı albüme girdi"
 }

@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { devamEt, duraklat, duraklatilabilir, gezmeyeBasla, gezmeyiBitir, useDurum } from '../oyun/durum';
+import { devamEt, duraklat, duraklatilabilir, gezmeyeBasla, gezmeyiBitir, kayitYuvasi, useDurum } from '../oyun/durum';
+import { fotoEkle } from '../oyun/galeri';
+import { Galeri } from './Galeri';
 import { m, type MetinAnahtari } from '../metinler';
 import { logoAdresi } from '../sahne/logo';
 import { gezmeIsigi, gezmeIsiginiDegistir } from '../sahne/gokRenkleri';
@@ -20,7 +22,9 @@ export function DuraklatDugmesi() {
 
 export function DuraklatMenusu({ ayarlar }: { ayarlar: () => void }) {
   const durum = useDurum();
+  const [galeri, setGaleri] = useState(false);
   if (!durum.duraklatildi || durum.gezme) return null;
+  if (galeri) return <Galeri kapat={() => setGaleri(false)} />;
   return (
     <div className="gun-sonu-zemin">
       <div className="gun-sonu duraklat-menu" role="dialog" aria-labelledby="duraklat-baslik">
@@ -31,6 +35,9 @@ export function DuraklatMenusu({ ayarlar }: { ayarlar: () => void }) {
         </button>
         <button className="dugme" onClick={gezmeyeBasla}>
           {m('duraklat.gez')}
+        </button>
+        <button className="dugme" onClick={() => setGaleri(true)}>
+          {m('duraklat.galeri')}
         </button>
         <button className="dugme" onClick={ayarlar}>
           {m('acilis.ayarlar')}
@@ -50,7 +57,10 @@ export function GezmeEkrani() {
   const duvarDegistir = () => setDuvarModu(duvarModunuDegistir());
   const cek = () => {
     const r = fotograf.cek?.();
-    if (r) setResim(r);
+    if (!r) return;
+    setResim(r);
+    // Galeriye girer (belge 0.12)
+    void fotoEkle(kayitYuvasi(), 'gezme', durum.gun, r);
   };
   return (
     <>

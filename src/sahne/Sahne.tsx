@@ -1,7 +1,8 @@
 import { Suspense, useLayoutEffect } from 'react';
 import { Canvas, events, useFrame, useThree, type RootState } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
-import { durumuOku, istasyonX, saatDakikasi } from '../oyun/durum';
+import { albumCekildi, albumZamani, durumuOku, istasyonX, kayitYuvasi, saatDakikasi } from '../oyun/durum';
+import { fotoEkle } from '../oyun/galeri';
 import { gezmeSaati, gokRenkleri, tabelaIsigi } from './gokRenkleri';
 import { useEkranAyari } from '../arayuz/ekranAyari';
 import * as THREE from 'three';
@@ -63,9 +64,38 @@ function dikeyAci(yatayDerece: number, oran: number) {
   return THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(yatay / 2) / oran));
 }
 
-// Fotoğraf çekmek için o anki görüntüyü verir
+// Albümün bakışı (belge 0.12): oyuncunun döndürmesinden bağımsız, genel
+// görünümün biraz yanından ve geriden, bütün dükkânı alan sabit bir açı
+const ALBUM = { donus: 0.15, yakinlik: 1.05 };
+
+// Fotoğraf çekmek için o anki görüntüyü verir; ayda bir albüm fotoğrafını
+// kendiliğinden çeker (ayrı kamerayla, ekranda görünmeden)
 function FotografMakinesi() {
-  const { gl, scene, camera } = useThree();
+  const { gl, scene, camera, size } = useThree();
+  const albumKamerasi = useMemo(() => new THREE.PerspectiveCamera(40, 1, 0.05, 900), []);
+  const bekliyor = useRef(false);
+  useFrame(() => {
+    // Genel görünümdeyken (tezgahta çalışan gizli, yakın plan eşyaları ortada)
+    if (bekliyor.current || kameraKarisimi.deger < 0.99 || odak.calisan || !albumZamani()) return;
+    const d = durumuOku();
+    const alan = araziCercevesi(d.parseller);
+    const fark = DUKKAN.konum.clone().sub(DUKKAN.hedef).multiplyScalar(ALBUM.yakinlik * alan.olcek);
+    fark.applyAxisAngle(new THREE.Vector3(0, 1, 0), ALBUM.donus);
+    const hedef = DUKKAN.hedef.clone().add(new THREE.Vector3(alan.merkezX, 0, alan.merkezZ));
+    albumKamerasi.position.copy(hedef).add(fark);
+    albumKamerasi.lookAt(hedef);
+    albumKamerasi.aspect = size.width / size.height;
+    albumKamerasi.fov = THREE.MathUtils.clamp(dikeyAci(DUKKAN.yatay, albumKamerasi.aspect), 22, 48);
+    albumKamerasi.updateProjectionMatrix();
+    // Bu karede önce albüm için çizilir, hemen ardından oyun kendi kamerasıyla
+    // yeniden çizer; ekranda bir şey değişmez
+    gl.render(scene, albumKamerasi);
+    const resim = gl.domElement.toDataURL('image/jpeg', 0.88);
+    bekliyor.current = true;
+    const gun = d.gun;
+    albumCekildi();
+    void fotoEkle(kayitYuvasi(), 'album', gun, resim).finally(() => (bekliyor.current = false));
+  });
   useLayoutEffect(() => {
     fotograf.cek = () => {
       gl.render(scene, camera);
@@ -85,6 +115,7 @@ function KameraYoneticisi() {
   const dukkanKonumu = useRef(new THREE.Vector3());
   const yakinlik = useRef(dukkanYakinligi.deger);
   const donus = useRef(0);
+  const acilisDonusu = useRef(0);
   const egim = useRef(0);
   const odakKarisimi = useRef(0);
   const kayma = useRef(new THREE.Vector3());
@@ -102,10 +133,18 @@ function KameraYoneticisi() {
     const t = k.deger * k.deger * (3 - 2 * k.deger); // yavaş başla, yavaş bitir
     // Geçişte kamera kısa bir yay çizer: önce biraz yükselir
     // Yakınlaştırma: hedefe doğru yaklaşıp uzaklaşır, yumuşakça
-    yakinlik.current = THREE.MathUtils.damp(yakinlik.current, dukkanYakinligi.deger, 10, dt);
+    // Açılışta biraz geriden: dükkânla birlikte liman ve gün batımı da görünsün
+    yakinlik.current = THREE.MathUtils.damp(yakinlik.current, dukkanYakinligi.deger * (durumuOku().acilis ? 1.35 : 1), 10, dt);
     // Genel görünümde oyuncu dükkânın çevresinde döner ve aşağı yukarı bakar
     const d = durumuOku();
-    donus.current = THREE.MathUtils.damp(donus.current, dukkanDonusu.deger, 8, dt);
+    // Açılış ekranında kamera dükkânın çevresinde yavaşça döner (belge 0.12);
+    // oyun başlayınca en kısa yoldan oyuncunun bakışına döner
+    if (d.acilis) acilisDonusu.current += dt * 0.05;
+    else if (acilisDonusu.current !== 0) {
+      donus.current -= Math.round(acilisDonusu.current / (Math.PI * 2)) * Math.PI * 2;
+      acilisDonusu.current = 0;
+    }
+    donus.current = THREE.MathUtils.damp(donus.current, dukkanDonusu.deger + acilisDonusu.current, 8, dt);
     egim.current = THREE.MathUtils.damp(egim.current, dukkanEgimi.deger, 8, dt);
     // Varsayılan bakışın yerden yüksekliği (açı) ile uzaklığı; eğim açıya eklenir
     const fark = DUKKAN.konum.clone().sub(DUKKAN.hedef);
@@ -162,6 +201,7 @@ function KameraYoneticisi() {
 
 // Işık saate göre (yaz akşamı, Ege): öğleden sonra güneş alçalır,
 // 19:30–20:30 gün batımı, sonra gece. Gece dükkânın içi ve ampuller öne çıkar.
+const ACILIS_SAATI = 19.7;
 const OGLE = new THREE.Color('#fff4e2');
 const AKSAM = new THREE.Color('#ff9a5a');
 const GOK_UST_GUNDUZ = new THREE.Color(renk.gokUst);
@@ -181,7 +221,8 @@ function Isiklar() {
     if (!isik) return;
     const d = durumuOku();
     // Gezerken gece / gündüz düğmesi ışığın saatini seçebilir
-    const secilen = d.gezme ? gezmeSaati() : null;
+    // Açılış ekranında dükkân gün batımında (belge 0.12)
+    const secilen = d.gezme ? gezmeSaati() : d.acilis ? ACILIS_SAATI : null;
     const saat = secilen ?? saatDakikasi(d) / 60;
     const aksam = THREE.MathUtils.smoothstep(saat, 16.5, 20); // güneş alçalır, turuncuya döner
     const gece = THREE.MathUtils.smoothstep(saat, 20, 21.5); // gök kararır

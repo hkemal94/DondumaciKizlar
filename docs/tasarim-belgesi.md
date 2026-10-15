@@ -77,7 +77,7 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Gezerken duvarlar | Tek düğme sırayla değiştirir (Kemal, 13 Ekim): **Kesit** (bakılan yöne dönük duvarlar kalkar) → **Duvarsız** (hepsi kalkar) → **Kapalı** (bütün duvarlar ve tavan yerinde; dükkâna tümden dışarıdan bakılır) |
 | Gezerken gece / gündüz | Dükkânı gezerken bir düğme ışığı sırayla değiştirir: şimdiki saat → gündüz → akşam → gece (Kemal, 13 Ekim). Yalnız görünüş; oyunun saati değişmez |
 | Deneme parası | ~~`#deneme` ile +5000 düğmesi~~ → **kaldırıldı** (15 Ekim, 0.12): yerini 10.000 jeton ve Deneme dükkânı aldı. `#hizli` (30 sn gün) da kaldırıldı |
-| Fotoğraf | Gezerken **Fotoğraf çek**: o anki görüntü gösterilir; telefonda resme basılı tutarak kaydedilir (Claude önizlemesinde İndir düğmesi çalışmaz, yayın bağlantısında çalışır) |
+| Fotoğraf | Gezerken **Fotoğraf çek**: o anki görüntü gösterilir ve galeriye girer (0.12, 5. adım); telefonda resme basılı tutarak kaydedilir (Claude önizlemesinde İndir düğmesi çalışmaz, yayın bağlantısında çalışır) |
 | Sipariş balonu | Müşterinin başının sağında, aşağı doğru açılır (üstteki ipucuyla çakışmasın; 13 Ekim) |
 | İpucu yazısı | Üst sıranın altında, ortada; dili sıcak (Kemal, 13 Ekim: "üst üste gelmiş, çok soğuk") |
 | Tepsi | Dükkânı geliştir → Yeni çeşitler'den **Tepsi** (geçici 400) alınınca siparişlerin bazıları **iki dondurma** ya da **iki süsleme** ister. İki dondurmalı siparişte ilk dondurma hazırlanınca **Tepsiye koy**'a basılır, sonra ikincisi hazırlanır, Servis et ikisini birden verir. Balonda iki dondurma yan yana görünür. Sıra kural değil |
@@ -404,9 +404,9 @@ yazılar kanon değildir.
 
 | Konu | Karar |
 |---|---|
-| Açılış | Arkada oyuncunun kendi dükkânı, gün batımında, yavaş dönen kamera |
-| Galeri | "Dükkânı gez"de çekilen fotoğraflar birikir |
-| Albüm | Dükkânın fotoğrafı **ayda bir** kendiliğinden çekilip albüme girer |
+| Açılış | Arkada oyuncunun kendi dükkânı, gün batımında, yavaş dönen kamera. Yapıldı (5. adım): açılışta ışık gün batımı saatinde, kamera biraz geriden dükkânın çevresinde yavaşça döner; mor perde yalnız kenarlarda. Oyun başlayınca kamera oyuncunun bakışına döner |
+| Galeri | "Dükkânı gez"de çekilen fotoğraflar birikir. Yapıldı (5. adım): çekilen her fotoğraf galeriye girer; Galeri açılış ekranında (kayıt varsa) ve mola menüsünde. İki sekme: Fotoğraflarım / Albüm. Fotoğrafa dokununca büyür: Sil (bir kez daha sorar), İndir, Geri. Fotoğraflar kayıttan ayrı durur (baştan başlayınca silinmez); deneme dükkânının fotoğrafları ayrı |
+| Albüm | Dükkânın fotoğrafı **ayda bir** kendiliğinden çekilip albüme girer. Yapıldı (5. adım; **Claude'un önerisi, Kemal onaylamadı**): oyunda bir ay 30 gün; her ayın ilk günü 18.30'dan sonra genel görünümdeyken sabit bir açıdan çekilir (ekranda bir şey değişmez, haber şeridinde "albüme girdi" geçer). O akşam hep tezgahta kalınırsa ayın sonraki ilk fırsatında. Deneme dükkânında çekilmez |
 
 **Araçlar, dil, yayın**
 

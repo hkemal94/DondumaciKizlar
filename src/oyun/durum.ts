@@ -256,6 +256,9 @@ export interface Durum {
   tabelaDenemesi: Tabela | null; // alınmadan denenen (kaydedilmez)
   // Eğitim (Kemal, 14 Ekim): görülen el işaretleri (kayıtta saklanır)
   egitimGoruldu: EgitimAdi[];
+  // Albüm (belge 0.12): dükkânın kendiliğinden çekilen fotoğrafı en son hangi
+  // ay (30 günlük) çekildi; -1 = hiç
+  albumAyi: number;
   // Duraklatma menüsü (Kemal, 13 Ekim): saat ve müşteriler durur
   duraklatildi: boolean;
   gezme: boolean; // duraklatıp dükkânı gezme (döndürme, yakınlaştırma, fotoğraf)
@@ -389,6 +392,7 @@ let durum: Durum = {
   tabelalar: [],
   tabelaDenemesi: null,
   egitimGoruldu: [],
+  albumAyi: -1,
   duraklatildi: false,
   gezme: false,
   mukemmelSeri: 0,
@@ -1865,6 +1869,7 @@ interface Kayit {
   acikGorunusler?: string[];
   tabelalar?: Tabela[];
   egitimGoruldu: EgitimAdi[];
+  albumAyi?: number;
 }
 
 function kaydet() {
@@ -1903,6 +1908,7 @@ function kaydet() {
     acikGorunusler: durum.acikGorunusler,
     tabelalar: durum.tabelalar,
     egitimGoruldu: durum.egitimGoruldu,
+    albumAyi: durum.albumAyi,
   };
   try {
     localStorage.setItem(kayitAnahtari, JSON.stringify(k));
@@ -1942,6 +1948,7 @@ export function kaydiYukle() {
         : (k.gun ?? 1) > 1 || (k.memnuniyetler?.length ?? 0) > 0
           ? [...EGITIMLER]
           : [],
+      albumAyi: typeof k.albumAyi === 'number' ? k.albumAyi : -1,
     });
     // Eski parçaların parası geri verildiyse hemen kaydedilir (bir kez verilsin)
     if (eskiParcaIadesi(k) > 0) kaydet();
@@ -2184,6 +2191,7 @@ function durumuSifirla() {
   tabelalar: [],
   tabelaDenemesi: null,
     egitimGoruldu: [],
+    albumAyi: -1,
     dakika: 0,
     acik: true,
     gunSonu: false,
@@ -2241,6 +2249,31 @@ export function denemeDukkani() {
 }
 export function denemedeMi() {
   return kayitAnahtari === DENEME_ANAHTARI;
+}
+// Galeride fotoğraflar kayıt yuvasına göre ayrılır (asıl dükkân / deneme)
+export function kayitYuvasi() {
+  return denemedeMi() ? 'deneme' : 'ana';
+}
+
+// ---- Albüm (belge 0.12, 5. adım) ----
+// Oyunda bir ay 30 gün. Her ayın ilk günü akşamüstü (18.30'dan sonra) genel
+// görünüme dönülünce dükkânın fotoğrafı kendiliğinden çekilir; o akşam
+// kaçarsa ayın sonraki ilk fırsatında. Deneme dükkânında çekilmez.
+export const AY_GUNU = 30;
+export const ALBUM_SAATI = 18.5;
+export function albumAyi(d: Durum = durum) {
+  return Math.floor((d.gun - 1) / AY_GUNU);
+}
+export function albumZamani(d: Durum = durum) {
+  if (d.acilis || d.gezme || d.duraklatildi || d.insaat || d.yerlestirme || denemedeMi()) return false;
+  if (albumAyi(d) === d.albumAyi) return false;
+  const ayinIlkGunu = albumAyi(d) * AY_GUNU + 1;
+  return d.gun > ayinIlkGunu || (!d.hazirlik && saatDakikasi(d) / 60 >= ALBUM_SAATI);
+}
+export function albumCekildi() {
+  guncelle({ albumAyi: albumAyi() });
+  kaydet();
+  haberVer('haber.album');
 }
 
 export function duraklatilabilir(d: Durum = durum) {
