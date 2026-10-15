@@ -26,6 +26,8 @@ import { durumuOku, gecerliGorunus, kuveteBas, useDurum } from '../oyun/durum';
 import { gorunusSecenegi } from '../oyun/gorunus';
 import { zeminDokusu } from './zeminDokusu';
 import { CatiTabelasiYeri, DisTabelalar, NeonTabela } from './Tabelalar';
+import { yuruyenler } from './yuruyenler';
+import { sesler } from '../ses/ses';
 
 // Dükkânın içi, tezgahın arkasından görünen hâli (birinci şahıs yakın plan).
 // Kodla çizilmiş geçici parçalar; asıl modeller sonra gelecek.
@@ -148,7 +150,10 @@ function DuzDuvar() {
   return <IkiYuzKutu konum={[0, 1.6, 0]} boyut={[PARCA_BOY, 3.3, 0.1]} />;
 }
 
-function PencereParcasi({ on, c }: { on: boolean; c: number }) {
+// Vitrin camı (Kemal, 15 Ekim: "camların hücre parmaklığı gibi olmasını
+// beğenmiyorum"): yan yana camlar tek parça görünür; dikme yalnız camın
+// uçlarında ve üç metrede bir, ince.
+function PencereParcasi({ on, c, solDikme, sagDikme }: { on: boolean; c: number; solDikme: boolean; sagDikme: boolean }) {
   const { cerceve } = useGorunusRenkleri();
   return (
     <group>
@@ -168,17 +173,37 @@ function PencereParcasi({ on, c }: { on: boolean; c: number }) {
         <meshPhysicalMaterial color={renk.cam} transparent opacity={0.18} roughness={0.05} />
       </mesh>
       {/* Çerçeve: kenar kaydı, eşik ve üst kayıt */}
-      <Kutu konum={[-0.5, (ESIK + PENCERE_UST) / 2, 0.02]} boyut={[0.08, PENCERE_UST - ESIK, 0.2]} renkAdi={cerceve} golgeVer={false} />
+      {solDikme && <Kutu konum={[-0.5, (ESIK + PENCERE_UST) / 2, 0.02]} boyut={[0.06, PENCERE_UST - ESIK, 0.16]} renkAdi={cerceve} golgeVer={false} />}
+      {sagDikme && <Kutu konum={[0.5, (ESIK + PENCERE_UST) / 2, 0.02]} boyut={[0.06, PENCERE_UST - ESIK, 0.16]} renkAdi={cerceve} golgeVer={false} />}
       <Kutu konum={[0, ESIK, 0.06]} boyut={[1.04, 0.08, on ? 0.5 : 0.24]} renkAdi={renk.ahsapOrta} golgeVer={false} />
       <Kutu konum={[0, PENCERE_UST, 0.02]} boyut={[1.04, 0.12, 0.2]} renkAdi={cerceve} golgeVer={false} />
     </group>
   );
 }
 
-function KapiParcasi() {
+// Kapı (Kemal, 15 Ekim): biri yaklaşınca açılır, geçince kapanır; açılırken zil
+const KAPI_ACIK = -1.35;
+const KAPI_MESAFESI = 1.7;
+function KapiParcasi({ x, z }: { x: number; z: number }) {
   const { cerceve } = useGorunusRenkleri();
   const sol = -0.45;
   const sag = 0.45;
+  const kanat = useRef<THREE.Group>(null);
+  const acik = useRef(false);
+  useFrame((_, dt) => {
+    const g = kanat.current;
+    if (!g) return;
+    let yakin = false;
+    for (const p of yuruyenler.values())
+      if (Math.hypot(p.x - x, p.z - z) < KAPI_MESAFESI) {
+        yakin = true;
+        break;
+      }
+    if (yakin && !acik.current) sesler.kapiZili();
+    acik.current = yakin;
+    const hedef = yakin ? KAPI_ACIK : 0;
+    g.rotation.y += (hedef - g.rotation.y) * Math.min(1, dt * 6);
+  });
   return (
     <group>
       {/* Kapının üstü */}
@@ -188,7 +213,7 @@ function KapiParcasi() {
         <Kutu key={x} konum={[x, KAPI_UST / 2, 0]} boyut={[0.1, KAPI_UST, 0.24]} renkAdi={cerceve} golgeVer={false} />
       ))}
       <Kutu konum={[0, KAPI_UST, 0]} boyut={[sag - sol + 0.1, 0.1, 0.24]} renkAdi={cerceve} golgeVer={false} />
-      <group position={[sol + 0.05, 0, 0.05]} rotation={[0, -1.35, 0]}>
+      <group ref={kanat} position={[sol + 0.05, 0, 0.05]}>
         <Kutu konum={[0.4, KAPI_UST / 2 - 0.03, 0]} boyut={[0.8, KAPI_UST - 0.08, 0.05]} renkAdi={cerceve} golgeVer={false} />
         <mesh position={[0.4, 1.25, 0.03]}>
           <boxGeometry args={[0.55, 0.8, 0.02]} />
@@ -230,14 +255,28 @@ function AmpulParcasi() {
 
 const DONUS: Record<Yon, number> = { g: 0, k: Math.PI, b: Math.PI / 2, d: -Math.PI / 2 };
 
-function DuvarParcasi({ k, tur }: { k: Kenar; tur: ParcaTuru }) {
+// Duvar parçasının yerel +x yönündeki komşu parça (aynı duvar boyunca)
+function yandakiKenar(k: Kenar, yon: 1 | -1): Kenar {
+  if (k.y === 'g') return { ...k, c: k.c + yon };
+  if (k.y === 'k') return { ...k, c: k.c - yon };
+  if (k.y === 'b') return { ...k, r: k.r - yon };
+  return { ...k, r: k.r + yon };
+}
+
+function DuvarParcasi({ k, tur, pencereMi }: { k: Kenar; tur: ParcaTuru; pencereMi: (k: Kenar) => boolean }) {
   const { x, z, nx, nz } = kenarYeri(k);
   const on = k.y === 'g';
   return (
     <group position={[x, 0, z]} rotation={[0, DONUS[k.y], 0]}>
       {/* Duvar genel görünümde kameraya dönükse kalkar; yerinde alçak bir dip kalır */}
       <KesikDuvar yon={[nx, nz]}>
-        {tur === 'duvar' ? <DuzDuvar /> : tur === 'pencere' ? <PencereParcasi on={on} c={k.c} /> : <KapiParcasi />}
+        {tur === 'duvar' ? <DuzDuvar /> : tur === 'pencere' ? <PencereParcasi
+            on={on}
+            c={k.c}
+            // Camın sol ucu ya da üç metrede bir dikme; sağ uçta kapanış dikmesi
+            solDikme={!pencereMi(yandakiKenar(k, -1)) || ((k.c + k.r) % 3 + 3) % 3 === 0}
+            sagDikme={!pencereMi(yandakiKenar(k, 1))}
+          /> : <KapiParcasi x={x} z={z} />}
         {on && <TenteParcasi />}
         {on && tur === 'pencere' && <AmpulParcasi />}
       </KesikDuvar>
@@ -410,7 +449,12 @@ function Odalar() {
     const k: Kenar = { c, r: PARSEL - 1, y: 'k' };
     return kenarlar.some((x) => kenarAnahtari(x) === kenarAnahtari(k)) && parcaTuru(k, duvarParcalari) === 'duvar';
   };
-  const pencereMi = useCallback((k: Kenar) => parcaTuru(k, duvarParcalari) === 'pencere', [duvarParcalari]);
+  // Sınırdaki bir parça pencere mi (sınırda olmayan komşu sayılmaz)
+  const sinirAnahtarlari = useMemo(() => new Set(kenarlar.map(kenarAnahtari)), [kenarlar]);
+  const pencereMi = useCallback(
+    (k: Kenar) => sinirAnahtarlari.has(kenarAnahtari(k)) && parcaTuru(k, duvarParcalari) === 'pencere',
+    [duvarParcalari, sinirAnahtarlari],
+  );
   // En öndeki kapalı sıra: ortası ve ön kenarı
   let onSol = Infinity, onSag = -Infinity;
   for (const p of kapaliParseller) {
@@ -445,7 +489,7 @@ function Odalar() {
         );
       })}
       {kenarlar.map((k) => (
-        <DuvarParcasi key={kenarAnahtari(k)} k={k} tur={parcaTuru(k, duvarParcalari)} />
+        <DuvarParcasi key={kenarAnahtari(k)} k={k} tur={parcaTuru(k, duvarParcalari)} pencereMi={pencereMi} />
       ))}
       <Tavan>
         <CatiKenarlari kenarlar={kenarlar} />

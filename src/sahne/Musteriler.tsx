@@ -9,6 +9,7 @@ import { BANK_OTURAKLARI } from './DisSusler';
 import { Parcaciklar } from './Efektler';
 import { rastgeleVaryant } from './karakterler';
 import { InsanKarakter, type Hareket } from './InsanKarakter';
+import { yuruyenler } from './yuruyenler';
 
 // Tezgah önünde sıraya giren müşteriler (iş sırası 3). Quaternius Ultimate Modular Women + Men (belge 0.9)
 // (CC0) üzerine her müşteri için farklı baş, gövde, renk ve aksesuar
@@ -167,14 +168,16 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
   useEffect(
     () => () => {
       if (koltuk.current) doluKoltuklar.delete(koltuk.current.anahtar);
+      yuruyenler.delete(`m${musteri.id}`);
     },
-    [],
+    [musteri.id],
   );
 
   useFrame(({ clock }, dt) => {
     const grup = ref.current;
     const ic = icRef.current;
     if (!grup || !ic) return;
+    yuruyenler.set(`m${musteri.id}`, grup.position);
     const d = durumuOku();
     const m = d.musteriler.find((x) => x.id === musteri.id);
     if (!m || d.duraklatildi) return; // duraklatınca herkes yerinde durur

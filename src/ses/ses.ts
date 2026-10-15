@@ -190,6 +190,12 @@ export const sesler = {
     ton(1318, 0.9, { ses: 0.12 });
     ton(2637, 0.5, { ses: 0.04 });
   },
+  // Kapı açılınca küçük dükkân zili (Kemal, 15 Ekim)
+  kapiZili() {
+    ton(1975, 0.35, { ses: 0.05 });
+    ton(2489, 0.3, { ses: 0.04, baslangic: 0.07 });
+    ton(1975, 0.25, { ses: 0.03, baslangic: 0.15 });
+  },
   sikildi() {
     ton(240, 0.45, { tur: 'triangle', ses: 0.15, bitisFrekansi: 150 });
   },

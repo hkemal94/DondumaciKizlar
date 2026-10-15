@@ -278,9 +278,11 @@ function TabelaSecimi() {
   );
 }
 
-export function Gelistir({ kapat }: { kapat: () => void }) {
+export type GelistirSekmesi = 'cesitler' | 'fiyat' | 'dekorasyon' | 'gorunus';
+
+export function Gelistir({ kapat, ilkSekme = 'dekorasyon' }: { kapat: () => void; ilkSekme?: GelistirSekmesi }) {
   const durum = useDurum();
-  const [sekme, setSekme] = useState<Sekme>('cesitler');
+  const [sekme, setSekme] = useState<Sekme>(ilkSekme);
   const [alinan, setAlinan] = useState<Esya | null>(null);
   // Mağaza kapanınca ya da sekme değişince denenen ama alınmayanlar geri döner
   useEffect(() => {

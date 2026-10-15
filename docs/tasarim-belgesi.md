@@ -356,11 +356,11 @@ yazılar kanon değildir.
 
 | Konu | Karar |
 |---|---|
-| Mutfak | Normal oyunda İnşaat'tan mutfak kurulunca dolaplar ve raflar gelir, **doğru yöne** bakar (şimdi duvarın dışına, ters duruyor) |
-| Ön cephe camları | **Büyük vitrin camı**: dikmeler ince, yalnız uçlarda ve birkaç metrede bir (şimdi her metrede mor dikme, parmaklık gibi) |
-| Kapı | Müşteri gelince açılır, geçince kapanır; açılınca **zil sesi** |
-| Araya giren ev | Kamerayla dükkân arasına giren ev **yarı saydam** olur |
-| Menü | Dört grup: **Dükkân** (inşaat + yerleştir + görünüş), **Ekip** (çalışan + yardımcılar), **Ürünler** (vitrin + çeşitler + fiyat), **Mağaza** (satın almalar) |
+| Mutfak | Normal oyunda İnşaat'tan mutfak kurulunca dolaplar ve raflar gelir, **doğru yöne** bakar. Yapıldı (1. adım): depo arka duvarın içinde, önü dükkâna dönük; İnşaat'ta arka karelerde "duvar ör → Mutfağa kat" ipucu |
+| Ön cephe camları | **Büyük vitrin camı**: dikmeler ince, yalnız uçlarda ve birkaç metrede bir. Yapıldı (1. adım): camın iki ucunda ve üç metrede bir |
+| Kapı | Müşteri gelince açılır, geçince kapanır; açılınca **zil sesi**. Yapıldı (1. adım): müşteri ya da sahip 1,7 m'ye yaklaşınca açılır |
+| Araya giren ev | Kamerayla dükkân arasına giren ev **yarı saydam** olur. Yapıldı (1. adım): şimdilik ön sıradaki büyük binalarda; yeni mahallede bütün evlere uygulanacak |
+| Menü | Dört grup: **Dükkân** (inşaat + yerleştir + görünüş), **Ekip** (çalışan + yardımcılar), **Ürünler** (vitrin + çeşitler + fiyat), **Mağaza** (satın almalar). Yapıldı (1. adım): gruba dokununca üstünde alt işler açılır; Mağaza doğrudan eşyaları açar |
 | Mahalle | "Savaş alanı gibi" kutular yerine iki-üç katlı müstakil Ege evleri. İzinli dört paketin (Kenney, Quaternius, Tiny Treats, KayKit) hepsi kullanılabilir; **önce adaylar gösterilir, Kemal seçer** |
 | Zemin | Taş döşeli sokaklar ve kaldırımlar, çimen ve bahçeler, zeytin, çam, begonvil. **Kum yalnız sahilde** |
 | Deniz ve kumsal | Açılış konsept görseli gibi: yumuşak low-poly, hafif dalga, kıyıda köpük, kayalar, sıcak ışık |
