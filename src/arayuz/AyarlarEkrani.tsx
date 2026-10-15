@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { bastanBasla, egitimiYenidenGoster } from '../oyun/durum';
-import { m } from '../metinler';
+import { m, type MetinAnahtari } from '../metinler';
 import { logoAdresi } from '../sahne/logo';
 import { sesAyariniOku, sesAyariniYaz, type SesAyari } from '../ses/ses';
-import { ekranAyariniYaz, useEkranAyari } from './ekranAyari';
+import { GRAFIK_KALITELERI, ekranAyariniYaz, useEkranAyari } from './ekranAyari';
 
 // Ayarlar (Kemal, 14 Ekim): müzik ve ses, ekran (etiketler), eğitimi yeniden
 // göster, dil (İngilizce gelince), baştan başla (onaylı). Açılış ekranından ve
@@ -53,6 +53,15 @@ export function AyarlarEkrani({ kapat, egitimSonrasi }: { kapat: () => void; egi
               <input type="checkbox" checked={ekran.balonAdlari} onChange={(e) => ekranAyariniYaz({ balonAdlari: e.target.checked })} />
               <span>{m('ekran.balonAdlari')}</span>
             </label>
+            <div className="ekran-satir">
+              <span>{m('ekran.grafik')}</span>
+              {GRAFIK_KALITELERI.map((g) => (
+                <button key={g} className={`cip ${ekran.grafik === g ? 'secili' : ''}`} onClick={() => ekranAyariniYaz({ grafik: g })}>
+                  {m(`ekran.grafik.${g}` as MetinAnahtari)}
+                </button>
+              ))}
+            </div>
+            <p className="gel-not">{m('ekran.grafikNot')}</p>
           </section>
           <section>
             <div className="gel-baslik">{m('ayarlar.oyun')}</div>

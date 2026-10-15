@@ -4,6 +4,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { renk } from './renkler';
 import { SaydamEngel } from './SaydamEngel';
+import { useEkranAyari } from '../arayuz/ekranAyari';
 
 // Liman mahallesi (belge 0.12; Kemal, 15 Ekim: "savaş alanı gibi duruyor"):
 // Quaternius Simple Buildings ve Kenney Modular Buildings evleri (Kemal seçti),
@@ -23,6 +24,10 @@ const ADA_DERINLIGI = 30; // iki sokak arası
 const ADA_ENI = 40;
 const ADA_SATIRI = 4; // kıyıya paralel kaç sıra ada
 const X_SINIRI = 200;
+// Haritadaki gibi dik sokaklar eğik (Kemal'in krokisi): kıyıya paralel sokaklar
+// düz kalır, içeri gittikçe x biraz kayar (yaklaşık 29°)
+const EGIM = 0.55;
+const kay = (z: number) => (z - MAHALLE_BASI) * EGIM;
 
 // ---- Ev tipleri: dosya ve boyu (metre) ----
 const EV_TIPLERI: { yol: string; boy: number; agirlik: number }[] = [
@@ -49,13 +54,18 @@ function egeRengi(c: THREE.Color): THREE.Color | null {
   c.getHSL(hsl);
   const { h, s, l } = hsl;
   if (s < 0.35 && l > 0.5) return null; // duvar (badana)
-  if (s < 0.25 && l > 0.25) return new THREE.Color('#d9d2c6'); // taş, kenarlar
-  if (s < 0.25) return new THREE.Color('#4a5866'); // koyu: dam kenarı, gölge
+  if (l > 0.62 && s < 0.65 && (h < 0.16 || h > 0.9)) return null; // açık şeftali / krem cephe de duvar
+  if (s < 0.25 && l > 0.45) return new THREE.Color('#d9d2c6'); // taş, kenarlar
+  // Koyu gri damlar Ege'de kiremit (Kemal: "Ege'ye benziyor mu?"); en koyular gölge
+  if (s < 0.25) return new THREE.Color(l > 0.12 ? '#b8644f' : '#a9573f');
   if (h < 0.07 || h > 0.93) return new THREE.Color('#c8705a'); // kiremit
   if (h < 0.16) return l < 0.45 ? new THREE.Color('#8a5a3c') : new THREE.Color('#efe2c8'); // ahşap, kum
   if (h < 0.45) return new THREE.Color(l > 0.4 ? '#c8705a' : '#5f7d4a'); // açık yeşil dam → kiremit; koyu yeşil bitki
   // Mavi: açık olanlar cam (Kemal: "pencere camları açık renk olsun"), koyular panjur / kapı
-  return new THREE.Color(l > 0.45 ? '#cfe8f2' : '#2f7fb3');
+  // Çok koyu mavi (Kenney damları) kiremit olur
+  if (l > 0.45) return new THREE.Color('#cfe8f2');
+  // Soluk ya da çok koyu mavi (dam) kiremit; canlı mavi panjur ve kapı
+  return new THREE.Color(s >= 0.5 && l > 0.3 ? '#2f7fb3' : '#b8644f');
 }
 
 // Dokudan renk okumak için resmi bir kez tuvale çiz
@@ -183,7 +193,7 @@ interface Yer {
 
 // Evlerin yerleri: kıyıya paralel sokakların iki yanında, ada ada.
 // Ön sıranın dükkânın arkasına düşen kısmı ayrı (yarı saydam olabilsin)
-function yerleriHesapla() {
+function yerleriHesapla(satirSayisi: number, xSiniri: number) {
   const r = rastgele(11);
   const toplam = EV_TIPLERI.reduce((a, t) => a + t.agirlik, 0);
   const tipSec = () => {
@@ -194,9 +204,9 @@ function yerleriHesapla() {
   const evler: Yer[] = [];
   const bahceler: { x: number; z: number; en: number; der: number }[] = [];
   const agaclar: { x: number; z: number; tur: 'zeytin' | 'cam' | 'begonvil'; boy: number }[] = [];
-  for (let s = 0; s < ADA_SATIRI; s++) {
+  for (let s = 0; s < satirSayisi; s++) {
     const z0 = MAHALLE_BASI + s * (ADA_DERINLIGI + SOKAK_ENI);
-    for (let x0 = -X_SINIRI; x0 < X_SINIRI; x0 += ADA_ENI + SOKAK_ENI) {
+    for (let x0 = -xSiniri; x0 < xSiniri; x0 += ADA_ENI + SOKAK_ENI) {
       // Adanın iki sırası: önde sokağa (−z) bakan, arkada arka sokağa (+z) bakan
       for (const arka of [false, true]) {
         let x = x0 + 1;
@@ -227,7 +237,11 @@ function yerleriHesapla() {
     }
   }
   // Araba yolunun kenarında, kaldırımda ağaç sırası
-  for (let x = -X_SINIRI; x < X_SINIRI; x += 14) agaclar.push({ x: x + r() * 3, z: YOL_ON + YOL_ENI + 2.2, tur: 'zeytin', boy: 3.5 + r() * 1.5 });
+  for (let x = -xSiniri; x < xSiniri; x += 14) agaclar.push({ x: x + r() * 3, z: YOL_ON + YOL_ENI + 2.2, tur: 'zeytin', boy: 3.5 + r() * 1.5 });
+  // Eğik sokaklar: bütün yerler içeri gittikçe kayar (yol kenarı ağaçları hariç)
+  for (const e of evler) e.x += kay(e.z);
+  for (const b of bahceler) b.x += kay(b.z);
+  for (const a of agaclar) if (a.z > MAHALLE_BASI - 1) a.x += kay(a.z);
   // Dükkânın hemen arkasındaki evler ayrı (kamerayla dükkân arasına girince solarlar)
   const onde = (e: Yer) => e.z < MAHALLE_BASI + 2 * (ADA_DERINLIGI + SOKAK_ENI) && Math.abs(e.x) < 50;
   return { evler: evler.filter((e) => !onde(e)), ondekiler: evler.filter(onde), bahceler, agaclar };
@@ -348,7 +362,12 @@ export function Mahalle() {
       iptal = true;
     };
   }, []);
-  const { evler, ondekiler, bahceler, agaclar } = useMemo(yerleriHesapla, []);
+  // Düşük grafikte (belge 0.12) yalnız yakın iki sıra ada, iki yana 110 m
+  const { grafik } = useEkranAyari();
+  const { evler, ondekiler, bahceler, agaclar } = useMemo(
+    () => (grafik === 'dusuk' ? yerleriHesapla(2, 110) : yerleriHesapla(ADA_SATIRI, X_SINIRI)),
+    [grafik],
+  );
   const dokular = useMemo(() => {
     const sokak = tasDokusu();
     sokak.repeat.set(200, 1.25);
@@ -368,7 +387,7 @@ export function Mahalle() {
   return (
     <group>
       {/* Mahallenin zemini: kuru çimen */}
-      <mesh position={[0, -0.09, MAHALLE_BASI - 2 + derinlik / 2 + 40]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+      <mesh position={[0, -0.09, YOL_ON + YOL_ENI + (derinlik + 160) / 2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[1000, derinlik + 160]} />
         <meshStandardMaterial color="#b9b98a" roughness={1} />
       </mesh>
@@ -379,9 +398,14 @@ export function Mahalle() {
           <meshStandardMaterial map={dokular.sokak} roughness={1} />
         </mesh>
       ))}
-      {Array.from({ length: Math.ceil((2 * X_SINIRI) / (ADA_ENI + SOKAK_ENI)) + 1 }, (_, i) => (
-        <mesh key={`d${i}`} position={[-X_SINIRI - SOKAK_ENI / 2 + i * (ADA_ENI + SOKAK_ENI), -0.05, MAHALLE_BASI + derinlik / 2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-          <planeGeometry args={[SOKAK_ENI, derinlik]} />
+      {Array.from({ length: Math.ceil((2 * X_SINIRI) / (ADA_ENI + SOKAK_ENI)) + 3 }, (_, i) => (
+        <mesh
+          key={`d${i}`}
+          position={[-X_SINIRI - SOKAK_ENI / 2 + i * (ADA_ENI + SOKAK_ENI) + kay(MAHALLE_BASI + derinlik / 2), -0.05, MAHALLE_BASI + derinlik / 2]}
+          rotation={[-Math.PI / 2, 0, Math.atan(EGIM)]}
+          receiveShadow
+        >
+          <planeGeometry args={[SOKAK_ENI, derinlik * Math.hypot(1, EGIM)]} />
           <meshStandardMaterial map={dokular.dik} roughness={1} />
         </mesh>
       ))}

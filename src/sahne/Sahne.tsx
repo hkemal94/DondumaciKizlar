@@ -3,6 +3,7 @@ import { Canvas, events, useFrame, useThree, type RootState } from '@react-three
 import { useMemo, useRef } from 'react';
 import { durumuOku, istasyonX, saatDakikasi } from '../oyun/durum';
 import { gezmeSaati, gokRenkleri, tabelaIsigi } from './gokRenkleri';
+import { useEkranAyari } from '../arayuz/ekranAyari';
 import * as THREE from 'three';
 import { Disari } from './Disari';
 import { parselCoz, parselSiniri } from '../oyun/dekorasyon';
@@ -170,6 +171,7 @@ const GOK_UST_GECE = new THREE.Color('#0f1a3d');
 const GOK_UFUK_GECE = new THREE.Color('#2c3566');
 
 function Isiklar() {
+  const { grafik } = useEkranAyari();
   const gunes = useRef<THREE.DirectionalLight>(null);
   const yarimKure = useRef<THREE.HemisphereLight>(null);
   const icIsik = useRef<THREE.PointLight>(null);
@@ -208,7 +210,7 @@ function Isiklar() {
         position={[6, 11, 5]}
         intensity={2.6}
         color="#fff4e2"
-        castShadow
+        castShadow={grafik !== 'dusuk'}
         shadow-mapSize={[1024, 1024]}
         shadow-bias={-0.0005}
         shadow-normalBias={0.02}
@@ -246,10 +248,12 @@ function dokunmaOlaylari(store: Parameters<typeof events>[0]) {
 }
 
 export function Sahne() {
+  // Grafik kalitesi (belge 0.12): çözünürlük ve gölge
+  const { grafik } = useEkranAyari();
   return (
     <Canvas
       shadows="percentage"
-      dpr={[1, 2]}
+      dpr={grafik === 'dusuk' ? 1 : grafik === 'orta' ? [1, 1.5] : [1, 2]}
       // Çevrilmiş hâlde de doğru boyu ölçsün (döndürmeyi hesaba katmadan)
       resize={{ offsetSize: true }}
       events={dokunmaOlaylari}

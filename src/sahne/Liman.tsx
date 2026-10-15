@@ -5,6 +5,7 @@ import { renk } from './renkler';
 import { HazirModel } from './HazirModel';
 import { Mahalle } from './Mahalle';
 import { KumsalSusleri } from './KumsalSusleri';
+import { LimanCanliligi } from './LimanCanliligi';
 
 // Liman (belge 0.10; Kemal, 14 Ekim gece): Kemal'in KKM "2D · kur"
 // haritasından ölçülüp oyunun yönüne çevrildi. Dükkânın önü denize bakar
@@ -281,6 +282,12 @@ function Tekneler() {
       <Tekne yol="tekneler/boat-row-small" konum={[-5, -1.05, -36]} en={3.4} donus={0.2} faz={0.6} />
       <Tekne yol="tekneler/boat-row-small" konum={[6, -1.05, -42]} en={3.6} donus={-0.3} faz={3.1} />
       <Tekne yol="tekneler/boat-fishing-small" konum={[16, -1.25, -133]} en={6.5} donus={Math.PI / 2} faz={2.4} />
+      {/* Tekne çeşitleri (belge 0.12): yelkenliler, sürat teknesi, römorkör */}
+      <Tekne yol="tekneler/boat-sail-a" konum={[-16, -1.2, -133]} en={4} donus={-Math.PI / 2} faz={0.9} />
+      <Tekne yol="tekneler/boat-sail-b" konum={[-8, -1.2, -102]} en={4.2} donus={0.1} faz={2.1} />
+      <Tekne yol="tekneler/boat-sail-a" konum={[45, -1.2, -150]} en={4} donus={1.2} faz={3.5} />
+      <Tekne yol="tekneler/boat-speed-a" konum={[7, -1.15, -72]} en={2.6} donus={Math.PI} faz={1.2} />
+      <Tekne yol="tekneler/boat-tug-a" konum={[120, -1.2, -190]} en={8} donus={2.4} faz={0.4} />
       <GezenTekne />
     </group>
   );
@@ -291,6 +298,7 @@ export function Liman() {
     <group>
       <Kumsal />
       <KumsalSusleri />
+      <LimanCanliligi />
       <YolVeZemin />
       <TIskele />
       <Mendirek />
