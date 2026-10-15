@@ -1,5 +1,5 @@
 import { AYAR } from './ayarlar';
-import { ICECEKLER, type Icecek } from './makine';
+import type { Icecek } from './makine';
 
 // Hafif stok (belge 0.13, 9c; Kemal, 15 Ekim akşam): dondurma, altlıklar
 // (külah / kap / kup), süslemeler ve içecekler azalır. Top alındıkça küvetteki
@@ -65,12 +65,12 @@ export const icecekAnahtari = (i: Icecek) => `icecek.${i}`;
 
 // Stok ekranında görünen kalemler: vitrindeki çeşitler, açık altlıklar,
 // süslemeler, (stand kuruluysa) içecekler
-export function stokKalemleri(o: { vitrin: number[]; altliklar: string[]; suslemeler: string[]; icecekVar: boolean }): string[] {
+export function stokKalemleri(o: { vitrin: number[]; altliklar: string[]; suslemeler: string[]; icecekler: Icecek[] }): string[] {
   return [
     ...o.vitrin.map(dondurmaAnahtari),
     ...o.altliklar.map(altlikAnahtari),
     ...o.suslemeler.map(suslemeAnahtari),
-    ...(o.icecekVar ? ICECEKLER.map(icecekAnahtari) : []),
+    ...o.icecekler.map(icecekAnahtari),
   ];
 }
 

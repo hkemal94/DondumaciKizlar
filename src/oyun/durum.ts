@@ -20,6 +20,9 @@ import {
   ISTASYONLAR,
   EN_COK_ICECEK,
   ICECEKLER,
+  ICECEK_TANIMI,
+  BASLANGIC_ICECEKLERI,
+  icecekAcmaFiyati,
   ICECEK_FIYATI,
   IKINCI_VITRIN_IADESI,
   MAKINE_MUKEMMEL_EKI,
@@ -304,6 +307,8 @@ export interface Durum {
   // Oyuncu (belge 0.14): takma ad ve kendiliğinden verilen ID (kayıt kodu, ileride hesap)
   oyuncuId: string;
   oyuncuAdi: string;
+  // Açık içecekler (9d, belge 0.13)
+  acikIcecekler: Icecek[];
 }
 
 // Waffle yapımı (belge 0.5) ve içecek standı (0.6)
@@ -314,10 +319,12 @@ export interface MakineDurumu {
   sonuc: Sonuc | null; // hamur ya da bardak dolumu
   pisme: Pisme | null;
   susleme: WaffleSusleme[];
-  icecekler: Icecek[]; // içecek standında dolaptan alınanlar
+  icecekler: Icecek[]; // içecek standında dolaptan alınanlar / hazırlananlar
+  icecekSonuclari: (Sonuc | null)[]; // hazırlanan içeceğin sonucu (basit içecekte null)
+  hazirlanan: Icecek | null; // basılı tutularak hazırlanan (9d)
 }
 function bosMakine(): MakineDurumu {
-  return { asama: 'bos', basladi: 0, sonuc: null, pisme: null, susleme: [], icecekler: [] };
+  return { asama: 'bos', basladi: 0, sonuc: null, pisme: null, susleme: [], icecekler: [], icecekSonuclari: [], hazirlanan: null };
 }
 
 // Yazısız el işaretli eğitim: ilk sipariş üç adım, sonra ilk kez görülenler
@@ -439,6 +446,7 @@ let durum: Durum = {
   acikUrunler: [...BASLANGIC_URUNLERI],
   oyuncuId: '',
   oyuncuAdi: '',
+  acikIcecekler: [...BASLANGIC_ICECEKLERI],
   insaat: false,
   seciliParsel: null,
   yerlestirme: false,
@@ -682,7 +690,7 @@ function dondurmaVar() {
 }
 function icecekVar() {
   const mevcut = mevcutStok();
-  return ICECEKLER.some((i) => mevcut[icecekAnahtari(i)] >= 1);
+  return durum.acikIcecekler.some((i) => mevcut[icecekAnahtari(i)] >= 1);
 }
 
 // Giden müşteri iskelenin ucuna varıp ekrandan çıkınca sahne bunu çağırır.
@@ -743,7 +751,7 @@ function rastgeleMakineSiparisi(): MakineSiparisi {
   const mevcut = mevcutStok();
   const icecekler: Icecek[] = [];
   for (let n = 0; n < icecekSayisi; n++) {
-    const var_ = ICECEKLER.filter((i) => mevcut[icecekAnahtari(i)] >= 1);
+    const var_ = durum.acikIcecekler.filter((i) => mevcut[icecekAnahtari(i)] >= 1);
     if (!var_.length) break;
     const i = var_[Math.floor(Math.random() * var_.length)];
     icecekler.push(i);
@@ -1800,6 +1808,13 @@ export function makineBirak() {
   if (durum.makine.asama !== 'dokuluyor') return;
   islemYapildi();
   const sonuc = sonucBul(makineDolumu(performance.now()));
+  // İçecek hazırlandı (9d): bardağa / fincana konur, stoktan düşer
+  const h = durum.makine.hazirlanan;
+  if (durum.istasyon === 'icecek' && h) {
+    makineGuncelle({ asama: 'bos', hazirlanan: null, icecekler: [...durum.makine.icecekler, h], icecekSonuclari: [...durum.makine.icecekSonuclari, sonuc] });
+    guncelle({ stok: azalt(durum.stok, [icecekAnahtari(h)]), bildirim: { tur: 'top', sonuc, zaman: performance.now() } });
+    return;
+  }
   // Hamur dökülünce kapak kapanır, pişme başlar
   makineGuncelle({ asama: 'pisiyor', sonuc, basladi: performance.now() });
   guncelle({ bildirim: { tur: 'top', sonuc, zaman: performance.now() } });
@@ -1813,9 +1828,26 @@ export function icecekAl(i: Icecek) {
     haberVer('haber.icecekBitti');
     return;
   }
+  if (!durum.acikIcecekler.includes(i)) return;
+  // Hazırlanan içecek (kahve, milkshake, taze sıkma): basılı tutulur, bırakınca biter
+  if (ICECEK_TANIMI[i].hazirlik) {
+    islemYapildi();
+    makineGuncelle({ asama: 'dokuluyor', hazirlanan: i, basladi: performance.now() });
+    return;
+  }
   islemYapildi();
-  makineGuncelle({ icecekler: [...durum.makine.icecekler, i] });
+  makineGuncelle({ icecekler: [...durum.makine.icecekler, i], icecekSonuclari: [...durum.makine.icecekSonuclari, null] });
   guncelle({ stok: azalt(durum.stok, [icecekAnahtari(i)]) });
+}
+
+// İçecek açma (9d): dükkân seviyesi + para
+export function icecekAcilabilir(i: Icecek, d: Durum = durum) {
+  return !d.acikIcecekler.includes(i) && kilitAcik(`icecek.${i}`, d) && d.para >= icecekAcmaFiyati(i);
+}
+export function icecekAc(i: Icecek) {
+  if (!icecekAcilabilir(i)) return;
+  guncelle({ para: durum.para - icecekAcmaFiyati(i), acikIcecekler: [...durum.acikIcecekler, i] });
+  kaydet();
 }
 
 // Waffle makinesinin kapağını aç: altın sarıda açmak en iyisi
@@ -1873,8 +1905,13 @@ function makineSonucu(urun: Istasyon, m: MakineDurumu, istenen: MakineSiparisi) 
     const mukemmel = m.sonuc === 'mukemmel' && m.pisme === 'altin';
     return { puan, miktar: makineSatisFiyati('waffle') + istenen.susleme.length * MAKINE_SUSLEME_FIYATI + (mukemmel ? MAKINE_MUKEMMEL_EKI : 0), mukemmel };
   }
-  // İçecek: doğru verildiyse tam memnuniyet; tanesi fiyat
-  return { puan: 5, miktar: makineSatisFiyati('icecek') * istenen.icecekler.length, mukemmel: false };
+  // İçecek: basitler tam memnuniyet; hazırlananlar sonucuna göre (9d). Fiyat
+  // oyuncunun içecek fiyatı × içeceğin çarpanı; MÜKEMMEL hazırlanana ek
+  const puanlar = m.icecekler.map((_, n) => (m.icecekSonuclari[n] ? SONUC_PUANI[m.icecekSonuclari[n]!] : 5));
+  const puan = puanlar.reduce((a, b) => a + b, 0) / Math.max(1, puanlar.length);
+  const mukemmelSayisi = m.icecekSonuclari.filter((s) => s === 'mukemmel').length;
+  const miktar = Math.round(istenen.icecekler.reduce((t, i) => t + makineSatisFiyati('icecek') * ICECEK_TANIMI[i].carpan, 0)) + mukemmelSayisi * MAKINE_MUKEMMEL_EKI;
+  return { puan, miktar, mukemmel: mukemmelSayisi > 0 && mukemmelSayisi === m.icecekSonuclari.filter(Boolean).length };
 }
 
 // calisanExp: müşteriye oyuncu kendisi servis ettiyse (yardımcının servisinde 0)
@@ -1936,7 +1973,7 @@ export function makineServisEt() {
 // ---- Stok siparişi (belge 0.13, 9c) ----
 // Gün sonunda (ve Ürünler → Stok'tan her an) "Hepsini doldur" ya da kalem kalem
 export function stokKalemleriNe(d: Durum = durum) {
-  return stokKalemleri({ vitrin: d.vitrin, altliklar: d.acikAltliklar, suslemeler: SUSLEMELER, icecekVar: istasyonKurulu('icecek', d) });
+  return stokKalemleri({ vitrin: d.vitrin, altliklar: d.acikAltliklar, suslemeler: SUSLEMELER, icecekler: istasyonKurulu('icecek', d) ? d.acikIcecekler : [] });
 }
 export function hepsiniDoldurSiparisi(d: Durum = durum): Record<string, number> {
   return Object.fromEntries(stokKalemleriNe(d).map((a) => [a, eksik(d.stok, a)]).filter(([, n]) => (n as number) > 0));
@@ -2040,7 +2077,7 @@ function yardimciDongusu() {
           ? on.siparis.kuvetler.reduce((t, c) => t + satisFiyati(c), 0) + on.siparis.susleme.length * SUSLEME_FIYATI
           : y.istasyon === 'waffle'
             ? makineSatisFiyati('waffle') + on.makine.susleme.length * MAKINE_SUSLEME_FIYATI
-            : makineSatisFiyati('icecek') * on.makine.icecekler.length;
+            : Math.round(on.makine.icecekler.reduce((t, i) => t + makineSatisFiyati('icecek') * ICECEK_TANIMI[i].carpan, 0));
       // Yardımcının kullandığı da stoktan düşer (9c)
       const harcanan =
         y.istasyon === 'dondurma'
@@ -2226,6 +2263,7 @@ interface Kayit {
   acikUrunler?: string[];
   oyuncuId?: string;
   oyuncuAdi?: string;
+  acikIcecekler?: string[];
 }
 
 function kaydet() {
@@ -2274,6 +2312,7 @@ function kaydet() {
     acikUrunler: durum.acikUrunler,
     oyuncuId: durum.oyuncuId,
     oyuncuAdi: durum.oyuncuAdi,
+    acikIcecekler: durum.acikIcecekler,
   };
   try {
     localStorage.setItem(kayitAnahtari, JSON.stringify(k));
@@ -2324,6 +2363,7 @@ export function kaydiYukle() {
       // Oyuncu ID'si: eski kayıtta yoksa şimdi verilir (bir sonraki kayıtta yazılır)
       oyuncuId: typeof k.oyuncuId === 'string' && /^DK-[A-Z2-9]{6}$/.test(k.oyuncuId) ? k.oyuncuId : yeniOyuncuId(),
       oyuncuAdi: typeof k.oyuncuAdi === 'string' ? k.oyuncuAdi.slice(0, OYUNCU_ADI_EN_UZUN) : '',
+      acikIcecekler: [...new Set([...BASLANGIC_ICECEKLERI, ...(Array.isArray(k.acikIcecekler) ? (k.acikIcecekler.filter((x) => ICECEKLER.includes(x as Icecek)) as Icecek[]) : [])])],
     });
     // Eski parçaların parası geri verildiyse hemen kaydedilir (bir kez verilsin)
     if (eskiParcaIadesi(k) > 0) kaydet();
@@ -2560,6 +2600,7 @@ function durumuSifirla() {
     acikUrunler: [...BASLANGIC_URUNLERI],
     oyuncuId: yeniOyuncuId(),
     oyuncuAdi: '',
+    acikIcecekler: [...BASLANGIC_ICECEKLERI],
     insaat: false,
     seciliParsel: null,
     yerlestirme: false,

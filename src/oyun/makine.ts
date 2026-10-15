@@ -77,16 +77,60 @@ export const WAFFLE_SUSLEMELERI: WaffleSusleme[] = WAFFLE_GRUPLARI.flatMap((g) =
 export const WAFFLE_FIYATI = AYAR.makine.waffleFiyati;
 export const MAKINE_SUSLEME_FIYATI = AYAR.makine.makineSusleme;
 
-// İçecek standı (belge 0.6): şimdilik kutu / şişe içecekler (geçici liste)
-export type Icecek = 'gazoz' | 'kola' | 'soda' | 'visne' | 'seftali';
-export const ICECEKLER: Icecek[] = ['gazoz', 'kola', 'soda', 'visne', 'seftali'];
-export const ICECEK_RENGI: Record<Icecek, string> = {
-  gazoz: '#9fd86b',
-  kola: '#8a2f2f',
-  soda: '#7ec8e8',
-  visne: '#b0243f',
-  seftali: '#f6a65a',
+// İçecek standı (belge 0.6; 9d, belge 0.13): tek istasyon, açıldıkça büyür.
+// Basit içecekler dolaptan alınıp verilir; kahveler, milkshake / frappe ve
+// taze sıkma basılı tutularak hazırlanır (doğru anda bırak: MÜKEMMEL).
+// İlk beşi baştan açık; ötekiler dükkân seviyesi + parayla (ayar dosyası).
+export type Icecek =
+  | 'gazoz'
+  | 'kola'
+  | 'soda'
+  | 'visne'
+  | 'seftali'
+  | 'ayran'
+  | 'buzluCay'
+  | 'limonata'
+  | 'cay'
+  | 'milkshake'
+  | 'frappe'
+  | 'turkKahvesi'
+  | 'espresso'
+  | 'buzluKahve'
+  | 'portakalSuyu';
+export type IcecekKabi = 'kutu' | 'sise' | 'bardak' | 'cayBardagi' | 'fincan' | 'kupa';
+// Hazırlanan içeceğin aleti: standın üstünde durur (arka tezgah ürünleriyle aynı modeller)
+export type IcecekAleti = 'caydanlik' | 'cezve' | 'espresso' | 'blender' | 'surahi' | 'sikacak';
+export interface IcecekTanimi {
+  kap: IcecekKabi;
+  renk: string;
+  hazirlik?: boolean; // basılı tutarak hazırlanır (mini oyun)
+  alet?: IcecekAleti;
+  carpan: number; // fiyat: oyuncunun içecek fiyatı × bu
+}
+export const ICECEK_TANIMI: Record<Icecek, IcecekTanimi> = {
+  gazoz: { kap: 'kutu', renk: '#9fd86b', carpan: 1 },
+  kola: { kap: 'kutu', renk: '#8a2f2f', carpan: 1 },
+  soda: { kap: 'sise', renk: '#7ec8e8', carpan: 1 },
+  visne: { kap: 'sise', renk: '#b0243f', carpan: 1 },
+  seftali: { kap: 'sise', renk: '#f6a65a', carpan: 1 },
+  ayran: { kap: 'sise', renk: '#f4f1e6', carpan: 1 },
+  buzluCay: { kap: 'sise', renk: '#c9853a', carpan: 1.2 },
+  limonata: { kap: 'bardak', renk: '#f3e27a', alet: 'surahi', carpan: 1.5 },
+  cay: { kap: 'cayBardagi', renk: '#8a2410', alet: 'caydanlik', carpan: 1 },
+  milkshake: { kap: 'bardak', renk: '#f7b6c8', hazirlik: true, alet: 'blender', carpan: 3 },
+  frappe: { kap: 'bardak', renk: '#b8875a', hazirlik: true, alet: 'blender', carpan: 3 },
+  turkKahvesi: { kap: 'fincan', renk: '#4a2a18', hazirlik: true, alet: 'cezve', carpan: 2.5 },
+  espresso: { kap: 'fincan', renk: '#3a2014', hazirlik: true, alet: 'espresso', carpan: 2 },
+  buzluKahve: { kap: 'bardak', renk: '#8a5a3a', hazirlik: true, alet: 'espresso', carpan: 3 },
+  portakalSuyu: { kap: 'bardak', renk: '#ff9a1f', hazirlik: true, alet: 'sikacak', carpan: 2.5 },
 };
+export const ICECEKLER = Object.keys(ICECEK_TANIMI) as Icecek[];
+export const BASLANGIC_ICECEKLERI: Icecek[] = ['gazoz', 'kola', 'soda', 'visne', 'seftali'];
+export const ICECEK_RENGI: Record<Icecek, string> = Object.fromEntries(ICECEKLER.map((i) => [i, ICECEK_TANIMI[i].renk])) as Record<Icecek, string>;
+// Açma fiyatı ayar dosyasından (icecekAcma); kilit (dükkân seviyesi) kilit bölümünde "icecek.<ad>"
+export function icecekAcmaFiyati(i: Icecek) {
+  return (AYAR.icecekAcma as Record<string, number>)[i] ?? 0;
+}
 export const ICECEK_FIYATI = AYAR.makine.icecekFiyati; // tanesi
 export const EN_COK_ICECEK = AYAR.makine.enCokIcecek;
 export const MAKINE_MUKEMMEL_EKI = AYAR.makine.makineMukemmelEki;

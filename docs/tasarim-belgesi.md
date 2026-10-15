@@ -457,6 +457,7 @@ konusunda komple assetlere ihtiyacımız olabilir."
 | Stok: kapsam | Dondurma, külah / kap / kup, süslemeler, içecek malzemeleri |
 | Stok: biterse | Biten istenmez; hepsi biterse dükkân o gün cezasız erken kapanır. Yapıldı (9c): sıradakilere ayrılan stok da sayılır; istenecek hiçbir şey kalmayınca "Stok bitti" haberiyle kapanır, sıradakilere servis sürer. Waffle stoğu yok (kapsamda yoktu) |
 | Sıra | 9a ince tasarım + yol → 9b vitrin ve bar aday sayfası → 9c gerçekçi vitrin + hafif stok → 9d içecekler |
+| İçecekler (9d, yapıldı) | Tek stand büyüdü. 15 içecek: başta gazoz, kola, soda, vişne, şeftali; sonra ayran, buzlu çay, limonata, çay (seç ver) ve milkshake, frappe, Türk kahvesi, espresso, buzlu kahve, taze portakal suyu (**basılı tut, aralıkta bırak**; sonuç memnuniyeti ve MÜKEMMEL eki verir). Açma: Geliştir → Çeşitler → İçecekler, dükkân seviyesi (2–7) + para; seviye ve fiyatlar ayar dosyasında (`icecekAcma`, kilit `icecek.*`, geçici). Hazırlanan içeceğin fiyatı içecek fiyatı × çarpan (kahve 2–2,5, milkshake 3). Dolapta yalnız açık şişe / kutular; dolabın üstünde açık içeceklerin aletleri (çaydanlık, cezve, espresso, blender, sürahi, sıkacak); verilen içecek kabıyla (çay bardağı, fincan, uzun bardak) tezgaha konur. Deneme dükkânında hepsi açık |
 
 ### 0.13.1 Hata listesi (Kemal, 15 Ekim akşam, oynarken)
 

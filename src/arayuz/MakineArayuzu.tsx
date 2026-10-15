@@ -35,8 +35,8 @@ import {
   ALTIN_UST,
   EN_COK_ICECEK,
   EN_COK_YARDIMCI,
-  ICECEKLER,
   ICECEK_RENGI,
+  ICECEK_TANIMI,
   ISTASYONLAR,
   WAFFLE_GRUPLARI,
   YARDIMCI_FIYATI,
@@ -79,7 +79,8 @@ export function MakineGostergesi() {
     dongu();
     return () => cancelAnimationFrame(istek);
   }, []);
-  const yazi: MetinAnahtari = pisme ? 'makine.gostergePisme' : 'makine.gostergeHamur';
+  const h = durum.makine.hazirlanan;
+  const yazi = pisme ? m('makine.gostergePisme') : h ? m(`icecek.${h}` as MetinAnahtari).toLocaleUpperCase() : m('makine.gostergeHamur');
   return (
     <div className="gosterge">
       <svg viewBox="0 0 180 100" aria-hidden>
@@ -99,7 +100,7 @@ export function MakineGostergesi() {
         <line ref={ibre} x1="90" y1="86" x2="20" y2="86" className="ibre" />
         <circle cx="90" cy="86" r="6" className="ibre-merkez" />
       </svg>
-      <div className="gosterge-yazi">{m(yazi)}</div>
+      <div className="gosterge-yazi">{yazi}</div>
     </div>
   );
 }
@@ -148,14 +149,55 @@ export function WaffleSuslemeIsareti({ s, x, y }: { s: WaffleSusleme; x: number;
   );
 }
 
+// İçecek kabına göre çizilir (9d): kutu, şişe, bardak, ince belli çay bardağı, fincan
+const CIZGI = 'rgba(0,0,0,0.28)';
 export function IcecekResmi({ i, x = 0, y = 0 }: { i: Icecek; x?: number; y?: number }) {
-  return (
-    <g transform={`translate(${x} ${y})`}>
-      <rect x="-7" y="-14" width="14" height="28" rx="3" fill={ICECEK_RENGI[i]} stroke="rgba(0,0,0,0.25)" strokeWidth="1.2" />
-      <rect x="-6" y="-16" width="12" height="3" rx="1" fill="#c9d0d6" />
-      <rect x="-7" y="-4" width="14" height="6" fill="rgba(255,255,255,0.55)" />
-    </g>
-  );
+  const renk = ICECEK_RENGI[i];
+  const kap = ICECEK_TANIMI[i].kap;
+  let ic;
+  if (kap === 'kutu')
+    ic = (
+      <>
+        <rect x="-7" y="-14" width="14" height="28" rx="3" fill={renk} stroke={CIZGI} strokeWidth="1.2" />
+        <rect x="-6" y="-16" width="12" height="3" rx="1" fill="#c9d0d6" />
+        <rect x="-7" y="-4" width="14" height="6" fill="rgba(255,255,255,0.55)" />
+      </>
+    );
+  else if (kap === 'sise')
+    ic = (
+      <>
+        <path d="M-3 -16 H3 V-9 Q7 -6 7 -1 V14 H-7 V-1 Q-7 -6 -3 -9 Z" fill={renk} stroke={CIZGI} strokeWidth="1.2" />
+        <rect x="-3.5" y="-17" width="7" height="3" rx="1" fill="#c9d0d6" />
+        <rect x="-7" y="1" width="14" height="6" fill="rgba(255,255,255,0.55)" />
+      </>
+    );
+  else if (kap === 'cayBardagi')
+    ic = (
+      <>
+        <ellipse cx="0" cy="13" rx="9" ry="2.5" fill="#d8dde2" stroke={CIZGI} strokeWidth="1" />
+        <path d="M-6 -10 Q-2 0 -5 11 H5 Q2 0 6 -10 Z" fill="rgba(220,235,245,0.6)" stroke={CIZGI} strokeWidth="1.1" />
+        <path d="M-5.3 -6 Q-1.6 0 -4.6 10 H4.6 Q1.6 0 5.3 -6 Z" fill={renk} />
+      </>
+    );
+  else if (kap === 'fincan')
+    ic = (
+      <>
+        <ellipse cx="0" cy="12" rx="10" ry="2.5" fill="#f4f1ea" stroke={CIZGI} strokeWidth="1" />
+        <path d="M7 -1 Q12 0 11 4 Q10 7 6 6" fill="none" stroke="#f4f1ea" strokeWidth="2.2" />
+        <path d="M-7 -3 H7 L5 10 H-5 Z" fill="#f4f1ea" stroke={CIZGI} strokeWidth="1.1" />
+        <ellipse cx="0" cy="-3" rx="7" ry="1.8" fill={renk} />
+      </>
+    );
+  else
+    // bardak / kupa: dolu uzun bardak ve pipet
+    ic = (
+      <>
+        <line x1="2" y1="-17" x2="-1" y2="4" stroke="#ff6f7d" strokeWidth="2" strokeLinecap="round" />
+        <path d="M-7 -12 H7 L5.5 14 H-5.5 Z" fill="rgba(220,235,245,0.6)" stroke={CIZGI} strokeWidth="1.1" />
+        <path d="M-6.6 -8 H6.6 L5.5 13 H-5.5 Z" fill={renk} />
+      </>
+    );
+  return <g transform={`translate(${x} ${y})`}>{ic}</g>;
 }
 
 export function MakineSiparisResmi({ musteri }: { musteri: Musteri }) {
@@ -231,12 +273,27 @@ export function MakineDugmeleri() {
       {/* İçecek standı: dolaptan istenenleri al */}
       {!waffle && a === 'bos' && (
         <div className="icecek-paneli">
-          {ICECEKLER.map((i) => (
-            <button key={i} className="dugme icecek-dugme" disabled={!musteri || durum.makine.icecekler.length >= EN_COK_ICECEK} onClick={() => icecekAl(i)}>
-              <svg viewBox="-10 -18 20 34" aria-hidden className="icecek-simge">
+          {durum.acikIcecekler.map((i) => (
+            // Hazırlanan içecek (kahve, milkshake, taze sıkma): basılı tut, aralıkta bırak (9d)
+            <button
+              key={i}
+              className={`dugme icecek-dugme ${ICECEK_TANIMI[i].hazirlik ? 'hazirlanan' : ''}`}
+              disabled={!musteri || durum.makine.icecekler.length >= EN_COK_ICECEK}
+              onClick={ICECEK_TANIMI[i].hazirlik ? undefined : () => icecekAl(i)}
+              onPointerDown={
+                ICECEK_TANIMI[i].hazirlik
+                  ? (e) => {
+                      e.preventDefault();
+                      icecekAl(i);
+                    }
+                  : undefined
+              }
+            >
+              <svg viewBox="-12 -18 24 34" aria-hidden className="icecek-simge">
                 <IcecekResmi i={i} />
               </svg>
               {m(`icecek.${i}` as MetinAnahtari)}
+              {ICECEK_TANIMI[i].hazirlik && <small className="icecek-tut" title={m('icecek.basiliTut')}>⏱</small>}
               {durum.makine.icecekler.filter((x) => x === i).length > 0 && <span className="esya-sayi">{durum.makine.icecekler.filter((x) => x === i).length}</span>}
             </button>
           ))}

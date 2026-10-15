@@ -36,7 +36,11 @@ import {
   tabelaSec,
   type FiyatSeviyesi,
   kilitAcik,
+  icecekAc,
+  istasyonKurulu,
 } from '../oyun/durum';
+import { ICECEKLER, ICECEK_TANIMI, icecekAcmaFiyati } from '../oyun/makine';
+import { IcecekResmi } from './MakineArayuzu';
 import { DIS_GRUPLAR, GORUNUS_GRUPLARI, GORUNUS_SECENEKLERI, TABELALAR, type GorunusGrubu, type GorunusSecenegi } from '../oyun/gorunus';
 import { dukkanKaydirma, duvarlar, ekrandaKaydir } from '../sahne/kameraKarisimi';
 import { CESITLER, FIYAT_ARALIGI, makulFiyat } from '../oyun/kuvetler';
@@ -422,6 +426,42 @@ export function Gelistir({ kapat, ilkSekme = 'dekorasyon' }: { kapat: () => void
                   </button>
                 )}
               </div>
+              {/* İçecekler (9d, belge 0.13): stand kuruluysa; dükkân seviyesi + para */}
+              {istasyonKurulu('icecek', durum) && (
+                <>
+                  <div className="gel-baslik" style={{ gridColumn: '1 / -1' }}>
+                    {m('stok.tur.icecek')}
+                  </div>
+                  {ICECEKLER.map((i) => {
+                    const acik = durum.acikIcecekler.includes(i);
+                    return (
+                      <div key={i} className={`gel-kart ${acik ? 'acik' : ''}`}>
+                        <svg viewBox="-12 -18 24 34" aria-hidden className="icecek-simge">
+                          <IcecekResmi i={i} />
+                        </svg>
+                        <span className="gel-ad">
+                          {m(`icecek.${i}` as MetinAnahtari)}
+                          {ICECEK_TANIMI[i].hazirlik && (
+                            <span className="gel-aciklama" title={m('icecek.hazirlanir')}>
+                              {' '}
+                              ⏱
+                            </span>
+                          )}
+                        </span>
+                        {acik ? (
+                          <span className="gel-durum">{m('gelistir.alindi')}</span>
+                        ) : !kilitAcik(`icecek.${i}`, durum) ? (
+                          <Kilit anahtar={`icecek.${i}`} />
+                        ) : (
+                          <button className="dugme gel-al" disabled={durum.para < icecekAcmaFiyati(i)} onClick={() => icecekAc(i)}>
+                            {m('gelistir.al')} <Para miktar={icecekAcmaFiyati(i)} />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </>
+              )}
               <p className="gel-not" style={{ gridColumn: '1 / -1' }}>
                 {m('cesit.yildizNot', { ortalama: durum.enIyiOrtalama > 0 ? ondalik(durum.enIyiOrtalama, 2) : '–' })}
               </p>

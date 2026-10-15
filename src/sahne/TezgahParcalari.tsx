@@ -2,8 +2,9 @@ import { useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { durumuOku, makineDolumu, pismeOrani, useDurum, yardimciCalisiyor } from '../oyun/durum';
-import { ICECEKLER, ICECEK_RENGI, parcaYerleri, type Icecek, type ParcaYeri, type Yardimci } from '../oyun/makine';
+import { ICECEK_TANIMI, parcaYerleri, type Icecek, type IcecekAleti, type ParcaYeri, type Yardimci } from '../oyun/makine';
 import { renk } from './renkler';
+import { TezgahUrunuModeli } from './Dukkan';
 import { InsanKarakter, type Hareket } from './InsanKarakter';
 import { rastgeleVaryant } from './karakterler';
 import { onlukTakici, uniformaAksesuari, UNIFORMA_USTU } from './Calisan';
@@ -161,43 +162,138 @@ function WaffleMakinesi() {
   );
 }
 
-// İçecek standı (belge 0.6): tezgahın üstünde camı çalışana dönük soğutucu
-// dolap; içinde her içecekten bir sıra kutu / şişe. Alınanlar müşteri
-// tarafında tezgahın önüne dizilir.
-function IcecekKutusu({ i, sise = false }: { i: Icecek; sise?: boolean }) {
-  return sise ? (
+// İçecek standı (belge 0.6, 9d): tezgahın üstünde camı çalışana dönük soğutucu
+// dolap; içinde açık şişe / kutu içeceklerden ikişer sıra. Dolabın üstünde
+// açık içeceklerin aletleri (çaydanlık, cezve, espresso, blender, sürahi,
+// sıkacak). Alınanlar kabıyla müşteri tarafında tezgahın önüne dizilir.
+function Cam({ konum, ust, alt, boy }: { konum: [number, number, number]; ust: number; alt: number; boy: number }) {
+  return (
+    <mesh position={konum}>
+      <cylinderGeometry args={[ust, alt, boy, 10, 1, true]} />
+      <meshPhysicalMaterial color={renk.cam} transparent opacity={0.35} roughness={0.05} side={THREE.DoubleSide} />
+    </mesh>
+  );
+}
+function Sivi({ konum, ust, alt, boy, renkAdi }: { konum: [number, number, number]; ust: number; alt: number; boy: number; renkAdi: string }) {
+  return (
+    <mesh position={konum}>
+      <cylinderGeometry args={[ust, alt, boy, 10]} />
+      <meshStandardMaterial color={renkAdi} roughness={0.4} />
+    </mesh>
+  );
+}
+function IcecekKutusu({ i }: { i: Icecek }) {
+  const { kap, renk: r } = ICECEK_TANIMI[i];
+  if (kap === 'sise')
+    return (
+      <group>
+        <mesh position={[0, 0.06, 0]}>
+          <cylinderGeometry args={[0.03, 0.032, 0.12, 8]} />
+          <meshStandardMaterial color={r} roughness={0.3} />
+        </mesh>
+        <mesh position={[0, 0.14, 0]}>
+          <cylinderGeometry args={[0.012, 0.028, 0.05, 8]} />
+          <meshStandardMaterial color={r} roughness={0.3} />
+        </mesh>
+        <mesh position={[0, 0.17, 0]}>
+          <cylinderGeometry args={[0.013, 0.013, 0.012, 8]} />
+          <meshStandardMaterial color="#c9d0d6" metalness={0.5} roughness={0.3} />
+        </mesh>
+      </group>
+    );
+  if (kap === 'kutu')
+    return (
+      <group>
+        <mesh position={[0, 0.06, 0]}>
+          <cylinderGeometry args={[0.032, 0.032, 0.12, 10]} />
+          <meshStandardMaterial color={r} roughness={0.35} metalness={0.2} />
+        </mesh>
+        <mesh position={[0, 0.122, 0]}>
+          <cylinderGeometry args={[0.028, 0.032, 0.006, 10]} />
+          <meshStandardMaterial color="#c9d0d6" metalness={0.5} roughness={0.3} />
+        </mesh>
+      </group>
+    );
+  if (kap === 'cayBardagi')
+    // İnce belli çay bardağı, tabağıyla
+    return (
+      <group>
+        <Sivi konum={[0, 0.006, 0]} ust={0.045} alt={0.045} boy={0.008} renkAdi="#e8ecef" />
+        <Sivi konum={[0, 0.035, 0]} ust={0.019} alt={0.024} boy={0.05} renkAdi={r} />
+        <Sivi konum={[0, 0.07, 0]} ust={0.027} alt={0.019} boy={0.02} renkAdi={r} />
+        <Cam konum={[0, 0.05, 0]} ust={0.029} alt={0.025} boy={0.09} />
+      </group>
+    );
+  if (kap === 'fincan')
+    return (
+      <group>
+        <Sivi konum={[0, 0.006, 0]} ust={0.05} alt={0.05} boy={0.008} renkAdi="#f4f1ea" />
+        <Sivi konum={[0, 0.035, 0]} ust={0.032} alt={0.024} boy={0.05} renkAdi="#f4f1ea" />
+        <Sivi konum={[0, 0.0605, 0]} ust={0.029} alt={0.029} boy={0.002} renkAdi={r} />
+        <mesh position={[0.036, 0.036, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.012, 0.004, 6, 10]} />
+          <meshStandardMaterial color="#f4f1ea" />
+        </mesh>
+      </group>
+    );
+  // Uzun bardak: içecek, pipet
+  return (
     <group>
-      <mesh position={[0, 0.07, 0]}>
-        <cylinderGeometry args={[0.03, 0.032, 0.14, 8]} />
-        <meshStandardMaterial color={ICECEK_RENGI[i]} roughness={0.3} />
-      </mesh>
-      <mesh position={[0, 0.16, 0]}>
-        <cylinderGeometry args={[0.012, 0.025, 0.05, 8]} />
-        <meshStandardMaterial color={ICECEK_RENGI[i]} roughness={0.3} />
-      </mesh>
-    </group>
-  ) : (
-    <group>
-      <mesh position={[0, 0.06, 0]}>
-        <cylinderGeometry args={[0.032, 0.032, 0.12, 10]} />
-        <meshStandardMaterial color={ICECEK_RENGI[i]} roughness={0.35} metalness={0.2} />
-      </mesh>
-      <mesh position={[0, 0.122, 0]}>
-        <cylinderGeometry args={[0.028, 0.032, 0.006, 10]} />
-        <meshStandardMaterial color="#c9d0d6" metalness={0.5} roughness={0.3} />
+      <Sivi konum={[0, 0.06, 0]} ust={0.033} alt={0.027} boy={0.11} renkAdi={r} />
+      <Cam konum={[0, 0.07, 0]} ust={0.037} alt={0.03} boy={0.14} />
+      <mesh position={[0.01, 0.14, 0]} rotation={[0, 0, -0.2]}>
+        <cylinderGeometry args={[0.004, 0.004, 0.12, 6]} />
+        <meshStandardMaterial color="#ff6f7d" />
       </mesh>
     </group>
   );
 }
 
+// Aletler: yerel olanlar ve paket modelleri arka tezgahtakinin aynısı; sürahi ve sıkacak koddan
+function IcecekAleti({ alet }: { alet: IcecekAleti }) {
+  if (alet === 'surahi')
+    return (
+      <group>
+        <Sivi konum={[0, 0.07, 0]} ust={0.06} alt={0.065} boy={0.13} renkAdi={ICECEK_TANIMI.limonata.renk} />
+        <Cam konum={[0, 0.09, 0]} ust={0.06} alt={0.07} boy={0.18} />
+        <mesh position={[0.075, 0.1, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.035, 0.008, 6, 12, Math.PI]} />
+          <meshPhysicalMaterial color={renk.cam} transparent opacity={0.5} />
+        </mesh>
+      </group>
+    );
+  if (alet === 'sikacak')
+    return (
+      <group>
+        <Sivi konum={[0, 0.02, 0]} ust={0.09} alt={0.07} boy={0.04} renkAdi="#f4f1ea" />
+        <mesh position={[0, 0.07, 0]}>
+          <coneGeometry args={[0.04, 0.07, 8]} />
+          <meshStandardMaterial color="#f4f1ea" flatShading />
+        </mesh>
+        <mesh position={[0.12, 0.035, 0.02]}>
+          <sphereGeometry args={[0.035, 8, 6]} />
+          <meshStandardMaterial color={ICECEK_TANIMI.portakalSuyu.renk} flatShading />
+        </mesh>
+      </group>
+    );
+  return <TezgahUrunuModeli id={alet} />;
+}
+
 function IcecekStandi() {
-  const alinanlar = useRef<THREE.Group>(null);
+  const durum = useDurum();
   const [icindekiler, setIcindekiler] = useState<Icecek[]>([]);
   useFrame(() => {
     const d = durumuOku();
     const liste = d.istasyon === 'icecek' ? d.makine.icecekler : [];
     if (liste.join() !== icindekiler.join()) setIcindekiler(liste);
   });
+  // Dolaptakiler: açık şişe / kutu içecekler; çoğaldıkça sıklaşır
+  const dolaptakiler = durum.acikIcecekler.filter((i) => ['kutu', 'sise'].includes(ICECEK_TANIMI[i].kap));
+  const ara = Math.min(0.2, 0.96 / Math.max(1, dolaptakiler.length));
+  // Dolabın üstü: açık içeceklerin aletleri (her alet bir kez)
+  const aletler = [...new Set(durum.acikIcecekler.map((i) => ICECEK_TANIMI[i].alet).filter(Boolean))] as IcecekAleti[];
+  const aletAra = Math.min(0.3, 1.0 / Math.max(1, aletler.length));
+  const olcek = aletler.length > 4 ? 0.7 : 0.85;
   return (
     <group>
       {/* Dolap: arkası (müşteri tarafı) mor, çalışana dönük cam kapak */}
@@ -212,10 +308,10 @@ function IcecekStandi() {
         {[0.2, 0.46].map((y) => (
           <Kutu key={y} konum={[0, y - 0.04, 0.05]} boyut={[1.0, 0.015, 0.4]} renkAdi="#c9d0d6" />
         ))}
-        {ICECEKLER.map((i, n) =>
+        {dolaptakiler.map((i, n) =>
           [0, 1].map((raf) => (
-            <group key={`${i}${raf}`} position={[-0.4 + n * 0.2, raf ? 0.42 : 0.16, 0.12]}>
-              <IcecekKutusu i={i} sise={raf === 1} />
+            <group key={`${i}${raf}`} position={[(n - (dolaptakiler.length - 1) / 2) * ara, raf ? 0.42 : 0.16, 0.12 - raf * 0.08]}>
+              <IcecekKutusu i={i} />
             </group>
           )),
         )}
@@ -224,9 +320,14 @@ function IcecekStandi() {
           <meshPhysicalMaterial color={renk.cam} transparent opacity={0.22} roughness={0.05} />
         </mesh>
         <Kutu konum={[0, 0.66, 0]} boyut={[1.12, 0.05, 0.52]} renkAdi={renk.sari} />
+        {aletler.map((a, n) => (
+          <group key={a} position={[(n - (aletler.length - 1) / 2) * aletAra, 0.685, 0.04]} rotation={[0, Math.PI, 0]} scale={olcek}>
+            <IcecekAleti alet={a} />
+          </group>
+        ))}
       </group>
       {/* Alınan içecekler: tezgahın önünde müşteriye doğru */}
-      <group ref={alinanlar} position={[0.75, 0.97, -0.75]}>
+      <group position={[0.75, 0.97, -0.75]}>
         {icindekiler.map((i, n) => (
           <group key={n} position={[0, 0, n * 0.12 - 0.1]}>
             <IcecekKutusu i={i} />

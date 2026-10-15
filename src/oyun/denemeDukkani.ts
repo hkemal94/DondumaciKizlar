@@ -67,6 +67,8 @@ export const DENEME_KAYDI = {
     { tur: 'kose', yan: -1 },
   ],
   sahipParcalar: ['waffle', 'icecek', 'servis', 'kose'],
+  // İçecekler (9d): denemede hepsi açık
+  acikIcecekler: ['gazoz', 'kola', 'soda', 'visne', 'seftali', 'ayran', 'buzluCay', 'limonata', 'cay', 'milkshake', 'frappe', 'turkKahvesi', 'espresso', 'buzluKahve', 'portakalSuyu'],
   // Adları oyuncu yazar (boş bırakıldı)
   yardimcilar: [
     { id: 1, ad: '', tohum: 1234, yetenek: 'waffle', hiz: 2 },

@@ -81,6 +81,7 @@ function kilitAdi(anahtar: string) {
   if (tur === 'tabela') return m(`tabela.${id}` as MetinAnahtari);
   if (tur === 'parca') return m(`insaat.parca.${id}` as MetinAnahtari);
   if (tur === 'vitrin') return m('seviye.vitrin', { boy: id });
+  if (tur === 'icecek') return m(`icecek.${id}` as MetinAnahtari);
   if (tur === 'cesit') {
     const c = CESITLER.find((x) => x.ad === id);
     return c ? m(`cesit.${c.ad}` as MetinAnahtari) : id;

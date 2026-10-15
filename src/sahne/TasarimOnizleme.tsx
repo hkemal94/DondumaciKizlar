@@ -142,7 +142,11 @@ function InsanlarOnizleme() {
   const { camera } = useThree();
   useEffect(() => {
     // #tasarim=insan-yan: yalnız oturan karakter, yandan yakın
-    if (location.hash.endsWith('-aks')) {
+    if (location.hash.endsWith('-aksyan')) {
+      // #tasarim=insan-aksyan: aynı karakterler yandan (gözlük yüze oturuyor mu)
+      camera.position.set(1.4, 1.5, 0.5);
+      camera.lookAt(-0.5, 1.45, 0);
+    } else if (location.hash.endsWith('-aks')) {
       // #tasarim=insan-aks: gözlük ve küpe yakından (kadın, erkek)
       camera.position.set(-1.0, 1.55, 2.9);
       camera.lookAt(-1.0, 1.45, 0);

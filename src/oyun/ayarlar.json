@@ -722,6 +722,62 @@
         }
       }
     },
+    "icecekAcma": {
+      "ad": "İçecek açma",
+      "aciklama": "9d (belge 0.13): yeni içeceklerin açma fiyatı; ayrıca dükkân seviyesi gerekir (Kilitler bölümü, icecek.*)",
+      "ayarlar": {
+        "ayran": {
+          "ad": "Ayran",
+          "deger": 120,
+          "birim": "jeton"
+        },
+        "buzluCay": {
+          "ad": "Buzlu çay",
+          "deger": 150,
+          "birim": "jeton"
+        },
+        "limonata": {
+          "ad": "Limonata",
+          "deger": 180,
+          "birim": "jeton"
+        },
+        "cay": {
+          "ad": "Çay",
+          "deger": 150,
+          "birim": "jeton"
+        },
+        "milkshake": {
+          "ad": "Milkshake",
+          "deger": 400,
+          "birim": "jeton"
+        },
+        "frappe": {
+          "ad": "Frappe",
+          "deger": 450,
+          "birim": "jeton"
+        },
+        "turkKahvesi": {
+          "ad": "Türk kahvesi",
+          "deger": 500,
+          "birim": "jeton"
+        },
+        "espresso": {
+          "ad": "Espresso",
+          "deger": 600,
+          "birim": "jeton"
+        },
+        "buzluKahve": {
+          "ad": "Buzlu kahve",
+          "deger": 650,
+          "birim": "jeton"
+        },
+        "portakalSuyu": {
+          "ad": "Taze portakal suyu",
+          "deger": 500,
+          "birim": "jeton"
+        }
+      }
+    },
     "yardimci": {
       "ad": "Yardımcılar",
       "aciklama": "İşe alma, günlük ücret ve fazla mesai",
@@ -1798,6 +1854,56 @@
         "esya.mutfakTezgahi": {
           "ad": "Mutfak tezgahı",
           "deger": 1,
+          "birim": "dükkân seviyesi"
+        },
+        "icecek.ayran": {
+          "ad": "Ayran",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "icecek.buzluCay": {
+          "ad": "Buzlu çay",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "icecek.limonata": {
+          "ad": "Limonata",
+          "deger": 3,
+          "birim": "dükkân seviyesi"
+        },
+        "icecek.cay": {
+          "ad": "Çay",
+          "deger": 2,
+          "birim": "dükkân seviyesi"
+        },
+        "icecek.milkshake": {
+          "ad": "Milkshake",
+          "deger": 4,
+          "birim": "dükkân seviyesi"
+        },
+        "icecek.frappe": {
+          "ad": "Frappe",
+          "deger": 5,
+          "birim": "dükkân seviyesi"
+        },
+        "icecek.turkKahvesi": {
+          "ad": "Türk kahvesi",
+          "deger": 5,
+          "birim": "dükkân seviyesi"
+        },
+        "icecek.espresso": {
+          "ad": "Espresso",
+          "deger": 6,
+          "birim": "dükkân seviyesi"
+        },
+        "icecek.buzluKahve": {
+          "ad": "Buzlu kahve",
+          "deger": 7,
+          "birim": "dükkân seviyesi"
+        },
+        "icecek.portakalSuyu": {
+          "ad": "Taze portakal suyu",
+          "deger": 7,
           "birim": "dükkân seviyesi"
         }
       }
