@@ -1800,16 +1800,22 @@ a.dugme {
 .acilis-dugmeler {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  min-width: 170px;
+  gap: 6px;
+  /* İnce ve yana uzun düğmeler (Kemal, 16 Ekim: "ekrana sığmıyor, daha kibar") */
+  width: min(250px, 36vw);
 }
 .acilis-dugmeler .dugme {
-  font-size: 16px;
-  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 5px 14px;
+  border-width: 1px;
+  border-radius: 10px;
+  white-space: nowrap;
 }
 .dugme.acilis-oyna {
-  font-size: 22px;
-  padding: 12px 18px;
+  font-size: 17px;
+  font-weight: 600;
+  padding: 7px 14px;
 }
 /* Deneme dükkânı (belge 0.8): yayına kadar duran, geliştirme için */
 .dugme.acilis-deneme {
@@ -3047,7 +3053,7 @@ li.tamam .hedef-ad {
 .acilis-ikili .dugme {
   flex: 1;
   font-size: 13px;
-  padding: 8px 10px;
+  padding: 5px 8px;
 }
 .gun-sonu.kayit-kodu {
   position: relative;
