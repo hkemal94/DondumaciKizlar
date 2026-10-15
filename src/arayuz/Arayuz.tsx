@@ -53,7 +53,7 @@ import { IstasyonSecimi, MakineDugmeleri, MakineGostergesi, MakineSiparisResmi, 
 import { InsaatPaneli } from './InsaatPaneli';
 import { KameraDugmeleri } from './KameraDugmeleri';
 import { HaberSeridi } from './HaberSeridi';
-import { AcilisEkrani } from './AcilisEkrani';
+import { AcilisEkrani, BulutSecimi } from './AcilisEkrani';
 import { AyarlarEkrani } from './AyarlarEkrani';
 import { useEkranAyari } from './ekranAyari';
 import { EgitimEli, egitimHedefi } from './EgitimEli';
@@ -673,6 +673,7 @@ export function Arayuz() {
     return (
       <div className="arayuz">
         <AcilisEkrani ayarlar={() => setAyarlarAcik(true)} />
+        <BulutSecimi />
         {ayarlarAcik && <AyarlarEkrani kapat={() => setAyarlarAcik(false)} egitimSonrasi={acilisiKapat} />}
       </div>
     );

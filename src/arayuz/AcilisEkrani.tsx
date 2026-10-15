@@ -8,6 +8,7 @@ import { m } from '../metinler';
 import { logoAdresi } from '../sahne/logo';
 import { Galeri } from './Galeri';
 import { tamEkraniDegistir, tamEkranVar, useTamEkran } from './tamEkran';
+import { bulutCikis, bulutHazir, googleIleBaglan, secimiUygula, useBulut } from '../oyun/bulut';
 
 // Açılış ekranı (Kemal, 14 Ekim; belge 0.8): arkada dükkânın sakin genel
 // görünümü, önde külahlı logo. Kayıt varsa Devam et öne çıkar; Yeni oyun
@@ -15,7 +16,10 @@ import { tamEkraniDegistir, tamEkranVar, useTamEkran } from './tamEkran';
 // 5. adımdan beri (belge 0.12) arkada oyuncunun kendi dükkânı gün batımında,
 // kamera yavaşça döner (Sahne.tsx); Galeri buradan da açılır.
 export function AcilisEkrani({ ayarlar }: { ayarlar: () => void }) {
-  const [kayit] = useState(kayitVar);
+  // Kayıt buluttan gelebilir: her çizimde yeniden bakılır
+  useDurum();
+  useBulut();
+  const kayit = kayitVar();
   const [soruyor, setSoruyor] = useState(false);
   const [galeri, setGaleri] = useState(false);
   const [yenilikler, setYenilikler] = useState(false);
@@ -77,7 +81,7 @@ export function AcilisEkrani({ ayarlar }: { ayarlar: () => void }) {
         </div>
       </div>
       <Kunye />
-      {kayit && <OyuncuKarti />}
+      {(kayit || bulutHazir) && <OyuncuKarti kayit={kayit} />}
     </div>
   );
 }
@@ -95,8 +99,9 @@ function Kunye() {
 }
 
 // Oyuncu kartı (belge 0.14): takma ad (dokununca değişir), ID, dükkân seviyesi ve gün
-function OyuncuKarti() {
+function OyuncuKarti({ kayit }: { kayit: boolean }) {
   const durum = useDurum();
+  const bulut = useBulut();
   const [duzenle, setDuzenle] = useState(false);
   const dukkan = seviyeBilgisi('dukkan', durum.exp.dukkan).seviye;
   return (
@@ -112,13 +117,28 @@ function OyuncuKarti() {
           onBlur={() => setDuzenle(false)}
           onKeyDown={(e) => e.key === 'Enter' && setDuzenle(false)}
         />
-      ) : (
+      ) : !kayit ? null : (
         <button className="acilis-oyuncu-ad" onClick={() => setDuzenle(true)}>
           {durum.oyuncuAdi || m('oyuncu.adsiz')} <span aria-hidden>✎</span>
         </button>
       )}
-      <span className="acilis-oyuncu-id">{durum.oyuncuId}</span>
-      <span>{m('oyuncu.ozet', { seviye: dukkan, gun: durum.gun })}</span>
+      {kayit && <span className="acilis-oyuncu-id">{durum.oyuncuId}</span>}
+      {kayit && <span>{m('oyuncu.ozet', { seviye: dukkan, gun: durum.gun })}</span>}
+      {/* Hesap ve bulut kayıt (paket E): Google ile bağlanınca dükkân bulutta da durur */}
+      {bulutHazir &&
+        (bulut.kullanici ? (
+          <span className="acilis-bulut">
+            ☁ {m('bulut.bagli')}{' '}
+            <button className="acilis-bulut-dugme" onClick={() => void bulutCikis()}>
+              {m('bulut.cikis')}
+            </button>
+          </span>
+        ) : (
+          <button className="acilis-bulut-dugme" disabled={bulut.hazirlaniyor} onClick={() => void googleIleBaglan()}>
+            ☁ {m(bulut.hazirlaniyor ? 'bulut.baglaniyor' : 'bulut.baglan')}
+          </button>
+        ))}
+      {bulut.hata && <span className="acilis-bulut-hata">{m(`bulut.hata.${bulut.hata}` as MetinAnahtari)}</span>}
     </div>
   );
 }
@@ -138,6 +158,31 @@ function YeniliklerEkrani({ kapat }: { kapat: () => void }) {
         <button className="dugme dugme-yeni-gun" onClick={kapat}>
           {m('acilis.vazgec')}
         </button>
+      </div>
+    </div>
+  );
+}
+
+// Bulut ile bu cihaz farklıysa (paket E): hangi dükkân kalsın
+export function BulutSecimi() {
+  const { secim } = useBulut();
+  if (!secim) return null;
+  const satir = (o: { gun: number; para: number }) => m('bulut.ozet', { gun: o.gun, para: o.para });
+  return (
+    <div className="gun-sonu-zemin">
+      <div className="gun-sonu bulut-secimi" role="dialog" aria-labelledby="bulut-baslik">
+        <h2 id="bulut-baslik">{m('bulut.secimBaslik')}</h2>
+        <p className="gel-not">{m('bulut.secimNot')}</p>
+        <div className="gun-sonu-dugmeler">
+          <button className="dugme" onClick={() => void secimiUygula('cihaz')}>
+            {m('bulut.cihazdaki')}
+            <small>{satir(secim.cihaz)}</small>
+          </button>
+          <button className="dugme dugme-yeni-gun" onClick={() => void secimiUygula('bulut')}>
+            {m('bulut.buluttaki')}
+            <small>{satir(secim.bulut)}</small>
+          </button>
+        </div>
       </div>
     </div>
   );

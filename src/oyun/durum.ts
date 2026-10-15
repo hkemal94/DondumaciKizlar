@@ -2315,10 +2315,17 @@ function kaydet() {
     acikIcecekler: durum.acikIcecekler,
   };
   try {
-    localStorage.setItem(kayitAnahtari, JSON.stringify(k));
+    const ham = JSON.stringify(k);
+    localStorage.setItem(kayitAnahtari, ham);
+    // Bulut kayıt (paket E) dinliyorsa haber verilir; deneme dükkânı buluta gitmez
+    if (kayitAnahtari === KAYIT_ANAHTARI) kayitDinleyicisi?.(ham);
   } catch {
     // Kayıt yapılamadı (gizli pencere vb.); oyun devam eder.
   }
+}
+let kayitDinleyicisi: ((ham: string) => void) | null = null;
+export function kayitDinleyicisiKur(f: ((ham: string) => void) | null) {
+  kayitDinleyicisi = f;
 }
 
 export function kaydiYukle() {
@@ -2663,6 +2670,13 @@ export function kayitHamYaz(ham: string) {
   const k = JSON.parse(ham) as Partial<Kayit>;
   if (!k || typeof k !== 'object' || typeof k.gun !== 'number' || typeof k.para !== 'number') throw new Error('kayit');
   localStorage.setItem(KAYIT_ANAHTARI, ham);
+}
+// Kayıt dışarıdan değişti (buluttan geldi): giriş ekranının arkasındaki dükkân yeniden kurulur
+export function kaydiYenidenYukle() {
+  kayitAnahtari = KAYIT_ANAHTARI;
+  durumuSifirla();
+  kaydiYukle();
+  guncelle({ acilis: true, duraklatildi: false, gezme: false });
 }
 export function kayittanDevamEt() {
   kayitAnahtari = KAYIT_ANAHTARI;

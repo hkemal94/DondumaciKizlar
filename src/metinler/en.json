@@ -633,5 +633,17 @@
   "urun.caydanlik": "Double teapot",
   "urun.suIsiticisi": "Electric kettle",
   "yenilik.yerel": "Local items for the back counter: Turkish tea glasses, Turkish coffee cups, cezve, double teapot, electric kettle.",
-  "yenilik.icecekler": "The drinks stand grew: tea, ayran, lemonade, coffees, milkshake, fresh orange juice"
+  "yenilik.icecekler": "The drinks stand grew: tea, ayran, lemonade, coffees, milkshake, fresh orange juice",
+  "bulut.baglan": "Connect with Google",
+  "bulut.baglaniyor": "Connecting…",
+  "bulut.bagli": "In the cloud",
+  "bulut.cikis": "sign out",
+  "bulut.hata.giris": "Couldn't connect to Google",
+  "bulut.hata.yazma": "Couldn't save to the cloud; your save is still on this device",
+  "bulut.hata.okuma": "Couldn't read the cloud save",
+  "bulut.secimBaslik": "Which shop should stay?",
+  "bulut.secimNot": "The save on this device and the one in the cloud are different. The one you don't pick is deleted.",
+  "bulut.cihazdaki": "This device",
+  "bulut.buluttaki": "Cloud",
+  "bulut.ozet": "Day {gun} · {para} coins"
 }
