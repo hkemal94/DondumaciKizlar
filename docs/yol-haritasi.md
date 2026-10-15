@@ -11,7 +11,7 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | | |
 |---|---|
 | Aşama | Oynanabilir sürüm, büyüme, karakterler, liman ve kişiselleştirme bitti. Sırada görsel kalite |
-| Son biten | Yerel eşyalar: çay bardağı, Türk kahvesi fincanı, cezve, çaydanlık, su ısıtıcısı (bu PR) |
+| Son biten | Yerel eşya düzeltmeleri (bu PR) |
 | Şu an | Hataların denetimi; sıradaki soruları Kemal'e tek tek sor (belge 0.13.2 son satır) |
 | Sıradaki | 9d: içecekler (tek istasyon; seçilen dolap, makine ve bardaklarla); sonra hesap ve bulut kayıt (ayrı Firebase projesi) |
 | Yayın | Deneme sürümü webde; tarih yok, acele yok |
@@ -82,7 +82,8 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 - Fazla mesai ücreti: kapanıştan sonra her saat için yardımcılara ek; gün sonunda ayrı satır · [#51](https://github.com/hkemal94/DondumaciKizlar/pull/51)
 - İş kısmına ışık: tezgahın üstünde sarkan zayıf lambalar; mağazada duvar lambası (mutfak duvarına da asılır) · [#52](https://github.com/hkemal94/DondumaciKizlar/pull/52)
 - Soru turu 0.14: mutfağa yalnız mutfak eşyası ve fayans zemin; Dükkân → Arka tezgah ile ürün seçme; giriş ekranında künye, oyuncu kartı, Yenilikler, canlı liman; iki cihaz için kayıt kodu; model hazırlama rehberi · [#53](https://github.com/hkemal94/DondumaciKizlar/pull/53)
-- Yerel eşyalar arka tezgahta (çay bardakları, Türk kahvesi fincanları, cezve, çaydanlık, su ısıtıcısı); künyeye "Düzada evreninden bir oyun" · bu PR
+- Yerel eşyalar arka tezgahta (çay bardakları, Türk kahvesi fincanları, cezve, çaydanlık, su ısıtıcısı); künyeye "Düzada evreninden bir oyun" · [#54](https://github.com/hkemal94/DondumaciKizlar/pull/54)
+- Yerel eşya düzeltmeleri: dar ağızlı çay bardağı, sapı bağlı cezve, kulplu çaydanlık · bu PR
 
 ## Bilinen eksikler
 
