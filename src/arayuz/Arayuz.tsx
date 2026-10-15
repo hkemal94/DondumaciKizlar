@@ -763,7 +763,7 @@ export function Arayuz() {
           )}
         </div>
       )}
-      {!tezgahta && durum.hazirlik && !durum.yerlestirme && !durum.insaat && !durum.gunSonu && !calisanAcik && !gelistirAcik && !durum.istasyonSecimi && !yardimciAcik && !yetenekAcik && (
+      {!tezgahta && durum.hazirlik && !durum.yerlestirme && !durum.insaat && !durum.gunSonu && !calisanAcik && !gelistirAcik && !durum.istasyonSecimi && !yardimciAcik && !yetenekAcik && !vitrinAcik && (
         <MenuSeridi
           sec={(is) => {
             const sekmeler: Partial<Record<MenuIsi, GelistirSekmesi>> = { gelistir: 'dekorasyon', gorunus: 'gorunus', cesitler: 'cesitler', fiyat: 'fiyat' };

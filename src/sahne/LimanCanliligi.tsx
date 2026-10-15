@@ -81,6 +81,75 @@ function YuruyusYolu() {
   );
 }
 
+// ---- Araba yolunun çizgileri, bordürü ve lambaları (Kemal, 15 Ekim: "yol
+// tarafına yol çizgileri ve sokak lambaları") ----
+const YOL_ENI = 7; // Liman.tsx
+const YOL_ORTA = YOL_ON + YOL_ENI / 2;
+const YAYA_GECITLERI = [-128, -64, 0, 64, 128];
+function ArabaYolu() {
+  const m = (x: number, y: number, z: number) => new THREE.Matrix4().makeTranslation(x, y, z);
+  const { kesikler, zebralar, lambalar } = useMemo(() => {
+    const kesikler: THREE.Matrix4[] = [];
+    const zebralar: THREE.Matrix4[] = [];
+    const lambalar: THREE.Matrix4[] = [];
+    // Orta çizgi: 3 m çizgi, 3 m boşluk; yaya geçidinde kesilir
+    for (let x = -YOL_SONU; x <= YOL_SONU; x += 6) if (!YAYA_GECITLERI.some((g) => Math.abs(g - x) < 3)) kesikler.push(m(x, 0, YOL_ORTA));
+    // Yaya geçidi: yol boyunca uzanan şeritler, yolun enine dizili
+    for (const g of YAYA_GECITLERI) for (let z = YOL_ON + 0.6; z < YOL_ON + YOL_ENI - 0.4; z += 1) zebralar.push(m(g, 0, z + 0.25));
+    // Eski tip lambalar iki yanda, karşılıklı değil sıralı (yaya geçidinin yanında boşluk)
+    for (let x = -YOL_SONU; x <= YOL_SONU; x += 24) {
+      lambalar.push(m(x + 6, 0, YOL_ON - 0.95));
+      lambalar.push(m(x + 18, 0, YOL_ON + YOL_ENI + 0.95));
+    }
+    return { kesikler, zebralar, lambalar };
+  }, []);
+  const camMalzeme = useMemo(() => new THREE.MeshStandardMaterial({ color: '#fff3c4', emissive: '#ffd98a', emissiveIntensity: 0 }), []);
+  useFrame(() => {
+    camMalzeme.emissiveIntensity = 0.1 + 1.6 * tabelaIsigi.deger;
+  });
+  const meshler = useMemo(() => {
+    const ornek = (geo: THREE.BufferGeometry, malzeme: THREE.Material, yerler: THREE.Matrix4[]) => {
+      const im = new THREE.InstancedMesh(geo, malzeme, yerler.length);
+      yerler.forEach((y, i) => im.setMatrixAt(i, y));
+      im.receiveShadow = true;
+      return im;
+    };
+    const boya = new THREE.MeshStandardMaterial({ color: '#f4f1ea', roughness: 0.9 });
+    // Dönemin demir lambası: koyu yeşil direk, ayak, fener ve şapka
+    const demir = new THREE.MeshStandardMaterial({ color: '#2f3d35', roughness: 0.55 });
+    return [
+      ornek(new THREE.PlaneGeometry(3, 0.14).rotateX(-Math.PI / 2).translate(0, -0.012, 0), boya, kesikler),
+      ornek(new THREE.PlaneGeometry(2.6, 0.5).rotateX(-Math.PI / 2).translate(0, -0.012, 0), boya, zebralar),
+      ornek(new THREE.CylinderGeometry(0.16, 0.2, 0.35, 8).translate(0, 0.17, 0), demir, lambalar),
+      ornek(new THREE.CylinderGeometry(0.045, 0.06, 3.2, 8).translate(0, 1.8, 0), demir, lambalar),
+      ornek(new THREE.CylinderGeometry(0.17, 0.1, 0.42, 6).translate(0, 3.6, 0), camMalzeme, lambalar),
+      ornek(new THREE.ConeGeometry(0.24, 0.22, 6).translate(0, 3.92, 0), demir, lambalar),
+      ornek(new THREE.SphereGeometry(0.05, 6, 4).translate(0, 4.06, 0), demir, lambalar),
+    ];
+  }, [kesikler, zebralar, lambalar, camMalzeme]);
+  return (
+    <group>
+      {/* Kenar çizgileri: ince, kesintisiz */}
+      {[YOL_ON + 0.35, YOL_ON + YOL_ENI - 0.35].map((z) => (
+        <mesh key={z} position={[0, -0.012, z]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <planeGeometry args={[2 * YOL_SONU, 0.1]} />
+          <meshStandardMaterial color="#f4f1ea" roughness={0.9} />
+        </mesh>
+      ))}
+      {/* Bordür: yolla kaldırım arasında açık gri taş */}
+      {[YOL_ON - 0.08, YOL_ON + YOL_ENI + 0.08].map((z) => (
+        <mesh key={z} position={[0, 0.03, z]} receiveShadow>
+          <boxGeometry args={[2 * YOL_SONU, 0.17, 0.16]} />
+          <meshStandardMaterial color="#d9d3c9" roughness={0.95} />
+        </mesh>
+      ))}
+      {meshler.map((im, i) => (
+        <primitive key={i} object={im} />
+      ))}
+    </group>
+  );
+}
+
 // ---- Arabalar: arka yolda iki yönde ----
 const ARABALAR = ['car_sedan', 'car_hatchback', 'car_stationwagon', 'car_taxi'];
 function Araba({ model, serit, hiz, baslangic }: { model: string; serit: 1 | -1; hiz: number; baslangic: number }) {
@@ -229,6 +298,7 @@ export function LimanCanliligi() {
   return (
     <group>
       <YuruyusYolu />
+      <ArabaYolu />
       <MartiSesi />
       {arabalar.map((a, i) => (
         <Araba key={i} {...a} />

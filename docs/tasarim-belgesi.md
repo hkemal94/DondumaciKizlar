@@ -432,6 +432,30 @@ yazılar kanon değildir.
 | Çalışma düzeni | Uyanıkken adım adım; "uyuyorum" deyince onay beklemeden sürer, işler tek PR'da (CLAUDE.md) |
 | KKM | AI Studio önizlemesi GitHub'dan elle eşitleniyor; yeni sekmeler görünmüyorsa önce eşitlenir |
 
+## 0.13 İnce tasarım, içecekler, stok (Kemal, 15 Ekim akşam soru turu)
+
+Kemal: "grafik dizayn kısmı çok kalın ve etli duruyor, daha narin ve ince
+şeyler olsun"; "yol tarafına yol çizgileri ve sokak lambaları"; küvetler için
+"dondurma küvetlerinin gerçekle alakası olmadığını farkında mısın? Bar
+konusunda komple assetlere ihtiyacımız olabilir."
+
+| Konu | Karar |
+|---|---|
+| İnceltme | Paneller ve kartlar, düğmeler, üst bilgi ve menü; krem zeminlerdeki yazılar iri. **İnce çizgi, yumuşak gölge**: 1–2 px kenar, hafif bulanık gölge, daha küçük köşe yuvarlaklığı; renkler aynı (mor-sarı), yazı orta kalınlıkta. Yapıldı (9a): kenarlar 1,5 px, alttaki keskin gölgeler yumuşak gölgeye döndü, yazılar ~%10 küçük ve bir kademe ince; simgeler (duraklat, para, saat…) eski kalınlıkta |
+| Menülerin yeri | Menüler benzer yerde, **sağda** başlasın. Yapıldı (9a): mağaza, vitrin, çalışan, yetenekler, yardımcılar aynı genişlikte sağdan açılır; gün sonu, mola, ayarlar ortada kalır |
+| Yol | Kesik beyaz orta çizgi, ince kenar çizgileri, ara ara yaya geçidi, kaldırımla yol arasında açık gri bordür. Yapıldı (9a) |
+| Sokak lambaları | **Eski tip, iki yanda**: koyu yeşil demir direk, fener başlık; karşılıklı değil sıralı; akşam yanar. Yapıldı (9a): 24 m arayla, iki yan 12 m kaydırılmış |
+| İçecek istasyonu | **Tek içecek istasyonu**: bugünkü stand büyür, yeni içecekler dolaba ve tezgaha eklenerek açılır |
+| İçecek hazırlama | **Karışık**: basit olanlar seçip ver, kahve ve milkshake mini oyunlu |
+| İçeceklerin açılması | Dükkân seviyesi + para (8a kilitleri gibi) |
+| Kahve | **İkisi de**: Türk kahvesi, buzlu kahve; espresso bazlılar |
+| Vitrin ve bar modelleri | Bugünkü küvetler gerçek dondurma vitrinine benzemiyor (gerçekte paslanmaz tepsilerde kabarık dondurma, önde kavisli cam). Önce izinli paketlerden aday sayfası, Kemal seçer (9b) |
+| Stok: azalma | Görünür doluluk: top alındıkça küvetteki dondurma alçalır, etiketin yanında küçük çubuk; biten çeşit o gün istenmez |
+| Stok: sipariş | Gün sonunda tek tuş "Hepsini doldur" (toplam fiyat), istenirse kalem kalem artı / eksi; düz liste |
+| Stok: kapsam | Dondurma, külah / kap / kup, süslemeler, içecek malzemeleri |
+| Stok: biterse | Biten istenmez; hepsi biterse dükkân o gün cezasız erken kapanır |
+| Sıra | 9a ince tasarım + yol → 9b vitrin ve bar aday sayfası → 9c gerçekçi vitrin + hafif stok → 9d içecekler |
+
 ## 1. Oyunun özeti ve vizyonu
 
 ### 1.1 Tek cümlelik özet

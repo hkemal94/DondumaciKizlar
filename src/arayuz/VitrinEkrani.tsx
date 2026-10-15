@@ -10,7 +10,7 @@ export function VitrinEkrani({ kapat }: { kapat: () => void }) {
   const durum = useDurum();
   const dolu = durum.vitrin.length >= durum.vitrinBoyu;
   return (
-    <div className="gun-sonu-zemin">
+    <div className="gun-sonu-zemin sag-zemin">
       <div className="gelistir vitrin-ekrani" role="dialog" aria-labelledby="vitrin-baslik">
         <div className="gel-ust">
           <img className="baslik-logo" src={logoAdresi('yazi')} alt="" aria-hidden />
