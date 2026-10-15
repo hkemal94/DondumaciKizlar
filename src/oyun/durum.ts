@@ -112,6 +112,7 @@ import {
 } from './calisan';
 import { DENEME_KAYDI } from './denemeDukkani';
 import { AYAR } from './ayarlar';
+import { altlikAnahtari, artir, azalt, birimMaliyet, dondurmaAnahtari, eksik, icecekAnahtari, kapasite, miktar, stokKalemleri, stokuOku, suslemeAnahtari, type Stok } from './stok';
 import { ekranAyariniOku } from '../arayuz/ekranAyari';
 import { BOS_YETENEKLER, EN_COK_BASAMAK, basamakBedeli, harcananPuan, kazanilanPuan, yetenekEtkisi, yetenekleriOku, type Yetenek, type Yetenekler } from './yetenek';
 import { BOS_EXP, acilanKilitler, araziSeviyesi, gerekenSeviye, seviye, yardimciSeviyesi, type Expler, type SeviyeTuru } from './seviye';
@@ -293,6 +294,8 @@ export interface Durum {
   yardimciIsleri: Record<number, { musteri: number; bitis: number }>; // yardımcı → elindeki sipariş (bitiş: iş sayacı, ms)
   makine: MakineDurumu;
   makineFiyatlari: { waffle: number; icecek: number }; // oyuncunun koyduğu fiyat
+  // Hafif stok (belge 0.13, 9c): kalem → kalan miktar; olmayan kalem dolu
+  stok: Stok;
 }
 
 // Waffle yapımı (belge 0.5) ve içecek standı (0.6)
@@ -421,6 +424,7 @@ let durum: Durum = {
   yardimciIsleri: {},
   makine: bosMakine(),
   makineFiyatlari: { waffle: WAFFLE_FIYATI, icecek: ICECEK_FIYATI },
+  stok: {},
   insaat: false,
   seciliParsel: null,
   yerlestirme: false,
@@ -506,6 +510,11 @@ export function kuveteBas(kuvet: number) {
   if (durum.asama !== 'kepceBos' || durum.kamera !== 'tezgah') return;
   if (durum.toplar.length >= EN_COK_TOP) return;
   if (durum.susleme.length > 0) return; // süslemenin üstüne top konmaz
+  // Boş küvetten top alınmaz (9c)
+  if (miktar(durum.stok, dondurmaAnahtari(kuvet)) < 1) {
+    haberVer('haber.kuvetBos');
+    return;
+  }
   guncelle({ asama: 'dolduruyor', kepceKuvet: kuvet, dolumBasladi: performance.now() });
 }
 
@@ -521,6 +530,7 @@ export function birak() {
     asama: 'kepceBos',
     toplar: [...durum.toplar, top],
     kepceKuvet: null,
+    stok: azalt(durum.stok, [dondurmaAnahtari(top.kuvet)]),
     bildirim: { tur: 'top', sonuc: top.sonuc, zaman: performance.now() },
   });
 }
@@ -556,8 +566,9 @@ export function geriAl() {
     guncelle({ tepsi: durum.tepsi.slice(0, -1), altlik: u.altlik, toplar: u.toplar, susleme: u.susleme, asama: 'kepceBos' });
   } else {
     const toplar = durum.toplar.slice(0, -1);
-    // Top kalmadıysa süsleme de kalkar
-    guncelle({ toplar, susleme: toplar.length ? durum.susleme : [] });
+    const geri = durum.toplar[durum.toplar.length - 1];
+    // Top kalmadıysa süsleme de kalkar; geri alınan top küvete döner (9c)
+    guncelle({ toplar, susleme: toplar.length ? durum.susleme : [], stok: artir(durum.stok, dondurmaAnahtari(geri.kuvet)) });
   }
 }
 
@@ -578,40 +589,86 @@ export const MUSTERI_GORUNUM_SAYISI = 4;
 
 let sonId = 0;
 
-// Pahalı çeşit daha seyrek istenir: ağırlık (makul / fiyat)²
-function agirlikliCesit() {
-  const agirliklar = durum.vitrin.map((c) => Math.pow(makulFiyat(c) / cesitFiyati(c), 2));
-  let z = Math.random() * agirliklar.reduce((a, b) => a + b, 0);
-  for (let i = 0; i < durum.vitrin.length; i++) {
-    z -= agirliklar[i];
-    if (z <= 0) return durum.vitrin[i];
+// Stokta sıradakilere ayrılmamış kalan (9c): biten kalem istenmez
+type Mevcut = Record<string, number>;
+function mevcutStok(): Mevcut {
+  const kalan: Mevcut = {};
+  const al = (a: string) => (kalan[a] ??= miktar(durum.stok, a));
+  const ayir = (a: string) => (kalan[a] = al(a) - 1);
+  for (const m of durum.musteriler) {
+    if (m.hal !== 'sirada') continue;
+    if (m.urun === 'dondurma')
+      for (const s of [m.siparis, ...(m.siparis.ikinci ? [m.siparis.ikinci] : [])]) {
+        s.kuvetler.forEach((c) => ayir(dondurmaAnahtari(c)));
+        ayir(altlikAnahtari(s.altlik));
+        s.susleme.forEach((x) => ayir(suslemeAnahtari(x)));
+      }
+    if (m.urun === 'icecek') m.makine.icecekler.forEach((i) => ayir(icecekAnahtari(i)));
   }
-  return durum.vitrin[durum.vitrin.length - 1];
+  return new Proxy(kalan, { get: (_, a: string) => al(a) });
 }
 
-function rastgeleDondurma(enCokTop: number, ikiSuslemeOlabilir: boolean): Omit<Siparis, 'ikinci'> {
+// Pahalı çeşit daha seyrek istenir: ağırlık (makul / fiyat)²; stokta olmayan hiç istenmez
+function agirlikliCesit(mevcut: Mevcut) {
+  const adaylar = durum.vitrin.filter((c) => mevcut[dondurmaAnahtari(c)] >= 1);
+  if (!adaylar.length) return null;
+  const agirliklar = adaylar.map((c) => Math.pow(makulFiyat(c) / cesitFiyati(c), 2));
+  let z = Math.random() * agirliklar.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < adaylar.length; i++) {
+    z -= agirliklar[i];
+    if (z <= 0) return adaylar[i];
+  }
+  return adaylar[adaylar.length - 1];
+}
+
+// Stok yetmiyorsa null (o müşteri dondurma istemez)
+function rastgeleDondurma(enCokTop: number, ikiSuslemeOlabilir: boolean, mevcut: Mevcut = mevcutStok()): Omit<Siparis, 'ikinci'> | null {
+  const altliklar = durum.acikAltliklar.filter((a) => mevcut[altlikAnahtari(a)] >= 1);
+  if (!altliklar.length) return null;
   const z = Math.random();
   const sayi = Math.min(enCokTop, z < 0.5 ? 1 : z < 0.85 ? 2 : 3);
+  const kuvetler: number[] = [];
+  for (let i = 0; i < sayi; i++) {
+    const c = agirlikliCesit(mevcut);
+    if (c === null) break;
+    kuvetler.push(c);
+    mevcut[dondurmaAnahtari(c)] -= 1;
+  }
+  if (!kuvetler.length) return null;
   // Siparişlerin üçte birinde süsleme istenir; tepsi açıksa bazen iki süsleme (geçici oranlar)
   const susleme: Susleme[] = [];
   if (Math.random() < 0.33) {
-    const karisik = [...SUSLEMELER].sort(() => Math.random() - 0.5);
-    susleme.push(karisik[0]);
-    if (ikiSuslemeOlabilir && Math.random() < 0.35) susleme.push(karisik[1]);
+    const karisik = SUSLEMELER.filter((s) => mevcut[suslemeAnahtari(s)] >= 1).sort(() => Math.random() - 0.5);
+    if (karisik[0]) susleme.push(karisik[0]);
+    if (karisik[1] && ikiSuslemeOlabilir && Math.random() < 0.35) susleme.push(karisik[1]);
   }
-  return {
-    altlik: durum.acikAltliklar[Math.floor(Math.random() * durum.acikAltliklar.length)],
-    kuvetler: Array.from({ length: sayi }, () => agirlikliCesit()),
-    susleme,
-  };
+  const altlik = altliklar[Math.floor(Math.random() * altliklar.length)];
+  mevcut[altlikAnahtari(altlik)] -= 1;
+  susleme.forEach((s) => (mevcut[suslemeAnahtari(s)] -= 1));
+  return { altlik, kuvetler, susleme };
 }
 
-function rastgeleSiparis(): Siparis {
+function rastgeleSiparis(): Siparis | null {
+  const mevcut = mevcutStok();
   // Tepsi açılınca siparişlerin dörtte biri iki dondurma (her biri en çok 2 top)
   if (durum.tepsiAcik && Math.random() < 0.25) {
-    return { ...rastgeleDondurma(2, true), ikinci: rastgeleDondurma(2, true) };
+    const bir = rastgeleDondurma(2, true, mevcut);
+    const iki = bir && rastgeleDondurma(2, true, mevcut);
+    if (bir && iki) return { ...bir, ikinci: iki };
+    if (bir) return bir;
+    return null;
   }
-  return rastgeleDondurma(3, durum.tepsiAcik);
+  return rastgeleDondurma(3, durum.tepsiAcik, mevcut);
+}
+
+// Dondurma ya da içecek istenebilir mi (stok, 9c)
+function dondurmaVar() {
+  const mevcut = mevcutStok();
+  return durum.vitrin.some((c) => mevcut[dondurmaAnahtari(c)] >= 1) && durum.acikAltliklar.some((a) => mevcut[altlikAnahtari(a)] >= 1);
+}
+function icecekVar() {
+  const mevcut = mevcutStok();
+  return ICECEKLER.some((i) => mevcut[icecekAnahtari(i)] >= 1);
 }
 
 // Giden müşteri iskelenin ucuna varıp ekrandan çıkınca sahne bunu çağırır.
@@ -648,15 +705,17 @@ export function acikIstasyonlar(d: Durum = durum): Istasyon[] {
   return ISTASYONLAR.filter((i) => liste.includes(i) && istasyonKurulu(i, d));
 }
 
-function rastgeleUrun(): Istasyon {
-  const acik = acikIstasyonlar();
+function rastgeleUrun(): Istasyon | null {
+  // Stokta olmayan ürün istenmez (9c)
+  const acik = acikIstasyonlar().filter((i) => (i === 'dondurma' ? dondurmaVar() : i === 'icecek' ? icecekVar() : true));
+  if (!acik.length) return null;
   const agirlik = (i: Istasyon) => (i === 'dondurma' ? 3 : 1.5);
   let z = Math.random() * acik.reduce((t, i) => t + agirlik(i), 0);
   for (const i of acik) {
     z -= agirlik(i);
     if (z <= 0) return i;
   }
-  return acik[0] ?? 'dondurma';
+  return acik[0];
 }
 
 // Waffle: 0–3 süsleme, gruplardan serbestçe (belge 0.6); içecek: 1–3 kutu, aynısı olabilir
@@ -666,10 +725,17 @@ function rastgeleMakineSiparisi(): MakineSiparisi {
   const karisik = [...WAFFLE_SUSLEMELERI].sort(() => Math.random() - 0.5);
   const y = Math.random();
   const icecekSayisi = Math.min(EN_COK_ICECEK, y < 0.65 ? 1 : y < 0.95 ? 2 : 3);
-  return {
-    susleme: karisik.slice(0, kac),
-    icecekler: Array.from({ length: icecekSayisi }, () => ICECEKLER[Math.floor(Math.random() * ICECEKLER.length)]),
-  };
+  // Yalnız stokta olan içecekler (9c)
+  const mevcut = mevcutStok();
+  const icecekler: Icecek[] = [];
+  for (let n = 0; n < icecekSayisi; n++) {
+    const var_ = ICECEKLER.filter((i) => mevcut[icecekAnahtari(i)] >= 1);
+    if (!var_.length) break;
+    const i = var_[Math.floor(Math.random() * var_.length)];
+    icecekler.push(i);
+    mevcut[icecekAnahtari(i)] -= 1;
+  }
+  return { susleme: karisik.slice(0, kac), icecekler };
 }
 
 // Oyun döngüsü bunu yarım saniyede bir çağırır: sıra boşsa müşteri gelir.
@@ -679,7 +745,14 @@ export function musteriDongusu(simdi: number) {
   if (simdi < durum.sonrakiGelis) return;
   // Ürün: açık istasyonlardan biri; her sıranın kendi sınırı var
   const egitimde = ilkSiparisEgitimi();
-  const urun: Istasyon = egitimde ? 'dondurma' : rastgeleUrun();
+  const secilen = egitimde ? 'dondurma' : rastgeleUrun();
+  if (secilen === null) {
+    // Her şey bitti (9c): dükkân cezasız erken kapanır, sıradakilere servis sürer
+    guncelle({ acik: false });
+    haberVer('haber.stokBitti');
+    return;
+  }
+  const urun: Istasyon = secilen;
   const sinir = kuyrugu(urun) === 'ana' ? enCokSira() : SERVIS_SIRASI;
   if (siradakiler(durum, kuyrugu(urun)).length >= sinir) {
     guncelle({ sonrakiGelis: simdi + 1500 });
@@ -708,13 +781,19 @@ export function musteriDongusu(simdi: number) {
         ? 1500
         : ((en + Math.random() * (enCok - en)) * gelisCarpani()) / saatYogunlugu();
   if (grupKalan > 0) grupKalan--;
+  const siparis = egitim ? { altlik: 'kulah' as const, kuvetler: [durum.vitrin[0]], susleme: [] } : urun === 'dondurma' ? rastgeleSiparis() : rastgeleDondurma(3, false);
+  if (!siparis && urun === 'dondurma') {
+    guncelle({ sonrakiGelis: simdi + 1500 });
+    return;
+  }
   guncelle({
     musteriler: [
       ...durum.musteriler,
       {
         id: ++sonId,
         gorunum: Math.floor(Math.random() * MUSTERI_GORUNUM_SAYISI),
-        siparis: egitim ? { altlik: 'kulah', kuvetler: [durum.vitrin[0]], susleme: [] } : rastgeleSiparis(),
+        // Makine müşterisinin dondurma siparişi kullanılmaz; stok yetmezse boş bir yer tutucu
+        siparis: siparis ?? { altlik: 'kulah', kuvetler: [durum.vitrin[0]], susleme: [] },
         hal: 'sirada',
         mutlu: false,
         gelisTarafi: Math.random() < 0.5 ? 1 : -1,
@@ -796,6 +875,8 @@ export function servisEt() {
     }
   }
 
+  // Verilen altlıklar ve süslemeler stoktan düşer (doğru da yanlış da; 9c)
+  guncelle({ stok: azalt(durum.stok, verilen.flatMap((u) => [altlikAnahtari(u.altlik), ...u.susleme.map(suslemeAnahtari)])) });
   if (!eslesme) {
     // Ceza yok: dondurma kenara konur, müşteri beklemeye devam eder.
     guncelle({ asama: 'servis', servisDogru: false, tepsi: [], bildirim: { tur: 'yanlis', zaman: simdi } });
@@ -1698,8 +1779,13 @@ export function makineBirak() {
 export function icecekAl(i: Icecek) {
   if (durum.istasyon !== 'icecek' || durum.makine.asama === 'servis' || !ondekiMusteri()) return;
   if (durum.makine.icecekler.length >= EN_COK_ICECEK) return;
+  if (miktar(durum.stok, icecekAnahtari(i)) < 1) {
+    haberVer('haber.icecekBitti');
+    return;
+  }
   islemYapildi();
   makineGuncelle({ icecekler: [...durum.makine.icecekler, i] });
+  guncelle({ stok: azalt(durum.stok, [icecekAnahtari(i)]) });
 }
 
 // Waffle makinesinin kapağını aç: altın sarıda açmak en iyisi
@@ -1817,6 +1903,37 @@ export function makineServisEt() {
   }, 1100);
 }
 
+// ---- Stok siparişi (belge 0.13, 9c) ----
+// Gün sonunda (ve Ürünler → Stok'tan her an) "Hepsini doldur" ya da kalem kalem
+export function stokKalemleriNe(d: Durum = durum) {
+  return stokKalemleri({ vitrin: d.vitrin, altliklar: d.acikAltliklar, suslemeler: SUSLEMELER, icecekVar: istasyonKurulu('icecek', d) });
+}
+export function hepsiniDoldurSiparisi(d: Durum = durum): Record<string, number> {
+  return Object.fromEntries(stokKalemleriNe(d).map((a) => [a, eksik(d.stok, a)]).filter(([, n]) => (n as number) > 0));
+}
+export function siparisBedeli(eklenecek: Record<string, number>) {
+  return Object.entries(eklenecek).reduce((t, [a, n]) => t + Math.max(0, n) * birimMaliyet(a), 0);
+}
+export function stokSiparisVer(eklenecek: Record<string, number>) {
+  // Kapasiteyi aşan kısım alınmaz
+  const gecerli = Object.fromEntries(
+    Object.entries(eklenecek)
+      .map(([a, n]) => [a, Math.min(Math.max(0, Math.floor(n)), eksik(durum.stok, a))] as const)
+      .filter(([, n]) => n > 0),
+  );
+  const bedel = siparisBedeli(gecerli);
+  if (bedel <= 0 || durum.para < bedel) return false;
+  let stok = durum.stok;
+  for (const [a, n] of Object.entries(gecerli)) stok = artir(stok, a, n);
+  guncelle({ stok, para: durum.para - bedel });
+  kaydet();
+  return true;
+}
+export function stokAzMi(d: Durum = durum) {
+  // Gün sonu ve menüde nokta: herhangi bir kalem çeyreğin altında
+  return stokKalemleriNe(d).some((a) => miktar(d.stok, a) < kapasite(a) / 4);
+}
+
 // ---- Yardımcıların işi (belge 0.5) ----
 // Kendi istasyonunun sırasında öndeki, varmış ve o ürünü isteyen müşteriye
 // servis eder; süre oyun dakikasıyla, hızına ve yeteneğine göre.
@@ -1850,7 +1967,14 @@ function yardimciDongusu() {
           : y.istasyon === 'waffle'
             ? makineSatisFiyati('waffle') + on.makine.susleme.length * MAKINE_SUSLEME_FIYATI
             : makineSatisFiyati('icecek') * on.makine.icecekler.length;
-      musteriyiUgurla(on.id, miktar, puan, false, { yardimciIsleri: isler });
+      // Yardımcının kullandığı da stoktan düşer (9c)
+      const harcanan =
+        y.istasyon === 'dondurma'
+          ? [...on.siparis.kuvetler.map(dondurmaAnahtari), altlikAnahtari(on.siparis.altlik), ...on.siparis.susleme.map(suslemeAnahtari)]
+          : y.istasyon === 'icecek'
+            ? on.makine.icecekler.map(icecekAnahtari)
+            : [];
+      musteriyiUgurla(on.id, miktar, puan, false, { yardimciIsleri: isler, stok: azalt(durum.stok, harcanan) });
     }
   }
   if (degisti) guncelle({ yardimciIsleri: isler });
@@ -1999,6 +2123,7 @@ interface Kayit {
   albumAyi?: number;
   exp?: Partial<Expler>;
   yetenekler?: Partial<Yetenekler>;
+  stok?: Stok;
 }
 
 function kaydet() {
@@ -2040,6 +2165,7 @@ function kaydet() {
     albumAyi: durum.albumAyi,
     exp: durum.exp,
     yetenekler: durum.yetenekler,
+    stok: durum.stok,
   };
   try {
     localStorage.setItem(kayitAnahtari, JSON.stringify(k));
@@ -2083,6 +2209,8 @@ export function kaydiYukle() {
       // Exp (8. adım): eski kayıtlar 1. seviyeden başlar (Kemal, 15 Ekim)
       exp: expOku(k.exp),
       yetenekler: yetenekleriOku(k.yetenekler),
+      // Stok (9c): eski kayıtta yok, her şey dolu başlar
+      stok: stokuOku(k.stok),
     });
     // Eski parçaların parası geri verildiyse hemen kaydedilir (bir kez verilsin)
     if (eskiParcaIadesi(k) > 0) kaydet();
@@ -2311,6 +2439,7 @@ function durumuSifirla() {
     yardimciIsleri: {},
     makine: bosMakine(),
     makineFiyatlari: { waffle: WAFFLE_FIYATI, icecek: ICECEK_FIYATI },
+    stok: {},
     insaat: false,
     seciliParsel: null,
     yerlestirme: false,

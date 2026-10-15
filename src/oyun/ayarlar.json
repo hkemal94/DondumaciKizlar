@@ -495,6 +495,81 @@
         }
       }
     },
+    "stok": {
+      "ad": "Stok",
+      "aciklama": "Hafif stok (belge 0.13, 9c): kapasiteler, alış fiyatları, kalem kalem siparişte bir basışın eklediği miktar",
+      "ayarlar": {
+        "kuvetKapasitesi": {
+          "ad": "Bir küvet dondurma",
+          "deger": 40,
+          "birim": "top"
+        },
+        "altlikKapasitesi": {
+          "ad": "Külah / kap / kup kapasitesi (her biri)",
+          "deger": 60,
+          "birim": "adet"
+        },
+        "suslemeKapasitesi": {
+          "ad": "Süsleme kapasitesi (her biri)",
+          "deger": 40,
+          "birim": "porsiyon"
+        },
+        "icecekKapasitesi": {
+          "ad": "İçecek kapasitesi (her biri)",
+          "deger": 24,
+          "birim": "şişe"
+        },
+        "topMaliyeti": {
+          "ad": "Bir top dondurmanın alış fiyatı",
+          "deger": 3,
+          "birim": "jeton"
+        },
+        "altlikMaliyeti": {
+          "ad": "Külah ya da kap alış fiyatı",
+          "deger": 1,
+          "birim": "jeton"
+        },
+        "kupMaliyeti": {
+          "ad": "Kup alış fiyatı",
+          "deger": 2,
+          "birim": "jeton"
+        },
+        "suslemeMaliyeti": {
+          "ad": "Bir porsiyon süsleme alış fiyatı",
+          "deger": 1,
+          "birim": "jeton"
+        },
+        "icecekMaliyeti": {
+          "ad": "Bir şişe içecek alış fiyatı",
+          "deger": 1,
+          "birim": "jeton"
+        },
+        "kuvetPaketi": {
+          "ad": "Kalem kalem siparişte dondurma",
+          "deger": 10,
+          "birim": "top",
+          "not": "Bir + basışı"
+        },
+        "altlikPaketi": {
+          "ad": "Kalem kalem siparişte altlık",
+          "deger": 20,
+          "birim": "adet",
+          "not": "Bir + basışı"
+        },
+        "suslemePaketi": {
+          "ad": "Kalem kalem siparişte süsleme",
+          "deger": 10,
+          "birim": "porsiyon",
+          "not": "Bir + basışı"
+        },
+        "icecekPaketi": {
+          "ad": "Kalem kalem siparişte içecek",
+          "deger": 6,
+          "birim": "şişe",
+          "not": "Bir + basışı"
+        }
+      }
+    },
     "insaat": {
       "ad": "Arazi ve inşaat",
       "aciklama": "Kare, duvar ve tezgah fiyatları",

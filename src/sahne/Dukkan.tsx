@@ -17,6 +17,7 @@ import {
 import * as THREE from 'three';
 import { renk } from './renkler';
 import { CESITLER, kuvetKonumu, vitrinGenisligi } from '../oyun/kuvetler';
+import { AYAR } from '../oyun/ayarlar';
 import { m, useDil, type MetinAnahtari } from '../metinler';
 import { useEkranAyari } from '../arayuz/ekranAyari';
 import { TezgahParcalari } from './TezgahParcalari';
@@ -689,28 +690,74 @@ function MenuPanosu() {
 }
 
 
-// Küvetteki dondurma: engebeli, basık bir tümsek.
-function DondurmaYuzeyi({ renkAdi, tohum }: { renkAdi: string; tohum: number }) {
-  const geometri = useMemo(() => {
-    const g = new THREE.IcosahedronGeometry(1, 2);
-    const p = g.attributes.position as THREE.BufferAttribute;
-    const goruldu = new Map<string, number>();
-    for (let i = 0; i < p.count; i++) {
-      const anahtar = `${p.getX(i).toFixed(3)},${p.getY(i).toFixed(3)},${p.getZ(i).toFixed(3)}`;
-      let k = goruldu.get(anahtar);
-      if (k === undefined) {
-        k = 0.88 + (Math.sin(i * 12.9898 + tohum * 78.233) * 0.5 + 0.5) * 0.24;
-        goruldu.set(anahtar, k);
-      }
-      p.setXYZ(i, p.getX(i) * k, p.getY(i) * k, p.getZ(i) * k);
-    }
-    g.computeVertexNormals();
-    return g;
-  }, [tohum]);
+// Küvetteki dondurma (9c, Kemal'in seçtiği V0): paslanmaz küvette kabarık,
+// spatula izli bir yığın. Doluyken kenarın üstüne taşar; stok azaldıkça
+// küvetin içine iner, bitince dipte ince bir kat kalır.
+const KUVET_DERINLIGI = 0.12;
+function dondurmaGeometrisi(en: number, boy: number, dolu: number, tohum: number) {
+  const g = new THREE.PlaneGeometry(en, boy, 14, 12);
+  g.rotateX(-Math.PI / 2);
+  const p = g.attributes.position as THREE.BufferAttribute;
+  const tepe = dolu > 0.85 ? 0.1 : 0.015 + 0.06 * dolu;
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i) / (en / 2);
+    const z = p.getZ(i) / (boy / 2);
+    const kenar = Math.max(0, 1 - Math.max(Math.abs(x) ** 4, Math.abs(z) ** 4));
+    const yigin = Math.cos((Math.min(1, Math.hypot(x * 0.9, z * 0.8)) * Math.PI) / 2) ** 0.7;
+    const iz = 0.01 * Math.sin(x * 4.5 + z * 2 + tohum) + 0.006 * Math.sin(z * 9 - x * 3 + tohum * 2);
+    p.setY(i, tepe * yigin * kenar + iz * kenar * Math.min(1, dolu * 2));
+  }
+  g.computeVertexNormals();
+  return g;
+}
+function DondurmaYuzeyi({ renkAdi, tohum, dolu }: { renkAdi: string; tohum: number; dolu: number }) {
+  // Doluluk 1/20'lik adımlarla: her topta yeniden kurulmasın
+  const adim = Math.round(dolu * 20) / 20;
+  const geometri = useMemo(() => dondurmaGeometrisi(0.54, 0.46, adim, tohum), [adim, tohum]);
+  // Yığının tabanı: dolu küvette kenar hizası, boşaldıkça dibe iner
+  const taban = -KUVET_DERINLIGI + 0.012 + Math.min(1, adim) * (KUVET_DERINLIGI - 0.016);
+  if (adim <= 0) return null;
   return (
-    <mesh geometry={geometri} position={[0, 0.02, 0]} scale={[0.24, 0.11, 0.2]} castShadow receiveShadow>
-      <meshStandardMaterial color={renkAdi} roughness={0.55} flatShading />
+    <mesh geometry={geometri} position={[0, taban, 0]} castShadow receiveShadow>
+      <meshStandardMaterial color={renkAdi} roughness={0.55} />
     </mesh>
+  );
+}
+
+// Üstü açık paslanmaz küvet: dip, dört yan ve ince bir dudak
+function AcikKuvet() {
+  const en = 0.58;
+  const der = 0.5;
+  const d = KUVET_DERINLIGI;
+  const k = 0.012; // sac kalınlığı
+  return (
+    <group>
+      <Kutu konum={[0, -d + k / 2, 0]} boyut={[en, k, der]} renkAdi="#aeb5bb" golgeVer={false} puruz={0.35} />
+      {[-1, 1].map((s) => (
+        <group key={s}>
+          <Kutu konum={[(s * (en - k)) / 2, -d / 2, 0]} boyut={[k, d, der]} renkAdi="#c3c9ce" golgeVer={false} puruz={0.3} />
+          <Kutu konum={[0, -d / 2, (s * (der - k)) / 2]} boyut={[en, d, k]} renkAdi="#c3c9ce" golgeVer={false} puruz={0.3} />
+          <Kutu konum={[(s * (en + 0.01)) / 2, 0.003, 0]} boyut={[0.02, 0.006, der + 0.03]} renkAdi="#e3e7ea" golgeVer={false} puruz={0.25} />
+          <Kutu konum={[0, 0.003, (s * (der + 0.01)) / 2]} boyut={[en + 0.03, 0.006, 0.02]} renkAdi="#e3e7ea" golgeVer={false} puruz={0.25} />
+        </group>
+      ))}
+    </group>
+  );
+}
+
+// Bazı küvetlerde dondurmaya batırılmış spatula
+function Spatula() {
+  return (
+    <group position={[0.08, 0.03, 0.06]} rotation={[0.55, 0.3, 0]}>
+      <mesh>
+        <boxGeometry args={[0.07, 0.005, 0.12]} />
+        <meshStandardMaterial color="#cfd4d8" metalness={0.5} roughness={0.3} />
+      </mesh>
+      <mesh position={[0, 0, 0.15]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.011, 0.011, 0.2, 6]} />
+        <meshStandardMaterial color="#3b2a4d" roughness={0.7} />
+      </mesh>
+    </group>
   );
 }
 
@@ -774,31 +821,82 @@ function KuvetEtiketi({ cesit, arkada }: { cesit: number; arkada: boolean }) {
   );
 }
 
-// Vitrin: oyuncunun seçtiği çeşitlerin küvetleri (4–12; 6'dan fazlası iki
-// sıra), üstünde cam siper. Küvete basılı tutunca kepçe dalar.
+// Vitrin (9c; Kemal'in seçtiği V0, gerçek dondurma vitrini gibi): oyuncunun
+// seçtiği çeşitlerin paslanmaz küvetleri (4–12; 6'dan fazlası iki sıra)
+// gövdeye gömülü, müşteri tarafında kavisli cam, üstte cam raf ve ışık.
+// Dondurmanın yüksekliği stoğa göre. Küvete basılı tutunca kepçe dalar.
+const VITRIN_CAM = { color: '#e8f6fc', transparent: true, opacity: 0.12, roughness: 0.05, metalness: 0.1, side: THREE.DoubleSide, depthWrite: false } as const;
+function VitrinCami({ en }: { en: number }) {
+  const R = 0.38;
+  const yanSekli = useMemo(() => {
+    // Yan cam: müşteri tarafında (−z) çeyrek daire, arkaya doğru düz üst
+    const s = new THREE.Shape();
+    s.moveTo(-0.45, 0);
+    s.lineTo(0.42, 0);
+    s.lineTo(0.42, 0.06);
+    s.lineTo(-0.45 + R, R);
+    s.absarc(-0.45 + R, 0, R, Math.PI / 2, Math.PI, false);
+    return s;
+  }, []);
+  return (
+    <group position={[0, 1.02, 0]}>
+      {/* Kavisli ön cam */}
+      <mesh position={[0, 0, -0.45 + R]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[R, R, en - 0.04, 18, 1, true, Math.PI, Math.PI / 2]} />
+        <meshStandardMaterial {...VITRIN_CAM} />
+      </mesh>
+      {/* Üst cam raf: kavisin üstünden arkaya doğru yarı derinlik */}
+      <mesh position={[0, R, -0.45 + R + 0.1]}>
+        <boxGeometry args={[en - 0.04, 0.01, 0.2]} />
+        <meshStandardMaterial {...VITRIN_CAM} />
+      </mesh>
+      {/* Rafın altında sıcak ışık şeridi */}
+      <mesh position={[0, R - 0.012, -0.45 + R + 0.06]}>
+        <boxGeometry args={[en - 0.14, 0.012, 0.03]} />
+        <meshStandardMaterial color="#fff6dc" emissive="#fff1c4" emissiveIntensity={0.9} />
+      </mesh>
+      {[-1, 1].map((sx) => (
+        <mesh key={sx} position={[sx * (en / 2 - 0.02), 0, 0]} rotation={[0, -Math.PI / 2, 0]}>
+          <shapeGeometry args={[yanSekli, 10]} />
+          <meshStandardMaterial {...VITRIN_CAM} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 function Vitrin() {
-  const { vitrin } = useDurum();
+  const { vitrin, stok } = useDurum();
   const { kuvetEtiketi } = useEkranAyari();
   const VITRIN_GENISLIGI = vitrinGenisligi(vitrin.length);
+  const govdeY = 1.0 - KUVET_DERINLIGI - 0.022;
   return (
     <group position={[0, 0, -0.62]}>
-      {/* Vitrin gövdesi */}
-      <Kutu konum={[0, 0.48, 0]} boyut={[VITRIN_GENISLIGI, 0.96, 0.9]} renkAdi={renk.vitrinMetal} puruz={0.5} />
+      {/* Gövde küvet ağzının altında biter */}
+      <Kutu konum={[0, govdeY / 2, 0]} boyut={[VITRIN_GENISLIGI, govdeY, 0.9]} renkAdi={renk.vitrinMetal} puruz={0.5} />
       {/* Vitrinin müşteri tarafı: logo renklerinde şerit */}
-      <Kutu konum={[0, 0.62, -0.455]} boyut={[VITRIN_GENISLIGI, 0.5, 0.02]} renkAdi={renk.mor} />
-      <Kutu konum={[0, 0.9, -0.46]} boyut={[VITRIN_GENISLIGI, 0.07, 0.02]} renkAdi={renk.sari} />
-      {/* Küvet kasası */}
-      <Kutu konum={[0, 0.98, 0]} boyut={[VITRIN_GENISLIGI - 0.3, 0.06, 0.66]} renkAdi="#8d969e" puruz={0.4} />
-      {vitrin.map((cesit) => {
+      <Kutu konum={[0, 0.5, -0.455]} boyut={[VITRIN_GENISLIGI, 0.62, 0.02]} renkAdi={renk.mor} />
+      <Kutu konum={[0, govdeY - 0.06, -0.46]} boyut={[VITRIN_GENISLIGI, 0.05, 0.02]} renkAdi={renk.sari} />
+      {/* Küvet kuyusu (koyu çelik) ve çevresindeki çelik çerçeve */}
+      <Kutu konum={[0, 1.0 - KUVET_DERINLIGI - 0.012, 0]} boyut={[VITRIN_GENISLIGI - 0.06, 0.02, 0.84]} renkAdi="#6f777e" golgeVer={false} puruz={0.4} />
+      <Kutu konum={[0, 1.005, -0.4]} boyut={[VITRIN_GENISLIGI, 0.03, 0.1]} renkAdi="#cfd4d8" golgeVer={false} puruz={0.3} />
+      <Kutu konum={[0, 1.005, 0.4]} boyut={[VITRIN_GENISLIGI, 0.03, 0.1]} renkAdi="#cfd4d8" golgeVer={false} puruz={0.3} />
+      {[-1, 1].map((sx) => (
+        <Kutu key={sx} konum={[sx * (VITRIN_GENISLIGI / 2 - 0.03), 1.005, 0]} boyut={[0.06, 0.03, 0.9]} renkAdi="#cfd4d8" golgeVer={false} puruz={0.3} />
+      ))}
+      {vitrin.map((cesit, sira) => {
         const k = kuvetKonumu(cesit, vitrin);
+        const dolu = stok[`dondurma.${cesit}`] === undefined ? 1 : Math.max(0, Math.min(1, stok[`dondurma.${cesit}`] / AYAR.stok.kuvetKapasitesi));
         return (
           <group key={cesit} position={[k.x, 1.0, k.z + 0.62]}>
             <group scale={[k.olcekX, 1, k.olcekZ]}>
-              <Kutu konum={[0, -0.02, 0]} boyut={[0.58, 0.06, 0.5]} renkAdi="#d4d9dd" golgeVer={false} puruz={0.3} />
-              <DondurmaYuzeyi renkAdi={CESITLER[cesit].renk} tohum={cesit + 1} />
+              {/* Paslanmaz küvet: üstü açık, ağzı çerçeve hizasında, içi gövdede */}
+              <AcikKuvet />
+              <DondurmaYuzeyi renkAdi={CESITLER[cesit].renk} tohum={cesit + 1} dolu={dolu} />
+              {sira % 3 === 1 && dolu > 0.2 && <Spatula />}
               {/* Dokunma alanı: küvetten biraz büyük, görünmez */}
               <mesh
-                position={[0, 0.08, 0]}
+                position={[0, 0.06, 0]}
                 onPointerDown={(e) => {
                   e.stopPropagation();
                   kuveteBas(cesit);
@@ -814,12 +912,7 @@ function Vitrin() {
           </group>
         );
       })}
-      {/* Müşteri tarafında alçak cam siper */}
-      <mesh position={[0, 1.2, -0.42]} rotation={[-0.12, 0, 0]}>
-        <boxGeometry args={[VITRIN_GENISLIGI - 0.1, 0.42, 0.02]} />
-        <meshPhysicalMaterial color={renk.cam} transparent opacity={0.18} roughness={0.05} />
-      </mesh>
-      <Kutu konum={[0, 1.41, -0.45]} boyut={[VITRIN_GENISLIGI - 0.05, 0.035, 0.06]} renkAdi={renk.vitrinMetal} golgeVer={false} puruz={0.4} />
+      <VitrinCami en={VITRIN_GENISLIGI} />
     </group>
   );
 }

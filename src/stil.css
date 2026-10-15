@@ -2717,3 +2717,109 @@ li.tamam .hedef-ad {
 .insaat-panel .insaat-parca {
   gap: 4px;
 }
+
+/* Stok (9c): gün sonu kısa hâli ve sağdan açılan liste */
+.gun-stok {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.gun-stok .gel-not {
+  margin: 0;
+}
+.gun-stok-dugmeler {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.stok-ekrani {
+  gap: 8px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.stok-doldur {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.stok-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  min-height: 0;
+}
+.stok-grup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stok-satir {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(40px, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.stok-satir.bitti .stok-ad {
+  color: #b0213f;
+}
+.stok-ad {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.stok-renk {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(40, 20, 60, 0.25);
+}
+.stok-cubuk {
+  position: relative;
+  height: 8px;
+  border-radius: 4px;
+  background: #e8dcef;
+  overflow: hidden;
+}
+.stok-cubuk > span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--mor);
+}
+.stok-cubuk > .stok-ek {
+  background: var(--sari);
+}
+.stok-sayi {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-size: 12px;
+}
+.stok-oklar {
+  display: flex;
+  gap: 4px;
+}
+.stok-oklar .dugme-simge {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+}
+.stok-alt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.stok-alt .gel-not {
+  margin: 0;
+  font-size: 11px;
+  flex: 1 1 200px;
+}
