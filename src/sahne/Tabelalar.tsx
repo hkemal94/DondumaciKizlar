@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { gecerliGorunus, gorunenTabelalar, useDurum } from '../oyun/durum';
 import type { Kenar } from '../oyun/dekorasyon';
 import { kenarYeri } from '../oyun/dekorasyon';
-import { m } from '../metinler';
+import { m, useDil } from '../metinler';
 import { logoDokusu, LOGO_DOSYALARI, type LogoTuru } from './logo';
 import { tabelaIsigi } from './gokRenkleri';
 import { renk } from './renkler';
@@ -154,7 +154,9 @@ function neonDokusu(yazi: string) {
 
 function Neon({ k }: { k: Kenar }) {
   const { x, z } = kenarYeri(k);
-  const doku = useMemo(() => neonDokusu(m('tabela.neonYazi')), []);
+  useDil();
+  const neonYazi = m('tabela.neonYazi');
+  const doku = useMemo(() => neonDokusu(neonYazi), [neonYazi]);
   const mal = useMemo(
     () => new THREE.MeshBasicMaterial({ map: doku, transparent: true, depthWrite: false, toneMapped: false }),
     [doku],

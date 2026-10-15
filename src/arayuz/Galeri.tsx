@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { kayitYuvasi } from '../oyun/durum';
 import { fotolar, fotoSil, galeriDegisince, type Foto, type FotoTuru } from '../oyun/galeri';
-import { m } from '../metinler';
+import { m, yerel } from '../metinler';
 
 // Galeri (belge 0.12, 5. adım): iki sekme. "Fotoğraflarım" dükkânı gezerken
 // çekilenler, "Albüm" ayda bir kendiliğinden çekilen dükkân fotoğrafları.
@@ -31,7 +31,7 @@ export function Galeri({ kapat }: { kapat: () => void }) {
         <div className="gun-sonu foto-kart" role="dialog" aria-label={m('galeri.baslik')}>
           {adres && <img src={adres} alt={m('gezme.fotoAlt')} className="foto-resim" />}
           <p className="gel-not">
-            {m('galeri.gun', { gun: secili.gun })} · {new Date(secili.zaman).toLocaleDateString('tr-TR')}
+            {m('galeri.gun', { gun: secili.gun })} · {new Date(secili.zaman).toLocaleDateString(yerel())}
           </p>
           <div className="gun-sonu-dugmeler">
             {siliyor ? (

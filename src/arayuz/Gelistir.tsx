@@ -40,7 +40,7 @@ import { DIS_GRUPLAR, GORUNUS_GRUPLARI, GORUNUS_SECENEKLERI, TABELALAR, type Gor
 import { dukkanKaydirma, duvarlar, ekrandaKaydir } from '../sahne/kameraKarisimi';
 import { CESITLER, FIYAT_ARALIGI, makulFiyat } from '../oyun/kuvetler';
 import { EN_YUKSEK_ISIK, ESYALAR, ISIK_SEVIYELERI, type Esya } from '../oyun/dekorasyon';
-import { m, type MetinAnahtari } from '../metinler';
+import { m, ondalik, type MetinAnahtari } from '../metinler';
 import { logoAdresi } from '../sahne/logo';
 
 // Dükkânı geliştir (belge 2.4 ve 4; taslak 3): yeni çeşitler, fiyat,
@@ -371,7 +371,7 @@ export function Gelistir({ kapat, ilkSekme = 'dekorasyon' }: { kapat: () => void
                       <span className="gel-durum">{m('gelistir.acik')}</span>
                     ) : !alinabilir ? (
                       // Memnuniyet eşiğine ulaşılmadı: düğme yerine şart
-                      <span className="gel-durum gel-kilit">{m('cesit.yildizGerek', { yildiz: String(c.yildiz).replace('.', ',') })}</span>
+                      <span className="gel-durum gel-kilit">{m('cesit.yildizGerek', { yildiz: ondalik(c.yildiz ?? 0) })}</span>
                     ) : (
                       <button className="dugme gel-al" disabled={durum.para < c.fiyat || !alinabilir} onClick={() => cesitAc(i)}>
                         {m('gelistir.al')} <Para miktar={c.fiyat} />
@@ -407,7 +407,7 @@ export function Gelistir({ kapat, ilkSekme = 'dekorasyon' }: { kapat: () => void
                 )}
               </div>
               <p className="gel-not" style={{ gridColumn: '1 / -1' }}>
-                {m('cesit.yildizNot', { ortalama: durum.enIyiOrtalama > 0 ? durum.enIyiOrtalama.toFixed(2).replace('.', ',') : '–' })}
+                {m('cesit.yildizNot', { ortalama: durum.enIyiOrtalama > 0 ? ondalik(durum.enIyiOrtalama, 2) : '–' })}
               </p>
             </div>
           )}

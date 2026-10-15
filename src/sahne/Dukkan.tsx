@@ -17,7 +17,7 @@ import {
 import * as THREE from 'three';
 import { renk } from './renkler';
 import { CESITLER, kuvetKonumu, vitrinGenisligi } from '../oyun/kuvetler';
-import { m, type MetinAnahtari } from '../metinler';
+import { m, useDil, type MetinAnahtari } from '../metinler';
 import { useEkranAyari } from '../arayuz/ekranAyari';
 import { TezgahParcalari } from './TezgahParcalari';
 import { Mutfak } from './Mutfak';
@@ -748,7 +748,9 @@ function etiketDokusu(yazi: string, renkAdi: string) {
 // öndeki dondurmaların üstünde görünsün diye küvetin arkasında, çubukta dikilir.
 function KuvetEtiketi({ cesit, arkada }: { cesit: number; arkada: boolean }) {
   const c = CESITLER[cesit];
-  const doku = useMemo(() => etiketDokusu(m(`cesit.${c.ad}` as MetinAnahtari), c.renk), [c]);
+  useDil();
+  const ad = m(`cesit.${c.ad}` as MetinAnahtari);
+  const doku = useMemo(() => etiketDokusu(ad, c.renk), [ad, c.renk]);
   if (arkada)
     return (
       <group position={[0, 0, -0.13]}>

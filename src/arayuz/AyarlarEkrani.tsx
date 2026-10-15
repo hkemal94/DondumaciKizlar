@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { bastanBasla, egitimiYenidenGoster } from '../oyun/durum';
-import { m, type MetinAnahtari } from '../metinler';
+import { DILLER, dilSec, m, useDil, type MetinAnahtari } from '../metinler';
 import { logoAdresi } from '../sahne/logo';
 import { sesAyariniOku, sesAyariniYaz, type SesAyari } from '../ses/ses';
 import { GRAFIK_KALITELERI, ekranAyariniYaz, useEkranAyari } from './ekranAyari';
 
 // Ayarlar (Kemal, 14 Ekim): müzik ve ses, ekran (etiketler), eğitimi yeniden
-// göster, dil (İngilizce gelince), baştan başla (onaylı). Açılış ekranından ve
+// göster, dil (Türkçe / İngilizce, 6. adım), baştan başla (onaylı). Açılış ekranından ve
 // mola menüsünden açılır.
 export function AyarlarEkrani({ kapat, egitimSonrasi }: { kapat: () => void; egitimSonrasi?: () => void }) {
   const [ses, setSes] = useState(sesAyariniOku);
   const ekran = useEkranAyari();
+  const dil = useDil();
   const [silmeOnayi, setSilmeOnayi] = useState(false);
   const sesDegistir = (yeni: SesAyari) => {
     setSes(yeni);
@@ -76,10 +77,15 @@ export function AyarlarEkrani({ kapat, egitimSonrasi }: { kapat: () => void; egi
               >
                 {m('egitim.yeniden')}
               </button>
-              {/* Dil: İngilizce gelince açılır */}
-              <span className="ayarlar-dil">
-                {m('ayarlar.dil')}: <b>Türkçe</b> <span className="gel-aciklama">· {m('ayarlar.dilYakinda')}</span>
-              </span>
+            </div>
+            {/* Dil (belge 0.12): dil adları her dilde kendi yazılışıyla */}
+            <div className="ekran-satir">
+              <span>{m('ayarlar.dil')}</span>
+              {DILLER.map((d) => (
+                <button key={d} className={`cip ${dil === d ? 'secili' : ''}`} onClick={() => dilSec(d)}>
+                  {m(`dil.${d}` as MetinAnahtari)}
+                </button>
+              ))}
             </div>
             {silmeOnayi ? (
               <span className="gel-sil">
