@@ -450,10 +450,12 @@ konusunda komple assetlere ihtiyacımız olabilir."
 | İçeceklerin açılması | Dükkân seviyesi + para (8a kilitleri gibi) |
 | Kahve | **İkisi de**: Türk kahvesi, buzlu kahve; espresso bazlılar |
 | Vitrin ve bar modelleri | Bugünkü küvetler gerçek dondurma vitrinine benzemiyor (gerçekte paslanmaz tepsilerde kabarık dondurma, önde kavisli cam). Önce izinli paketlerden aday sayfası, Kemal seçer (9b). Aday sayfası hazır: `docs/gorseller/vitrin-bar-adaylari/` (V vitrin/dolap, M makine, B bardak/şişe, D dondurma/meyve, T tezgah). İzinli paketlerde gerçek bir dondurma vitrini yok; V0 koddan çizildi (paslanmaz küvetler, kabarık dondurma, kavisli cam, küvetlerde farklı doluluk) |
-| Stok: azalma | Görünür doluluk: top alındıkça küvetteki dondurma alçalır, etiketin yanında küçük çubuk; biten çeşit o gün istenmez |
-| Stok: sipariş | Gün sonunda tek tuş "Hepsini doldur" (toplam fiyat), istenirse kalem kalem artı / eksi; düz liste |
+| Kemal'in model seçimi (15 Ekim akşam) | V0, V1, V2, V6, V7 · M1, M2, M3, M5, M7 · B1, B2, B4, B8, B9, B10, B13, B14 · D1, D2, D4–D12 · T1–T10 (aday sayfası: `docs/gorseller/vitrin-bar-adaylari/`). Dondurma vitrini **V0** (9c'de oyunda); V6–V7 dolap, M kahve / espresso / blender / kettle / kasa, B bardak ve şişeler 9d içeceklerde; D külah, top, sundae, çubuk, krem şanti ve meyveler, T tezgah parçaları sonraki görsel işlerde; V1–V2 pasta camekânları için yer sonra konuşulacak |
+| Vitrin (9c, yapıldı) | Gövdeye gömülü, üstü açık paslanmaz küvetler; içinde kabarık, spatula izli dondurma; doluyken kenarın üstüne taşar, stok azaldıkça küvetin dibine iner, bitince boş kalır. Müşteri tarafında kavisli cam, üstte cam raf ve sıcak ışık şeridi; bazı küvetlerde spatula |
+| Stok: azalma | Görünür doluluk: top alındıkça küvetteki dondurma alçalır; biten çeşit o gün istenmez. Yapıldı (9c): boş küvete dokununca top alınmaz, "küvet boş" haberi çıkar; geri alınan top küvete döner; yardımcının kullandığı da düşer |
+| Stok: sipariş | Gün sonunda tek tuş "Hepsini doldur" (toplam fiyat), istenirse kalem kalem artı / eksi; düz liste. Yapıldı (9c): gün sonu kartında "Stok" (azalanlar, Hepsini doldur, Kalem kalem); gün başında Ürünler → **Stok**; azalan kalem varsa menüde nokta. Kapasite ve alış fiyatları ayar dosyasında (`stok` bölümü, geçici: küvet 40 top, top 3 jeton…) |
 | Stok: kapsam | Dondurma, külah / kap / kup, süslemeler, içecek malzemeleri |
-| Stok: biterse | Biten istenmez; hepsi biterse dükkân o gün cezasız erken kapanır |
+| Stok: biterse | Biten istenmez; hepsi biterse dükkân o gün cezasız erken kapanır. Yapıldı (9c): sıradakilere ayrılan stok da sayılır; istenecek hiçbir şey kalmayınca "Stok bitti" haberiyle kapanır, sıradakilere servis sürer. Waffle stoğu yok (kapsamda yoktu) |
 | Sıra | 9a ince tasarım + yol → 9b vitrin ve bar aday sayfası → 9c gerçekçi vitrin + hafif stok → 9d içecekler |
 
 ### 0.13.1 Hata listesi (Kemal, 15 Ekim akşam, oynarken)

@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { m, type MetinAnahtari } from '../metinler';
-import { useDurum, yetenekPuani } from '../oyun/durum';
+import { stokAzMi, useDurum, yetenekPuani } from '../oyun/durum';
 
 // Gün başı menüsü (Kemal, 14 Ekim: "menü sistemi yok, her şey ortada").
 // 15 Ekim (belge 0.12): işe göre dört grup — Dükkân (inşaat, yerleştir,
 // görünüş), Ekip (çalışan, yardımcılar), Ürünler (vitrin, çeşitler, fiyat),
 // Mağaza (satın almalar). Gruba dokununca üstünde alt işler açılır.
-export type MenuIsi = 'gelistir' | 'vitrin' | 'yerlestir' | 'insaat' | 'calisan' | 'yetenek' | 'yardimci' | 'gorunus' | 'cesitler' | 'fiyat';
+export type MenuIsi = 'gelistir' | 'vitrin' | 'yerlestir' | 'insaat' | 'calisan' | 'yetenek' | 'yardimci' | 'gorunus' | 'cesitler' | 'fiyat' | 'stok';
 type Grup = 'dukkan' | 'ekip' | 'urunler' | 'magaza';
 const GRUPLAR: { id: Grup; simge: MenuIsi; isler: MenuIsi[] }[] = [
   { id: 'dukkan', simge: 'insaat', isler: ['insaat', 'yerlestir', 'gorunus'] },
   { id: 'ekip', simge: 'yardimci', isler: ['calisan', 'yetenek', 'yardimci'] },
-  { id: 'urunler', simge: 'vitrin', isler: ['vitrin', 'cesitler', 'fiyat'] },
+  { id: 'urunler', simge: 'vitrin', isler: ['vitrin', 'stok', 'cesitler', 'fiyat'] },
   { id: 'magaza', simge: 'gelistir', isler: [] },
 ];
 
@@ -60,6 +60,14 @@ function Simge({ is }: { is: MenuIsi }) {
         <path d="M3 12 H21 L19 19 H5 Z" {...ortak} />
       </svg>
     );
+  if (is === 'stok')
+    // Kasa (stok, 9c)
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden>
+        <path d="M3 8 L12 4 L21 8 V18 L12 22 L3 18 Z" {...ortak} />
+        <path d="M3 8 L12 12 L21 8 M12 12 V22" {...ortak} />
+      </svg>
+    );
   if (is === 'yerlestir')
     // Sandalye
     return (
@@ -105,7 +113,10 @@ function Simge({ is }: { is: MenuIsi }) {
 export function MenuSeridi({ sec }: { sec: (is: MenuIsi) => void }) {
   const [acik, setAcik] = useState<Grup | null>(null);
   // Harcanmamış yetenek puanı varsa Ekip ve Yetenekler'de küçük nokta (8b)
-  const puanVar = yetenekPuani(useDurum()) > 0;
+  const durum = useDurum();
+  const puanVar = yetenekPuani(durum) > 0;
+  // Stokta azalan varsa Ürünler ve Stok'ta nokta (9c)
+  const stokAz = stokAzMi(durum);
   const grup = GRUPLAR.find((g) => g.id === acik);
   return (
     <nav className="menu-seridi" aria-label={m('menu.baslik')}>
@@ -124,7 +135,7 @@ export function MenuSeridi({ sec }: { sec: (is: MenuIsi) => void }) {
             >
               <Simge is={is} />
               <span>{m(`menu.${is}` as MetinAnahtari)}</span>
-              {is === 'yetenek' && puanVar && <span className="menu-nokta" aria-hidden />}
+              {((is === 'yetenek' && puanVar) || (is === 'stok' && stokAz)) && <span className="menu-nokta" aria-hidden />}
             </button>
           ))}
         </div>
@@ -145,7 +156,7 @@ export function MenuSeridi({ sec }: { sec: (is: MenuIsi) => void }) {
         >
           <Simge is={g.simge} />
           <span>{m(`menu.grup.${g.id}` as MetinAnahtari)}</span>
-          {g.id === 'ekip' && puanVar && <span className="menu-nokta" aria-hidden />}
+          {((g.id === 'ekip' && puanVar) || (g.id === 'urunler' && stokAz)) && <span className="menu-nokta" aria-hidden />}
         </button>
       ))}
     </nav>
