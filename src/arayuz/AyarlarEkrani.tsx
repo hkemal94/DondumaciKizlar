@@ -54,6 +54,11 @@ export function AyarlarEkrani({ kapat, egitimSonrasi }: { kapat: () => void; egi
               <input type="checkbox" checked={ekran.balonAdlari} onChange={(e) => ekranAyariniYaz({ balonAdlari: e.target.checked })} />
               <span>{m('ekran.balonAdlari')}</span>
             </label>
+            {/* Otomatik kamera (belge 0.12, 8c): başta açık */}
+            <label className="ekran-satir">
+              <input type="checkbox" checked={ekran.otoKamera} onChange={(e) => ekranAyariniYaz({ otoKamera: e.target.checked })} />
+              <span>{m('ekran.otoKamera')}</span>
+            </label>
             <div className="ekran-satir">
               <span>{m('ekran.grafik')}</span>
               {GRAFIK_KALITELERI.map((g) => (

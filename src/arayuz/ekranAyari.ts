@@ -10,6 +10,8 @@ export interface EkranAyari {
   kuvetEtiketi: boolean;
   balonAdlari: boolean;
   grafik: GrafikKalitesi;
+  // Sipariş gelince tezgaha kendiliğinden geçiş (belge 0.12, 8c; başta açık)
+  otoKamera: boolean;
 }
 
 const ANAHTAR = 'dondurmaci-kizlar-ekran';
@@ -23,9 +25,10 @@ function oku(): EkranAyari {
       kuvetEtiketi: k.kuvetEtiketi !== false,
       balonAdlari: k.balonAdlari !== false,
       grafik: GRAFIK_KALITELERI.includes(k.grafik as GrafikKalitesi) ? (k.grafik as GrafikKalitesi) : 'orta',
+      otoKamera: k.otoKamera !== false,
     };
   } catch {
-    return { kuvetEtiketi: true, balonAdlari: true, grafik: 'orta' };
+    return { kuvetEtiketi: true, balonAdlari: true, grafik: 'orta', otoKamera: true };
   }
 }
 

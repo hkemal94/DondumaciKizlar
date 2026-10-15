@@ -2540,3 +2540,133 @@ a.dugme {
     transform: translateY(-2px);
   }
 }
+
+/* Günlük hedefler ve yorumlar (belge 0.12, 8c) */
+.gunluk-hedefler {
+  position: absolute;
+  top: calc(max(10px, env(safe-area-inset-top)) + 42px);
+  left: max(12px, env(safe-area-inset-left));
+  pointer-events: none;
+  background: rgba(58, 35, 80, 0.82);
+  border: 2px solid var(--mor);
+  border-radius: 12px;
+  padding: 4px 10px 5px;
+  color: var(--yazi);
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 170px;
+}
+.hedef-baslik {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+.gunluk-hedefler ul,
+.hedef-liste,
+.yorum-liste {
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.gunluk-hedefler li,
+.hedef-liste li {
+  display: grid;
+  grid-template-columns: 14px 1fr auto;
+  gap: 6px;
+  align-items: center;
+}
+.hedef-isaret {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  border: 2px solid currentColor;
+  font-size: 10px;
+  line-height: 9px;
+  text-align: center;
+  opacity: 0.8;
+}
+li.tamam .hedef-isaret {
+  background: var(--sari);
+  color: var(--mor-koyu);
+  border-color: var(--sari);
+  opacity: 1;
+}
+li.tamam .hedef-ad {
+  text-decoration: line-through;
+  opacity: 0.75;
+}
+.hedef-sayi {
+  font-variant-numeric: tabular-nums;
+}
+.gun-sonu-sag {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.gun-sonu-kutu {
+  background: #fff8ec;
+  border-radius: 14px;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.gun-sonu-kutu .gel-not {
+  margin: 2px 0 0;
+  font-size: 11px;
+}
+.yorum-liste li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.yorum-yuz {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--mor-koyu);
+  margin-top: 1px;
+}
+.yorum-govde {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.yorum-yildiz {
+  color: #e2a400;
+  letter-spacing: 1px;
+}
+.yorum-cumle {
+  font-size: 11px;
+  font-weight: 600;
+  font-style: italic;
+  opacity: 0.6;
+}
+
+/* Gün sonu: Tamam solda, sağ sütun kendi içinde kayar (8c) */
+.gun-sonu-genis {
+  overflow: hidden;
+}
+.gun-sonu-genis > h2 {
+  margin: 0;
+}
+.gun-sonu-sol {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.gun-sonu-sol .dugme-yeni-gun {
+  align-self: center;
+}
+.gun-sonu-genis .gun-sonu-govde {
+  min-height: 0;
+}
+.gun-sonu-genis .gun-sonu-sag {
+  max-height: calc(100dvh - 150px);
+  overflow-y: auto;
+  padding-right: 2px;
+}

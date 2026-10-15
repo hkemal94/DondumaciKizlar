@@ -1761,6 +1761,118 @@
           "birim": "basamak"
         }
       }
+    },
+    "hedef": {
+      "ad": "Günlük hedefler",
+      "aciklama": "Belge 0.12, 8c. Her sabah gelen hedefler; tutmazsa ceza yok",
+      "ayarlar": {
+        "sayi": {
+          "ad": "Günde kaç hedef",
+          "deger": 3,
+          "birim": "hedef"
+        },
+        "odulExp": {
+          "ad": "Tutulan hedef başına dükkân exp",
+          "deger": 15,
+          "birim": "exp"
+        },
+        "odulJeton": {
+          "ad": "Tutulan hedef başına jeton",
+          "deger": 30,
+          "birim": "jeton"
+        },
+        "musteri": {
+          "ad": "Hedef: servis edilen müşteri",
+          "deger": 10,
+          "birim": "müşteri"
+        },
+        "mukemmel": {
+          "ad": "Hedef: MÜKEMMEL top",
+          "deger": 8,
+          "birim": "top"
+        },
+        "kazanc": {
+          "ad": "Hedef: günün kazancı",
+          "deger": 150,
+          "birim": "jeton"
+        },
+        "besYildiz": {
+          "ad": "Hedef: 5 yıldız veren müşteri",
+          "deger": 5,
+          "birim": "müşteri"
+        },
+        "waffle": {
+          "ad": "Hedef: satılan waffle (makine varsa)",
+          "deger": 3,
+          "birim": "tane"
+        },
+        "icecek": {
+          "ad": "Hedef: içecek müşterisi (stand varsa)",
+          "deger": 3,
+          "birim": "müşteri"
+        },
+        "seviyeArtisi": {
+          "ad": "Her ana seviyede hedeflerin büyümesi",
+          "deger": 0.05,
+          "birim": "oran"
+        }
+      }
+    },
+    "sira": {
+      "ad": "Sıranın dalgası",
+      "aciklama": "Belge 0.12, 8c. Müşteri sıklığı günün saatine göre değişir; ara sıra bir grup birden gelir. 1 = olağan, büyük = kalabalık",
+      "ayarlar": {
+        "acilisSaati": {
+          "ad": "Açılıştan sonraki ilk saat",
+          "deger": 0.6,
+          "birim": "yoğunluk"
+        },
+        "ogledenSonra": {
+          "ad": "14.00–17.00",
+          "deger": 1.3,
+          "birim": "yoğunluk"
+        },
+        "aksamustu": {
+          "ad": "18.00–20.00",
+          "deger": 1.2,
+          "birim": "yoğunluk"
+        },
+        "gece": {
+          "ad": "22.00 sonrası",
+          "deger": 0.6,
+          "birim": "yoğunluk"
+        },
+        "dalgalanma": {
+          "ad": "Rastgele dalgalanma (±)",
+          "deger": 0.15,
+          "birim": "oran"
+        },
+        "grupEnAz": {
+          "ad": "Günde en az grup",
+          "deger": 1,
+          "birim": "grup"
+        },
+        "grupEnCok": {
+          "ad": "Günde en çok grup",
+          "deger": 3,
+          "birim": "grup"
+        },
+        "grupKisiEnAz": {
+          "ad": "Grupta en az kişi",
+          "deger": 3,
+          "birim": "kişi"
+        },
+        "grupKisiEnCok": {
+          "ad": "Grupta en çok kişi",
+          "deger": 4,
+          "birim": "kişi"
+        },
+        "grupAraligi": {
+          "ad": "Grupta iki kişi arası",
+          "deger": 1200,
+          "birim": "ms"
+        }
+      }
     }
   }
 }

@@ -11,7 +11,9 @@ const HARF_SURESI = 0.12; // saniye: okunur bir hız
 export function HaberSeridi({ ipucu }: { ipucu: string | null }) {
   const { haberler } = useDurum();
   const enYeni = haberler[0];
-  const yazilar = [...(ipucu ? [ipucu] : []), ...(enYeni ? [m(enYeni.anahtar as MetinAnahtari, enYeni.degerler)] : [])];
+  // Yorumun nedeni bir yazı anahtarı olarak gelir; o anki dilde yazılır (8c)
+  const degerler = enYeni?.degerler && { ...enYeni.degerler, ...(typeof enYeni.degerler.neden === 'string' ? { neden: m(enYeni.degerler.neden as MetinAnahtari) } : {}) };
+  const yazilar = [...(ipucu ? [ipucu] : []), ...(enYeni ? [m(enYeni.anahtar as MetinAnahtari, degerler)] : [])];
   const metin = yazilar.join('   •   ');
   // Hangi yazının geçişi bitti: metin ya da yeni haber değişince şerit yeniden başlar
   const anahtar = `${metin}|${enYeni?.zaman ?? 0}`;

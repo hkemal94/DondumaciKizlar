@@ -40,6 +40,7 @@ import {
 import { m, useDil, type MetinAnahtari } from '../metinler';
 import { GunYenilikleri, SeviyeParlamasi, SeviyeRozeti } from './Seviye';
 import { YetenekEkrani } from './YetenekEkrani';
+import { GunlukHedefler, GunSonuHedefleri, GunSonuYorumlari } from './Hedefler';
 import { logoAdresi } from '../sahne/logo';
 import { CESITLER } from '../oyun/kuvetler';
 import { balon } from '../sahne/Musteriler';
@@ -443,25 +444,33 @@ function GunSonu() {
   ];
   return (
     <div className="gun-sonu-zemin">
-      <div className={`gun-sonu ${durum.gunYenilikleri.length ? 'gun-sonu-genis' : ''}`} role="dialog" aria-labelledby="gun-sonu-baslik">
+      <div className="gun-sonu gun-sonu-genis" role="dialog" aria-labelledby="gun-sonu-baslik">
         <img className="baslik-logo" src={logoAdresi('yazi')} alt="" aria-hidden />
         <h2 id="gun-sonu-baslik">{m('gunSonu.baslik', { gun: durum.gun })}</h2>
         {/* Bugün atlanan seviyeler, ödüller, açılanlar (8. adım): yatay ekranda yanda */}
         <div className="gun-sonu-govde">
-          <dl>
-            {satirlar.map(([ad, deger]) => (
-              <div key={ad} className="gun-sonu-satir">
-                <dt>{ad}</dt>
-                <dd>{deger}</dd>
-              </div>
-            ))}
-          </dl>
-          <GunYenilikleri yenilikler={durum.gunYenilikleri} />
+          <div className="gun-sonu-sol">
+            <dl>
+              {satirlar.map(([ad, deger]) => (
+                <div key={ad} className="gun-sonu-satir">
+                  <dt>{ad}</dt>
+                  <dd>{deger}</dd>
+                </div>
+              ))}
+            </dl>
+            {/* Yalnız Tamam: yeni gün ve alışveriş dükkânın genel görünümünde (13 Ekim).
+                Sol sütunda: sağ sütun uzasa da hep görünür (8c) */}
+            <button className="dugme dugme-yeni-gun" onClick={gunSonunuKapat}>
+              {m('gunSonu.tamam')}
+            </button>
+          </div>
+          {/* Sağ sütun: hedefler, yorumlar, seviye yenilikleri (8a, 8c); sığmazsa kendi içinde kayar */}
+          <div className="gun-sonu-sag">
+            <GunSonuHedefleri />
+            <GunSonuYorumlari />
+            <GunYenilikleri yenilikler={durum.gunYenilikleri} />
+          </div>
         </div>
-        {/* Yalnız Tamam: yeni gün ve alışveriş dükkânın genel görünümünde (13 Ekim) */}
-        <button className="dugme dugme-yeni-gun" onClick={gunSonunuKapat}>
-          {m('gunSonu.tamam')}
-        </button>
       </div>
     </div>
   );
@@ -660,6 +669,7 @@ export function Arayuz() {
       <CalisanAdi />
       <UstBilgi />
       <SeviyeParlamasi />
+      <GunlukHedefler />
       <GunSaat />
       {/* Eğitim eli varken yazılı ipucu çıkmaz (yazısız eğitim). Genel görünümde
           ipucu üstteki haber şeridinden geçer (belge 0.8); tezgahta yerinde kalır */}
