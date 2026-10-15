@@ -2392,3 +2392,151 @@ a.dugme {
   gap: 14px;
   align-items: start;
 }
+
+/* Yetenek ağacı (belge 0.12, 8b) */
+.menu-dugme {
+  position: relative;
+}
+.menu-nokta {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--sari);
+  box-shadow: 0 0 0 2px var(--mor-koyu);
+}
+.yetenek-ekrani {
+  width: min(760px, 100%);
+  gap: 6px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.yetenek-ekrani > .gel-not {
+  margin: 0;
+  font-size: 11px;
+}
+.yetenek-ust {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.yetenek-ust .baslik-logo {
+  height: 26px;
+  margin: 0;
+}
+.yetenek-ust h2 {
+  margin: 0;
+  flex: 1;
+}
+.yetenek-puan {
+  font-weight: 900;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #e8dcef;
+}
+.yetenek-puan.var {
+  background: var(--sari);
+}
+.yetenek-seviye {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 14px;
+}
+.yetenek-seviye .seviye-cubuk {
+  height: 9px;
+  background: #e8dcef;
+}
+.yetenek-seviye .seviye-cubuk > span {
+  background: var(--mor);
+}
+.yetenek-agac {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.yetenek-satir {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) 2.6fr;
+  align-items: center;
+  gap: 10px;
+  padding: 3px 8px;
+  border-radius: 14px;
+  background: #fff8ec;
+}
+.yetenek-ad {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  line-height: 1.25;
+}
+.yetenek-ad b {
+  font-size: 15px;
+}
+.yetenek-basamaklar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  position: relative;
+}
+/* Basamakları birleştiren çizgi */
+.yetenek-basamaklar::before {
+  content: '';
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 50%;
+  height: 4px;
+  background: #e2d3ea;
+  border-radius: 2px;
+}
+.yetenek-dugum {
+  position: relative;
+  font: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 3px 4px;
+  border-radius: 12px;
+  border: 3px solid #cdb9da;
+  background: #f4eef7;
+  color: #8a7896;
+  cursor: default;
+}
+.yetenek-dugum.alinabilir {
+  border-color: var(--mor);
+  background: #fff;
+  color: var(--mor-koyu);
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--mor-koyu);
+  animation: yetenekNabiz 1.6s ease-in-out infinite;
+}
+.yetenek-dugum.alindi {
+  border-color: var(--mor-koyu);
+  background: var(--sari);
+  color: var(--mor-koyu);
+}
+.yetenek-no {
+  font-weight: 900;
+  font-size: 15px;
+}
+.yetenek-etki {
+  font-weight: 800;
+  font-size: 12px;
+  text-align: center;
+}
+.yetenek-bedel {
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.8;
+}
+@keyframes yetenekNabiz {
+  50% {
+    transform: translateY(-2px);
+  }
+}

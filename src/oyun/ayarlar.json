@@ -1670,6 +1670,97 @@
           "birim": "seviye"
         }
       }
+    },
+    "yetenek": {
+      "ad": "Çalışanın yetenekleri",
+      "aciklama": "Belge 0.12, 8b. Çalışan her seviyede yetenek puanı kazanır; her yeteneğin 3 basamağı",
+      "ayarlar": {
+        "puanSeviyeBasina": {
+          "ad": "Çalışanın her seviyesinde yetenek puanı",
+          "deger": 1,
+          "birim": "puan"
+        },
+        "basamak1": {
+          "ad": "1. basamağın bedeli",
+          "deger": 1,
+          "birim": "puan"
+        },
+        "basamak2": {
+          "ad": "2. basamağın bedeli",
+          "deger": 2,
+          "birim": "puan"
+        },
+        "basamak3": {
+          "ad": "3. basamağın bedeli",
+          "deger": 3,
+          "birim": "puan"
+        },
+        "ustaKepce1": {
+          "ad": "Usta kepçe 1: MÜKEMMEL aralığı genişler",
+          "deger": 0.1,
+          "birim": "oran"
+        },
+        "ustaKepce2": {
+          "ad": "Usta kepçe 2",
+          "deger": 0.2,
+          "birim": "oran"
+        },
+        "ustaKepce3": {
+          "ad": "Usta kepçe 3",
+          "deger": 0.3,
+          "birim": "oran"
+        },
+        "hizliEller1": {
+          "ad": "Hızlı eller 1: dolum ve pişme kısalır",
+          "deger": 0.1,
+          "birim": "oran"
+        },
+        "hizliEller2": {
+          "ad": "Hızlı eller 2",
+          "deger": 0.2,
+          "birim": "oran"
+        },
+        "hizliEller3": {
+          "ad": "Hızlı eller 3",
+          "deger": 0.3,
+          "birim": "oran"
+        },
+        "sohbet1": {
+          "ad": "Sohbet 1: müşterinin sabrı uzar",
+          "deger": 0.15,
+          "birim": "oran"
+        },
+        "sohbet2": {
+          "ad": "Sohbet 2",
+          "deger": 0.3,
+          "birim": "oran"
+        },
+        "sohbet3": {
+          "ad": "Sohbet 3",
+          "deger": 0.45,
+          "birim": "oran"
+        },
+        "gulerYuz1": {
+          "ad": "Güler yüz 1: bahşiş artar",
+          "deger": 0.2,
+          "birim": "oran"
+        },
+        "gulerYuz2": {
+          "ad": "Güler yüz 2",
+          "deger": 0.4,
+          "birim": "oran"
+        },
+        "gulerYuz3": {
+          "ad": "Güler yüz 3",
+          "deger": 0.6,
+          "birim": "oran"
+        },
+        "gulerYuzErkenBasamak": {
+          "ad": "Güler yüz: bahşişin 1 servis erken başladığı basamak",
+          "deger": 2,
+          "birim": "basamak"
+        }
+      }
     }
   }
 }

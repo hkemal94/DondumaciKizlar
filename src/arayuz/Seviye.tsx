@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { gerekenSeviye, seviyeBilgisi, type SeviyeTuru } from '../oyun/seviye';
-import { useDurum, type Yenilik } from '../oyun/durum';
+import { useDurum, yetenekPuani, type Yenilik } from '../oyun/durum';
+import { AYAR } from '../oyun/ayarlar';
 import { CESITLER } from '../oyun/kuvetler';
 import { m, type MetinAnahtari } from '../metinler';
 
@@ -44,6 +45,7 @@ export function SeviyeRozeti() {
           {TURLER.map((t) => (
             <Cubuk key={t} tur={t} exp={durum.exp[t]} />
           ))}
+          <div className="seviye-satir">{m('seviye.puan', { puan: yetenekPuani(durum) })}</div>
           <p className="gel-not">{m('seviye.not')}</p>
         </div>
       )}
@@ -99,6 +101,7 @@ export function GunYenilikleri({ yenilikler }: { yenilikler: Yenilik[] }) {
   const jeton = yenilikler.reduce((t, y) => t + (y.tur === 'jeton' ? y.miktar : 0), 0);
   const hediyeler = yenilikler.filter((y) => y.tur === 'hediye');
   const kilitler = yenilikler.filter((y) => y.tur === 'kilit');
+  const calisanSeviyesi = seviyeSatirlari.filter((y) => y.seviyeTuru === 'calisan').length;
   // Aynı türden birden çok seviye: yalnız en sonuncusu
   const sonSeviyeler = TURLER.map((t) => seviyeSatirlari.filter((y) => y.seviyeTuru === t).pop()).filter((y) => !!y);
   return (
@@ -108,6 +111,8 @@ export function GunYenilikleri({ yenilikler }: { yenilikler: Yenilik[] }) {
         {sonSeviyeler.map((y) => (
           <li key={y.seviyeTuru}>{m('seviye.satir', { ad: m(`seviye.${y.seviyeTuru}` as MetinAnahtari), seviye: y.seviye })}</li>
         ))}
+        {/* Çalışan seviye atladıysa kazanılan yetenek puanı (8b) */}
+        {calisanSeviyesi > 0 && <li>{m('seviye.yetenekPuani', { puan: calisanSeviyesi * AYAR.yetenek.puanSeviyeBasina })}</li>}
         {jeton > 0 && (
           <li>
             {m('seviye.odul')} <span className="para-simge" aria-hidden /> {jeton}

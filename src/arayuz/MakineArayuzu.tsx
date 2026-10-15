@@ -4,8 +4,7 @@ import { Kilit } from './Seviye';
 import {
   yardimciKilidi,
   IYI_PAYI,
-  MUKEMMEL_ALT,
-  MUKEMMEL_UST,
+  mukemmelAraligi,
   adaylariGetir,
   durumuOku,
   istasyonKurulu,
@@ -91,8 +90,8 @@ export function MakineGostergesi() {
           </>
         ) : (
           <>
-            <path d={yayYolu(MUKEMMEL_ALT - IYI_PAYI, MUKEMMEL_UST + IYI_PAYI)} className="yay-iyi" />
-            <path d={yayYolu(MUKEMMEL_ALT, MUKEMMEL_UST)} className="yay-mukemmel" />
+            <path d={yayYolu(mukemmelAraligi(durum).alt - IYI_PAYI, mukemmelAraligi(durum).ust + IYI_PAYI)} className="yay-iyi" />
+            <path d={yayYolu(mukemmelAraligi(durum).alt, mukemmelAraligi(durum).ust)} className="yay-mukemmel" />
           </>
         )}
         <line ref={ibre} x1="90" y1="86" x2="20" y2="86" className="ibre" />

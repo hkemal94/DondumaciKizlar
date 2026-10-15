@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { m, type MetinAnahtari } from '../metinler';
+import { useDurum, yetenekPuani } from '../oyun/durum';
 
 // Gün başı menüsü (Kemal, 14 Ekim: "menü sistemi yok, her şey ortada").
 // 15 Ekim (belge 0.12): işe göre dört grup — Dükkân (inşaat, yerleştir,
 // görünüş), Ekip (çalışan, yardımcılar), Ürünler (vitrin, çeşitler, fiyat),
 // Mağaza (satın almalar). Gruba dokununca üstünde alt işler açılır.
-export type MenuIsi = 'gelistir' | 'vitrin' | 'yerlestir' | 'insaat' | 'calisan' | 'yardimci' | 'gorunus' | 'cesitler' | 'fiyat';
+export type MenuIsi = 'gelistir' | 'vitrin' | 'yerlestir' | 'insaat' | 'calisan' | 'yetenek' | 'yardimci' | 'gorunus' | 'cesitler' | 'fiyat';
 type Grup = 'dukkan' | 'ekip' | 'urunler' | 'magaza';
 const GRUPLAR: { id: Grup; simge: MenuIsi; isler: MenuIsi[] }[] = [
   { id: 'dukkan', simge: 'insaat', isler: ['insaat', 'yerlestir', 'gorunus'] },
-  { id: 'ekip', simge: 'yardimci', isler: ['calisan', 'yardimci'] },
+  { id: 'ekip', simge: 'yardimci', isler: ['calisan', 'yetenek', 'yardimci'] },
   { id: 'urunler', simge: 'vitrin', isler: ['vitrin', 'cesitler', 'fiyat'] },
   { id: 'magaza', simge: 'gelistir', isler: [] },
 ];
@@ -75,6 +76,13 @@ function Simge({ is }: { is: MenuIsi }) {
         <path d="M13 3 H21 V11 H13 Z M3 13 H11 V21 H3 Z" {...ortak} strokeDasharray="2 2" />
       </svg>
     );
+  if (is === 'yetenek')
+    // Yıldız (yetenek ağacı, 8b)
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden>
+        <path d="M12 3 L14.6 8.6 L20.6 9.3 L16.1 13.4 L17.3 19.4 L12 16.4 L6.7 19.4 L7.9 13.4 L3.4 9.3 L9.4 8.6 Z" {...ortak} />
+      </svg>
+    );
   if (is === 'yardimci')
     // İki kişi
     return (
@@ -96,6 +104,8 @@ function Simge({ is }: { is: MenuIsi }) {
 
 export function MenuSeridi({ sec }: { sec: (is: MenuIsi) => void }) {
   const [acik, setAcik] = useState<Grup | null>(null);
+  // Harcanmamış yetenek puanı varsa Ekip ve Yetenekler'de küçük nokta (8b)
+  const puanVar = yetenekPuani(useDurum()) > 0;
   const grup = GRUPLAR.find((g) => g.id === acik);
   return (
     <nav className="menu-seridi" aria-label={m('menu.baslik')}>
@@ -114,6 +124,7 @@ export function MenuSeridi({ sec }: { sec: (is: MenuIsi) => void }) {
             >
               <Simge is={is} />
               <span>{m(`menu.${is}` as MetinAnahtari)}</span>
+              {is === 'yetenek' && puanVar && <span className="menu-nokta" aria-hidden />}
             </button>
           ))}
         </div>
@@ -134,6 +145,7 @@ export function MenuSeridi({ sec }: { sec: (is: MenuIsi) => void }) {
         >
           <Simge is={g.simge} />
           <span>{m(`menu.grup.${g.id}` as MetinAnahtari)}</span>
+          {g.id === 'ekip' && puanVar && <span className="menu-nokta" aria-hidden />}
         </button>
       ))}
     </nav>

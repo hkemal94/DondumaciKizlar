@@ -111,6 +111,7 @@ import {
 } from './calisan';
 import { DENEME_KAYDI } from './denemeDukkani';
 import { AYAR } from './ayarlar';
+import { BOS_YETENEKLER, EN_COK_BASAMAK, basamakBedeli, harcananPuan, kazanilanPuan, yetenekEtkisi, yetenekleriOku, type Yetenek, type Yetenekler } from './yetenek';
 import { BOS_EXP, acilanKilitler, araziSeviyesi, gerekenSeviye, seviye, yardimciSeviyesi, type Expler, type SeviyeTuru } from './seviye';
 // Geliştirme jetonu (belge 0.8): oyun yayınlanana kadar her açılışta para
 // en az bu kadar olur. Yayından önce 0 yapılır.
@@ -260,6 +261,8 @@ export interface Durum {
   egitimGoruldu: EgitimAdi[];
   // Deneyim (belge 0.12, 8. adım): birikmiş exp; seviyeler bundan hesaplanır
   exp: Expler;
+  // Çalışanın yetenekleri (8b): alınmış basamaklar
+  yetenekler: Yetenekler;
   // Bugün olanlar (seviye, ödül, açılan kilit): gün sonu kartında "YENİ!"
   gunYenilikleri: Yenilik[];
   // Gün içinde seviye atlayınca üstte kısa parlama
@@ -408,6 +411,7 @@ let durum: Durum = {
   egitimGoruldu: [],
   albumAyi: -1,
   exp: { ...BOS_EXP },
+  yetenekler: { ...BOS_YETENEKLER },
   gunYenilikleri: [],
   seviyeParlama: null,
   duraklatildi: false,
@@ -445,14 +449,15 @@ export function useDurum() {
 // Kaçırmak ceza değil; gösterge tekrar MÜKEMMEL'den geçer.
 export function dolumHesapla(simdi: number): number {
   if (durum.asama !== 'dolduruyor') return 0;
-  const t = ((simdi - durum.dolumBasladi) / DOLUM_SURESI) % 2;
+  const t = ((simdi - durum.dolumBasladi) / dolumSuresi()) % 2;
   return t <= 1 ? t : 2 - t;
 }
 
 function sonucBul(dolum: number): Sonuc {
-  if (dolum >= MUKEMMEL_ALT && dolum <= MUKEMMEL_UST) return 'mukemmel';
-  if (dolum >= MUKEMMEL_ALT - IYI_PAYI && dolum <= MUKEMMEL_UST + IYI_PAYI) return 'iyi';
-  return dolum < MUKEMMEL_ALT ? 'kucuk' : 'buyuk';
+  const { alt, ust } = mukemmelAraligi();
+  if (dolum >= alt && dolum <= ust) return 'mukemmel';
+  if (dolum >= alt - IYI_PAYI && dolum <= ust + IYI_PAYI) return 'iyi';
+  return dolum < alt ? 'kucuk' : 'buyuk';
 }
 
 // Altlıklar arasında her an doğrudan geçilir; konmuş toplar ve süslemeler
@@ -751,7 +756,7 @@ export function servisEt() {
     // Bahşiş (Kemal, 14 Ekim): arka arkaya üç ve daha çok mükemmel serviste
     // müşteri küçük bahşiş bırakır; seri bozulunca ceza yok, sıfırlanır.
     const seri = butunToplar.every((t) => t.sonuc === 'mukemmel') ? durum.mukemmelSeri + 1 : 0;
-    const bahsis = seri >= BAHSIS_SERISI ? Math.min(BAHSIS_EN_COK, (seri - BAHSIS_SERISI + 1) * 2) : 0;
+    const bahsis = bahsisHesapla(seri);
     const miktar = verilen.reduce((t, u) => t + urunFiyati(u), 0) + bahsis;
     const hamPuan = butunToplar.reduce((t, top) => t + SONUC_PUANI[top.sonuc], 0) / butunToplar.length;
     // Makulün %20'sinden fazla pahalı çeşitler memnuniyeti biraz düşürür
@@ -1004,7 +1009,8 @@ export const SABIR_DAKIKA = AYAR.gun.sabirDakika; // Kemal, 13 Ekim: gerçekte ~
 
 export function sabirOrani(d: Durum = durum) {
   if (d.sabirMusteri === null || ondekiMusteri(d)?.id !== d.sabirMusteri) return null;
-  return Math.max(0, 1 - (d.dakika - d.sabirBasi) / SABIR_DAKIKA);
+  // Sohbet yeteneği sabrı uzatır (8b)
+  return Math.max(0, 1 - (d.dakika - d.sabirBasi) / (SABIR_DAKIKA * (1 + yetenekEtkisi('sohbet', d.yetenekler.sohbet))));
 }
 
 function sabirKontrol() {
@@ -1581,12 +1587,12 @@ export function istasyonSeciminiKapat() {
 // ---- Waffle (belge 0.5) ve içecek standı (0.6) ----
 export function makineDolumu(simdi: number, d: Durum = durum) {
   if (d.makine.asama !== 'dokuluyor') return 0;
-  const t = ((simdi - d.makine.basladi) / DOLUM_SURESI) % 2;
+  const t = ((simdi - d.makine.basladi) / dolumSuresi(d)) % 2;
   return t <= 1 ? t : 2 - t;
 }
 export function pismeOrani(simdi: number, d: Durum = durum) {
   if (d.makine.asama !== 'pisiyor') return 0;
-  return Math.min(1.15, (simdi - d.makine.basladi) / PISME_SURESI);
+  return Math.min(1.15, (simdi - d.makine.basladi) / (PISME_SURESI * (1 - yetenekEtkisi('hizliEller', d.yetenekler.hizliEller))));
 }
 
 function makineGuncelle(m: Partial<MakineDurumu>) {
@@ -1907,6 +1913,7 @@ interface Kayit {
   egitimGoruldu: EgitimAdi[];
   albumAyi?: number;
   exp?: Partial<Expler>;
+  yetenekler?: Partial<Yetenekler>;
 }
 
 function kaydet() {
@@ -1947,6 +1954,7 @@ function kaydet() {
     egitimGoruldu: durum.egitimGoruldu,
     albumAyi: durum.albumAyi,
     exp: durum.exp,
+    yetenekler: durum.yetenekler,
   };
   try {
     localStorage.setItem(kayitAnahtari, JSON.stringify(k));
@@ -1989,6 +1997,7 @@ export function kaydiYukle() {
       albumAyi: typeof k.albumAyi === 'number' ? k.albumAyi : -1,
       // Exp (8. adım): eski kayıtlar 1. seviyeden başlar (Kemal, 15 Ekim)
       exp: expOku(k.exp),
+      yetenekler: yetenekleriOku(k.yetenekler),
     });
     // Eski parçaların parası geri verildiyse hemen kaydedilir (bir kez verilsin)
     if (eskiParcaIadesi(k) > 0) kaydet();
@@ -2233,6 +2242,7 @@ function durumuSifirla() {
     egitimGoruldu: [],
     albumAyi: -1,
     exp: { ...BOS_EXP },
+    yetenekler: { ...BOS_YETENEKLER },
     gunYenilikleri: [],
     seviyeParlama: null,
     dakika: 0,
@@ -2552,4 +2562,37 @@ export function expEkle(calisan: number, dukkan: number) {
     ...(yeni.ana > eski.ana ? { seviyeParlama: { seviye: yeni.ana, zaman: performance.now() } } : {}),
   });
   if (yeni.ana > eski.ana) haberVer('haber.seviye', { seviye: yeni.ana });
+}
+
+// ---- Çalışanın yetenekleri (belge 0.12, 8b) ----
+export function yetenekPuani(d: Durum = durum) {
+  return kazanilanPuan(seviye('calisan', d.exp.calisan)) - harcananPuan(d.yetenekler);
+}
+export function yetenekAlinabilir(y: Yetenek, d: Durum = durum) {
+  const b = d.yetenekler[y];
+  return b < EN_COK_BASAMAK && yetenekPuani(d) >= basamakBedeli(b + 1);
+}
+export function yetenekAl(y: Yetenek) {
+  if (!yetenekAlinabilir(y)) return;
+  guncelle({ yetenekler: { ...durum.yetenekler, [y]: durum.yetenekler[y] + 1 } });
+  kaydet();
+}
+
+// Usta kepçe: MÜKEMMEL aralığı ortası aynı kalarak genişler
+export function mukemmelAraligi(d: Durum = durum) {
+  const orta = (MUKEMMEL_ALT + MUKEMMEL_UST) / 2;
+  const yari = ((MUKEMMEL_UST - MUKEMMEL_ALT) / 2) * (1 + yetenekEtkisi('ustaKepce', d.yetenekler.ustaKepce));
+  return { alt: Math.max(0.02, orta - yari), ust: Math.min(0.98, orta + yari) };
+}
+// Hızlı eller: kepçe ve hamur daha çabuk dolar
+export function dolumSuresi(d: Durum = durum) {
+  return DOLUM_SURESI * (1 - yetenekEtkisi('hizliEller', d.yetenekler.hizliEller));
+}
+// Güler yüz: bahşiş artar; belli basamakta bir servis erken başlar
+function bahsisHesapla(seri: number) {
+  const b = durum.yetenekler.gulerYuz;
+  const esik = Math.max(1, BAHSIS_SERISI - (b >= AYAR.yetenek.gulerYuzErkenBasamak ? 1 : 0));
+  if (seri < esik) return 0;
+  const kat = 1 + yetenekEtkisi('gulerYuz', b);
+  return Math.round(Math.min(BAHSIS_EN_COK, (seri - esik + 1) * 2) * kat);
 }
