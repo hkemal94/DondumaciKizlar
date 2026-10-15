@@ -11,8 +11,8 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | | |
 |---|---|
 | Aşama | Oynanabilir sürüm, büyüme, karakterler, liman ve kişiselleştirme bitti. Sırada görsel kalite |
-| Son biten | 8c: günlük hedefler, yorumlar, sıra dalgası, otomatik kamera ayarı (bu PR) — exp sistemi bitti |
-| Şu an | 8c'nin denetimi |
+| Son biten | Kemal'in hata listesi: gün bitmiyor, buzdolabı, tezgah / mutfak taşıma, deneme dükkânı (bu PR) |
+| Şu an | Hata düzeltmelerinin denetimi; Kemal hata bulmayı sürdürebilir |
 | Sıradaki | 9. adım: içecekler ve hafif stok |
 | Yayın | Deneme sürümü webde; tarih yok, acele yok |
 
@@ -28,7 +28,7 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | 5 | Açılış ve galeri | Arkada kendi dükkânın gün batımında, galeri, ayda bir otomatik dükkân fotoğrafı | Bitti ([#39](https://github.com/hkemal94/DondumaciKizlar/pull/39)) |
 | 6 | İngilizce | Bütün yazılar İngilizce; Ayarlar'da dil seçimi | Bitti ([#40](https://github.com/hkemal94/DondumaciKizlar/pull/40)) |
 | 7 | Ayar paneli | Bütün sayılar oyunda tek ayar dosyasında; KKM'de "Ayarlar" sekmesi (KKM deposunda ayrı PR) | Bitti ([#41](https://github.com/hkemal94/DondumaciKizlar/pull/41), KKM [#94](https://github.com/hkemal94/Kems-Company/pull/94)). Yazma yolu: GitHub anahtarı (Kemal, 15 Ekim) |
-| 8 | Exp sistemi | Ana seviye + dükkân ve çalışan seviyeleri; günlük hedefler; yıldızlar yorum gibi; sıra bazen uzun bazen boş; otomatik kamera ayarı; eşyalara konfor ve çekicilik | Soru turu bitti (15 Ekim). 8a exp + seviyeler + kilitler: bitti ([#42](https://github.com/hkemal94/DondumaciKizlar/pull/42)). 8b yetenekler: bitti ([#43](https://github.com/hkemal94/DondumaciKizlar/pull/43)). 8c günlük hedefler, yorumlar, sıra, otomatik kamera: bitti (bu PR). Eşya konfor / çekicilik 10. maddeye kaldı |
+| 8 | Exp sistemi | Ana seviye + dükkân ve çalışan seviyeleri; günlük hedefler; yıldızlar yorum gibi; sıra bazen uzun bazen boş; otomatik kamera ayarı; eşyalara konfor ve çekicilik | Soru turu bitti (15 Ekim). 8a exp + seviyeler + kilitler: bitti ([#42](https://github.com/hkemal94/DondumaciKizlar/pull/42)). 8b yetenekler: bitti ([#43](https://github.com/hkemal94/DondumaciKizlar/pull/43)). 8c günlük hedefler, yorumlar, sıra, otomatik kamera: bitti ([#44](https://github.com/hkemal94/DondumaciKizlar/pull/44)). Eşya konfor / çekicilik 10. maddeye kaldı |
 | 9 | İçecekler ve stok | Limonata / ayran / buzlu çay → milkshake / frappe → kahve → taze sıkma; hafif stok ve gün sonu sipariş ekranı | |
 | 10 | Sonra | Kayan yazıda müşteri yorumları (cümleler Kemal'in), eşya renkleri ve yumuşak yıpranma, gedikli müşteriler, hava durumu, duvar deseni, seyyar dondurma arabası, festival / bayramlar, yeni süslemeler, mevsim | |
 
@@ -71,7 +71,8 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 - Ayar dosyası: bütün fiyat, süre ve oranlar (197 ayar) tek dosyada, Türkçe adlarıyla · [#41](https://github.com/hkemal94/DondumaciKizlar/pull/41), KKM [#94](https://github.com/hkemal94/Kems-Company/pull/94)
 - Exp ve seviyeler (8a): ana, dükkân ve çalışan seviyesi; dükkân seviyesi kilitleri; seviye rozeti, parlama, gün sonunda "YENİ!" · [#42](https://github.com/hkemal94/DondumaciKizlar/pull/42)
 - Yetenekler (8b): Usta kepçe, Hızlı eller, Sohbet, Güler yüz; çalışan seviyesinden puan, üç basamaklı ağaç · [#43](https://github.com/hkemal94/DondumaciKizlar/pull/43)
-- Günlük hedefler, yorumlar, sıra dalgası, otomatik kamera ayarı (8c) · bu PR
+- Günlük hedefler, yorumlar, sıra dalgası, otomatik kamera ayarı (8c) · [#44](https://github.com/hkemal94/DondumaciKizlar/pull/44)
+- Hatalar: içecek / waffle istasyonundayken gün bitmiyordu; buzdolabı arkadan taşıyordu; İnşaat'ta tezgah / mutfak taşıma ipuçları; deneme dükkânı yeniden yerleşti · bu PR
 
 ## Bilinen eksikler
 

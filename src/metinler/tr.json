@@ -505,5 +505,8 @@
   "hedef.waffle": "{hedef} waffle",
   "hedef.icecek": "{hedef} içecek müşterisi",
   "hedef.odul": "Her biri: +{jeton} jeton, +{exp} exp",
-  "ekran.otoKamera": "Sipariş gelince tezgaha kendiliğinden geç"
+  "ekran.otoKamera": "Sipariş gelince tezgaha kendiliğinden geç",
+  "insaat.tezgahMutfak": "Arkada mutfak var. Tezgahı arkaya almak için önce o mutfak karesini seçip “Dükkâna çevir”.",
+  "insaat.tezgahKapali": "Arkası kapalı alan değil. Önce arka kareyi alıp duvar ör.",
+  "insaat.mutfakTasi": "Mutfağı taşımak için: bu kareyi “Dükkâna çevir”, sonra başka bir arka kareyi “Mutfağa kat”."
 }

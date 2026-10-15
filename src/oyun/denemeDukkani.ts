@@ -29,18 +29,36 @@ export const DENEME_KAYDI = {
   cesitFiyatlari: [],
   isikSeviyesi: 3,
   parseller,
-  // Kapalı alan: dükkân iki yana büyümüş, arkada iki karelik mutfak; sağda
-  // oturma odası (halı ve tablo, C4)
-  kapaliParseller: ['-2,0', '-1,0', '0,0', '1,0', '2,0', '-1,1', '0,1'],
+  // Kapalı alan (Kemal, 15 Ekim: "deneme dükkânının şeklini beğenmiyorum"):
+  // dükkân iki sıra derin ve iki yana geniş. Önde pencereli oturma salonu,
+  // arkada tezgah, en arkada iki karelik mutfak. Müşteri soldaki kapıdan
+  // girer, salonun sol yanından tezgahın önündeki sıraya yürür.
+  kapaliParseller: ['-2,0', '-1,0', '0,0', '1,0', '2,0', '-2,1', '-1,1', '0,1', '1,1', '2,1', '-1,2', '0,2'],
   duvarParcalari: {
     '-8,0,g': 'kapi',
+    // Ön cephe: geniş vitrin camları
+    '-6,0,g': 'pencere',
+    '-5,0,g': 'pencere',
+    '-4,0,g': 'pencere',
+    '-3,0,g': 'pencere',
+    '-2,0,g': 'pencere',
+    '1,0,g': 'pencere',
+    '2,0,g': 'pencere',
+    '3,0,g': 'pencere',
+    '4,0,g': 'pencere',
+    '5,0,g': 'pencere',
+    '6,0,g': 'pencere',
+    '9,0,g': 'pencere',
+    '10,0,g': 'pencere',
+    // Yanlar
     '-8,1,b': 'pencere',
     '-8,2,b': 'pencere',
-    '11,1,d': 'pencere',
-    '11,2,d': 'pencere',
+    '11,5,d': 'pencere',
+    '11,6,d': 'pencere',
   },
-  mutfakParseller: ['-1,1', '0,1'],
-  tezgah: { c: -4, r: 1, boy: 8 },
+  mutfakParseller: ['-1,2', '0,2'],
+  // Tezgah arka sırada (r 5–7); önündeki sıra r 4
+  tezgah: { c: -4, r: 5, boy: 8 },
   tezgahAlinanBoy: 8,
   tezgahParcalari: [
     { tur: 'waffle', yan: 1 },
@@ -55,7 +73,7 @@ export const DENEME_KAYDI = {
     { id: 2, ad: '', tohum: 777, yetenek: 'icecek', hiz: 3 },
   ],
   istasyon: 'dondurma',
-  depo: { saksi: 2, haliYuvarlak: 1, paspas: 1, tabloDondurma: 1, tabloDeniz: 1, tabloBos: 1 },
+  depo: { saksi: 2, haliYuvarlak: 1, tabloBos: 1 },
   // Terastaki eşyalar (köşe birim "c,r"; teras r = -4 … -1)
   yerlesim: [
     { esya: 'semsiyeliMasa', hucre: '-12,-4', yon: 0 },
@@ -73,11 +91,19 @@ export const DENEME_KAYDI = {
     { esya: 'sokakLambasi', hucre: '-12,-1', yon: 0 },
     { esya: 'bisiklet', hucre: '9,-2', yon: 0 },
     { esya: 'cicekKasasi', hucre: '-11,-2', yon: 0 },
-    // Sağdaki oda (C4): kilimin üstünde masa, duvarda tablo, köşede saksı
-    { esya: 'haliKilim', hucre: '8,1', yon: 0 },
-    { esya: 'masa', hucre: '9,1', yon: 0 },
-    { esya: 'tabloSoyut', hucre: '9,3', yon: 0 },
+    // Salon (C4): sağda kilimin üstünde masa, ortada yuvarlak halıda masa,
+    // duvarlarda tablolar, köşelerde saksı; kapının önünde paspas
+    { esya: 'haliKilim', hucre: '7,1', yon: 0 },
+    { esya: 'masa', hucre: '7,1', yon: 0 },
+    { esya: 'haliYuvarlak', hucre: '3,1', yon: 0 },
+    { esya: 'masa', hucre: '3,1', yon: 0 },
+    { esya: 'tabloSoyut', hucre: '11,1', yon: 0 },
+    { esya: 'tabloDeniz', hucre: '11,2', yon: 0 },
+    { esya: 'tabloDondurma', hucre: '-8,6', yon: 0 },
     { esya: 'saksi', hucre: '11,3', yon: 0 },
+    { esya: 'saksi', hucre: '-8,3', yon: 0 },
+    { esya: 'saksi', hucre: '10,0', yon: 0 },
+    { esya: 'paspas', hucre: '-7,0', yon: 0 },
   ],
   egitimGoruldu: ['ilkSiparis', 'susleme', 'tepsi', 'vitrin'],
 };

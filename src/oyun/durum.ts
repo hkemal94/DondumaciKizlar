@@ -289,7 +289,7 @@ export interface Durum {
   mutfakParseller: string[];
   yardimcilar: Yardimci[];
   adaylar: Yardimci[]; // işe alma ekranındaki adaylar (kaydedilmez)
-  yardimciIsleri: Record<number, { musteri: number; bitis: number }>; // yardımcı → elindeki sipariş (oyun dakikası)
+  yardimciIsleri: Record<number, { musteri: number; bitis: number }>; // yardımcı → elindeki sipariş (bitiş: iş sayacı, ms)
   makine: MakineDurumu;
   makineFiyatlari: { waffle: number; icecek: number }; // oyuncunun koyduğu fiyat
 }
@@ -937,8 +937,15 @@ function gunUzunlugu(d: Durum = durum) {
 let birikenMs = 0;
 
 // Oyun döngüsü her turda geçen süreyi verir.
+// Yardımcıların iş sayacı (ms): kapanıştan sonra oyun saati durur ama
+// yardımcılar elindeki siparişi bitirebilsin diye bu sayaç işlemeye devam eder
+// (Kemal, 15 Ekim: "içecek barındayken gün bitmiyor")
+let isMs = 0;
+const OYUN_DAKIKASI_MS = ADIM_MS / ADIM;
+
 export function zamanIlerlet(gecenMs: number) {
   if (durum.gunSonu || durum.hazirlik || durum.duraklatildi) return;
+  isMs += Math.min(gecenMs, 1000);
   yardimciDongusu();
   // İlk sipariş eğitiminde müşteri gelince saat (ve sabır) durur
   if (ilkSiparisEgitimi() && durum.musteriler.some((m) => m.hal === 'sirada')) return;
@@ -956,6 +963,10 @@ export function zamanIlerlet(gecenMs: number) {
   }
   // Kapandıktan sonra saat durur; sıradakilerin sabrı da azalmaz
   // Kapandı: sıradakilere servis bitince gün sonu ekranı
+  // Kimsenin bakmadığı istasyonun sırasında kalan müşteri cezasız gider
+  const bakan = (ist: Istasyon) => ist === durum.istasyon || durum.yardimcilar.some((y) => y.istasyon === ist);
+  if (durum.musteriler.some((m) => m.hal === 'sirada' && !bakan(m.urun)))
+    guncelle({ musteriler: durum.musteriler.map((m) => (m.hal === 'sirada' && !bakan(m.urun) ? { ...m, hal: 'gidiyor', mutlu: false } : m)) });
   const bekleyen = durum.musteriler.some((m) => m.hal === 'sirada');
   if (!bekleyen && durum.asama === 'altlikSec') {
     // Yardımcıların yevmiyesi (belge 0.5): para 0'ın altına inmez, ceza yok
@@ -1550,6 +1561,17 @@ function tezgahiKoy(t: TezgahYeri, ek: Partial<Durum> = {}) {
   kaydet();
 }
 
+// Tezgah o yöne neden gidemiyor (İnşaat'ta ipucu; Kemal, 15 Ekim: "tezgahı arkaya alamıyorum")
+export function tezgahEngeli(dc: number, dr: number, d: Durum = durum): 'mutfak' | 'kapali' | 'kapi' | null {
+  const t = { ...d.tezgah, c: d.tezgah.c + dc, r: d.tezgah.r + dr };
+  if (tezgahUygun(t, d)) return null;
+  const { govde, sira } = tezgahHepBirimleri(t, d.tezgahParcalari);
+  const hepsi = [...govde, ...sira];
+  if (hepsi.some((b) => d.mutfakParseller.includes(birimParseli(b.c, b.r)))) return 'mutfak';
+  if (hepsi.some((b) => !birimIcMi(b.c, b.r, d))) return 'kapali';
+  return 'kapi';
+}
+
 export function tezgahTasinabilir(dc: number, dr: number, d: Durum = durum) {
   return tezgahUygun({ ...d.tezgah, c: d.tezgah.c + dc, r: d.tezgah.r + dr }, d);
 }
@@ -1813,9 +1835,9 @@ function yardimciDongusu() {
     }
     if (!on || on.urun !== y.istasyon || !on.vardi) continue;
     if (!is) {
-      isler = { ...isler, [y.id]: { musteri: on.id, bitis: durum.dakika + yardimciSuresi(y, y.istasyon) } };
+      isler = { ...isler, [y.id]: { musteri: on.id, bitis: isMs + yardimciSuresi(y, y.istasyon) * OYUN_DAKIKASI_MS } };
       degisti = true;
-    } else if (durum.dakika >= is.bitis) {
+    } else if (isMs >= is.bitis) {
       isler = { ...isler };
       delete isler[y.id];
       degisti = true;
