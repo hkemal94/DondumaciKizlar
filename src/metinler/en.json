@@ -670,5 +670,12 @@
   "gorunus.icBoya.kulahDesenli": "Cones",
   "gorunus.icBoya.meyveDesenli": "Fruit",
   "gorunus.icBoya.seritli": "Striped",
-  "yenilik.duvarDeseni": "Wall patterns: cone, fruit and striped wallpaper (Look → Inside walls)"
+  "yenilik.duvarDeseni": "Wall patterns: cone, fruit and striped wallpaper (Look → Inside walls)",
+  "yerlestir.renk": "Colour",
+  "yerlestir.renk.mor": "Purple",
+  "yerlestir.renk.sari": "Yellow",
+  "yerlestir.renk.mavi": "Aegean blue",
+  "yerlestir.renk.kiremit": "Terracotta",
+  "yerlestir.renk.yesil": "Green",
+  "yenilik.esyaRengi": "Pick the tablecloth, parasol and cushion colour while placing"
 }

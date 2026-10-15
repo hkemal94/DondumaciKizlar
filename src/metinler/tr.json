@@ -670,5 +670,12 @@
   "gorunus.icBoya.kulahDesenli": "Külahlı",
   "gorunus.icBoya.meyveDesenli": "Meyveli",
   "gorunus.icBoya.seritli": "Şeritli",
-  "yenilik.duvarDeseni": "İç duvara desen: külahlı, meyveli, şeritli duvar kâğıdı (Görünüş → İç duvar)"
+  "yenilik.duvarDeseni": "İç duvara desen: külahlı, meyveli, şeritli duvar kâğıdı (Görünüş → İç duvar)",
+  "yerlestir.renk": "Renk",
+  "yerlestir.renk.mor": "Mor",
+  "yerlestir.renk.sari": "Sarı",
+  "yerlestir.renk.mavi": "Ege mavisi",
+  "yerlestir.renk.kiremit": "Kiremit",
+  "yerlestir.renk.yesil": "Yeşil",
+  "yenilik.esyaRengi": "Masa örtüsü, şemsiye ve minder rengini yerleştirirken seç"
 }

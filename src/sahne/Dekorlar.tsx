@@ -10,6 +10,7 @@ import {
   birimOrtasi,
   esyaOlcusu,
   esyaKatmani,
+  esyaRengi,
   esyaOrtasi,
   kenarYeri,
   parselCoz,
@@ -46,7 +47,9 @@ function Fener({ konum }: { konum: [number, number, number] }) {
   );
 }
 
-function Semsiye() {
+function Semsiye({ renkAdi = renk.mor }: { renkAdi?: string }) {
+  // Seçilen renk sarıysa öbür dilimler mor (sarı-sarı olmasın)
+  const ikinci = renkAdi === renk.sari || renkAdi === '#ffc928' ? renk.mor : renk.sari;
   const dilimler = 8;
   return (
     <group>
@@ -57,7 +60,7 @@ function Semsiye() {
       {Array.from({ length: dilimler }, (_, i) => (
         <mesh key={i} position={[0, 2.35, 0]} rotation={[0, (i / dilimler) * Math.PI * 2, 0]} castShadow>
           <coneGeometry args={[1.25, 0.45, 2, 1, true, 0, (Math.PI * 2) / dilimler]} />
-          <meshStandardMaterial color={i % 2 ? renk.sari : renk.mor} roughness={0.9} side={2} flatShading />
+          <meshStandardMaterial color={i % 2 ? ikinci : renkAdi} roughness={0.9} side={2} flatShading />
         </mesh>
       ))}
     </group>
@@ -66,12 +69,13 @@ function Semsiye() {
 
 // Hazır paketlerden eşyalar (belge 0.7): masa Tiny Treats'ten, örtüsünün
 // kareleri bizim mor; sandalyeler eski masadaki yerlerinde (müşteri oturur).
-const MASA_ORTUSU: Boya[] = [['#3f7fc0', renk.mor, 38]];
-const MINDER: Boya[] = [['#f9a39e', renk.mor, 40]];
-function KafeMasasi() {
+// Örtü ve minder rengi oyuncunun seçtiği renk (belge 0.15e; varsayılan mor)
+const ortu = (r: string): Boya[] => [['#3f7fc0', r, 38]];
+const minder = (r: string): Boya[] => [['#f9a39e', r, 40]];
+function KafeMasasi({ renkAdi = renk.mor }: { renkAdi?: string }) {
   return (
     <group>
-      <HazirModel yol="pastane/table_round_B" ayar={{ grup: 'dukkan', yukseklik: 0.72, boya: MASA_ORTUSU }} />
+      <HazirModel yol="pastane/table_round_B" ayar={{ grup: 'dukkan', yukseklik: 0.72, boya: ortu(renkAdi) }} />
       {[-0.53, 0.53].map((x) => (
         <HazirModel
           key={x}
@@ -85,11 +89,12 @@ function KafeMasasi() {
   );
 }
 
-export function EsyaModeli({ esya }: { esya: Esya }) {
+export function EsyaModeli({ esya, renkId }: { esya: Esya; renkId?: string }) {
+  const secilen = esyaRengi(renkId);
   if (esyaKatmani(esya) !== 'esya') return <IcSus esya={esya} />;
   if (esya === 'saksi') return <HazirModel yol="mobilya/pottedPlant" ayar={{ grup: 'dukkan', yukseklik: 0.95 }} />;
-  if (esya === 'masa') return <KafeMasasi />;
-  if (esya === 'bank') return <HazirModel yol="mobilya/benchCushion" ayar={{ grup: 'dukkan', en: 1.15, boya: MINDER }} donus={Math.PI} />;
+  if (esya === 'masa') return <KafeMasasi renkAdi={secilen} />;
+  if (esya === 'bank') return <HazirModel yol="mobilya/benchCushion" ayar={{ grup: 'dukkan', en: 1.15, boya: minder(secilen) }} donus={Math.PI} />;
   if (esya === 'karaTahta') return <KaraTahta />;
   if (esya === 'isikliTabela') return <IsikliTabela />;
   if (esya === 'kulahFiguru') return <KulahFiguru />;
@@ -105,8 +110,8 @@ export function EsyaModeli({ esya }: { esya: Esya }) {
   if (esya === 'mutfakTezgahi') return <MutfakTezgahiModeli />;
   return (
     <group>
-      <KafeMasasi />
-      <Semsiye />
+      <KafeMasasi renkAdi={secilen} />
+      <Semsiye renkAdi={secilen} />
     </group>
   );
 }
@@ -316,7 +321,7 @@ export function Dekorlar() {
         return (
           <group key={`${y.hucre}:${y.esya}`} position={[o.x, ic ? 0 : 0.06, o.z]} onClick={tikla}>
             <group rotation={[0, (y.yon * Math.PI) / 2, 0]}>
-              <EsyaModeli esya={y.esya} />
+              <EsyaModeli esya={y.esya} renkId={y.renk} />
             </group>
             {/* Yerleştirirken eşyayı kolay tutmak için görünmez kutu (halıda yassı) */}
             {tutulur && (

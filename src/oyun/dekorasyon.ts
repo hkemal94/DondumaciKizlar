@@ -67,6 +67,22 @@ export const ESYALAR: { id: Esya; fiyat: number; grup: 'oturma' | 'dis' | 'ic' |
   { id: 'mutfakTezgahi', fiyat: 150, grup: 'mutfak', iceri: true, mutfak: true, konfor: 0, cekicilik: 0 },
 ], (e) => (AYAR.esya as Record<string, number>)[e.id]);
 
+// Eşya renkleri (belge 0.15e; exp soru turundaki "Eşyalar: renk seçeneği"):
+// masa örtüsü, şemsiye ve bank minderi palet renklerinden seçilir; bedava.
+// Yerleştirirken seçilir; konmuş eşyaya dokununca kalkar, renk değiştirilip yine konur.
+export const ESYA_RENKLERI = [
+  { id: 'mor', renk: '#7a3fa8' },
+  { id: 'sari', renk: '#ffc928' },
+  { id: 'mavi', renk: '#2f7fb3' },
+  { id: 'kiremit', renk: '#c8705a' },
+  { id: 'yesil', renk: '#4f7d5a' },
+] as const;
+export type EsyaRengi = (typeof ESYA_RENKLERI)[number]['id'];
+export const RENKLI_ESYALAR: Esya[] = ['masa', 'semsiyeliMasa', 'bank'];
+export function esyaRengi(id: string | undefined) {
+  return (ESYA_RENKLERI.find((x) => x.id === id) ?? ESYA_RENKLERI[0]).renk;
+}
+
 // Katman (C4): halı yere serilir, üstüne eşya konabilir; tablo duvara asılır,
 // yerde yer kaplamaz. Aynı katmandakiler üst üste gelemez.
 export type Katman = 'esya' | 'zemin' | 'duvar';
