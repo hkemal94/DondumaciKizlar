@@ -270,6 +270,7 @@ export interface Durum {
   seciliEsya: Esya | null;
   seciliYon: number; // yerleştirirken eşyanın yönü (0 / 1)
   seciliRenk: EsyaRengi; // yerleştirirken eşyanın rengi (belge 0.15e)
+  seciliBoya: number | null; // kaldırılan eşyanın boya günü: yeniden konunca solukluğu korunur
   // Çalışan (Kemal, 13 Ekim): oyuncunun kişiselleştirdiği
   calisan: CalisanGorunumu;
   acikOnlukler: string[];
@@ -355,6 +356,7 @@ export interface Yerlesim {
   hucre: string; // köşe birim "c,r" (belge 0.3)
   yon: number; // 0 ya da 1 (90° çevrilmiş)
   renk?: EsyaRengi; // masa örtüsü / şemsiye / minder rengi (belge 0.15e)
+  boya?: number; // dışarıda: konduğu / boyandığı gün; güneşte yavaşça solar (belge 0.15f)
 }
 
 export type FiyatSeviyesi = 'ucuz' | 'normal' | 'pahali';
@@ -476,6 +478,7 @@ let durum: Durum = {
   seciliEsya: null,
   seciliYon: 0,
   seciliRenk: 'mor',
+  seciliBoya: null,
   calisan: { ...VARSAYILAN_CALISAN },
   acikOnlukler: ONLUKLER.filter((o) => o.fiyat === 0).map((o) => o.id),
   acikAksesuarlar: [],
@@ -1631,7 +1634,8 @@ export function noktayaKoy(x: number, z: number) {
   if (!yer) return;
   const kalan = depodaki(e) - 1;
   guncelle({
-    yerlesim: [...durum.yerlesim, { esya: e, hucre: birimAnahtari(yer.c, yer.r), yon: durum.seciliYon, ...(RENKLI_ESYALAR.includes(e) ? { renk: durum.seciliRenk } : {}) }],
+    yerlesim: [...durum.yerlesim, { esya: e, hucre: birimAnahtari(yer.c, yer.r), yon: durum.seciliYon, ...(RENKLI_ESYALAR.includes(e) ? { renk: durum.seciliRenk } : {}), boya: durum.seciliBoya ?? durum.gun }],
+    seciliBoya: null,
     depo: { ...durum.depo, [e]: kalan },
     // Depoda o eşya kalmadıysa başka bir eşyaya geç
     seciliEsya: kalan > 0 ? e : (ESYALAR.find((x) => x.id !== e && depodaki(x.id) > 0)?.id ?? null),
@@ -1647,7 +1651,31 @@ export function yerlesimiKaldir(y: Yerlesim) {
     seciliEsya: y.esya,
     seciliYon: y.yon,
     seciliRenk: y.renk ?? durum.seciliRenk,
+    seciliBoya: y.boya ?? null,
   });
+}
+
+// Yumuşak yıpranma (belge 0.15f; exp soru turu "Eşyalar: yumuşak yıpranma, solar,
+// istenirse boyanır; ceza yok"): dışarıdaki eşya birkaç günden sonra güneşte
+// yavaşça solar (yalnız görünüş). Dekorasyon'dan hepsi birden boyanır.
+export function esyaSolmasi(y: Yerlesim, d: Durum = durum) {
+  const { c, r } = birimCoz(y.hucre);
+  if (birimIcMi(c, r, d)) return 0;
+  const gecen = d.gun - (y.boya ?? d.gun) - AYAR.yipranma.baslangic;
+  return Math.max(0, Math.min(AYAR.yipranma.enCok / 100, (gecen * AYAR.yipranma.gunluk) / 100));
+}
+export function solanEsyalar(d: Durum = durum) {
+  return d.yerlesim.filter((y) => esyaSolmasi(y, d) > 0.02);
+}
+export function boyamaFiyati(d: Durum = durum) {
+  return solanEsyalar(d).length * AYAR.yipranma.boyaFiyati;
+}
+export function esyalariBoya() {
+  const fiyat = boyamaFiyati();
+  if (!fiyat || durum.para < fiyat) return;
+  const solan = new Set(solanEsyalar());
+  guncelle({ para: durum.para - fiyat, yerlesim: durum.yerlesim.map((y) => (solan.has(y) ? { ...y, boya: durum.gun } : y)) });
+  kaydet();
 }
 
 // Yerleştirirken eşyanın rengini seç (belge 0.15e)
@@ -2321,7 +2349,7 @@ interface Kayit {
   parseller: string[];
   acikBolgeler?: EskiBolge[]; // eski kayıt (14 Ekim akşamı öncesi)
   depo: Partial<Record<Esya, number>>;
-  yerlesim: { esya: Esya; hucre: string | number; yon?: number; renk?: string }[];
+  yerlesim: { esya: Esya; hucre: string | number; yon?: number; renk?: string; boya?: number }[];
   tezgah?: TezgahYeri;
   tezgahAlinanBoy?: number;
   kapaliParseller?: string[];
@@ -2605,7 +2633,8 @@ function dekorasyonuOku(k: Partial<Kayit>) {
         const { c, r } = birimCoz(y.hucre);
         if (Number.isInteger(c) && Number.isInteger(r) && esyaSigar(y.esya, c, r, yon, deneme)) {
           const renk = ESYA_RENKLERI.find((x) => x.id === y.renk)?.id;
-          deneme.yerlesim.push({ esya: y.esya, hucre: birimAnahtari(c, r), yon, ...(renk ? { renk } : {}) });
+          const boya = typeof y.boya === 'number' ? y.boya : typeof k.gun === 'number' ? k.gun : 1;
+          deneme.yerlesim.push({ esya: y.esya, hucre: birimAnahtari(c, r), yon, boya, ...(renk ? { renk } : {}) });
           continue;
         }
         depo[y.esya] = (depo[y.esya] ?? 0) + 1;
@@ -2717,6 +2746,7 @@ function durumuSifirla() {
     seciliEsya: null,
     seciliYon: 0,
     seciliRenk: 'mor',
+    seciliBoya: null,
     calisan: { ...VARSAYILAN_CALISAN },
     acikOnlukler: ONLUKLER.filter((o) => o.fiyat === 0).map((o) => o.id),
     acikAksesuarlar: [],

@@ -205,6 +205,32 @@
         }
       }
     },
+    "yipranma": {
+      "ad": "Yumuşak yıpranma",
+      "aciklama": "Belge 0.15f: dışarıdaki eşyalar güneşte yavaşça solar (yalnız görünüş, ceza yok); Dekorasyon'dan boyanır",
+      "ayarlar": {
+        "baslangic": {
+          "ad": "Solmaya başlamadan önce",
+          "deger": 5,
+          "birim": "gün"
+        },
+        "gunluk": {
+          "ad": "Günde solma",
+          "deger": 3,
+          "birim": "%"
+        },
+        "enCok": {
+          "ad": "En çok solma",
+          "deger": 30,
+          "birim": "%"
+        },
+        "boyaFiyati": {
+          "ad": "Bir eşyayı boyama",
+          "deger": 15,
+          "birim": "jeton"
+        }
+      }
+    },
     "kepce": {
       "ad": "Kepçe",
       "aciklama": "Top doldurma mini oyunu",

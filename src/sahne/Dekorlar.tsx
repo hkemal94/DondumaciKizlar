@@ -1,6 +1,8 @@
+import { useRef, type ReactNode } from 'react';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { BuzdolabiModeli, KasaYiginiModeli, MutfakRafiModeli, MutfakTezgahiModeli } from './Mutfak';
-import { birimDolu, birimDuvarlari, birimEngelliKatman, birimIcMi, dokunmaKatmani, noktadakiEsya, noktayaKoy, useDurum, yerlesimiKaldir } from '../oyun/durum';
+import { esyaSolmasi, birimDolu, birimDuvarlari, birimEngelliKatman, birimIcMi, dokunmaKatmani, noktadakiEsya, noktayaKoy, useDurum, yerlesimiKaldir } from '../oyun/durum';
 import {
   DUKKAN_PARSELLERI,
   ESYALAR,
@@ -87,6 +89,43 @@ function KafeMasasi({ renkAdi = renk.mor }: { renkAdi?: string }) {
       ))}
     </group>
   );
+}
+
+// Solgunluk (belge 0.15f): eşyanın renkleri güneşte ağarmış bir tona kayar.
+// Modeller yüklendikten sonra da tutsun diye arada bir bakılır; malzemeler
+// eşyaya özel kopyalanır (öbür eşyalar etkilenmesin).
+const SOLGUN = new THREE.Color('#d9d2c4');
+function Solgun({ miktar, children }: { miktar: number; children: ReactNode }) {
+  const grup = useRef<THREE.Group>(null);
+  const sayac = useRef(0);
+  useFrame(() => {
+    const g = grup.current;
+    if (!g || sayac.current++ % 30 !== 0) return;
+    g.traverse((o) => {
+      const mesh = o as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      const liste = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      // Solmamış ve hiç kopyalanmamış eşyaya dokunulmaz
+      if (miktar === 0 && !liste.some((m) => m.userData.solgunKopya)) return;
+      const yeni = liste.map((m) => {
+        const mm = m as THREE.MeshStandardMaterial;
+        if (!mm.color) return m;
+        // İlk kez: kopyala, asıl rengi sakla
+        const k = mm.userData.solgunKopya ? mm : (mm.clone() as THREE.MeshStandardMaterial);
+        if (!k.userData.solgunKopya) {
+          k.userData.solgunKopya = true;
+          k.userData.asil = mm.color.clone();
+        }
+        if (k.userData.miktar !== miktar) {
+          k.color.copy(k.userData.asil as THREE.Color).lerp(SOLGUN, miktar);
+          k.userData.miktar = miktar;
+        }
+        return k;
+      });
+      mesh.material = Array.isArray(mesh.material) ? yeni : yeni[0];
+    });
+  });
+  return <group ref={grup}>{children}</group>;
 }
 
 export function EsyaModeli({ esya, renkId }: { esya: Esya; renkId?: string }) {
@@ -320,9 +359,11 @@ export function Dekorlar() {
         const ic = birimIcMi(c, r, durum);
         return (
           <group key={`${y.hucre}:${y.esya}`} position={[o.x, ic ? 0 : 0.06, o.z]} onClick={tikla}>
-            <group rotation={[0, (y.yon * Math.PI) / 2, 0]}>
-              <EsyaModeli esya={y.esya} renkId={y.renk} />
-            </group>
+            <Solgun miktar={esyaSolmasi(y, durum)}>
+              <group rotation={[0, (y.yon * Math.PI) / 2, 0]}>
+                <EsyaModeli esya={y.esya} renkId={y.renk} />
+              </group>
+            </Solgun>
             {/* Yerleştirirken eşyayı kolay tutmak için görünmez kutu (halıda yassı) */}
             {tutulur && (
               <mesh position={[0, katman === 'zemin' ? 0.05 : 0.7, 0]}>

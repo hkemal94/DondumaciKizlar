@@ -677,5 +677,10 @@
   "yerlestir.renk.mavi": "Ege mavisi",
   "yerlestir.renk.kiremit": "Kiremit",
   "yerlestir.renk.yesil": "Yeşil",
-  "yenilik.esyaRengi": "Masa örtüsü, şemsiye ve minder rengini yerleştirirken seç"
+  "yenilik.esyaRengi": "Masa örtüsü, şemsiye ve minder rengini yerleştirirken seç",
+  "dekor.boya": "Dışarıdaki eşyalar",
+  "dekor.solan": "{sayi} eşya güneşte soldu",
+  "dekor.solanYok": "hepsi yeni gibi",
+  "dekor.boyaDugme": "Boya",
+  "yenilik.yipranma": "Dışarıdaki eşyalar günler geçtikçe güneşte hafifçe solar; Dekorasyon'dan boyanır"
 }
