@@ -40,6 +40,9 @@ import {
   istasyonKurulu,
   dukkanPuanlari,
   konforEki,
+  solanEsyalar,
+  boyamaFiyati,
+  esyalariBoya,
 } from '../oyun/durum';
 import { ICECEKLER, ICECEK_TANIMI, icecekAcmaFiyati } from '../oyun/makine';
 import { IcecekResmi } from './MakineArayuzu';
@@ -493,6 +496,21 @@ export function Gelistir({ kapat, ilkSekme = 'dekorasyon' }: { kapat: () => void
                   {m('esya.cekicilik')} <b>{dukkanPuanlari(durum).cekicilik}</b>
                   <span className="gel-aciklama"> · {m('dekor.cekicilikEtki')}</span>
                 </span>
+              </div>
+              {/* Yumuşak yıpranma (belge 0.15f): dışarıda solan eşyalar boyanır */}
+              <div className={`gel-kart ${solanEsyalar(durum).length ? '' : 'acik'}`}>
+                <span className="gel-ad">
+                  {m('dekor.boya')}
+                  <span className="gel-aciklama">
+                    {' '}
+                    · {solanEsyalar(durum).length ? m('dekor.solan', { sayi: solanEsyalar(durum).length }) : m('dekor.solanYok')}
+                  </span>
+                </span>
+                {solanEsyalar(durum).length > 0 && (
+                  <button className="dugme gel-al" disabled={durum.para < boyamaFiyati(durum)} onClick={esyalariBoya}>
+                    {m('dekor.boyaDugme')} <Para miktar={boyamaFiyati(durum)} />
+                  </button>
+                )}
               </div>
               <div className="gel-kart acik">
                 <span className="gel-ad">

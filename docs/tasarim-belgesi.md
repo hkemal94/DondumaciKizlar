@@ -541,6 +541,10 @@ Görünüş → İç duvar'da üç desenli seçenek: **külahlı** (mor ve sarı
 
 Masa örtüsü, şemsiyeli masanın şemsiyesi ve örtüsü, bank minderi beş renkten seçilir (mor, sarı, Ege mavisi, kiremit, yeşil); bedava. Yerleştirirken "Bitti"nin yanındaki renk düğmeleriyle; konmuş eşyaya dokununca kalkar, renk değiştirilip yine konur. Yıpranma sonra.
 
+### 0.15f Yumuşak yıpranma (exp soru turu: "solar, istenirse boyanır; ceza yok")
+
+Dışarıdaki eşyalar konduktan ya da boyandıktan 5 gün sonra güneşte yavaşça solar (günde %3, en çok %30; yalnız görünüş, etkisi yok). Dekorasyon → Genel'de "Dışarıdaki eşyalar · N eşya güneşte soldu" ve **Boya** düğmesi (eşya başına 15 jeton; geçici). Kaldırılıp yeniden konan eşya solukluğunu korur. İçerideki eşyalar solmaz. Eski kayıtlarda eşyalar yüklendiği gün boyanmış sayılır.
+
 ## 1. Oyunun özeti ve vizyonu
 
 ### 1.1 Tek cümlelik özet
