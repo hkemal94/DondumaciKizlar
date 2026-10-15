@@ -7,8 +7,9 @@ import { karakterKur, karakterleriYukle, type Karakter, type Varyant } from './k
 // dışarıdan bir referansla verilir; hareketler arası yumuşak geçiş. Görünüş
 // değişince karakter yeniden kurulur. Oturmada bacaklar bükülür ve karakter
 // kalçası oturağa gelecek kadar iner (oturak yüksekliğini çağıran verir).
-export type Hareket = 'dur' | 'yuru' | 'otur' | 'calis';
-const ANIMASYON: Record<Hareket, string> = { dur: 'Idle', yuru: 'Walk', otur: 'Idle', calis: 'Interact' };
+// selam: el sallama (belge 0.12: tezgaha varınca, çalışan ve sahip ara sıra)
+export type Hareket = 'dur' | 'yuru' | 'otur' | 'calis' | 'selam';
+const ANIMASYON: Record<Hareket, string> = { dur: 'Idle', yuru: 'Walk', otur: 'Idle', calis: 'Interact', selam: 'Wave' };
 
 export function InsanKarakter({
   varyant,

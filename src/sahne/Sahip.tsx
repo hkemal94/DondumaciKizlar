@@ -119,7 +119,8 @@ export function Sahip() {
         if (yol.current.length === 0) g.visible = false; // iskeleden çıktı
       }
     }
-    hareket.current = yuruyor ? 'yuru' : 'dur';
+    // Durduğu yerde ilk iki saniye el sallar (belge 0.12)
+    hareket.current = yuruyor ? 'yuru' : bekleme.current > 0.3 && bekleme.current < 2.2 ? 'selam' : 'dur';
     ic.position.y = 0;
   });
 

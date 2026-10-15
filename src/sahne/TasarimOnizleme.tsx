@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { InsanKarakter, type Hareket } from './InsanKarakter';
 import { HazirModel } from './HazirModel';
-import { rastgeleVaryant } from './karakterler';
+import { BEDENLER, rastgeleVaryant } from './karakterler';
 import { Disari } from './Disari';
 import { Canvas, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -142,7 +142,10 @@ function InsanlarOnizleme() {
   const { camera } = useThree();
   useEffect(() => {
     // #tasarim=insan-yan: yalnız oturan karakter, yandan yakın
-    if (location.hash.endsWith('-yuz')) {
+    if (location.hash.endsWith('-sac')) {
+      camera.position.set(0, 1.55, 3.4);
+      camera.lookAt(0, 1.5, 0);
+    } else if (location.hash.endsWith('-yuz')) {
       // İkinci karakterin tam önünden (gözlük ve küpe ortada mı)
       camera.position.set(-1.52, 1.5, 1.6);
       camera.lookAt(-1.52, 1.45, 0);
@@ -156,9 +159,15 @@ function InsanlarOnizleme() {
   }, [camera]);
   const dur = useRef<Hareket>('dur');
   const otur = useRef<Hareket>('otur');
+  // #tasarim=insan-sac: aynı yüz, farklı saçlar (belge 0.12: saç başlardan ayrı)
+  const sacDenemesi = location.hash.includes('-sac');
   const varyantlar = useMemo(
-    () => [3, 8, 11, 17, 22, 40].map((t, i) => ({ ...rastgeleVaryant(t), aksesuarlar: [(['gozluk', 'gunesGozlugu', 'hasirSapka', 'kupe', 'bandana', 'kasket'] as const)[i]] })),
-    [],
+    () =>
+      sacDenemesi
+        ? [...BEDENLER.kadin.map((b) => ({ ...rastgeleVaryant(3), cinsiyet: 'kadin' as const, govde: 'casual', bas: 'casual', sacBasi: b, aksesuarlar: [] })),
+           ...BEDENLER.erkek.slice(0, 2).map((b) => ({ ...rastgeleVaryant(4), cinsiyet: 'erkek' as const, govde: 'casual_2', bas: 'casual_2', sacBasi: b, aksesuarlar: [] }))]
+        : [3, 8, 11, 17, 22, 40].map((t, i) => ({ ...rastgeleVaryant(t), aksesuarlar: [(['gozluk', 'gunesGozlugu', 'hasirSapka', 'kupe', 'bandana', 'kasket'] as const)[i]] })),
+    [sacDenemesi],
   );
   return (
     <>

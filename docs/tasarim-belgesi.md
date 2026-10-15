@@ -372,10 +372,10 @@ yazılar kanon değildir.
 
 | Konu | Karar |
 |---|---|
-| Ağız | Basit gülümseme, hep aynı |
-| Önlük | Bedene oturan önlük geri gelir; **dükkân üniforması** (mor önlük, renkli tişört, şapka) seçeneği, yardımcılar da giyebilir |
-| Hareketler | Tezgaha varınca el sallama; mutlu / mutsuz ayrılış; çalışan ve sahip ara sıra el sallar |
-| Çalışan | Kıyafet seçimi gelir; saçlar başlardan ayrılmaya çalışılır (sonuç garanti değil) |
+| Ağız | Basit gülümseme, hep aynı. Yapıldı (4. adım): bütün karakterlerde başa bağlı küçük bir gülümseme |
+| Önlük | Bedene oturan önlük geri gelir; **dükkân üniforması** (mor önlük, renkli tişört, şapka) seçeneği, yardımcılar da giyebilir. Yapıldı (4. adım): önlük gövdenin bel ve göğüs ölçüsüne göre kavisli (etek, göğüslük, bel bağı); eğilince bedenle oynar. Çalışan ekranında "Dükkân üniforması": sarı tişört, mor kasket, mor önlük; açıkken yardımcılar da giyer |
+| Hareketler | Tezgaha varınca el sallama; mutlu / mutsuz ayrılış; çalışan ve sahip ara sıra el sallar. Yapıldı (4. adım): müşteri tezgaha ilk varınca el sallar; memnun giden biraz hızlı ve hoplayarak, memnun olmayan yavaş ve öne eğik yürür; çalışan genel görünümde 25–45 saniyede bir, sahip her durağında el sallar |
+| Çalışan | Kıyafet seçimi gelir; saçlar başlardan ayrılmaya çalışılır (sonuç garanti değil). Yapıldı (4. adım): çalışan ekranında Kıyafet (kadın: gündelik, şık, iş, takım; erkek: gündelik, kapüşonlu, plaj, tulum, iş, takım). Saçlar başlardan ayrıldı: yüz hep aynı, saç seçilen başın saçı (yalnız aynı bedenin paketteki saçları; yeni saç modeli yok) |
 
 **Oynanış**
 

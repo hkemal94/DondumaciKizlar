@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { aksesuarAl, aksesuarDegistir, calisaniDegistir, onlukAl, useDurum } from '../oyun/durum';
-import { AD_EN_UZUN, AKSESUARLAR, BEDEN_SECENEKLERI, ONLUK_ACIK, ONLUKLER, SAC_MODELLERI, SAC_RENKLERI, TENLER } from '../oyun/calisan';
+import { AD_EN_UZUN, AKSESUARLAR, BEDEN_SECENEKLERI, KIYAFETLER, ONLUK_ACIK, ONLUKLER, SAC_MODELLERI, SAC_RENKLERI, TENLER } from '../oyun/calisan';
 import { m, type MetinAnahtari } from '../metinler';
 import { logoAdresi } from '../sahne/logo';
 import { odak } from '../sahne/kameraKarisimi';
@@ -59,6 +59,24 @@ export function CalisanEkrani({ kapat }: { kapat: () => void }) {
                 {m(`beden.${b}` as MetinAnahtari)}
               </button>
             ))}
+          </div>
+        </div>
+
+        {/* Kıyafet ve dükkân üniforması (belge 0.12) */}
+        <div className="calisan-satir">
+          <span className="gel-baslik">{m('calisan.kiyafet')}</span>
+          <div className="secenek-cipleri">
+            {KIYAFETLER[c.beden].map((k, i) => {
+              const secili = c.kiyafet ? c.kiyafet === k : i === 0;
+              return (
+                <button key={k} className={`cip ${secili ? 'secili' : ''}`} onClick={() => calisaniDegistir({ kiyafet: k })}>
+                  {m(`kiyafet.${k}` as MetinAnahtari)}
+                </button>
+              );
+            })}
+            <button className={`cip ${c.uniforma ? 'secili' : ''}`} aria-pressed={c.uniforma} onClick={() => calisaniDegistir({ uniforma: !c.uniforma })}>
+              {m('calisan.uniforma')}
+            </button>
           </div>
         </div>
 

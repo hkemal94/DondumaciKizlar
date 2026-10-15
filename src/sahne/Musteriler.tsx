@@ -161,6 +161,7 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
   const kalanOturma = useRef(0);
   const kaldirildi = useRef(false);
   const hareket = useRef<Hareket>('yuru');
+  const selamBitis = useRef(0); // tezgaha varınca el sallar (belge 0.12)
   // Her müşteri farklı: baş, gövde, renkler, aksesuar müşterinin numarasından
   const varyant = useMemo(() => rastgeleVaryant(musteri.id * 7 + musteri.gorunum), [musteri.id, musteri.gorunum]);
 
@@ -245,7 +246,10 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
       siraYeri(sira, hedef, kuyruk);
       // Sıranın başında yerine varınca: yardımcı servis edebilir, oyuncununsa kamera tezgaha geçer
       if (sira === 0 && m.hal === 'sirada' && grup.position.distanceTo(hedef) < 0.15) {
-        if (!m.vardi) musteriVardi(m.id);
+        if (!m.vardi) {
+          musteriVardi(m.id);
+          selamBitis.current = clock.elapsedTime + 1.8;
+        }
         if (ondekiMusteri(d)?.id === m.id) musteriTezgahaVardi(m.id);
       }
     }
@@ -255,7 +259,9 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
     fark.y = 0;
     const mesafe = fark.length();
     const disarida = grup.position.z < -2.6 || Math.abs(grup.position.x) > 4.2;
-    const hiz = disarida ? 2.6 : 1.3;
+    // Ayrılış (belge 0.12): mutlu giden biraz hızlı ve sekerek, mutsuz yavaş ve öne eğik
+    const gidiyor = m.hal === 'gidiyor';
+    const hiz = (disarida ? 2.6 : 1.3) * (gidiyor ? (m.mutlu ? 1.15 : 0.7) : 1);
     const yuruyor = mesafe > 0.02;
     if (yuruyor) grup.position.add(fark.clone().multiplyScalar(Math.min(1, (hiz * dt) / mesafe)));
     grup.position.y = 0;
@@ -265,8 +271,10 @@ function TekMusteri({ musteri }: { musteri: Musteri }) {
     grup.rotation.y += aci * Math.min(1, dt * 8);
 
     // Yürüme ve bekleme hareketi modelin kendi animasyonundan
-    hareket.current = yuruyor && mesafe > 0.03 ? 'yuru' : 'dur';
-    ic.position.y = 0;
+    const yurume = yuruyor && mesafe > 0.03;
+    hareket.current = yurume ? 'yuru' : clock.elapsedTime < selamBitis.current ? 'selam' : 'dur';
+    ic.position.y = gidiyor && m.mutlu && yurume ? Math.abs(Math.sin(clock.elapsedTime * 9)) * 0.05 : 0;
+    ic.rotation.x = gidiyor && !m.mutlu && yurume ? 0.16 : 0;
   });
 
   return (
