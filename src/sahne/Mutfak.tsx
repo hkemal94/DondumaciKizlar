@@ -6,8 +6,8 @@ import { renk } from './renkler';
 import { HazirModel } from './HazirModel';
 
 // Açık mutfak (belge 0.5): fayans zemin, dükkânla arasında duvar yok, alçak
-// bir sınır. Depo şimdilik yalnız görüntü: raflar, buzdolabı, kasalar
-// (buzdolabı ve kasalar hazır paketten, belge 0.7).
+// bir sınır. Zemin dükkândan belirgin ayrı: mavi-gri ve beyaz fayans (belge
+// 0.14). Raf, buzdolabı, kasa ve tezgah taşınabilir mutfak eşyası.
 
 function fayansDokusu() {
   const c = document.createElement('canvas');
@@ -15,12 +15,19 @@ function fayansDokusu() {
   const g = c.getContext('2d')!;
   for (let i = 0; i < 2; i++)
     for (let j = 0; j < 2; j++) {
-      g.fillStyle = (i + j) % 2 ? '#e9e4dc' : '#f7f4ee';
+      g.fillStyle = (i + j) % 2 ? '#9fb6c6' : '#eef3f6';
       g.fillRect(i * 32, j * 32, 32, 32);
     }
-  g.strokeStyle = '#cfc7ba';
+  // Derz çizgileri
+  g.strokeStyle = '#7d93a3';
   g.lineWidth = 2;
-  g.strokeRect(0, 0, 64, 64);
+  g.strokeRect(1, 1, 62, 62);
+  g.beginPath();
+  g.moveTo(32, 0);
+  g.lineTo(32, 64);
+  g.moveTo(0, 32);
+  g.lineTo(64, 32);
+  g.stroke();
   const t = new THREE.CanvasTexture(c);
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   t.repeat.set(PARSEL * 2, PARSEL * 2);
@@ -37,37 +44,41 @@ function Kutu({ konum, boyut, renkAdi }: { konum: [number, number, number]; boyu
   );
 }
 
-// Bir mutfak karesinin arka kenarında raf, buzdolabı ve kasalar
-function DepoSusleri() {
+// Mutfak eşyaları (belge 0.14): eskiden her mutfak karesinin arkasında
+// kendiliğinden duran raf, buzdolabı ve kasalar artık taşınabilir eşya.
+// Önleri −z'ye (dükkâna) bakar.
+export function MutfakRafiModeli() {
   const kasaRenkleri = ['#ffc928', '#9b5fc9', '#5fd08a', '#ff6f7d'];
   return (
-    <group>
-      {/* Raf: sığ, arka duvara dayalı */}
-      <group position={[-0.9, 0, 0.37]}>
-        {[0.05, 0.6, 1.15, 1.7].map((y) => (
-          <Kutu key={y} konum={[0, y, 0]} boyut={[1.6, 0.05, 0.45]} renkAdi={renk.ahsapAcik} />
-        ))}
-        {[-0.78, 0.78].map((x) => (
-          <Kutu key={x} konum={[x, 0.9, 0]} boyut={[0.05, 1.8, 0.45]} renkAdi={renk.ahsapKoyu} />
-        ))}
-        {[0.6, 1.15, 1.7].flatMap((y, i) =>
-          [-0.5, 0, 0.5].map((x, j) => <Kutu key={`${y}${x}`} konum={[x, y + 0.13, 0]} boyut={[0.3, 0.22, 0.3]} renkAdi={kasaRenkleri[(i + j) % 4]} />),
-        )}
-      </group>
-      {/* Buzdolabı (KayKit, belge 0.7): nane yeşili, önü dükkâna dönük.
-          Kapaklarıyla ~1,7 m derin; ortası depodan 0,45 m öne alındı, arkası
-          duvarın içinde kalır (Kemal, 15 Ekim akşam: "dolap hâlâ dışarı taşıyor") */}
-      <HazirModel
-        yol="mutfak/fridge_A"
-        ayar={{ grup: 'dukkan', yukseklik: 1.9, boya: [['#3ad7a7', '#a8eccf', 30], ['#19927f', '#7fc4a6', 30]] }}
-        konum={[0.7, 0, -0.45]}
-        donus={Math.PI}
-      />
-      {/* Yerde üst üste kasalar (KayKit) */}
-      <HazirModel yol="mutfak/crate" ayar={{ grup: 'dukkan', yukseklik: 0.4 }} konum={[1.5, 0, -0.1]} donus={Math.PI} />
-      <HazirModel yol="mutfak/crate" ayar={{ grup: 'dukkan', yukseklik: 0.4 }} konum={[1.5, 0.4, -0.1]} donus={Math.PI + 0.2} />
+    <group position={[0, 0, 0.22]}>
+      {[0.05, 0.6, 1.15, 1.7].map((y) => (
+        <Kutu key={y} konum={[0, y, 0]} boyut={[1.6, 0.05, 0.45]} renkAdi={renk.ahsapAcik} />
+      ))}
+      {[-0.78, 0.78].map((x) => (
+        <Kutu key={x} konum={[x, 0.9, 0]} boyut={[0.05, 1.8, 0.45]} renkAdi={renk.ahsapKoyu} />
+      ))}
+      {[0.6, 1.15, 1.7].flatMap((y, i) =>
+        [-0.5, 0, 0.5].map((x, j) => <Kutu key={`${y}${x}`} konum={[x, y + 0.13, 0]} boyut={[0.3, 0.22, 0.3]} renkAdi={kasaRenkleri[(i + j) % 4]} />),
+      )}
     </group>
   );
+}
+export function BuzdolabiModeli() {
+  // KayKit buzdolabı (belge 0.7): nane yeşili; kapaklarıyla derin, iki kare kaplar
+  return <HazirModel yol="mutfak/fridge_A" ayar={{ grup: 'dukkan', yukseklik: 1.6, boya: [['#3ad7a7', '#a8eccf', 30], ['#19927f', '#7fc4a6', 30]] }} donus={Math.PI} />;
+}
+export function KasaYiginiModeli() {
+  return (
+    <group>
+      <HazirModel yol="mutfak/crate" ayar={{ grup: 'dukkan', yukseklik: 0.4 }} donus={Math.PI} />
+      <group position={[0, 0.4, 0]}>
+        <HazirModel yol="mutfak/crate" ayar={{ grup: 'dukkan', yukseklik: 0.4 }} donus={Math.PI + 0.2} />
+      </group>
+    </group>
+  );
+}
+export function MutfakTezgahiModeli() {
+  return <HazirModel yol="mutfak/kitchencounter_straight_A_decorated" ayar={{ grup: 'dukkan', en: 0.98 }} donus={Math.PI} />;
 }
 
 export function Mutfak() {
@@ -101,12 +112,6 @@ export function Mutfak() {
                 <Kutu konum={[b.x, 0.92, b.z]} boyut={[b.en + 0.06, 0.05, b.boy + 0.12]} renkAdi={renk.tezgahUst} />
               </group>
             ))}
-            {/* Depo arka duvarın dibinde, önü dükkâna (−z) dönük. Buzdolabı
-                derin (~1 m): ortası duvardan 0,65 m içeride, arkası taşmasın
-                (Kemal, 15 Ekim: "buzdolabı hâlâ arkadan taşıyor") */}
-            <group position={[ox, 0, s.arkaZ - 0.65]}>
-              <DepoSusleri />
-            </group>
           </group>
         );
       })}

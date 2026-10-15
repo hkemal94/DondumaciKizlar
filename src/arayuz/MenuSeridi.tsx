@@ -6,10 +6,10 @@ import { stokAzMi, useDurum, yetenekPuani } from '../oyun/durum';
 // 15 Ekim (belge 0.12): işe göre dört grup — Dükkân (inşaat, yerleştir,
 // görünüş), Ekip (çalışan, yardımcılar), Ürünler (vitrin, çeşitler, fiyat),
 // Mağaza (satın almalar). Gruba dokununca üstünde alt işler açılır.
-export type MenuIsi = 'gelistir' | 'vitrin' | 'yerlestir' | 'insaat' | 'calisan' | 'yetenek' | 'yardimci' | 'gorunus' | 'cesitler' | 'fiyat' | 'stok';
+export type MenuIsi = 'gelistir' | 'vitrin' | 'yerlestir' | 'insaat' | 'calisan' | 'yetenek' | 'yardimci' | 'gorunus' | 'cesitler' | 'fiyat' | 'stok' | 'arkaTezgah';
 type Grup = 'dukkan' | 'ekip' | 'urunler' | 'magaza';
 const GRUPLAR: { id: Grup; simge: MenuIsi; isler: MenuIsi[] }[] = [
-  { id: 'dukkan', simge: 'insaat', isler: ['insaat', 'yerlestir', 'gorunus'] },
+  { id: 'dukkan', simge: 'insaat', isler: ['insaat', 'yerlestir', 'arkaTezgah', 'gorunus'] },
   { id: 'ekip', simge: 'yardimci', isler: ['calisan', 'yetenek', 'yardimci'] },
   { id: 'urunler', simge: 'vitrin', isler: ['vitrin', 'stok', 'cesitler', 'fiyat'] },
   { id: 'magaza', simge: 'gelistir', isler: [] },
@@ -58,6 +58,15 @@ function Simge({ is }: { is: MenuIsi }) {
       <svg viewBox="0 0 24 24" aria-hidden>
         <path d="M6 12 Q6 6 12 6 Q18 6 18 12" {...ortak} />
         <path d="M3 12 H21 L19 19 H5 Z" {...ortak} />
+      </svg>
+    );
+  if (is === 'arkaTezgah')
+    // Tezgahta kavanoz ve fincan
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden>
+        <path d="M3 16 H21 M5 16 V21 M19 16 V21" {...ortak} />
+        <path d="M6 16 V10 H10 V16 M7 10 V8 H9 V10" {...ortak} />
+        <path d="M13 16 V12 H18 V16 M18 13 H20 V15 H18" {...ortak} />
       </svg>
     );
   if (is === 'stok')

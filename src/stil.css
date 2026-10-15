@@ -2895,3 +2895,197 @@ li.tamam .hedef-ad {
   font-size: 10px;
   color: #3a2350;
 }
+
+/* Arka tezgah ekranı (belge 0.14) */
+.arka-tezgah-ekrani {
+  gap: 8px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.arka-tezgah-ekrani > .gel-not {
+  margin: 0;
+  font-size: 11px;
+}
+.arka-yuvalar {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+.arka-yuva {
+  flex: none;
+  width: 58px;
+  height: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border-radius: 10px;
+  border: 1.5px solid #d9c8e6;
+  background: #fffaf2;
+  color: var(--mor-koyu);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.arka-yuva img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+.arka-yuva.secili {
+  border-color: var(--mor);
+  background: #fff1c4;
+}
+.arka-bos {
+  opacity: 0.55;
+  font-size: 10px;
+}
+.arka-urunler {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 6px;
+  overflow-y: auto;
+  min-height: 0;
+}
+.arka-urunler .esya-kart.secili {
+  outline: 2px solid var(--mor);
+}
+.arka-urunler .esya-kart small {
+  opacity: 0.6;
+}
+.arka-bos-buyuk {
+  font-size: 32px;
+  line-height: 56px;
+  color: var(--mor-koyu);
+  opacity: 0.5;
+}
+.arka-tezgah-ekrani .arka-yuvalar {
+  flex: none;
+  min-height: 68px;
+}
+.arka-tezgah-ekrani .arka-urunler {
+  flex: 1 1 auto;
+}
+
+/* Giriş ekranı: künye (sol alt), oyuncu kartı (sağ alt), yenilikler (belge 0.14) */
+.acilis-kunye,
+.acilis-oyuncu {
+  position: absolute;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(40, 20, 60, 0.45);
+  color: #fff8ec;
+  font-size: 11px;
+  line-height: 1.3;
+  max-width: 44vw;
+}
+.acilis-kunye {
+  left: max(12px, env(safe-area-inset-left));
+}
+.acilis-kunye .yer-tutucu {
+  opacity: 0.7;
+  font-style: italic;
+}
+.acilis-oyuncu {
+  right: max(12px, env(safe-area-inset-right));
+  align-items: flex-end;
+  text-align: right;
+}
+.acilis-oyuncu-ad {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff8ec;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.acilis-oyuncu-id {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  opacity: 0.8;
+}
+.acilis-oyuncu .yardimci-ad {
+  width: 150px;
+}
+.yenilikler-ekrani {
+  width: min(520px, 100%);
+  max-height: calc(100dvh - 30px);
+  overflow-y: auto;
+  gap: 8px;
+}
+.yenilikler-ekrani ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  font-size: 13px;
+}
+.yenilik-tarih {
+  display: inline-block;
+  min-width: 40px;
+  font-weight: 700;
+  color: var(--mor);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Kayıt kodu (belge 0.14) */
+.acilis-ikili {
+  display: flex;
+  gap: 8px;
+}
+.acilis-ikili .dugme {
+  flex: 1;
+  font-size: 13px;
+  padding: 8px 10px;
+}
+.gun-sonu.kayit-kodu {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  gap: 8px;
+}
+.kod-ikili {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-self: stretch;
+}
+.kod-ikili section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.kod-ikili textarea {
+  width: 100%;
+  box-sizing: border-box;
+  height: 84px;
+  font: 11px ui-monospace, monospace;
+  border-radius: 8px;
+  border: 1.5px solid #d9c8e6;
+  padding: 6px;
+  resize: none;
+  overflow-wrap: anywhere;
+}
+.kod-dugmeler {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.kayit-kodu > .gel-not {
+  margin: 0;
+  font-size: 11px;
+}

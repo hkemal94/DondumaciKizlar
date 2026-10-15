@@ -1,10 +1,12 @@
 import * as THREE from 'three';
+import { BuzdolabiModeli, KasaYiginiModeli, MutfakRafiModeli, MutfakTezgahiModeli } from './Mutfak';
 import { birimDolu, birimDuvarlari, birimEngelliKatman, birimIcMi, dokunmaKatmani, noktadakiEsya, noktayaKoy, useDurum, yerlesimiKaldir } from '../oyun/durum';
 import {
   DUKKAN_PARSELLERI,
   ESYALAR,
   PARSEL,
   birimCoz,
+  birimParseli,
   birimOrtasi,
   esyaOlcusu,
   esyaKatmani,
@@ -96,6 +98,11 @@ export function EsyaModeli({ esya }: { esya: Esya }) {
   if (esya === 'bisiklet') return <Bisiklet />;
   if (esya === 'copKutusu') return <HazirModel yol="mobilya/trashcan" ayar={{ grup: 'dukkan', yukseklik: 0.8 }} />;
   if (esya === 'sokakLambasi') return <SokakLambasi />;
+  // Mutfak eşyaları (belge 0.14)
+  if (esya === 'buzdolabi') return <BuzdolabiModeli />;
+  if (esya === 'mutfakRafi') return <MutfakRafiModeli />;
+  if (esya === 'kasaYigini') return <KasaYiginiModeli />;
+  if (esya === 'mutfakTezgahi') return <MutfakTezgahiModeli />;
   return (
     <group>
       <KafeMasasi />
@@ -190,6 +197,13 @@ function Kareler() {
           const c = i * PARSEL + a;
           const r = j * PARSEL + b;
           const ic = birimIcMi(c, r, durum);
+          // Mutfak eşyası yalnız mutfak karelerinde (belge 0.14)
+          const mutfakta = durum.mutfakParseller.includes(birimParseli(c, r));
+          if (tanim?.mutfak) {
+            if (!mutfakta || birimDolu(c, r, durum, undefined, katman)) continue;
+            kareler.push({ c, r, ic });
+            continue;
+          }
           if ((ic && disariya) || (!ic && iceriye) || birimEngelliKatman(c, r, katman, durum) || birimDolu(c, r, durum, undefined, katman)) continue;
           // Tablo: yalnız düz duvarın dibindeki kareler
           if (katman === 'duvar' && !birimDuvarlari(c, r, durum).length) continue;
