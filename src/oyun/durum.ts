@@ -83,6 +83,7 @@ import {
   esyaOrtasi,
   kapladigiBirimler,
   esyaKatmani,
+  mutfakEsyasiMi,
   YON_ADIMI,
   type Katman,
   type Yon,
@@ -112,6 +113,7 @@ import {
 } from './calisan';
 import { DENEME_KAYDI } from './denemeDukkani';
 import { AYAR } from './ayarlar';
+import { BASLANGIC_URUNLERI, TEZGAH_URUNLERI, dizilisiOku, varsayilanDizilis, yuvaSayisi } from './tezgahUrunleri';
 import { altlikAnahtari, artir, azalt, birimMaliyet, dondurmaAnahtari, eksik, icecekAnahtari, kapasite, miktar, stokKalemleri, stokuOku, suslemeAnahtari, type Stok } from './stok';
 import { ekranAyariniOku } from '../arayuz/ekranAyari';
 import { BOS_YETENEKLER, EN_COK_BASAMAK, basamakBedeli, harcananPuan, kazanilanPuan, yetenekEtkisi, yetenekleriOku, type Yetenek, type Yetenekler } from './yetenek';
@@ -296,6 +298,12 @@ export interface Durum {
   makineFiyatlari: { waffle: number; icecek: number }; // oyuncunun koyduğu fiyat
   // Hafif stok (belge 0.13, 9c): kalem → kalan miktar; olmayan kalem dolu
   stok: Stok;
+  // Arka tezgahın yuvaları (belge 0.14): ürün kimliği ya da boş ('')
+  arkaTezgah: string[];
+  acikUrunler: string[];
+  // Oyuncu (belge 0.14): takma ad ve kendiliğinden verilen ID (kayıt kodu, ileride hesap)
+  oyuncuId: string;
+  oyuncuAdi: string;
 }
 
 // Waffle yapımı (belge 0.5) ve içecek standı (0.6)
@@ -427,6 +435,10 @@ let durum: Durum = {
   makine: bosMakine(),
   makineFiyatlari: { waffle: WAFFLE_FIYATI, icecek: ICECEK_FIYATI },
   stok: {},
+  arkaTezgah: varsayilanDizilis(yuvaSayisi(BASLANGIC_TEZGAHI.boy)),
+  acikUrunler: [...BASLANGIC_URUNLERI],
+  oyuncuId: '',
+  oyuncuAdi: '',
   insaat: false,
   seciliParsel: null,
   yerlestirme: false,
@@ -1456,6 +1468,10 @@ export function esyaSigar(esya: Esya, c: number, r: number, yon: number, d: Duru
   if (ic && tanim?.disari) return false;
   if (!ic && tanim?.iceri) return false;
   const katman = esyaKatmani(esya);
+  // Mutfak eşyası yalnız mutfak karelerine (belge 0.14); öbürleri mutfağa
+  // birimEngelli'den dolayı zaten konmaz
+  if (tanim?.mutfak)
+    return birimler.every((b) => birimSahipli(b.c, b.r, d) && d.mutfakParseller.includes(birimParseli(b.c, b.r)) && !birimDolu(b.c, b.r, d, haric, katman));
   // Tablo yalnız düz duvarın dibindeki kareye konur (o duvara asılır)
   if (katman === 'duvar' && !birimDuvarlari(c, r, d).length) return false;
   return birimler.every(
@@ -1948,6 +1964,50 @@ export function stokAzMi(d: Durum = durum) {
   return stokKalemleriNe(d).some((a) => miktar(d.stok, a) < kapasite(a) / 4);
 }
 
+// ---- Oyuncu (belge 0.14) ----
+// ID: "DK-" ve 6 harf / rakam (karışmasın diye 0, O, 1, I yok)
+export const OYUNCU_ADI_EN_UZUN = 18;
+export function yeniOyuncuId() {
+  const harfler = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const r = new Uint32Array(6);
+  try {
+    crypto.getRandomValues(r);
+  } catch {
+    for (let i = 0; i < 6; i++) r[i] = Math.floor(Math.random() * 1e9);
+  }
+  return 'DK-' + Array.from(r, (x) => harfler[x % harfler.length]).join('');
+}
+export function oyuncuAdiniDegistir(ad: string) {
+  guncelle({ oyuncuAdi: ad.slice(0, OYUNCU_ADI_EN_UZUN) });
+  if (!denemedeMi()) kaydet();
+}
+
+// ---- Arka tezgah ürünleri (belge 0.14) ----
+function arkaTezgahiOku(k: Partial<Kayit>) {
+  const acikUrunler = [...new Set([...BASLANGIC_URUNLERI, ...(Array.isArray(k.acikUrunler) ? k.acikUrunler.filter((x) => TEZGAH_URUNLERI.some((u) => u.id === x)) : [])])];
+  const tezgahBoyu = typeof k.tezgah?.boy === 'number' ? k.tezgah.boy : BASLANGIC_TEZGAHI.boy;
+  return { acikUrunler, arkaTezgah: dizilisiOku(k.arkaTezgah, Math.max(yuvaSayisi(tezgahBoyu), Array.isArray(k.arkaTezgah) ? k.arkaTezgah.length : 0), acikUrunler) };
+}
+export function urunAlinabilir(id: string, d: Durum = durum) {
+  const u = TEZGAH_URUNLERI.find((x) => x.id === id);
+  return !!u && !d.acikUrunler.includes(id) && d.para >= u.fiyat;
+}
+export function urunAl(id: string) {
+  const u = TEZGAH_URUNLERI.find((x) => x.id === id);
+  if (!u || !urunAlinabilir(id)) return;
+  guncelle({ para: durum.para - u.fiyat, acikUrunler: [...durum.acikUrunler, id] });
+  kaydet();
+}
+// Bir yuvaya ürün koy ('' = boşalt)
+export function yuvayaKoy(yuva: number, id: string) {
+  if (yuva < 0 || (id && !durum.acikUrunler.includes(id))) return;
+  const d = [...durum.arkaTezgah];
+  while (d.length <= yuva) d.push('');
+  d[yuva] = id;
+  guncelle({ arkaTezgah: d });
+  kaydet();
+}
+
 // ---- Yardımcıların işi (belge 0.5) ----
 // Kendi istasyonunun sırasında öndeki, varmış ve o ürünü isteyen müşteriye
 // servis eder; süre oyun dakikasıyla, hızına ve yeteneğine göre.
@@ -2082,6 +2142,30 @@ export function mutfagaKatilabilir(anahtar: string, d: Durum = durum) {
 export function mutfagaKat(anahtar: string) {
   if (!durum.insaat || !mutfagaKatilabilir(anahtar) || durum.para < MUTFAK_FIYATI) return;
   yapiyiDegistir({ mutfakParseller: [...durum.mutfakParseller, anahtar] }, MUTFAK_FIYATI);
+  // Yeni mutfak boş gelmez: arka duvarda raf ve buzdolabı (taşınabilir, belge 0.14)
+  guncelle({ yerlesim: mutfagaTemelEsyalar(anahtar, durum) });
+  kaydet();
+}
+
+// Mutfak karesinin temel eşyaları: arka duvarın dibinde raf ve buzdolabı.
+// Eski kayıtlarda mutfakta hiç mutfak eşyası yoksa da bunlar konur.
+function mutfagaTemelEsyalar(anahtar: string, d: Durum): Yerlesim[] {
+  const { i, j } = parselCoz(anahtar);
+  const c0 = i * PARSEL;
+  const arka = j * PARSEL + PARSEL - 1;
+  const yeni = [...d.yerlesim];
+  const koy = (esya: Esya, c: number, r: number) => {
+    if (esyaSigar(esya, c, r, 0, { ...d, yerlesim: yeni })) yeni.push({ esya, hucre: birimAnahtari(c, r), yon: 0 });
+  };
+  koy('mutfakRafi', c0, arka);
+  koy('buzdolabi', c0 + 2, arka - 1);
+  return yeni;
+}
+function mutfakBos(anahtar: string, d: Durum) {
+  return !d.yerlesim.some((y) => {
+    const { c, r } = birimCoz(y.hucre);
+    return mutfakEsyasiMi(y.esya) && birimParseli(c, r) === anahtar;
+  });
 }
 export function mutfaktanCikar(anahtar: string) {
   if (!durum.insaat || !mutfakMi(anahtar) || durum.para < MUTFAK_GERI_FIYATI) return;
@@ -2138,9 +2222,15 @@ interface Kayit {
   exp?: Partial<Expler>;
   yetenekler?: Partial<Yetenekler>;
   stok?: Stok;
+  arkaTezgah?: string[];
+  acikUrunler?: string[];
+  oyuncuId?: string;
+  oyuncuAdi?: string;
 }
 
 function kaydet() {
+  // İlk kayıtta oyuncuya ID verilir ve hep aynı kalır
+  if (!durum.oyuncuId) guncelle({ oyuncuId: yeniOyuncuId() });
   const k: Kayit = {
     para: durum.para,
     gun: durum.gun,
@@ -2180,6 +2270,10 @@ function kaydet() {
     exp: durum.exp,
     yetenekler: durum.yetenekler,
     stok: durum.stok,
+    arkaTezgah: durum.arkaTezgah,
+    acikUrunler: durum.acikUrunler,
+    oyuncuId: durum.oyuncuId,
+    oyuncuAdi: durum.oyuncuAdi,
   };
   try {
     localStorage.setItem(kayitAnahtari, JSON.stringify(k));
@@ -2225,6 +2319,11 @@ export function kaydiYukle() {
       yetenekler: yetenekleriOku(k.yetenekler),
       // Stok (9c): eski kayıtta yok, her şey dolu başlar
       stok: stokuOku(k.stok),
+      // Arka tezgah ürünleri (0.14): eski kayıtta yok, eski düzen gelir
+      ...arkaTezgahiOku(k),
+      // Oyuncu ID'si: eski kayıtta yoksa şimdi verilir (bir sonraki kayıtta yazılır)
+      oyuncuId: typeof k.oyuncuId === 'string' && /^DK-[A-Z2-9]{6}$/.test(k.oyuncuId) ? k.oyuncuId : yeniOyuncuId(),
+      oyuncuAdi: typeof k.oyuncuAdi === 'string' ? k.oyuncuAdi.slice(0, OYUNCU_ADI_EN_UZUN) : '',
     });
     // Eski parçaların parası geri verildiyse hemen kaydedilir (bir kez verilsin)
     if (eskiParcaIadesi(k) > 0) kaydet();
@@ -2378,6 +2477,9 @@ function dekorasyonuOku(k: Partial<Kayit>) {
       if (hedef) deneme.yerlesim.push({ esya: y.esya, hucre: birimAnahtari(hedef.c, hedef.r), yon: 0 });
       else depo[y.esya] = (depo[y.esya] ?? 0) + 1;
     }
+  // Mutfakta hiç mutfak eşyası yoksa (0.14 öncesi kayıt; depo kendiliğinden
+  // çiziliyordu) temel eşyalar konur: raf ve buzdolabı
+  for (const p of mutfakParseller) if (mutfakBos(p, deneme)) deneme.yerlesim = mutfagaTemelEsyalar(p, deneme);
   let isikSeviyesi = typeof k.isikSeviyesi === 'number' ? Math.min(EN_YUKSEK_ISIK, Math.max(0, k.isikSeviyesi)) : 0;
   // Eski kayıttaki dekorasyon: fenerler → 1. ışık; masa, şemsiye, çiçekler → depoya
   if (Array.isArray(k.dekorlar)) {
@@ -2454,6 +2556,10 @@ function durumuSifirla() {
     makine: bosMakine(),
     makineFiyatlari: { waffle: WAFFLE_FIYATI, icecek: ICECEK_FIYATI },
     stok: {},
+    arkaTezgah: varsayilanDizilis(yuvaSayisi(BASLANGIC_TEZGAHI.boy)),
+    acikUrunler: [...BASLANGIC_URUNLERI],
+    oyuncuId: yeniOyuncuId(),
+    oyuncuAdi: '',
     insaat: false,
     seciliParsel: null,
     yerlestirme: false,
@@ -2503,6 +2609,19 @@ export function kayitVar() {
   } catch {
     return false;
   }
+}
+// Kayıt kodu (belge 0.14): asıl kaydın ham hâli; yalnız asıl yuva (deneme değil)
+export function kayitHamOku() {
+  try {
+    return localStorage.getItem(KAYIT_ANAHTARI);
+  } catch {
+    return null;
+  }
+}
+export function kayitHamYaz(ham: string) {
+  const k = JSON.parse(ham) as Partial<Kayit>;
+  if (!k || typeof k !== 'object' || typeof k.gun !== 'number' || typeof k.para !== 'number') throw new Error('kayit');
+  localStorage.setItem(KAYIT_ANAHTARI, ham);
 }
 export function kayittanDevamEt() {
   kayitAnahtari = KAYIT_ANAHTARI;

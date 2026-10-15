@@ -1,0 +1,12 @@
+// Giriş ekranındaki "Yenilikler" (belge 0.14): son eklenenler, en yenisi başta.
+// Yazılar çeviri dosyasında (yenilik.<anahtar>). Yeni bir şey eklenince başa yazılır.
+export const YENILIKLER: { tarih: string; anahtar: string }[] = [
+  { tarih: '15.10', anahtar: 'mutfak' },
+  { tarih: '15.10', anahtar: 'arkaTezgah' },
+  { tarih: '15.10', anahtar: 'isik' },
+  { tarih: '15.10', anahtar: 'mesai' },
+  { tarih: '15.10', anahtar: 'vitrin' },
+  { tarih: '15.10', anahtar: 'stok' },
+  { tarih: '15.10', anahtar: 'cikis' },
+  { tarih: '15.10', anahtar: 'insaat' },
+];

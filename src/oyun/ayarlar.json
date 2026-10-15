@@ -852,6 +852,26 @@
           "ad": "Duvar lambası (aplik)",
           "deger": 120,
           "birim": "jeton"
+        },
+        "buzdolabi": {
+          "ad": "Buzdolabı (mutfak)",
+          "deger": 300,
+          "birim": "jeton"
+        },
+        "mutfakRafi": {
+          "ad": "Mutfak rafı",
+          "deger": 120,
+          "birim": "jeton"
+        },
+        "kasaYigini": {
+          "ad": "Kasalar (mutfak)",
+          "deger": 40,
+          "birim": "jeton"
+        },
+        "mutfakTezgahi": {
+          "ad": "Mutfak tezgahı",
+          "deger": 150,
+          "birim": "jeton"
         }
       }
     },
@@ -1757,6 +1777,26 @@
         },
         "esya.aplik": {
           "ad": "Duvar lambası (aplik)",
+          "deger": 1,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.buzdolabi": {
+          "ad": "Buzdolabı (mutfak)",
+          "deger": 1,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.mutfakRafi": {
+          "ad": "Mutfak rafı",
+          "deger": 1,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.kasaYigini": {
+          "ad": "Kasalar (mutfak)",
+          "deger": 1,
+          "birim": "dükkân seviyesi"
+        },
+        "esya.mutfakTezgahi": {
+          "ad": "Mutfak tezgahı",
           "deger": 1,
           "birim": "dükkân seviyesi"
         }

@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Canvas, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { EsyaModeli } from './Dekorlar';
+import { TezgahUrunuModeli } from './Dukkan';
 import { karakterKur, karakterleriYukle, rastgeleVaryant, type Karakter } from './karakterler';
 import { useFrame } from '@react-three/fiber';
 import type { Esya } from '../oyun/dekorasyon';
@@ -35,8 +36,9 @@ function Cerceve({ esya }: { esya: Esya }) {
   return (
     <group ref={grup}>
       {/* Tablo duvarda içeri (+z) bakar; resimde önü görünsün */}
-      <group rotation={[0, esya.startsWith('tablo') ? Math.PI : 0, 0]}>
-        <EsyaModeli esya={esya} />
+      <group rotation={[0, esya.startsWith('tablo') || esya === 'aplik' ? Math.PI : 0, 0]}>
+        {/* #onizleme=urun.kettle: arka tezgah ürünü (belge 0.14) */}
+        {(esya as string).startsWith('urun.') ? <TezgahUrunuModeli id={(esya as string).slice(5)} /> : <EsyaModeli esya={esya} />}
       </group>
     </group>
   );

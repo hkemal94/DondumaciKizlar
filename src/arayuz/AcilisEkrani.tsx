@@ -1,5 +1,9 @@
 import { useState } from 'react';
-import { denemeDukkani, kayitVar, kayittanDevamEt, yeniOyun } from '../oyun/durum';
+import { OYUNCU_ADI_EN_UZUN, denemeDukkani, kayitVar, kayittanDevamEt, oyuncuAdiniDegistir, useDurum, yeniOyun } from '../oyun/durum';
+import { seviyeBilgisi } from '../oyun/seviye';
+import { YENILIKLER } from '../oyun/yenilikler';
+import { KayitKoduEkrani } from './KayitKodu';
+import type { MetinAnahtari } from '../metinler';
 import { m } from '../metinler';
 import { logoAdresi } from '../sahne/logo';
 import { Galeri } from './Galeri';
@@ -14,8 +18,12 @@ export function AcilisEkrani({ ayarlar }: { ayarlar: () => void }) {
   const [kayit] = useState(kayitVar);
   const [soruyor, setSoruyor] = useState(false);
   const [galeri, setGaleri] = useState(false);
+  const [yenilikler, setYenilikler] = useState(false);
+  const [kodAcik, setKodAcik] = useState(false);
   const tamEkran = useTamEkran();
   if (galeri) return <Galeri kapat={() => setGaleri(false)} />;
+  if (yenilikler) return <YeniliklerEkrani kapat={() => setYenilikler(false)} />;
+  if (kodAcik) return <KayitKoduEkrani kapat={() => setKodAcik(false)} />;
   if (soruyor)
     return (
       <div className="acilis">
@@ -59,6 +67,77 @@ export function AcilisEkrani({ ayarlar }: { ayarlar: () => void }) {
             {m(tamEkran ? 'duraklat.tamEkrandanCik' : 'duraklat.tamEkran')}
           </button>
         )}
+        <div className="acilis-ikili">
+          <button className="dugme" onClick={() => setYenilikler(true)}>
+            {m('acilis.yenilikler')}
+          </button>
+          <button className="dugme" onClick={() => setKodAcik(true)}>
+            {m('kod.baslik')}
+          </button>
+        </div>
+      </div>
+      <Kunye />
+      {kayit && <OyuncuKarti />}
+    </div>
+  );
+}
+
+// Künye (belge 0.14; Kemal: "Düzada evreninde olduğumuz belli değil"): sol altta.
+// İlk satır kanondan; ikinci satırın metni Kemal'in
+function Kunye() {
+  return (
+    <div className="acilis-kunye">
+      <b>{m('kunye.yer')}</b>
+      <span>{m('kunye.donem')}</span>
+      <span className="yer-tutucu">{m('kunye.metin')}</span>
+    </div>
+  );
+}
+
+// Oyuncu kartı (belge 0.14): takma ad (dokununca değişir), ID, dükkân seviyesi ve gün
+function OyuncuKarti() {
+  const durum = useDurum();
+  const [duzenle, setDuzenle] = useState(false);
+  const dukkan = seviyeBilgisi('dukkan', durum.exp.dukkan).seviye;
+  return (
+    <div className="acilis-oyuncu">
+      {duzenle ? (
+        <input
+          className="yardimci-ad"
+          autoFocus
+          maxLength={OYUNCU_ADI_EN_UZUN}
+          placeholder={m('oyuncu.adYaz')}
+          value={durum.oyuncuAdi}
+          onChange={(e) => oyuncuAdiniDegistir(e.target.value)}
+          onBlur={() => setDuzenle(false)}
+          onKeyDown={(e) => e.key === 'Enter' && setDuzenle(false)}
+        />
+      ) : (
+        <button className="acilis-oyuncu-ad" onClick={() => setDuzenle(true)}>
+          {durum.oyuncuAdi || m('oyuncu.adsiz')} <span aria-hidden>✎</span>
+        </button>
+      )}
+      <span className="acilis-oyuncu-id">{durum.oyuncuId}</span>
+      <span>{m('oyuncu.ozet', { seviye: dukkan, gun: durum.gun })}</span>
+    </div>
+  );
+}
+
+function YeniliklerEkrani({ kapat }: { kapat: () => void }) {
+  return (
+    <div className="gun-sonu-zemin">
+      <div className="gun-sonu yenilikler-ekrani" role="dialog" aria-labelledby="yenilik-baslik">
+        <h2 id="yenilik-baslik">{m('acilis.yenilikler')}</h2>
+        <ul>
+          {YENILIKLER.map((y) => (
+            <li key={y.anahtar}>
+              <span className="yenilik-tarih">{y.tarih}</span> {m(`yenilik.${y.anahtar}` as MetinAnahtari)}
+            </li>
+          ))}
+        </ul>
+        <button className="dugme dugme-yeni-gun" onClick={kapat}>
+          {m('acilis.vazgec')}
+        </button>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { YURUYUS_Z } from '../oyun/dekorasyon';
-import { durumuOku } from '../oyun/durum';
+import { durumuOku, useDurum } from '../oyun/durum';
 import { useEkranAyari } from '../arayuz/ekranAyari';
 import { HazirModel } from './HazirModel';
 import { InsanKarakter, type Hareket } from './InsanKarakter';
@@ -295,6 +295,10 @@ export function LimanCanliligi() {
     }));
   }, [kalabalik]);
   const gezenler = [0, 4, 7][kalabalik];
+  // Giriş ekranında liman daha canlı (belge 0.14): dükkânın önünde kısa
+  // yürüyenler ve alçaktan dönen martılar
+  const { acilis } = useDurum();
+  const girisGezenleri = acilis ? [3, 5, 6][kalabalik] : 0;
   return (
     <group>
       <YuruyusYolu />
@@ -306,6 +310,15 @@ export function LimanCanliligi() {
       {Array.from({ length: gezenler }, (_, i) => (
         <Gezen key={i} tohum={500 + i * 13} hiz={1.1 + (i % 3) * 0.15} uc={60 + (i % 4) * 25} serit={i % 2 ? 0.7 : 1.6} />
       ))}
+      {Array.from({ length: girisGezenleri }, (_, i) => (
+        <Gezen key={`g${i}`} tohum={900 + i * 17} hiz={0.9 + (i % 3) * 0.2} uc={18 + (i % 3) * 8} serit={i % 2 ? 0.9 : 1.8} />
+      ))}
+      {acilis && (
+        <>
+          <Marti merkez={[2, -14]} yaricap={9} yukseklik={7} hiz={0.35} faz={0.5} />
+          <Marti merkez={[-6, -20]} yaricap={12} yukseklik={9} hiz={-0.3} faz={2.5} />
+        </>
+      )}
       <Marti merkez={[10, -50]} yaricap={22} yukseklik={14} hiz={0.25} faz={0} />
       <Marti merkez={[-20, -70]} yaricap={30} yukseklik={18} hiz={-0.2} faz={2} />
       <Marti merkez={[30, -90]} yaricap={18} yukseklik={12} hiz={0.3} faz={4} />

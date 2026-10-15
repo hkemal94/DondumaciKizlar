@@ -41,6 +41,7 @@ import { m, useDil, type MetinAnahtari } from '../metinler';
 import { GunYenilikleri, SeviyeParlamasi, SeviyeRozeti } from './Seviye';
 import { YetenekEkrani } from './YetenekEkrani';
 import { GunSonuStok, StokEkrani } from './StokEkrani';
+import { ArkaTezgahEkrani } from './ArkaTezgahEkrani';
 import { GunlukHedefler, GunSonuHedefleri, GunSonuYorumlari } from './Hedefler';
 import { logoAdresi } from '../sahne/logo';
 import { CESITLER } from '../oyun/kuvetler';
@@ -638,6 +639,7 @@ export function Arayuz() {
   const [yardimciAcik, setYardimciAcik] = useState(false);
   const [yetenekAcik, setYetenekAcik] = useState(false);
   const [stokAcik, setStokAcik] = useState(false);
+  const [arkaAcik, setArkaAcik] = useState(false);
   useYakinlastirma(durum.kamera === 'dukkan');
 
   // Parmak ekranın neresinde kalkarsa kalksın kepçe bırakılır.
@@ -790,7 +792,7 @@ export function Arayuz() {
           )}
         </div>
       )}
-      {!tezgahta && durum.hazirlik && !durum.yerlestirme && !durum.insaat && !durum.gunSonu && !calisanAcik && !gelistirAcik && !durum.istasyonSecimi && !yardimciAcik && !yetenekAcik && !vitrinAcik && !stokAcik && (
+      {!tezgahta && durum.hazirlik && !durum.yerlestirme && !durum.insaat && !durum.gunSonu && !calisanAcik && !gelistirAcik && !durum.istasyonSecimi && !yardimciAcik && !yetenekAcik && !vitrinAcik && !stokAcik && !arkaAcik && (
         <MenuSeridi
           sec={(is) => {
             const sekmeler: Partial<Record<MenuIsi, GelistirSekmesi>> = { gelistir: 'dekorasyon', gorunus: 'gorunus', cesitler: 'cesitler', fiyat: 'fiyat' };
@@ -805,6 +807,7 @@ export function Arayuz() {
             else if (is === 'yardimci') setYardimciAcik(true);
             else if (is === 'yetenek') setYetenekAcik(true);
             else if (is === 'stok') setStokAcik(true);
+            else if (is === 'arkaTezgah') setArkaAcik(true);
             else if (is === 'insaat') {
               insaataBasla();
               insaatKamerasi();
@@ -825,6 +828,7 @@ export function Arayuz() {
       {yardimciAcik && durum.hazirlik && <YardimciEkrani kapat={() => setYardimciAcik(false)} />}
       {yetenekAcik && durum.hazirlik && <YetenekEkrani kapat={() => setYetenekAcik(false)} />}
       {stokAcik && (durum.hazirlik || durum.gunSonu) && <StokEkrani kapat={() => setStokAcik(false)} />}
+      {arkaAcik && durum.hazirlik && <ArkaTezgahEkrani kapat={() => setArkaAcik(false)} />}
     </div>
   );
 }

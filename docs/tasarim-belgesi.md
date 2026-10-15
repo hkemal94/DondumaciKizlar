@@ -490,6 +490,26 @@ konusunda komple assetlere ihtiyacımız olabilir."
 | İş kısmına ışık | Kemal: "İkisi de, tezgah ışığı daha zayıf olsun". Tezgahın üstünde tavandan sarkan mor abajurlu küçük lambalar, hep yanık, tek ve zayıf ışık; mağazada **Duvar lambası** (aplik, 120 jeton): tablo gibi duvara asılır, mutfak duvarı dahil, yakına vuran sıcak ışık. Duvara asılanlar artık mutfağa da asılabiliyor |
 | Sonraya kalanlar (soru) | Mutfak dekorasyonu ve zemini, tezgah içi ürünleri seçme, giriş ekranı ve künye, iki cihazdan oynama (kayıt kodu / bulut), oyuncu kaydı ve kişisel bilgiler, kendi modellerin için rehber |
 
+## 0.14 Soru turu (Kemal, 15 Ekim gece: "tüm soruların için soru turu yapalım")
+
+| Konu | Karar |
+|---|---|
+| Mutfak dekorasyonu | Mutfağa yalnız mutfak eşyası konur (raf, dolap, kasa, tezgah); zemini dükkândan belirgin farklı (fayans). Dükkân eşyası (masa vb.) mutfağa konmaz |
+| Tezgah içi ürünler | Arka tezgahtaki ürünler Kemal'in seçtiği modellerden (B kavanoz / şişe, M kahve / blender / kasa, D meyve / krem şanti); mağazadan alınır, arka tezgahta yer seçilir |
+| Giriş ekranı | Dördü de: köşede **künye** (metni Kemal'in; şimdilik [YER TUTUCU]), arkada **canlı liman** (yürüyenler, tekneler, martılar), **Yenilikler** düğmesi (son eklenenler), **oyuncu kartı** (oyuncu adı / ID, dükkân seviyesi) |
+| İki cihaz | Önce **kayıt kodu**: bir cihazda kod üretilir, öbüründe girilir. Hesap ve bulut kayıt sonra |
+| Oyuncu bilgisi | Yalnız oyuncu adı (takma ad) + otomatik ID. Ad soyad, doğum günü alınmaz (KVKK yükü) |
+| Bulut yeri | Oyuna ayrı bir Firebase projesi (KKM'ninkine karışmaz); kurulumu Kemal kendi Google hesabıyla yapar, adımlar anlatılır |
+| Kendi modeller | Tek sayfalık **model hazırlama rehberi** (`docs/model-rehberi.md`) |
+| Sıra | Bu turun işleri (mutfak, tezgah içi, giriş ekranı, kayıt kodu, rehber) tek PR'da → 9d içecekler |
+
+**Yapılanlar (0.14):**
+- Mutfak: buzdolabı, mutfak rafı, kasalar, mutfak tezgahı mağazada "Mutfak için" başlığında; yalnız mutfak karelerine konur, öbür eşyalar mutfağa konmaz. Kendiliğinden çizilen depo kalktı: yeni mutfağa ve eski kayıtlardaki mutfağa raf ve buzdolabı taşınabilir eşya olarak konur. Zemin mavi-gri / beyaz fayans.
+- Arka tezgah: Dükkân → **Arka tezgah**. Arka tezgah 0,6 m'lik yuvalara bölünür; yuvaya dokunup ürün seçilir. 24 ürün: eski dördü (kavanozlar, kap yığını, eski kahve makinesi, eski kasa) bedava; Kemal'in seçtiği M1, M2, M3, M5, M7, B1, B2, B4, B8, B9, B10, B13, B14, D1, D6, D8–D12 parayla (bir kez alınır, her yuvaya konur). Modeller `public/modeller/tezgah/`.
+- Giriş ekranı: sol altta künye (ilk iki satır kanondan: Düzada · Liman Mahallesi · iskele yanı; ilk yıllar · 2000'lerin başı; üçüncü satır [YER TUTUCU], metni Kemal'in), sağ altta oyuncu kartı (takma ad dokununca değişir, ID `DK-XXXXXX`, dükkân seviyesi, gün), **Yenilikler** listesi (`src/oyun/yenilikler.ts`), arkada daha çok yürüyen ve alçaktan uçan martılar.
+- Kayıt kodu: giriş ekranında **Kayıt kodu**. Kod oluştur → kopyala / paylaş; öbür cihazda yapıştır → Yükle → o cihazdaki dükkânın yerine geçer. Kod kaydın sıkıştırılmış hâli (sunucu yok); albüm fotoğrafları taşınmaz.
+- Model rehberi: `docs/model-rehberi.md`.
+
 ## 1. Oyunun özeti ve vizyonu
 
 ### 1.1 Tek cümlelik özet

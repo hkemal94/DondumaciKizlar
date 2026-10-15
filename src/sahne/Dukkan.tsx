@@ -18,6 +18,8 @@ import * as THREE from 'three';
 import { renk } from './renkler';
 import { CESITLER, kuvetKonumu, vitrinGenisligi } from '../oyun/kuvetler';
 import { AYAR } from '../oyun/ayarlar';
+import { TEZGAH_URUNLERI, arkaTezgahGenisligi, yuvaSayisi } from '../oyun/tezgahUrunleri';
+import { HazirModel } from './HazirModel';
 import { m, useDil, type MetinAnahtari } from '../metinler';
 import { useEkranAyari } from '../arayuz/ekranAyari';
 import { TezgahParcalari } from './TezgahParcalari';
@@ -607,10 +609,11 @@ function BolumSaksilari() {
 // Oyuncunun arkasındaki tezgah: dolap, kavanozlar, kahve makinesi, kasa.
 // Tezgah görünümünde kameranın arkasında kalır; genel görünümde görünür.
 function ArkaTezgah() {
-  const kavanozRenkleri = ['#ff6f7d', '#ffc928', '#5fd08a', '#9b5fc9', '#8a4b2e'];
-  const { tezgah } = useDurum();
-  const genislik = tezgah.boy - 1.4;
+  const { tezgah, arkaTezgah } = useDurum();
+  const genislik = arkaTezgahGenisligi(tezgah.boy);
   const kapakSayisi = Math.max(1, Math.floor(genislik / 1.3));
+  const n = yuvaSayisi(tezgah.boy);
+  const yuva = genislik / n;
   return (
     <group position={[0, 0, 1.68]}>
       <Kutu konum={[0, 0.45, 0]} boyut={[genislik, 0.9, 0.55]} renkAdi={renk.ahsapOrta} />
@@ -619,45 +622,82 @@ function ArkaTezgah() {
       {Array.from({ length: kapakSayisi }, (_, i) => (i - (kapakSayisi - 1) / 2) * 1.3).map((x) => (
         <Kutu key={x} konum={[x, 0.45, -0.28]} boyut={[1.15, 0.72, 0.02]} renkAdi={renk.ahsapAcik} golgeVer={false} />
       ))}
-      {/* Kavanozlar */}
-      {kavanozRenkleri.map((r, i) => (
-        <group key={i} position={[-2.9 + i * 0.32, 0.95, 0.05]}>
-          <mesh position={[0, 0.12, 0]} castShadow>
-            <cylinderGeometry args={[0.1, 0.1, 0.24, 8]} />
-            <meshStandardMaterial color={renk.cam} transparent opacity={0.55} roughness={0.1} />
+      {/* Yuvalardaki ürünler (belge 0.14; Arka tezgah ekranından seçilir) */}
+      {Array.from({ length: n }, (_, i) => {
+        const id = arkaTezgah[i];
+        if (!id) return null;
+        return (
+          <group key={`${i}:${id}`} position={[(i - (n - 1) / 2) * yuva, 0.95, 0.03]}>
+            <TezgahUrunuModeli id={id} />
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
+// Arka tezgahtaki bir ürün; yuvanın ortasında, önü dükkâna (−z) bakar
+export function TezgahUrunuModeli({ id }: { id: string }) {
+  if (id === 'kavanozlar')
+    return (
+      <>
+        {['#ff6f7d', '#ffc928'].map((r, i) => (
+          <group key={i} position={[(i - 0.5) * 0.26, 0, 0]}>
+            <mesh position={[0, 0.12, 0]} castShadow>
+              <cylinderGeometry args={[0.1, 0.1, 0.24, 8]} />
+              <meshStandardMaterial color={renk.cam} transparent opacity={0.55} roughness={0.1} />
+            </mesh>
+            <mesh position={[0, 0.08, 0]}>
+              <cylinderGeometry args={[0.085, 0.085, 0.15, 8]} />
+              <meshStandardMaterial color={r} roughness={0.8} flatShading />
+            </mesh>
+            <mesh position={[0, 0.25, 0]}>
+              <cylinderGeometry args={[0.105, 0.105, 0.03, 8]} />
+              <meshStandardMaterial color={renk.mor} />
+            </mesh>
+          </group>
+        ))}
+      </>
+    );
+  if (id === 'kaplar')
+    return (
+      <>
+        {[-0.1, 0.1].map((x, i) => (
+          <mesh key={x} position={[x, 0.13, 0.02]} castShadow>
+            <cylinderGeometry args={[0.08, 0.06, 0.26, 10]} />
+            <meshStandardMaterial color={i ? renk.sari : renk.mor} roughness={0.7} />
           </mesh>
-          <mesh position={[0, 0.08, 0]}>
-            <cylinderGeometry args={[0.085, 0.085, 0.15, 8]} />
-            <meshStandardMaterial color={r} roughness={0.8} flatShading />
-          </mesh>
-          <mesh position={[0, 0.25, 0]}>
-            <cylinderGeometry args={[0.105, 0.105, 0.03, 8]} />
-            <meshStandardMaterial color={renk.mor} />
-          </mesh>
-        </group>
-      ))}
-      {/* Kahve makinesi (kışın kafe olacak dükkân için) */}
-      <group position={[0.6, 0.95, 0.02]}>
-        <Kutu konum={[0, 0.22, 0]} boyut={[0.55, 0.44, 0.4]} renkAdi="#c9d0d6" puruz={0.35} />
-        <Kutu konum={[0, 0.46, 0]} boyut={[0.6, 0.05, 0.44]} renkAdi="#8d969e" puruz={0.35} />
+        ))}
+      </>
+    );
+  if (id === 'eskiKahve')
+    return (
+      <group>
+        <Kutu konum={[0, 0.22, 0]} boyut={[0.5, 0.44, 0.4]} renkAdi="#c9d0d6" puruz={0.35} />
+        <Kutu konum={[0, 0.46, 0]} boyut={[0.54, 0.05, 0.44]} renkAdi="#8d969e" puruz={0.35} />
         <Kutu konum={[0, 0.1, -0.22]} boyut={[0.3, 0.04, 0.12]} renkAdi="#5b6268" />
       </group>
-      {/* Kasa */}
-      <group position={[2.4, 0.95, 0]}>
+    );
+  if (id === 'eskiKasa')
+    return (
+      <group>
         <Kutu konum={[0, 0.12, 0]} boyut={[0.5, 0.24, 0.4]} renkAdi={renk.mor} />
         <mesh position={[0, 0.3, -0.05]} rotation={[-0.5, 0, 0]}>
           <boxGeometry args={[0.42, 0.04, 0.22]} />
           <meshStandardMaterial color="#4e2470" />
         </mesh>
       </group>
-      {/* Kap yığınları */}
-      {[1.5, 1.7].map((x, i) => (
-        <mesh key={x} position={[x, 1.08, 0.05]} castShadow>
-          <cylinderGeometry args={[0.08, 0.06, 0.26, 10]} />
-          <meshStandardMaterial color={i ? renk.sari : renk.mor} roughness={0.7} />
-        </mesh>
+    );
+  const u = TEZGAH_URUNLERI.find((x) => x.id === id);
+  if (!u?.yol) return null;
+  const adet = u.adet ?? 1;
+  const ara = Math.min(0.17, 0.5 / adet);
+  return (
+    <>
+      {Array.from({ length: adet }, (_, i) => (
+        <HazirModel key={i} yol={u.yol!} ayar={{ grup: 'dukkan', yukseklik: u.yukseklik ?? 0.2 }} konum={[(i - (adet - 1) / 2) * ara, 0, (i % 2) * 0.06]} donus={Math.PI + (adet > 1 ? (i - 1) * 0.4 : 0)} />
       ))}
-    </group>
+    </>
   );
 }
 

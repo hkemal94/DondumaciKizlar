@@ -25,13 +25,19 @@ export type Esya =
   | 'tabloDeniz'
   | 'tabloBos'
   // Duvar lambası (Kemal, 15 Ekim gece: "dükkânın iş kısmına ışık"); tablo gibi duvara asılır
-  | 'aplik';
+  | 'aplik'
+  // Mutfak eşyaları (belge 0.14): yalnız mutfak karelerine konur
+  | 'buzdolabi'
+  | 'mutfakRafi'
+  | 'kasaYigini'
+  | 'mutfakTezgahi';
 
 // grup: mağazadaki başlık. disari: yalnız dükkânın dışına konur (14 Ekim:
 // "özellikle dükkân dışı için tabela benzeri ürünler").
 // iceri: yalnız dükkânın içine konur (halı, tablo; C4)
+// mutfak: yalnız mutfak karelerine konur; öbür eşyalar mutfağa konmaz (belge 0.14)
 // Fiyatlar ayar dosyasından (7. adım)
-export const ESYALAR: { id: Esya; fiyat: number; grup: 'oturma' | 'dis' | 'ic'; disari?: boolean; iceri?: boolean }[] = fiyatiAyarla([
+export const ESYALAR: { id: Esya; fiyat: number; grup: 'oturma' | 'dis' | 'ic' | 'mutfak'; disari?: boolean; iceri?: boolean; mutfak?: boolean }[] = fiyatiAyarla([
   { id: 'saksi', fiyat: 60, grup: 'oturma' },
   { id: 'masa', fiyat: 200, grup: 'oturma' },
   { id: 'semsiyeliMasa', fiyat: 320, grup: 'oturma', disari: true },
@@ -52,6 +58,10 @@ export const ESYALAR: { id: Esya; fiyat: number; grup: 'oturma' | 'dis' | 'ic'; 
   { id: 'tabloDeniz', fiyat: 180, grup: 'ic', iceri: true },
   { id: 'tabloBos', fiyat: 60, grup: 'ic', iceri: true },
   { id: 'aplik', fiyat: 120, grup: 'ic', iceri: true },
+  { id: 'buzdolabi', fiyat: 300, grup: 'mutfak', iceri: true, mutfak: true },
+  { id: 'mutfakRafi', fiyat: 120, grup: 'mutfak', iceri: true, mutfak: true },
+  { id: 'kasaYigini', fiyat: 40, grup: 'mutfak', iceri: true, mutfak: true },
+  { id: 'mutfakTezgahi', fiyat: 150, grup: 'mutfak', iceri: true, mutfak: true },
 ], (e) => (AYAR.esya as Record<string, number>)[e.id]);
 
 // Katman (C4): halı yere serilir, üstüne eşya konabilir; tablo duvara asılır,
@@ -159,7 +169,15 @@ export const ESYA_BOYU: Record<Esya, { en: number; boy: number }> = {
   tabloDeniz: { en: 1, boy: 1 },
   tabloBos: { en: 1, boy: 1 },
   aplik: { en: 1, boy: 1 },
+  buzdolabi: { en: 2, boy: 2 },
+  mutfakRafi: { en: 2, boy: 1 },
+  kasaYigini: { en: 1, boy: 1 },
+  mutfakTezgahi: { en: 1, boy: 1 },
 };
+
+export function mutfakEsyasiMi(e: Esya) {
+  return !!ESYALAR.find((x) => x.id === e)?.mutfak;
+}
 
 export function esyaOlcusu(esya: Esya, yon: number) {
   const { en, boy } = ESYA_BOYU[esya];
