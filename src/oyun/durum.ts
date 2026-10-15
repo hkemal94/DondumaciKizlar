@@ -825,10 +825,8 @@ export function ortalamaMemnuniyet(d: Durum = durum): number | null {
 // ---- Gün ve saat (iş sırası 4) ----
 // Yaz dönemi saatleri (Kemal, 13 Ekim): hafta içi 11:00–00:00, hafta sonu
 // 10:00–02:00. Saat beşer dakika ilerler; hafta içi bir gün yaklaşık
-// 2 dakika sürsün diye (Kemal, 13 Ekim) her adım 0,77 saniye. 1. gün pazartesi (Kemal, 13 Ekim). Adresin sonuna #hizli
-// yazılırsa gün 30 saniyede biter (gün sonunu görmek için).
+// 2 dakika sürsün diye (Kemal, 13 Ekim) her adım 0,77 saniye. 1. gün pazartesi (Kemal, 13 Ekim).
 const ADIM = 5; // saat kaçar dakika ilerler
-const HIZLI = typeof location !== 'undefined' && location.hash === '#hizli';
 
 export function haftaGunu(d: Durum = durum) {
   return (d.gun - 1) % 7; // 0 = pazartesi … 6 = pazar
@@ -843,16 +841,13 @@ export function calismaSaatleri(d: Durum = durum) {
   return haftaSonuMu(d) ? { acilis: 10 * 60, kapanis: 26 * 60 } : { acilis: 11 * 60, kapanis: 24 * 60 };
 }
 
-function gunUzunlugu(d: Durum = durum) {
-  const { acilis, kapanis } = calismaSaatleri(d);
-  return kapanis - acilis;
-}
-
 // Bir adımın (5 oyun dakikası) gerçek süresi: hafta içi 156 adım × 0,77 sn ≈ 2 dk,
 // hafta sonu 192 adım ≈ 2,5 dk
 const ADIM_MS = 770;
-function adimMs() {
-  return HIZLI ? (30_000 / gunUzunlugu()) * ADIM : ADIM_MS;
+
+function gunUzunlugu(d: Durum = durum) {
+  const { acilis, kapanis } = calismaSaatleri(d);
+  return kapanis - acilis;
 }
 
 let birikenMs = 0;
@@ -865,9 +860,9 @@ export function zamanIlerlet(gecenMs: number) {
   if (ilkSiparisEgitimi() && durum.musteriler.some((m) => m.hal === 'sirada')) return;
   if (durum.acik) {
     birikenMs += Math.min(gecenMs, 1000); // sekme arkadayken gün akıp gitmesin
-    const adim = Math.floor(birikenMs / adimMs());
+    const adim = Math.floor(birikenMs / ADIM_MS);
     if (adim > 0) {
-      birikenMs -= adim * adimMs();
+      birikenMs -= adim * ADIM_MS;
       const uzunluk = gunUzunlugu();
       const dakika = Math.min(uzunluk, durum.dakika + adim * ADIM);
       guncelle({ dakika, acik: dakika < uzunluk });
@@ -2270,16 +2265,6 @@ export function gezmeyeBasla() {
 export function gezmeyiBitir() {
   // Menüye geri döner; kamera eski yerine
   guncelle({ gezme: false, kamera: gezmedenOnceKamera });
-}
-
-// ---- Deneme parası (Kemal, 13 Ekim: dekorasyonu görmek için) ----
-// Yalnız adresin sonuna #deneme yazılınca görünür; oyunun kendisinde yok.
-export const DENEME = typeof location !== 'undefined' && location.hash === '#deneme';
-
-export function denemeParasi() {
-  if (!DENEME) return;
-  guncelle({ para: durum.para + 5000 });
-  kaydet();
 }
 
 // ---- Çalışan (Kemal, 13 Ekim) ----

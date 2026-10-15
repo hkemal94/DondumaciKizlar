@@ -1,11 +1,12 @@
 # Dondurmacı Kızlar — Oyun Tasarım Belgesi (GDD)
 
 **Proje:** Dondurmacı Kızlar (Kems Company)
-**Aşama:** Detaylandırılmış konsept ve oynanış belgesi
-**Son güncelleme:** 12 Ekim 2026 — Kemal'in taslağı + aynı gün verilen
-kararlar (bölüm 0). Taslak görseller `docs/gorseller/` altında (kanon
-değil; neyin alınmayacağı oradaki README'de). KKM oyun dosyasından gelen
-ek maddeler bölüm 7'de.
+**Aşama:** Oynanabilir sürüm var; görsel kalite ve yeni sistemler sürüyor
+**Son güncelleme:** 15 Ekim 2026 — toparlama (bölüm 0.12). Bölüm 0'daki
+tarihli kararlar sırayla eklendi; sonradan değişenlerin yanında yeni kararın
+bölümü yazar. **Güncel sıra ve açık işler:** `docs/yol-haritasi.md`.
+**Açık sorular:** bölüm 7. Taslak görseller `docs/gorseller/` altında
+(kanon değil; neyin alınmayacağı oradaki README'de).
 
 | | |
 |---|---|
@@ -52,7 +53,7 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Genel görünümde yakınlaştırma | Açı sabit, ama oyuncu **yakınlaştırıp uzaklaştırabilir** (iki parmak, fare tekerleği, + / − düğmeleri); başlangıçta uzaktan (Kemal, 13 Ekim: "insanlar dükkânlarını görebilsinler"). Tezgah görünümü sabit kalır |
 | Eksik / fazla süsleme | Altlık ve toplar doğruysa ama süsleme tutmuyorsa dondurma çöpe gitmez: oyun hangi süslemenin eksik ya da fazla olduğunu hatırlatır (Kemal, 13 Ekim) |
 | Haftanın günü | 1. gün pazartesi (Kemal, 13 Ekim) |
-| Oyunun adı | **Dondurmacı Kızlar** (dükkânla aynı; Kemal, 13 Ekim) |
+| Oyunun adı | ~~Dondurmacı Kızlar (13 Ekim)~~ → **henüz karar yok** (Kemal, 15 Ekim, 0.12); şimdilik açılışta dükkânın logosu |
 | İlk dört çeşit | **Çilek, Çikolata, Fıstık, Kaymak** (Kemal, 13 Ekim) |
 | Para | Adsız jeton (Kemal, 13 Ekim) |
 | Oyuncu ve dükkândakiler | **Karar değişti** (13 Ekim): tezgahın arkasında oyuncunun **kişiselleştirebileceği bir çalışan** olur: ten rengi, saç, kıyafet ve önlük, **ad** (oyuncu yazar); parayla yeni kıyafet açılır; vakti gelince şapka, küpe, gözlük gibi aksesuarlar. Dükkânın sahibi (kanondaki kadın, adı yok) **ara sıra gelip dükkânda dolaşır**, şimdilik başka bir şey yapmaz. Eski "oyuncuya ad, yüz verme" kuralının yerine geçer |
@@ -61,12 +62,12 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Siparişlerin büyümesi | Bazen **iki dondurma**, bazen **birden çok süsleme**; bir şey **açılınca** başlar (Kemal, 13 Ekim). Açılan şey: **Tepsi** (aşağıda) |
 | Waffle ve limonata | Şimdilik yok. Gelince **kendi mini oyunları** olur; makineleri **parayla alınıp dükkâna konur**; geliri ve memnuniyeti etkileyen bir yapı düşünülebilir (Kemal, 13 Ekim) |
 | Ses | Kodla üretilir, dışarıdan dosya yok (Kemal, 13 Ekim): **deniz ve rüzgâr** (arkada sürekli, gece daha sessiz); **tezgah** (kepçe dalışı, top yerleşmesi, MÜKEMMEL çınlaması, süsleme serpme); **para ve müşteri** (jeton, müşteri tezgaha gelince zil, sıkılıp gidince alçak ses); **düğme tıkları**. **Müzik:** şimdilik kodla basit, sakin bir ezgi; Kemal'in müziği (Suno vb.) gelince yerini alır. Sesler **ilk dokunuşta** açılır (telefonlar dokunmadan ses çaldırmaz). Mola menüsünde müzik ve ses ayarı |
-| Gerçek 3B modeller | Sonra; her parça ayrı değiştirilebilir, bugünkü geçici parçalar sonradan kolayca değişir |
+| Gerçek 3B modeller | Hazır paketlere geçildi (0.7, 0.9); kodla çizilmiş parçalar sırayla değişiyor (0.12: mahalle, deniz, kumsal) |
 | Eller | **Olmayacak** (Kemal, 14 Ekim: "eller olmasın, bu hali güzel"). Tezgahta yalnız altlık ve kepçe görünür |
 | Gün sonu ve gün başı | Gün sonu ekranı kalır, altında yalnız **Tamam**. Tamam'dan sonra dükkânın genel görünümüne dönülür; **Yeni güne başla** ve **dekorasyon / geliştirme** orada. Gün oyuncu başlatınca başlar: günün başında oyuncu dükkânına bakıp vakit geçirebilir, menülere sıkışmaz (Kemal, 13 Ekim). |
 | Altlık değiştirme | Külah / kap / kup arasında her an doğrudan geçilir, Geri al gerekmez; konmuş toplar ve süslemeler yeni altlığa geçer (Kemal, 13 Ekim). |
 | Süsleme kaldırma | Aynı süslemeye yeniden basınca o süsleme kalkar; süsleme için Geri al gerekmez (Geri al yalnız kepçedeki ve konmuş toplar için kalır). Bir dondurmaya birden çok süsleme gelebilir (Kemal, 13 Ekim). |
-| Dekorasyon türleri | İki tür (Kemal, 13 Ekim): **genel** (ör. ışıklandırma; tek tip, daha pahalı üst seviyeleri olabilir) ve **taşınabilir** (ör. masa takımı: alınır, yerini oyuncu elle seçer; kareli yerleştirme düzeni önerildi). Taşınabilir eşyalar **dükkânın içine de önüne (terasa) de** konabilir (Kemal, 13 Ekim). Dekorasyon uzun soluklu bir alan. *Uygulamada henüz yok* |
+| Dekorasyon türleri | İki tür (Kemal, 13 Ekim): **genel** (ör. ışıklandırma; tek tip, daha pahalı üst seviyeleri olabilir) ve **taşınabilir** (ör. masa takımı: alınır, yerini oyuncu elle seçer; kareli yerleştirme düzeni önerildi). Taşınabilir eşyalar **dükkânın içine de önüne (terasa) de** konabilir (Kemal, 13 Ekim). Dekorasyon uzun soluklu bir alan. Yapıldı (bölüm 0.1–0.4, 0.11) |
 | Kapı ve müşteri yolu | Dükkânın önünde (teras / iskele tarafında) bir **kapı** olur. Müşteriler havadan belirmez: kameranın dışından **iskele boyunca yürüyerek** gelir, kapıdan girer, sıraya geçer; giderken kapıdan çıkıp yürür. Hep aynı taraftan gelmezler, iki yönden de gelirler (Kemal, 13 Ekim) |
 | Dekorasyon | **Genel:** ışıklandırma üç seviye — 1 fenerler, 2 terasa asma ampuller, 3 dükkân önünde ışıklı mor-sarı şerit; her seviye öncekinden pahalı. **Taşınabilir:** masa takımı, şemsiyeli masa, çiçek saksısı; alınınca depoya gider, gün başında "Yerleştir" ile kareli zeminde bir kareye konur (terasa ve içeri); konmuş eşyaya dokunulunca yeniden seçilir, başka yere taşınır. Müşteri yolu ve kapı önü boş kalır. Yerleştirilen her eşya ve her ışık seviyesi müşterileri biraz daha sık getirir. Fiyatlar geçici |
 | Genel görünümde kamera | **Değişti (Kemal, 14 Ekim):** "360 döndürme ve aşağı yukarı bakma, her yerde". Genel görünümde her an, alışılmış harita düzeniyle (Kemal, 14 Ekim): **tek parmak** kaydırır (açı değişmez, dükkândan uzaklaşamaz); **iki parmak açıp kapama** yakınlaştırır (sınırlı); **iki parmağı çevirmek** dükkânın çevresinde döndürür; **iki parmakla birlikte yukarı aşağı sürüklemek** eğer (alçak bakıştan neredeyse tepeden bakışa). İki parmakta önce belirginleşen hareket, parmaklar kalkana dek tek başına çalışır; birbirine karışmaz. Farede sol tuş kaydırır, sağ tuş döndürür ve eğer, tekerlek yakınlaştırır. Sol alttaki **ortala** düğmesi baştaki görünüme döndürür. Tezgah yakın planı sabit kalır. (13 Ekim'deki "tek parmak kaydırır, açı değişmez" kuralının yerine geçer) |
@@ -75,7 +76,7 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Dükkânı gezme | Duraklatınca dükkânın çevresinde **parmakla döndürülür**, yakınlaştırılır; bakılan yöne dönük duvarlar kalkar. 14 Ekim'den beri genel görünümde de döndürülebiliyor; gezmenin farkı duvar ve ışık seçenekleri ile fotoğraf |
 | Gezerken duvarlar | Tek düğme sırayla değiştirir (Kemal, 13 Ekim): **Kesit** (bakılan yöne dönük duvarlar kalkar) → **Duvarsız** (hepsi kalkar) → **Kapalı** (bütün duvarlar ve tavan yerinde; dükkâna tümden dışarıdan bakılır) |
 | Gezerken gece / gündüz | Dükkânı gezerken bir düğme ışığı sırayla değiştirir: şimdiki saat → gündüz → akşam → gece (Kemal, 13 Ekim). Yalnız görünüş; oyunun saati değişmez |
-| Deneme parası | Yalnız adresin sonuna `#deneme` yazılınca, Dükkânı geliştir'de "Deneme parası +5000" düğmesi çıkar; dekorasyonu denemek için (Kemal, 13 Ekim). Oyunun kendisinde yok |
+| Deneme parası | ~~`#deneme` ile +5000 düğmesi~~ → **kaldırıldı** (15 Ekim, 0.12): yerini 10.000 jeton ve Deneme dükkânı aldı. `#hizli` (30 sn gün) da kaldırıldı |
 | Fotoğraf | Gezerken **Fotoğraf çek**: o anki görüntü gösterilir; telefonda resme basılı tutarak kaydedilir (Claude önizlemesinde İndir düğmesi çalışmaz, yayın bağlantısında çalışır) |
 | Sipariş balonu | Müşterinin başının sağında, aşağı doğru açılır (üstteki ipucuyla çakışmasın; 13 Ekim) |
 | İpucu yazısı | Üst sıranın altında, ortada; dili sıcak (Kemal, 13 Ekim: "üst üste gelmiş, çok soğuk") |
@@ -99,15 +100,15 @@ Taslakla çelişen yerde bu bölüm geçerli.
 | Açılış ekranı ve Ayarlar (14 Ekim) | Açılışta arkada dükkânın sakin görünümü, önde **logo**, **Oyna** ve **Ayarlar**. Logo dosyasını **Kemal gönderecek**. Ayarlar: müzik ve ses, eğitimi yeniden göster, baştan başla (onaylı), dil (İngilizce gelince), **ekran ayarları**: küvet etiketlerini ve sipariş balonundaki çeşit adlarını gösterme / gizleme (Kemal, 14 Ekim) |
 | Makineler (14 Ekim) | Waffle ve limonata makineleri + yardımcı çalışan **assetlerden sonra** |
 | Assetler (14 Ekim) | Önce **ücretsiz paketler** (Kenney, Quaternius; CC0). Claude indirir, yerleştirir, `docs/lisanslar.md`'ye yazar; Kemal'in bir şey yüklemesi gerekmez. **İlk karakterler** değişir (müşteriler, çalışan, sahip; yürüme ve oturma hareketleriyle) |
-| Kroki | Kemal paylaştı (14 Ekim, `docs/gorseller/kroki-liman.webp`): dükkân sahil yolunun deniz tarafında, **T biçimli iskelenin karşısındaki küçük kare** (yaklaşık 15–18 m). Krokide dükkânla deniz arasında kum var; oyunda **şimdiki ahşap teras kalır** (Kemal: "şimdiki kalsın"). Bugünkü düzen zaten yakın |
+| Kroki | *Yerini 0.10 (Liman haritası) aldı.* Kemal paylaştı (14 Ekim, `docs/gorseller/kroki-liman.webp`): dükkân sahil yolunun deniz tarafında, **T biçimli iskelenin karşısındaki küçük kare** (yaklaşık 15–18 m). Krokide dükkânla deniz arasında kum var; oyunda **şimdiki ahşap teras kalır** (Kemal: "şimdiki kalsın"). Bugünkü düzen zaten yakın |
 | Logo | Kemal gönderdi (14 Ekim): `public/gorseller/logo-kulahli.webp` (külahlı) ve `logo-yazi.webp` (yalnız yazı). Yazı kırmızı-krem, logonun asıl zemini **mor ve sarı**: oyunun renkleri **mor-sarı kalır**. Kullanılacak yerler: **açılış ekranı, ışıklı tabela, dükkânın ön cephesi (tentenin üstü), menü başlıkları**; yerine göre külahlı ya da yalnız yazı |
 | Büyüme (14 Ekim) | Soru turuyla planlandı: aşağıda **bölüm 0.1**. Bugünkü "Alanlar" satın alması bu planla değişecek. **Assetlerden sonra** yapılır |
 | Arayüz sıkışık (Kemal, 14 Ekim, telefon görüntüleriyle) | "Düğmeler inanılmaz büyük, çok fazla yer kaplıyor. Menü sistemi yok, her şey ortada." Düğmeler küçülecek; gün başı düğmeleri (Dükkânı geliştir, Vitrin, Yerleştir, Çalışan) tek bir menü düzeninde toplanacak; tezgahta altlık, süsleme, Geri al, Servis et daha az yer kaplayacak. 4. maddeyle (resimli menüler) birlikte ele alınır |
 | Etiket boyu (Kemal, 14 Ekim) | Küvetlerdeki ad kartları ve sipariş balonundaki çeşit adları "inanılmaz büyük": küçülecek. Ayarlar'daki ekran ayarlarından ikisi de kapatılabilecek |
 | Kış paketi (Kemal, 14 Ekim) | Aciliyeti yok: oyun hazır olduğunda, dönemi gelince yapılır |
-| İş sırası (14 Ekim) | 1. Eğitim → 2. Tezgah küvetleri (vitrin yanlara, kamera dik) → 3. Çeşit başına fiyat ekranı → 3b. Etiketleri küçült → 4. Menü sistemi + küçük düğmeler + resimli menüler + "Yerleştir / devam et" ekranı → 5. Efektler + bahşiş + yatay balon → 6. Açılış ekranı + Ayarlar (logo gelince) → 7. Assetler (önce karakterler) → 8. Makineler + yardımcı çalışan → 9. Büyüme yapısı |
+| İş sırası (14 Ekim) | *Bitti; güncel sıra `docs/yol-haritasi.md`.* 1. Eğitim → 2. Tezgah küvetleri (vitrin yanlara, kamera dik) → 3. Çeşit başına fiyat ekranı → 3b. Etiketleri küçült → 4. Menü sistemi + küçük düğmeler + resimli menüler + "Yerleştir / devam et" ekranı → 5. Efektler + bahşiş + yatay balon → 6. Açılış ekranı + Ayarlar (logo gelince) → 7. Assetler (önce karakterler) → 8. Makineler + yardımcı çalışan → 9. Büyüme yapısı |
 | Masalarda oturan müşteriler | (Kemal, 14 Ekim: "misafirler arada varsa masalara otursun") Dondurmasını alıp mutlu giden müşterilerin bir kısmı boş bir masa varsa oturup yer, sonra iskeleden gider. Tezgahın arkasındaki köşelere konan masalara oturulmaz |
-| Sonraki iş sırası (14 Ekim) | 1. Alanlar + masalarda oturan müşteriler → 2. Dükkân dışı için tabela benzeri yeni dekorasyon ürünleri (market zayıf kaldı) → 3. Çok çeşit dondurma (Türkiye'de 20 çeşit olağan): çeşitler zamanla açılır, vitrine sınırlı küvet sığar, **her sabah vitrine hangi çeşitlerin gireceği seçilir** (önerildi, onay bekliyor) → 4. **Kış paketi:** dükkân tatlıcı / kafe olur, kışın yalnız **sıcak çikolata** istenir; makyaj paketi olarak satılabilir |
+| Sonraki iş sırası (14 Ekim) | *Bitti / yerini büyüme planı aldı; güncel sıra `docs/yol-haritasi.md`.* 1. Alanlar + masalarda oturan müşteriler → 2. Dükkân dışı için tabela benzeri yeni dekorasyon ürünleri (market zayıf kaldı) → 3. Çok çeşit dondurma (Türkiye'de 20 çeşit olağan): çeşitler zamanla açılır, vitrine sınırlı küvet sığar, **her sabah vitrine hangi çeşitlerin gireceği seçilir** (önerildi, onay bekliyor) → 4. **Kış paketi:** dükkân tatlıcı / kafe olur, kışın yalnız **sıcak çikolata** istenir; makyaj paketi olarak satılabilir |
 | Topların sırası | Kural değil: yalnız altlık, çeşitler ve top sayısı tutmalı (13 Ekim) |
 | Deneme telefonu | Elde hangisi varsa; orta seviye bir telefonda akıcı çalışmak hedef |
 
@@ -115,7 +116,7 @@ Taslakla çelişen yerde bu bölüm geçerli.
 
 ## 0.1 Büyüme planı (Kemal, 14 Ekim soru turu)
 
-*Uygulamada henüz yok.* İş sırasında assetlerden sonra (madde 9). Sayılar sonra ayarlanır.
+*Yapıldı (0.2–0.5).* Sayılar geçici; ayar dosyasına taşınacak (0.12).
 
 **Arazi**
 - Dükkânın sağı, solu ve arkası **eşit dilimlere** (~4 m) bölünür; her dilim ayrı alınır.
@@ -334,6 +335,91 @@ Sims gibi: dükkânın dışı ve içi oyuncunun zevkine göre. Geliştir'de yen
 | Sıra | 1) boya, çerçeve, tente, zemin → 2) çatı → 3) tabelalar → 4) halı ve tablo |
 | Önlük | Kemal: "berbat görünüyor, şimdilik kaldır." Daha iyisi yapılınca geri gelir |
 
+### 0.12 Toparlama turları (Kemal, 15 Ekim)
+
+İki soru turu (biri genel, biri konsept görseller ve oyun ekran görüntüleri
+üstüne "sert" tur). Konsept görseller fikirdir; içlerindeki adlar, yerler ve
+yazılar kanon değildir.
+
+**Oyunun temeli**
+
+| Konu | Karar |
+|---|---|
+| Müşteri tipi | Yok; hepsi aynı davranır, görünüşleri farklı |
+| Para | Adsız jeton kalır |
+| Gün süresi | Şimdiki gibi (~2 dk) |
+| Oyunun adı | Henüz karar yok |
+| Mevsim (kış) | Henüz karar yok |
+| Renkler | **Mor ve sarı ana renk kalır**; diğer renklere de yer açılır (pembe önemli değil). Marka kiti görseli fikir |
+
+**Görsel kalite (sıra: önce hatalar, sonra güzellik)**
+
+| Konu | Karar |
+|---|---|
+| Mutfak | Normal oyunda İnşaat'tan mutfak kurulunca dolaplar ve raflar gelir, **doğru yöne** bakar (şimdi duvarın dışına, ters duruyor) |
+| Ön cephe camları | **Büyük vitrin camı**: dikmeler ince, yalnız uçlarda ve birkaç metrede bir (şimdi her metrede mor dikme, parmaklık gibi) |
+| Kapı | Müşteri gelince açılır, geçince kapanır; açılınca **zil sesi** |
+| Araya giren ev | Kamerayla dükkân arasına giren ev **yarı saydam** olur |
+| Menü | Dört grup: **Dükkân** (inşaat + yerleştir + görünüş), **Ekip** (çalışan + yardımcılar), **Ürünler** (vitrin + çeşitler + fiyat), **Mağaza** (satın almalar) |
+| Mahalle | "Savaş alanı gibi" kutular yerine iki-üç katlı müstakil Ege evleri. İzinli dört paketin (Kenney, Quaternius, Tiny Treats, KayKit) hepsi kullanılabilir; **önce adaylar gösterilir, Kemal seçer** |
+| Zemin | Taş döşeli sokaklar ve kaldırımlar, çimen ve bahçeler, zeytin, çam, begonvil. **Kum yalnız sahilde** |
+| Deniz ve kumsal | Açılış konsept görseli gibi: yumuşak low-poly, hafif dalga, kıyıda köpük, kayalar, sıcak ışık |
+| Boşluklar | Kumsal daralır ve dolar; yürüyüş yolunda bank, saksı, ağaç, lamba |
+| Liman canlılığı | Yürüyüş yolu sise kadar uzanır, iki yanı ışıklı; sokak lambaları; arka yoldan geçen arabalar; yayalar; martılar ve kediler; tekne çeşidi ve renkleri; deniz ve ortam sesi. Mahalle sokakları haritadaki gibi eğik, uzağı sisle kapanır. Liman binalarına tabela şimdilik yok |
+| Akıcılık | Ayarlara **grafik kalitesi** (düşük / orta / yüksek) |
+
+**Karakterler**
+
+| Konu | Karar |
+|---|---|
+| Ağız | Basit gülümseme, hep aynı |
+| Önlük | Bedene oturan önlük geri gelir; **dükkân üniforması** (mor önlük, renkli tişört, şapka) seçeneği, yardımcılar da giyebilir |
+| Hareketler | Tezgaha varınca el sallama; mutlu / mutsuz ayrılış; çalışan ve sahip ara sıra el sallar |
+| Çalışan | Kıyafet seçimi gelir; saçlar başlardan ayrılmaya çalışılır (sonuç garanti değil) |
+
+**Oynanış**
+
+| Konu | Karar |
+|---|---|
+| İçecek istasyonları | Sırayla: limonata / ayran / buzlu çay → milkshake / frappe → kahve (barista) → taze sıkma |
+| Stok | Hafif stok: küvetler gün içinde azalır, gün sonunda düz bir sipariş ekranından alınır; biten çeşit o gün istenmez, ceza yok. Çiftlik / üretici sahnesi şimdilik yok |
+| Sıra | Hep dolu olmasın: bazen uzun, bazen boş |
+| Otomatik kamera | Tezgaha kendiliğinden geçiş Ayarlar'dan kapatılabilir |
+| Süslemeler | Bugünkü üçü kalır; yenileri sonra satın alınır |
+| Eşyalar | Renk seçeneği; **konfor** (oturanın memnuniyeti) ve **çekicilik** (müşteri sıklığı) puanları; yumuşak **yıpranma** (solar, istenirse boyanır; ceza yok) |
+| Yorum defteri | Şimdilik yok; **üstteki kayan yazı müşteri yorumlarına ayrılır** (cümleler Kemal'in; o zamana kadar [YER TUTUCU]) |
+| Festival | Sonra; bayramlar gibi özel günler. Ad, tarih, özel çeşitler Kemal'in |
+| Sonraki fikirler (listede) | Gedikli müşteriler (aynı yüz tekrar gelir), hava durumu, iç duvarda külah / meyve deseni, **seyyar dondurma arabası** (yardımcılar alınınca; yol kenarında ya da plajda) |
+
+**Deneyim (exp) sistemi**
+
+| Konu | Karar |
+|---|---|
+| Yapı | Bir ana seviye; altında ayrı seviyeler: **eşya almak için dükkânın seviyesi, yetenekler için çalışanın seviyesi** |
+| Kazanç | Servis edilen müşteri, memnuniyet / MÜKEMMEL toplar, kazanılan para, günlük hedefler |
+| Seviye atlayınca | Yeni şeyler satın alınabilir olur, küçük para ödülü, hediye eşya, yeni müşteri yüzleri / daha çok müşteri |
+| Yıldızlar | Exp ile birleşir; yıldız dükkânın yorumları gibi görünür (Kemal'in konsept çizimleri) |
+
+**Açılış ekranı ve galeri**
+
+| Konu | Karar |
+|---|---|
+| Açılış | Arkada oyuncunun kendi dükkânı, gün batımında, yavaş dönen kamera |
+| Galeri | "Dükkânı gez"de çekilen fotoğraflar birikir |
+| Albüm | Dükkânın fotoğrafı **ayda bir** kendiliğinden çekilip albüme girer |
+
+**Araçlar, dil, yayın**
+
+| Konu | Karar |
+|---|---|
+| Ayar paneli | Bütün fiyat, süre ve oranlar oyunda tek bir ayar dosyasına taşınır; **KKM'deki oyun sayfasında "Ayarlar" sekmesi** onları gösterir ve düzenler. Değişikliğin oyuna nasıl gideceği (KKM'ye GitHub anahtarı ya da kopyala-yapıştır) o adımda seçilir |
+| İngilizce | **Şimdi** eklenir (ileride başka diller için temel) |
+| Bulut kayıt | Yayına yakın, Google ile giriş |
+| Deneme yayını | Web |
+| Eski deneme araçları | `#deneme` (+5000) ve `#hizli` kaldırıldı; Deneme dükkânı yeter |
+| Çalışma düzeni | Uyanıkken adım adım; "uyuyorum" deyince onay beklemeden sürer, işler tek PR'da (CLAUDE.md) |
+| KKM | AI Studio önizlemesi GitHub'dan elle eşitleniyor; yeni sekmeler görünmüyorsa önce eşitlenir |
+
 ## 1. Oyunun özeti ve vizyonu
 
 ### 1.1 Tek cümlelik özet
@@ -419,7 +505,7 @@ ayarlanır, dükkân için yeni masa, bitki ve dekorasyon alınır.
 - **Dönem:** 2000'lerin başı — dükkânın açılış yılları.
 - **Hikâye:** Dükkânın kuruluş hikâyesi: küçük başlar, adanın bilinen
   dükkânına dönüşür.
-- **Oyuncu:** İsimsiz.
+- **Oyuncu:** Tezgahın arkasında oyuncunun kişiselleştirdiği bir çalışan (bölüm 0, 13 Ekim); hikâyesi yazılmaz.
 - **Karakterler:** Müşterilerin konuşmalarından adadaki olaylara dair küçük
   kırıntılar sızar. Metinleri Kemal yazar.
 - **Kanondan:** Sahibi bir kadın (ailesi adalı, anakaradan gelmiş; Sade
@@ -429,90 +515,41 @@ ayarlanır, dükkân için yeni masa, bitki ve dekorasyon alınır.
 
 ## 6. Görsel ve işitsel yönelim
 
-- **Sanat yönetimi:** Low-poly, pastel tonlarda sevimli 3D grafikler.
-  Telefonda akıcı çalışacak kadar sade.
+- **Sanat yönetimi:** Low-poly, yumuşak ışık; mor ve sarı öne çıkar (pastel
+  fazla, 12 Ekim). Hazır paketler tasarım diliyle palete çevrilir (0.7).
+  Telefonda akıcı çalışacak kadar sade; grafik kalitesi ayarı gelecek (0.12).
 - **Ses ve müzik:** Sakin lofi hip-hop, akustik müzik; deniz ve rüzgâr
   sesleri.
 
 ---
 
-## 7. Açık sorular
+## 7. Açık sorular (15 Ekim'de yeniden yazıldı)
 
-"Öneri" sütunu yapay zekânın önerisidir, **karar değildir**. Karar Kemal'in;
-karar verilince bölüm 0'a taşınır.
+Karar Kemal'in; karar verilince bölüm 0'a taşınır. Eski 7.1–7.4 tabloları
+toparlamada kalktı (cevaplananlar bölüm 0'da; geçmişi GitHub'da).
 
-### 7.1 Taslaktan gelenler
+| Konu | Durum |
+|---|---|
+| Oyunun adı | Açık (0.12) |
+| Mevsim / kış dönemi ne zaman | Açık (0.12) |
+| Para modelinin ayrıntıları | Makyaj paketleri satılabilir (14 Ekim); gerisi açık |
+| Çalışanın, sahibin, yardımcıların, mekânların adları | Kemal'in |
+| Müşteri yorum cümleleri, hikâye kırıntıları | Kemal'in; o zamana kadar [YER TUTUCU] |
+| Boş çerçeve resimleri | Kemal gönderecek |
+| Festival / bayram günleri, adları ve özel çeşitleri | Sonra; Kemal'in |
+| Ayar panelinin oyuna yazma yolu | KKM'ye GitHub anahtarı mı, kopyala-yapıştır mı (ayar paneli adımında) |
+| Exp sisteminin sayıları | Seviye eşikleri, ödüller, neyin hangi seviyede açılacağı: exp adımında tablo olarak sunulur |
+| Mahalle evleri | Paket adayları gösterilip Kemal seçecek |
 
-| Konu | Durum | Öneri |
-|---|---|---|
-| Bir oyun gününün gerçek süresi | Öneri 5–8 dakika | 6 dakikayla başla, Kemal'in denemesine göre ayarla |
-| İlk sürümde kaç çeşit, kaç müşteri tipi | Açık | 4 çeşit (taslak 2'deki çilek, çikolata, nane, vanilya) + 2 altlık (külah, kap); 3–4 müşteri görünümü |
-| Birinci şahısta eller | **Karar verildi** (14 Ekim): eller yok | — |
-| Para modeli | Kısmen karar verildi (14 Ekim): makyaj paketleri satılabilir | Ayrıntılar sonra |
-| Oyunun adı | "Dondurmacı Kızlar" dükkânın adı; oyunun adı da bu mu? | — (Kemal'in) |
-| İsimsiz oyuncu + kuruluş hikâyesi | Oyuncu sahip mi, ilk çalışan mı — belli olmak zorunda değil | Belirsiz kalsın; ekranda hep birinci şahıs eller, izometrikte oyuncu görünmez |
+### 7.1 Geçici sayılar
 
-### 7.2 KKM oyun dosyasından gelenler (12 Ekim)
-
-KKM'deki oyun dosyasında olup bu belgede olmayan maddeler:
-
-| Konu | KKM dosyasında | Öneri |
-|---|---|---|
-| Zaman aralığı | "Onyıllara yayılır" — belgede dönem 2000'lerin başı | Oyun 2000'lerin başında başlar; yıllar sonraki güncellemelerle ilerleyebilir. İlk sürüm tek dönem |
-| Seslendirme | Kısmi | İlk sürümde yok; müşteriler balonla anlatır. Sonra kısa sesler (selam, teşekkür) |
-| Başarımlar | Var | İlk sürümde yok; sonraki sürümlere |
-| Kaynak yönetimi | Ana mekanik | İlk sürümde stok yok; sonra "küvet biter, gün sonu sipariş verilir" gibi hafif bir biçim |
-| Bir oturum | 15–30 dakika | Belgeyle uyumlu: bir oturum 3–4 oyun günü |
-| Platform | PC, mobil | Bölüm 0 geçerli: önce telefon |
-| Hedef oyuncu | Aile / herkes | Belgeyle uyumlu |
-| Oyunun sonu | Açık uçlu | Belgeyle uyumlu |
-| Riskler | Kapsam büyür, motivasyon düşer | İlk oynanabilir sürümü küçük tut (bölüm 0); her adım telefonda denenebilir olsun |
-
-### 7.3 Taslak görsellerden doğan sorular
-
-| Konu | Durum | Öneri |
-|---|---|---|
-| Para birimi | Görsellerde altın (g), yıldız, "Skill Points" karışık | Tek para (dönemin parası mı, oyuna özel mi — Kemal'in) + itibar yıldızları. Tarif ağacı da parayla açılsın; üçüncü birim olmasın |
-| İzometrikte tezgah arkasındaki kız (taslak 1) | Oyuncu mu, sahibi mi, çalışan mı? | Oyuncu görünmez; orada biri olacaksa çalışan ya da sahibi olur, adı ve görünüşü Kemal'in |
-| Logo renkleri | Görsellerde pembe / krem / kahve; kanonda mor ve sarı | Kanon geçerli: mor ve sarı |
-| Dükkânın çevresi | Görsellerde kumlu plaj | Kanon geçerli: iskelenin yakını. Plaj yerine iskele ve tekneler görünsün |
-| Kepçe göstergesi | Taslak 2'de "HIZ" yazıyor | Gösterge "MÜKEMMEL" bölgesini göstersin, yazısı çeviri dosyasından gelsin |
-
-### 7.4 3. ve 4. adımda geçici konan sayılar (Kemal'in onayını bekliyor)
-
-| Konu | Geçici değer | Not |
-|---|---|---|
-| Para birimi | Adsız, sarı jeton simgesi | Ad ve biçim Kemal'in (7.3) |
-| Top fiyatı | 10; MÜKEMMEL top +5, İyi top +2 | Fiyat ekranı gelince değişir |
-| Memnuniyet | Her müşteri 1–5 yıldız: MÜKEMMEL 5, İyi 4, küçük / büyük 3. Ekranda ortalama | |
-| Yanlış sipariş | Ceza yok: dondurma kenara konur, müşteri bekler, yeniden yapılır | Sütun: kaybetme yok |
-| Sıra | En çok 4 kişi; yeni müşteri 5–9 sn'de bir | Gün süresi kararıyla ayarlanır |
-| Sipariş | Altlık rastgele; yarısı 1 top, üçte biri 2 top, kalanı 3 top | |
-| Müşteri görünümü | 4 kodla çizilmiş geçici görünüm; adsız | Model kararı sonra |
-| Gün süresi | Saniyede 5 oyun dakikası (bölüm 0) | Adresin sonuna `#hizli` yazılırsa gün 30 sn (deneme için) |
-| Kapanış | 20:00'de yeni müşteri gelmez; sıradakilere servis bitince gün sonu ekranı | Ceza yok |
-| Gün sonu ekranı | Servis edilen müşteri, günün kazancı, MÜKEMMEL top, günün memnuniyeti, kasadaki para | |
-| Akşam ve gece ışığı | Saate göre: öğleden sonra güneş alçalır, 20:00 sularında gün batımı, sonra gece (gök kararır, ampuller ve fenerler yanar) | Belgede yoktu; beğenilmezse kalkar |
-| Kamera geçişi | Gün dükkânın genel görünümüyle başlar. Öndeki müşteri tezgaha varınca kamera kendiliğinden tezgaha geçer; sıra boşalınca genele döner. Oyuncu düğmeyle de geçer (genelde "Tezgaha geç", tezgahta ev simgesi) | 5. adım |
-| Genel görünüm | Önden, bebek evi gibi: tavan, pencere duvarı ve sol duvar kalkar, yalnız dipleri görünür; menü panosu arka duvarda. Oyuncu görünmez | 5. adım, 13 Ekim'de 180° çevrildi |
-| Dükkân içi | Arka tezgah (kavanozlar, kahve makinesi, kasa), yazısız menü panosu, üç saksı; dışarıda taş kaldırım. Hepsi geçici | Taslak 1'e göre; ad ve yazı yok |
-| Süsleme ve sos | Üç tane: çikolata sosu, renkli şeker, fındık (belge 3, adım 4). En az bir top konunca sağdaki sütunda çıkar; her biri bir kez. Süslemeden sonra top eklenmez | Çeşitler ve adları Kemal'in onayına |
-| Süslemeli sipariş | Siparişlerin üçte birinde bir süsleme istenir; balonda topun üstünde ve ayrıca balonun altında rozet olarak görünür. Süsleme başına +3 | Geçici oran ve fiyat |
-| Düğme yerleri | Altlık düğmeleri solda, Geri al ve süslemeler sağda dikey sütun, Servis et sağ altta: küvetlerin üstüne binmesinler diye | |
-| Dükkânı geliştir | Gün başlamadan, dükkânın genel görünümündeki düğmeyle açılır (13 Ekim'den önce gün sonu ekranındaydı); üç sekme (taslak 3 gibi): Yeni çeşitler, Fiyat, Dekorasyon | Belge 2.4 ve 4 |
-| Yeni çeşitler | Mango 150, yaban mersini 250 (belge 4'teki adlar). Açılınca vitrine küvet eklenir, müşteriler de istemeye başlar. İlk dört çeşidin adı yok | Fiyatlar geçici |
-| Fiyat | Ucuz (top 8, müşteri daha sık), Normal (10), Pahalı (13, daha seyrek, memnuniyet −0,5) | Geçici |
-| Dekorasyon | Çiçek saksıları 80, fenerler 120, şemsiye 160, masa takımı 200. Her biri müşteri aralığını %6 kısaltır; dükkânın önünde görünür | Geçici |
-| Kayıt | Para, gün, açılan çeşitler, fiyat ve dekorasyon bu tarayıcıda saklanır (gün başında ve alışverişte). "Baştan başla" onay ister | Belgede yoktu; ilerlemenin anlamı olsun diye eklendi |
-| Alan fiyatları | Yan alanlar 250, yol kenarları 400. 14 Ekim'den önce kurulmuş bir dükkânda eşya duran alan kendiliğinden açık sayılır | Geçici |
-| Dış süs fiyatları | Bank 140, çöp kutusu 50, çiçekli kasa 80, kara tahta 90, flama 110, sokak lambası 160, bisiklet 180, ışıklı tabela 260, dev külah 380. Her biri öteki eşyalar gibi müşteri sıklığını biraz artırır | Geçici |
-| Çeşit ve vitrin fiyatları | Çeşitler 100–600 (özel olanlar pahalı); vitrin büyütme 6 küvet 300, 8 küvet 600, 10 küvet 1000, 12 küvet 1500. 14 Ekim'den önce kurulmuş dükkânda vitrin, açık çeşit sayısı kadar büyük başlar | Geçici |
-| Masada oturma | Mutlu giden müşterinin %60'ı, boş sandalye varsa 10–16 sn oturur | Geçici oran |
-| Kup | Üçüncü altlık (belge 3: "külah, kap ya da kup"): Dükkânı geliştir → Yeni çeşitler'den 200'e açılır. Açılınca müşteriler kup da ister; kuplu sipariş +5 | Geçici fiyat; ayaklı cam kâse, kodla çizilmiş |
+Bütün fiyatlar, süreler ve oranlar geçici. Ayar dosyasına taşınınca (0.12)
+KKM'deki panelden birlikte bakılıp onaylanacak. O zamana kadar değerler
+kodda, bölüm 0'daki satırlarda yazanlarla aynı.
 
 ---
 
-## 8. Yapım durumu (12 Ekim gece)
+## 8. Yapım durumu
 
 Uygulamada **olan**:
 
@@ -538,8 +575,8 @@ Uygulamada **olan**:
 | 29 çeşit, vitrin (4–12) ve günlük seçim, tabelada ad | Bitti (14 Ekim); çeşit başına fiyat sonraki parça |
 | Yazısız eğitim (ilk sipariş + süsleme, tepsi, vitrin) | Bitti (14 Ekim). "Eğitimi yeniden göster" Ayarlar gelene kadar mola menüsünde |
 | Çeşit başına fiyat ekranı | Bitti (14 Ekim) |
-| Müşteriler Kenney karakterleri (varyasyonlu) | Bitti (14 Ekim). Kemal: "tek tip 12 karakteri beğenmedim… kıyafetleri, saç, aksesuar değişsin; her gün aynı karakterlere neden hizmet versin". Her müşteride baş (11) ve gövde (12) ayrı seçilir; ten, saç, üst, alt, ayakkabı renkleri; aksesuar (hasır şapka, gözlük, güneş gözlüğü). Yürüme / bekleme / oturma modelin kendi hareketleri. Çalışan ve sahip henüz eski hâlinde (Kemal'in kararı bekleniyor) |
-| Bütün karakterler aynı parçalardan (**taslak**) | Bitti (14 Ekim). Kemal: "Tüm karakterler aynı assetlerden üretilsin bir fark olmasın. Bunu şimdilik taslak olarak kabul edeceğim, daha sonra revize ederiz, pek beğenmedim". Çalışan ve sahip de müşterilerle aynı Kenney parçalarından. Çalışan ekranındaki seçimler sürer: saç biçimi → baş modeli, ten ve saç rengi, önlük gövdenin üstünde, aksesuarlar (gözlük, güneş gözlüğü, hasır şapka, kasket, bandana, küpe). Sahip geçici: mor kıyafet, topuz, küpe. **Hepsi taslak; Kemal sonra yeniden ele alacak** |
+| Müşteriler Kenney karakterleri (varyasyonlu) | *Eskidi: yerini Karakterler (0.9) aldı.* Bitti (14 Ekim). Kemal: "tek tip 12 karakteri beğenmedim… kıyafetleri, saç, aksesuar değişsin; her gün aynı karakterlere neden hizmet versin". Her müşteride baş (11) ve gövde (12) ayrı seçilir; ten, saç, üst, alt, ayakkabı renkleri; aksesuar (hasır şapka, gözlük, güneş gözlüğü). Yürüme / bekleme / oturma modelin kendi hareketleri. Çalışan ve sahip henüz eski hâlinde (Kemal'in kararı bekleniyor) |
+| Bütün karakterler aynı parçalardan (**taslak**) | *Eskidi: yerini Karakterler (0.9) aldı.* Bitti (14 Ekim). Kemal: "Tüm karakterler aynı assetlerden üretilsin bir fark olmasın. Bunu şimdilik taslak olarak kabul edeceğim, daha sonra revize ederiz, pek beğenmedim". Çalışan ve sahip de müşterilerle aynı Kenney parçalarından. Çalışan ekranındaki seçimler sürer: saç biçimi → baş modeli, ten ve saç rengi, önlük gövdenin üstünde, aksesuarlar (gözlük, güneş gözlüğü, hasır şapka, kasket, bandana, küpe). Sahip geçici: mor kıyafet, topuz, küpe. **Hepsi taslak; Kemal sonra yeniden ele alacak** |
 | Büyüme 1. adım: kareler + İnşaat modu | Bitti (14 Ekim). Arazi 4×4 m karelere bölündü (yana 10'ar sütun, arkaya 2 sıra; sınır şimdilik bu). Başta dükkânın içi ve kapının önü. Gün başı menüsünde **İnşaat**: kamera önden ve üstten bakar, kareler yeşil / sarı / gri; kareye dokununca yeri ve fiyatı, sarıysa "Al". Fiyat ön teras 250, dükkân sırası 200, arka 150; iskele tarafı %15 pahalı; her alımda %20 artar (geçici sayılar). Alınan yan / arka kareye ahşap zemin döşenir, Yerleştir'de kareleri açılır. Yürüyüş yolu deniz tarafına alındı (taş yol); kapının önü müşteri yolu olarak boş kalır. Arazi büyüdükçe genel görünüm geri çekilir. Eski "Alanlar" Geliştir'den kalktı; eski kayıtlarda alınan alanlar ve eşyaların durduğu yerler karelere taşınır |
 | Ölçü düzeni + tezgah bölümü (0.3) | Bitti (14 Ekim gece). Her şey 1 m'lik birimle: 4×4 m kare, içi 16 eşya yeri. Dükkân 8×4 m (arka duvar 0,45 m öne geldi; tezgah bölümü ve içindekiler 0,4 m öne alındı). Terasın ve alınan karelerin tahtaları 1 m, tam metrelerde, aynı hizada. Eşyalar boyuna göre 1×1 / 2×1 / 2×2, Yerleştir'de "Çevir". Tezgah bölümü İnşaat'ta seçilir (mor): ok tuşlarıyla 1 m taşınır, 4–16 m uzar / kısalır (her yeni metre 80, geçici); yakın plan, çalışan, hazırlama ve müşteri sırası onunla gider; altında kalan eşya depoya döner. Bugünkü 8×4 dükkânda yalnız kısaltıp yana kaydırmak mümkün; asıl taşıma duvar adımıyla açılır |
 | Büyüme 2. adım: duvar, pencere, kapı (0.4) | Bitti (14 Ekim gece). İnşaat'ta alınmış açık kareye "Duvar ör" (150), kapalı kareye "Duvarı yık" (50); kapalı alan tek parça kalır, tezgah bölümü ve en az bir kapı korunur. Duvarlar 1 m'lik parçalar; duvarların üstündeki şeride dokununca düz duvar / pencere (40) / kapı (ikincisinden 250, yalnız ön duvarda). Ön duvar kendiliğinden cam vitrin (tente ve ampullerle), yanlarda başta 2 m pencere. Öne kare katılınca kapı aynı sütunda öne kayar. Müşteri tezgaha en yakın kapıdan girer; her yeni kapalı kare sıraya bir kişi ekler; kapının önünden yola giden şerit boş kalır. Duvar örülünce dışarıya özel eşyalar depoya döner |
@@ -556,4 +593,9 @@ Uygulamada **olan**:
 | Karakterler (0.9) | Bitti (14 Ekim gece). Müşteri, çalışan, yardımcı, sahip Quaternius K2'ye geçti (10 karakter, 4 MB). Müşteriler 1,55–1,85 m, tezgahın üstünden görünüyor. Çalışan ekranında beden seçimi (kadın / erkek). Renk çevirmede açıklık hatası düzeltildi (palete çevrilen modeller koyu çıkıyordu). Sona kalanlar 0.9'da |
 | Liman haritası (0.10, B paketi) | Bitti (14 Ekim gece). Kemal'in KKM 2D haritasına göre: dükkânın önünde kumsal ve ~100 m T iskele, ~250 m açıkta mendirek (giriş solda), sağda kumsalda Liman İdare Binası ve Liman Deposu, arkada araba yolu ve sokaklı mahalle (sade evler, ön sırada ayrıntılı binalar), limanın içinde tekneler ve girişten girip çıkan bir tekne. Tepeler mahallenin ardına alındı (`src/sahne/Liman.tsx`). Kuşbakışı: `#tasarim=liman` |
 
-Uygulamada **olmayan** ama belgede geçenler: Kemal'in müziği (şimdilik kodla geçici ezgi), gerçek 3B modeller (hepsi kodla çizilmiş geçici parçalar), İngilizce.
+| Kişiselleştirme / görünüş (0.11, C paketi) | Bitti (14–15 Ekim). Geliştir → Görünüş: dış boya, iç duvar, çerçeve, tente, zemin, çatı (düz dam, teras, kiremit, ahşap + pergola), tabelalar (çatı, direk, neon, iskele kemeri; akşam yanar); almadan önce deneme. Dekorasyon'da halı ve tablo (tablo duvara asılır). Önlük şimdilik kaldırıldı |
+| Toparlama (0.12) | Bitti (15 Ekim). Belge ve CLAUDE.md güncel kararlarla düzenlendi, açık sorular yeniden yazıldı, `#deneme` ve `#hizli` kaldırıldı |
+
+Uygulamada **olmayan** ama belgede geçenler: 0.12'deki işlerin hepsi (sıra
+`docs/yol-haritasi.md`'de), Kemal'in müziği (şimdilik kodla geçici ezgi),
+İngilizce, exp sistemi, hafif stok, yeni içecekler.
