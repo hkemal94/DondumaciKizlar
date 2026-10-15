@@ -1,0 +1,10 @@
+rules_version = '2';
+// Dondurmacı Kızlar bulut kayıt (paket E): herkes yalnız kendi dükkânını okur ve yazar.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /oyuncular/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid
+        && (request.resource == null || request.resource.data.kayit is string && request.resource.data.kayit.size() < 900000);
+    }
+  }
+}

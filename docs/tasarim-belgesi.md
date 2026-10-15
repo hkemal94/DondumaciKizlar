@@ -501,6 +501,7 @@ konusunda komple assetlere ihtiyacımız olabilir."
 | İki cihaz | Önce **kayıt kodu**: bir cihazda kod üretilir, öbüründe girilir. Hesap ve bulut kayıt sonra |
 | Oyuncu bilgisi | Yalnız oyuncu adı (takma ad) + otomatik ID. Ad soyad, doğum günü alınmaz (KVKK yükü) |
 | Bulut yeri | Oyuna ayrı bir Firebase projesi (KKM'ninkine karışmaz); kurulumu Kemal kendi Google hesabıyla yapar, adımlar anlatılır |
+| Bulut kayıt (E, kod hazır; 16 Ekim) | Giriş ekranında oyuncu kartında **☁ Google ile bağlan**. Buluta yalnız kayıt gider (takma ad + oyuncu ID'si içinde); Google'daki ad, e-posta yazılmaz. Oyun kaydettikçe en çok 30 saniyede bir, sekme kapanırken hemen yazar. Bağlanınca bulut ile bu cihaz farklıysa "Hangi dükkân kalsın?" (gün ve jetonla); bu cihazda kayıt yoksa buluttaki kendiliğinden gelir. Deneme dükkânı buluta gitmez. Kurulum adımları `docs/bulut-kurulum.md`, kurallar `firestore.rules`; ayar dosyası (`src/bulutAyari.json`) boşken düğme görünmez. **Uygulamada henüz kapalı: Kemal Firebase projesini kurup dört değeri gönderince açılır** |
 | Kendi modeller | Tek sayfalık **model hazırlama rehberi** (`docs/model-rehberi.md`) |
 | Sıra | Bu turun işleri (mutfak, tezgah içi, giriş ekranı, kayıt kodu, rehber) tek PR'da → 9d içecekler |
 

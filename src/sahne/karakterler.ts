@@ -195,7 +195,33 @@ function hasirSapka(en: number) {
 // Ortası baş kemiğinden: saç (atkuyruğu, yan saç) kutuyu bir yana kaydırabilir
 // Gözlük ve küpe saçsız yüze ve gözlere göre (Kemal, 15 Ekim akşam: "gözlükler
 // ve küpeler oturmuyor"; saç başın kutusunu büyütüp kaydırıyordu)
-function aksesuarKur(ak: KarakterAksesuari, bas: THREE.Box3, basOrtasi: THREE.Vector3, yuklu: Yuklu, yuz: THREE.Box3, goz: THREE.Box3 | null) {
+// Kulak memesi: göz hizasının altındaki bantta başın en dışa taşan noktası (kulak),
+// onun en alt ucu. Yüz kutusunun kenarı kulağı tutmuyordu; küpe yanaktan aşağıda
+// havada kalıyordu (16 Ekim). Bulunamazsa null.
+function kulakMemesi(tenler: THREE.Object3D[], yan: 1 | -1, ortaX: number, ustY: number, altY: number) {
+  const v = new THREE.Vector3();
+  let uc: THREE.Vector3 | null = null;
+  const noktalar: THREE.Vector3[] = [];
+  for (const t of tenler) {
+    const m = t as THREE.SkinnedMesh;
+    const konum = m.geometry?.attributes.position;
+    if (!konum) continue;
+    for (let i = 0; i < konum.count; i++) {
+      v.fromBufferAttribute(konum, i);
+      if (m.isSkinnedMesh) m.applyBoneTransform(i, v);
+      v.applyMatrix4(m.matrixWorld);
+      if (v.y > ustY || v.y < altY || (v.x - ortaX) * yan <= 0) continue;
+      noktalar.push(v.clone());
+      if (!uc || (v.x - ortaX) * yan > (uc.x - ortaX) * yan) uc = v.clone();
+    }
+  }
+  if (!uc) return null;
+  // Kulağın en dış noktasına yakın olanların en alttaki: meme
+  const kulak = noktalar.filter((n) => Math.abs(n.x - uc!.x) < 0.012 && Math.abs(n.z - uc!.z) < 0.03);
+  return kulak.reduce((a, b) => (b.y < a.y ? b : a), uc);
+}
+
+function aksesuarKur(ak: KarakterAksesuari, bas: THREE.Box3, basOrtasi: THREE.Vector3, yuklu: Yuklu, yuz: THREE.Box3, goz: THREE.Box3 | null, tenler: THREE.Object3D[] = []) {
   const en = Math.min(bas.max.x - basOrtasi.x, basOrtasi.x - bas.min.x) * 2;
   const boy = bas.max.y - bas.min.y;
   const orta = new THREE.Vector3(basOrtasi.x, bas.min.y + boy / 2, basOrtasi.z);
@@ -239,13 +265,15 @@ function aksesuarKur(ak: KarakterAksesuari, bas: THREE.Box3, basOrtasi: THREE.Ve
     g.add(bant);
     g.position.set(orta.x, bas.max.y - boy * 0.28, orta.z);
   } else {
-    // Küpe: kulak memesinde, yüzün iki yanında, gözün biraz altında ve gerisinde
-    for (const x of [-yuzEn * 0.5, yuzEn * 0.5]) {
-      const k = new THREE.Mesh(new THREE.SphereGeometry(0.011, 8, 6), altin);
-      k.position.set(x, 0, 0);
+    // Küpe: kulak memesinde, hemen altında (bulunamazsa eski tahmin: yüzün iki yanı)
+    const r = 0.009;
+    for (const yan of [-1, 1] as const) {
+      const meme = kulakMemesi(tenler, yan, ortaX, gozY - yuzBoy * 0.05, gozY - yuzBoy * 0.5);
+      const k = new THREE.Mesh(new THREE.SphereGeometry(r, 8, 6), altin);
+      if (meme) k.position.set(meme.x - yan * r * 0.6, meme.y - r * 0.8, meme.z);
+      else k.position.set(ortaX + (yan * yuzEn) / 2, gozY - yuzBoy * 0.2, (yuz.min.z + yuz.max.z) / 2 - yuzEn * 0.05);
       g.add(k);
     }
-    g.position.set(ortaX, gozY - yuzBoy * 0.2, (yuz.min.z + yuz.max.z) / 2 - yuzEn * 0.05);
   }
   return g;
 }
@@ -367,9 +395,9 @@ export function karakterKur(v: Varyant, yuklu: Yuklu): Karakter {
     for (const { mesh, parca } of meshler)
       if (parca.bolum === 'bas' && !parca.sac && (parca.malzemeAdi === 'Eye' || (v.cinsiyet === 'kadin' && parca.malzemeAdi === 'Brown'))) gozKutusu.expandByObject(mesh, true);
     const yuz = yuzKutusu.isEmpty() ? basKutusu : yuzKutusu;
-    for (const ak of v.aksesuarlar) kemigeTak(basKemigi, aksesuarKur(ak, basKutusu, basOrtasi, yuklu, yuz, gozKutusu.isEmpty() ? null : gozKutusu));
-    // Gülümseme (Kemal: "basit bir gülümseme, hep aynı"); yüz kutusu saçsız ölçülür
     const tenler = meshler.filter(({ parca }) => parca.rol === 'ten' && parca.bolum === 'bas').map(({ mesh }) => mesh);
+    for (const ak of v.aksesuarlar) kemigeTak(basKemigi, aksesuarKur(ak, basKutusu, basOrtasi, yuklu, yuz, gozKutusu.isEmpty() ? null : gozKutusu, tenler));
+    // Gülümseme (Kemal: "basit bir gülümseme, hep aynı"); yüz kutusu saçsız ölçülür
     kemigeTak(basKemigi, gulumseme(yuzKutusu.isEmpty() ? basKutusu : yuzKutusu, basOrtasi, tenler));
   }
   // Yükleyici kemik adlarındaki noktayı siler: UpperLeg.L → UpperLegL

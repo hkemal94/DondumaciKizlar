@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@react-three/fiber": "^9.8.1",
+    "firebase": "^12.19.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "three": "^0.186.1"

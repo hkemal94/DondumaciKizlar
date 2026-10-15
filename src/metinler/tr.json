@@ -633,5 +633,17 @@
   "urun.caydanlik": "Çaydanlık",
   "urun.suIsiticisi": "Su ısıtıcısı (plastik)",
   "yenilik.yerel": "Arka tezgaha yerel eşyalar: çay bardakları, Türk kahvesi fincanları, cezve, çaydanlık, su ısıtıcısı.",
-  "yenilik.icecekler": "İçecek standı büyüdü: çay, ayran, limonata, kahveler, milkshake, taze portakal suyu"
+  "yenilik.icecekler": "İçecek standı büyüdü: çay, ayran, limonata, kahveler, milkshake, taze portakal suyu",
+  "bulut.baglan": "Google ile bağlan",
+  "bulut.baglaniyor": "Bağlanıyor…",
+  "bulut.bagli": "Bulutta",
+  "bulut.cikis": "çık",
+  "bulut.hata.giris": "Google'a bağlanılamadı",
+  "bulut.hata.yazma": "Buluta yazılamadı; kayıt bu cihazda duruyor",
+  "bulut.hata.okuma": "Buluttaki kayıt okunamadı",
+  "bulut.secimBaslik": "Hangi dükkân kalsın?",
+  "bulut.secimNot": "Bu cihazdaki kayıt ile buluttaki farklı. Seçmediğin silinir.",
+  "bulut.cihazdaki": "Bu cihazdaki",
+  "bulut.buluttaki": "Buluttaki",
+  "bulut.ozet": "{gun}. gün · {para} jeton"
 }

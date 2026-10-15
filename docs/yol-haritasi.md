@@ -11,9 +11,9 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | | |
 |---|---|
 | Aşama | Oynanabilir sürüm, büyüme, karakterler, liman ve kişiselleştirme bitti. Sırada görsel kalite |
-| Son biten | 9d içecekler (bu PR) |
+| Son biten | Bulut kayıt kodu + küpeler (bu PR) |
 | Şu an | Hataların denetimi; sıradaki soruları Kemal'e tek tek sor (belge 0.13.2 son satır) |
-| Sıradaki | Hesap ve bulut kayıt (ayrı Firebase projesi) |
+| Sıradaki | Bulut kayıt: Kemal Firebase projesini kurar (`docs/bulut-kurulum.md`), dört değeri gönderir, Claude açar |
 | Yayın | Deneme sürümü webde; tarih yok, acele yok |
 
 ## Sıra (15 Ekim, belge 0.12)
@@ -29,7 +29,7 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | 6 | İngilizce | Bütün yazılar İngilizce; Ayarlar'da dil seçimi | Bitti ([#40](https://github.com/hkemal94/DondumaciKizlar/pull/40)) |
 | 7 | Ayar paneli | Bütün sayılar oyunda tek ayar dosyasında; KKM'de "Ayarlar" sekmesi (KKM deposunda ayrı PR) | Bitti ([#41](https://github.com/hkemal94/DondumaciKizlar/pull/41), KKM [#94](https://github.com/hkemal94/Kems-Company/pull/94)). Yazma yolu: GitHub anahtarı (Kemal, 15 Ekim) |
 | 8 | Exp sistemi | Ana seviye + dükkân ve çalışan seviyeleri; günlük hedefler; yıldızlar yorum gibi; sıra bazen uzun bazen boş; otomatik kamera ayarı; eşyalara konfor ve çekicilik | Soru turu bitti (15 Ekim). 8a exp + seviyeler + kilitler: bitti ([#42](https://github.com/hkemal94/DondumaciKizlar/pull/42)). 8b yetenekler: bitti ([#43](https://github.com/hkemal94/DondumaciKizlar/pull/43)). 8c günlük hedefler, yorumlar, sıra, otomatik kamera: bitti ([#44](https://github.com/hkemal94/DondumaciKizlar/pull/44)). Eşya konfor / çekicilik 10. maddeye kaldı |
-| 9 | İçecekler ve stok | Soru turu bitti (15 Ekim akşam, belge 0.13). 9a ince arayüz, sağda açılan menüler, yol çizgileri ve lambalar: bitti ([#46](https://github.com/hkemal94/DondumaciKizlar/pull/46)). 9b vitrin ve bar model adayları: bitti ([#47](https://github.com/hkemal94/DondumaciKizlar/pull/47)), Kemal seçti. 9c gerçekçi vitrin + hafif stok: bitti ([#49](https://github.com/hkemal94/DondumaciKizlar/pull/49)). 9d içecekler (tek istasyon, 15 içecek, basılı tutarak hazırlama, seviye + parayla açma): bitti (bu PR) | Bitti |
+| 9 | İçecekler ve stok | Soru turu bitti (15 Ekim akşam, belge 0.13). 9a ince arayüz, sağda açılan menüler, yol çizgileri ve lambalar: bitti ([#46](https://github.com/hkemal94/DondumaciKizlar/pull/46)). 9b vitrin ve bar model adayları: bitti ([#47](https://github.com/hkemal94/DondumaciKizlar/pull/47)), Kemal seçti. 9c gerçekçi vitrin + hafif stok: bitti ([#49](https://github.com/hkemal94/DondumaciKizlar/pull/49)). 9d içecekler (tek istasyon, 15 içecek, basılı tutarak hazırlama, seviye + parayla açma): bitti ([#57](https://github.com/hkemal94/DondumaciKizlar/pull/57)) | Bitti |
 | 10 | Sonra | Kayan yazıda müşteri yorumları (cümleler Kemal'in), eşya renkleri ve yumuşak yıpranma, gedikli müşteriler, hava durumu, duvar deseni, seyyar dondurma arabası, festival / bayramlar, yeni süslemeler, mevsim | |
 
 ## Paketler (eski adlarla)
@@ -41,7 +41,7 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | KKM | KKM'deki oyun sayfasında bu yol haritası | Kodu bitti ([#29](https://github.com/hkemal94/DondumaciKizlar/pull/29), KKM [#92](https://github.com/hkemal94/Kems-Company/pull/92)). Görünmüyorsa AI Studio GitHub'dan eşitlenmeli |
 | B | Liman haritası | Bitti ([#30](https://github.com/hkemal94/DondumaciKizlar/pull/30)); güzelleştirmesi sıranın 2–3. adımında |
 | C | Kişiselleştirme (belge 0.11) | Bitti ([#31](https://github.com/hkemal94/DondumaciKizlar/pull/31), [#32](https://github.com/hkemal94/DondumaciKizlar/pull/32), [#33](https://github.com/hkemal94/DondumaciKizlar/pull/33)) |
-| E | Hesap ve bulut kayıt (Google ile) | Yayına yakın |
+| E | Hesap ve bulut kayıt (Google ile) | Kod hazır (bu PR); Firebase kurulumu Kemal'de |
 
 ## Bitenler
 
@@ -85,7 +85,8 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 - Yerel eşyalar arka tezgahta (çay bardakları, Türk kahvesi fincanları, cezve, çaydanlık, su ısıtıcısı); künyeye "Düzada evreninden bir oyun" · [#54](https://github.com/hkemal94/DondumaciKizlar/pull/54)
 - Yerel eşya düzeltmeleri: dar ağızlı çay bardağı, sapı bağlı cezve, kulplu çaydanlık · [#55](https://github.com/hkemal94/DondumaciKizlar/pull/55)
 - Giriş ekranı düğmeleri ince ve yana uzun · [#56](https://github.com/hkemal94/DondumaciKizlar/pull/56)
-- 9d içecekler: 10 yeni içecek, kahve / milkshake / taze sıkma basılı tutarak; dolabın üstünde aletler; gözlükler yandan da yüze oturur, ağız yüzde · bu PR
+- 9d içecekler: 10 yeni içecek, kahve / milkshake / taze sıkma basılı tutarak; dolabın üstünde aletler; gözlükler yandan da yüze oturur, ağız yüzde · [#57](https://github.com/hkemal94/DondumaciKizlar/pull/57)
+- Küpeler kulak memesinde; hesap ve bulut kayıt kodu hazır (Google ile bağlan, iki kayıt farklıysa seçim), Firebase kurulumu bekliyor · bu PR
 
 ## Bilinen eksikler
 
