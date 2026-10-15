@@ -644,8 +644,9 @@ const CAM_MALZEMESI = { color: '#f4fbff', transparent: true, opacity: 0.3, rough
 
 // İnce belli çay bardağı, tabağında, içinde demli çay
 function CayBardagi() {
-  const bardak = useMemo(() => dondur([[0, 0.012], [0.024, 0.012], [0.026, 0.02], [0.017, 0.05], [0.021, 0.075], [0.027, 0.1], [0.026, 0.1]]), []);
-  const cay = useMemo(() => dondur([[0, 0.014], [0.023, 0.014], [0.016, 0.05], [0.02, 0.075], [0.024, 0.09], [0, 0.09]]), []);
+  // Ağız dar (Kemal, 16 Ekim: "ağız kısmını biraz küçült")
+  const bardak = useMemo(() => dondur([[0, 0.012], [0.024, 0.012], [0.026, 0.02], [0.016, 0.05], [0.019, 0.075], [0.022, 0.1], [0.021, 0.1]]), []);
+  const cay = useMemo(() => dondur([[0, 0.014], [0.023, 0.014], [0.015, 0.05], [0.018, 0.075], [0.02, 0.09], [0, 0.09]]), []);
   return (
     <group>
       <mesh position={[0, 0.006, 0]}>
@@ -720,10 +721,18 @@ function Cezve() {
       <mesh geometry={govde} castShadow>
         <meshStandardMaterial color="#c8743a" metalness={0.55} roughness={0.35} side={THREE.DoubleSide} />
       </mesh>
-      <mesh position={[0.13, 0.085, 0]} rotation={[0, 0, -0.25]}>
-        <boxGeometry args={[0.17, 0.012, 0.016]} />
-        <meshStandardMaterial color="#5a3a26" roughness={0.7} />
-      </mesh>
+      {/* Sap gövdeye bağlı (Kemal, 16 Ekim: "kulp cezveye temas etmiyor"):
+          bakır boyun gövdeden çıkar, ahşap sap onun ucuna geçer */}
+      <group position={[0.042, 0.08, 0]} rotation={[0, 0, 0.22]}>
+        <mesh position={[0.025, 0, 0]}>
+          <boxGeometry args={[0.055, 0.012, 0.02]} />
+          <meshStandardMaterial color="#c8743a" metalness={0.55} roughness={0.35} />
+        </mesh>
+        <mesh position={[0.11, 0, 0]}>
+          <boxGeometry args={[0.13, 0.016, 0.02]} />
+          <meshStandardMaterial color="#5a3a26" roughness={0.7} />
+        </mesh>
+      </group>
     </group>
   );
 }
@@ -752,13 +761,19 @@ function Caydanlik() {
           <meshStandardMaterial {...celik} />
         </mesh>
       </group>
-      {/* Alt kabın ağzı ve sapı */}
+      {/* Alt kabın ağzı */}
       <mesh position={[-0.11, 0.08, 0]} rotation={[0, 0, 0.8]}>
         <cylinderGeometry args={[0.01, 0.016, 0.08, 6]} />
         <meshStandardMaterial {...celik} />
       </mesh>
-      <mesh position={[0.1, 0.1, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <torusGeometry args={[0.035, 0.007, 4, 10, Math.PI]} />
+      {/* Tutacaklar (Kemal, 16 Ekim: "çaydanlığın tutacak yerleri yok"):
+          alt kapta ve demlikte yanda siyah kulp; uçları gövdeye değer */}
+      <mesh position={[0.088, 0.075, 0]} rotation={[0, 0, -Math.PI / 2]}>
+        <torusGeometry args={[0.038, 0.008, 5, 10, Math.PI]} />
+        <meshStandardMaterial color="#2f2a33" roughness={0.7} />
+      </mesh>
+      <mesh position={[0.058, 0.145 + 0.045, 0]} rotation={[0, 0, -Math.PI / 2]}>
+        <torusGeometry args={[0.026, 0.007, 5, 10, Math.PI]} />
         <meshStandardMaterial color="#2f2a33" roughness={0.7} />
       </mesh>
     </group>
