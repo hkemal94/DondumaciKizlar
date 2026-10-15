@@ -11,8 +11,8 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | | |
 |---|---|
 | Aşama | Oynanabilir sürüm, büyüme, karakterler, liman ve kişiselleştirme bitti. Sırada görsel kalite |
-| Son biten | 9c: gerçekçi dondurma vitrini (V0) ve hafif stok (bu PR) |
-| Şu an | 9c'nin denetimi; Kemal modelleri seçti (belge 0.13) |
+| Son biten | Hata listesi (15 Ekim gece; bu PR) |
+| Şu an | Hataların denetimi; sıradaki soruları Kemal'e tek tek sor (belge 0.13.2 son satır) |
 | Sıradaki | 9d: içecekler (tek istasyon; seçilen dolap, makine ve bardaklarla) |
 | Yayın | Deneme sürümü webde; tarih yok, acele yok |
 
@@ -29,7 +29,7 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 | 6 | İngilizce | Bütün yazılar İngilizce; Ayarlar'da dil seçimi | Bitti ([#40](https://github.com/hkemal94/DondumaciKizlar/pull/40)) |
 | 7 | Ayar paneli | Bütün sayılar oyunda tek ayar dosyasında; KKM'de "Ayarlar" sekmesi (KKM deposunda ayrı PR) | Bitti ([#41](https://github.com/hkemal94/DondumaciKizlar/pull/41), KKM [#94](https://github.com/hkemal94/Kems-Company/pull/94)). Yazma yolu: GitHub anahtarı (Kemal, 15 Ekim) |
 | 8 | Exp sistemi | Ana seviye + dükkân ve çalışan seviyeleri; günlük hedefler; yıldızlar yorum gibi; sıra bazen uzun bazen boş; otomatik kamera ayarı; eşyalara konfor ve çekicilik | Soru turu bitti (15 Ekim). 8a exp + seviyeler + kilitler: bitti ([#42](https://github.com/hkemal94/DondumaciKizlar/pull/42)). 8b yetenekler: bitti ([#43](https://github.com/hkemal94/DondumaciKizlar/pull/43)). 8c günlük hedefler, yorumlar, sıra, otomatik kamera: bitti ([#44](https://github.com/hkemal94/DondumaciKizlar/pull/44)). Eşya konfor / çekicilik 10. maddeye kaldı |
-| 9 | İçecekler ve stok | Soru turu bitti (15 Ekim akşam, belge 0.13). 9a ince arayüz, sağda açılan menüler, yol çizgileri ve lambalar: bitti ([#46](https://github.com/hkemal94/DondumaciKizlar/pull/46)). 9b vitrin ve bar model adayları: bitti ([#47](https://github.com/hkemal94/DondumaciKizlar/pull/47)), Kemal seçti. 9c gerçekçi vitrin + hafif stok: bitti (bu PR) → 9d içecekler (tek istasyon; limonata / ayran / buzlu çay → milkshake / frappe → Türk kahvesi, buzlu kahve, espresso → taze sıkma) | |
+| 9 | İçecekler ve stok | Soru turu bitti (15 Ekim akşam, belge 0.13). 9a ince arayüz, sağda açılan menüler, yol çizgileri ve lambalar: bitti ([#46](https://github.com/hkemal94/DondumaciKizlar/pull/46)). 9b vitrin ve bar model adayları: bitti ([#47](https://github.com/hkemal94/DondumaciKizlar/pull/47)), Kemal seçti. 9c gerçekçi vitrin + hafif stok: bitti ([#49](https://github.com/hkemal94/DondumaciKizlar/pull/49)) → 9d içecekler (tek istasyon; limonata / ayran / buzlu çay → milkshake / frappe → Türk kahvesi, buzlu kahve, espresso → taze sıkma) | |
 | 10 | Sonra | Kayan yazıda müşteri yorumları (cümleler Kemal'in), eşya renkleri ve yumuşak yıpranma, gedikli müşteriler, hava durumu, duvar deseni, seyyar dondurma arabası, festival / bayramlar, yeni süslemeler, mevsim | |
 
 ## Paketler (eski adlarla)
@@ -77,7 +77,8 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 - Hatalar (15 Ekim akşam): mola menüsünde Çıkış (giriş ekranına döner) ve Tam ekran; buzdolabı duvardan taşmıyor; tente aşağı eğik, tabelayı kesmiyor; dükkânın arkasındaki ilk sıra alçak evler; yardımcı adayları hazır adla; saçlar gerçekte olanlarla (kadın 2, erkek 4); önlük "Yok"; İnşaat'ta "Ne yapmak istersin?" menüsü (tezgahı taşı, pencere ve kapı, duvarlar arasında oklarla gezme) · [#47](https://github.com/hkemal94/DondumaciKizlar/pull/47)
 - Vitrin ve bar model adayları (9b): `docs/gorseller/vitrin-bar-adaylari/` · [#47](https://github.com/hkemal94/DondumaciKizlar/pull/47)
 - Mola menüsünde tek Çıkış: kaydedip giriş ekranına döner (Kemal: "ana sayfa gibi düşün") · [#48](https://github.com/hkemal94/DondumaciKizlar/pull/48)
-- Gerçekçi dondurma vitrini ve hafif stok (9c): paslanmaz küvetler, kavisli cam; dondurma stokla alçalır; biten istenmez, hepsi biterse erken kapanış; gün sonunda ve Ürünler → Stok'ta "Hepsini doldur" ya da kalem kalem · bu PR
+- Gerçekçi dondurma vitrini ve hafif stok (9c): paslanmaz küvetler, kavisli cam; dondurma stokla alçalır; biten istenmez, hepsi biterse erken kapanış; gün sonunda ve Ürünler → Stok'ta "Hepsini doldur" ya da kalem kalem · [#49](https://github.com/hkemal94/DondumaciKizlar/pull/49)
+- Hatalar (15 Ekim gece): tezgahta hedefler, gün sonunda çarpı, iki sıra küvet dokunuşu, gözlük ve küpe, 2 m ortalı ön tabela, iki dondurmalı balon, mesaiden sonra ilerleyen saat, eşit süsleme düğmeleri, tablolar taşınır, "İpucunu geç", "günlük ücret" · bu PR
 
 ## Bilinen eksikler
 

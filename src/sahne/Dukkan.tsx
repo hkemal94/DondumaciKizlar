@@ -476,8 +476,11 @@ function Odalar() {
     onSag = Math.max(onSag, s.sagX);
   }
   const onSira = { x: (onSol + onSag) / 2, z: onZ };
-  // Ön cephedeki logo: 0. sütunun en öndeki camının üstünde
-  const onLogo = kenarlar.filter((k) => k.y === 'g' && k.c === 0 && parcaTuru(k, duvarParcalari) === 'pencere').sort((a, b) => a.r - b.r)[0];
+  // Ön cephedeki logo (Kemal, 15 Ekim akşam): 2 m genişlikte, ön sıranın
+  // ortasında; tentenin üstünde kalsın diye alt kenarı çatı hizasına yakın,
+  // levha çatının üstüne taşar (dükkân tabelası gibi)
+  const ON_LOGO_EN = 2;
+  const onLogoY = PENCERE_UST + 0.2 + (ON_LOGO_EN / LOGO_DOSYALARI.yazi.oran + 0.16) / 2;
   return (
     <group>
       {kapaliParseller.map((p) => {
@@ -521,9 +524,9 @@ function Odalar() {
           <LogoLevhasi tur="yazi" genislik={1.5} konum={[1.25, 2.25, ARKA_Z - 0.07]} donuk={Math.PI} />
         </KesikDuvar>
       )}
-      {onLogo && (
+      {Number.isFinite(onZ) && (
         <KesikDuvar yon={[0, -1]}>
-          <LogoLevhasi tur="yazi" genislik={0.8} konum={[0.6, (PENCERE_UST + TAVAN) / 2 + 0.02, Z0 + onLogo.r - 0.1]} donuk={Math.PI} />
+          <LogoLevhasi tur="yazi" genislik={ON_LOGO_EN} konum={[onSira.x, onLogoY, onZ - 0.1]} donuk={Math.PI} />
         </KesikDuvar>
       )}
       {/* Dükkânın etrafındaki taş kaldırım; derzler arazi karelerinin sınırında (4 m) */}
@@ -894,16 +897,19 @@ function Vitrin() {
               <AcikKuvet />
               <DondurmaYuzeyi renkAdi={CESITLER[cesit].renk} tohum={cesit + 1} dolu={dolu} />
               {sira % 3 === 1 && dolu > 0.2 && <Spatula />}
-              {/* Dokunma alanı: küvetten biraz büyük, görünmez */}
+              {/* Dokunma alanı, görünmez. Tek sırada küvetten büyük bir kutu; iki
+                  sırada yalnız küvetin ağzı kadar yatay bir yüzey: öndeki küvetin
+                  kutusu arkadakinin üstüne taşıyordu (Kemal, 15 Ekim akşam) */}
               <mesh
-                position={[0, 0.06, 0]}
+                position={vitrin.length > 6 ? [0, 0.03, 0] : [0, 0.06, 0]}
+                rotation={vitrin.length > 6 ? [-Math.PI / 2, 0, 0] : [0, 0, 0]}
                 onPointerDown={(e) => {
                   e.stopPropagation();
                   kuveteBas(cesit);
                 }}
               >
-                <boxGeometry args={[0.6, 0.25, 0.7]} />
-                <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+                {vitrin.length > 6 ? <planeGeometry args={[0.6, 0.5]} /> : <boxGeometry args={[0.6, 0.25, 0.7]} />}
+                <meshBasicMaterial transparent opacity={0} depthWrite={false} side={THREE.DoubleSide} />
               </mesh>
             </group>
             <group position={[0, 0, k.arkada ? 0 : (k.olcekZ - 1) * 0.25]} scale={[k.olcekX, k.olcekX, 1]}>

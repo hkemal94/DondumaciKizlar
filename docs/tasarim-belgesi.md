@@ -472,6 +472,22 @@ konusunda komple assetlere ihtiyacımız olabilir."
 | Saçlar | "Kısa saç yok, bazılarının adı var kendi yok"; "çözemezsen adları olanlarla değiştir": pakette kadın için 2 (kısa, dalgalı), erkek için 4 (kısa, kabarık, dik, yana taralı) ayrı saç var; seçenekler bunlar. Kadının kısa saçı tanınmıyordu, düzeldi. Daha çok saç yeni model ister (sonra) |
 | Önlük | "Önlüğü çıkarma düğmesi": önlükte **Yok** seçeneği (üniformada yine mor önlük) |
 
+### 0.13.2 Hata listesi (Kemal, 15 Ekim gece, 9c'den sonra)
+
+| Konu | Yapılan |
+|---|---|
+| Günlük hedefler | Tezgahtayken de görünür: sol üstte, küçük |
+| Gün sonu | Sol sütun kendi içinde kayar, Tamam hep altta görünür; sağ üstte hafif saydam yedek çarpı |
+| İki sıra küvet | Dokunma alanı yalnız küvetin ağzı kadar: öndeki küvet arkadakine taşmaz |
+| Gözlük, küpe | Saçsız yüze ve gözlere göre yerleşir (saç başın ölçüsünü kaydırıyordu) |
+| Ön tabela | 2 m, ön cephenin ortasında; alt kenarı tentenin üstünde, levha çatıdan taşar |
+| Yazılar | Eğitimde "İpucunu geç"; "yevmiye" yerine "günlük ücret" |
+| Süsleme düğmeleri | Hepsi aynı genişlikte |
+| İki dondurmalı sipariş | Balonda adlar ve süslemeler dondurma dondurma ayrı (1:, 2:) |
+| Mesai sonrası | Saat durmaz, kırmızı yanarak ilerler; kaça kadar çalışıldığı görünür. Fazla mesai ücreti henüz yok (Kemal'e sorulacak) |
+| Tablolar | Yerleştirmede elde başka eşya seçiliyken de duvardaki tabloya dokununca kalkar |
+| Sonraya kalanlar (soru) | Fazla mesai ücreti, tezgah / mutfak ışığı, mutfak dekorasyonu ve zemini, tezgah içi ürünleri seçme, giriş ekranı ve künye, iki cihazdan oynama (kayıt kodu / bulut), oyuncu kaydı ve kişisel bilgiler, kendi modellerin için rehber |
+
 ## 1. Oyunun özeti ve vizyonu
 
 ### 1.1 Tek cümlelik özet
