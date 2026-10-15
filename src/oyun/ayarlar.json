@@ -847,6 +847,11 @@
           "ad": "Boş çerçeve [YER TUTUCU]",
           "deger": 60,
           "birim": "jeton"
+        },
+        "aplik": {
+          "ad": "Duvar lambası (aplik)",
+          "deger": 120,
+          "birim": "jeton"
         }
       }
     },
@@ -1749,6 +1754,11 @@
           "ad": "Yardımcılar: her yeni yardımcı için seviye artışı",
           "deger": 3,
           "birim": "seviye"
+        },
+        "esya.aplik": {
+          "ad": "Duvar lambası (aplik)",
+          "deger": 1,
+          "birim": "dükkân seviyesi"
         }
       }
     },

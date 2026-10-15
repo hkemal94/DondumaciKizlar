@@ -1466,7 +1466,8 @@ export function esyaSigar(esya: Esya, c: number, r: number, yon: number, d: Duru
 // Tablo yerde yer kaplamaz: tezgahın, sıranın, kapı yolunun arkasındaki duvara da
 // asılır; yalnız mutfağa konmaz
 export function birimEngelliKatman(c: number, r: number, katman: Katman, d: Durum = durum) {
-  if (katman === 'duvar') return d.mutfakParseller.includes(birimParseli(c, r));
+  // Duvara asılanlar (tablo, lamba) mutfağın duvarına da asılır (15 Ekim gece: iş kısmına ışık)
+  if (katman === 'duvar') return false;
   return birimEngelli(c, r, d);
 }
 
