@@ -303,7 +303,7 @@ export function Gelistir({ kapat, ilkSekme = 'dekorasyon' }: { kapat: () => void
   useEffect(() => gorunusDenemesiniBitir, []);
 
   return (
-    <div className={`gun-sonu-zemin ${sekme === 'gorunus' ? 'gelistir-gorunus' : ''}`}>
+    <div className={`gun-sonu-zemin ${sekme === 'gorunus' ? 'gelistir-gorunus' : 'sag-zemin'}`}>
       {/* Eşya alınınca: hemen yerleştir ya da alışverişe devam et (Kemal, 14 Ekim) */}
       {alinan && (
         <div className="alindi-zemin">

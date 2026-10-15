@@ -20,7 +20,7 @@ export function YetenekEkrani({ kapat }: { kapat: () => void }) {
   const puan = yetenekPuani(durum);
   const cal = seviyeBilgisi('calisan', durum.exp.calisan);
   return (
-    <div className="gun-sonu-zemin">
+    <div className="gun-sonu-zemin sag-zemin">
       <div className="gun-sonu yetenek-ekrani" role="dialog" aria-labelledby="yetenek-baslik">
         <div className="yetenek-ust">
           <img className="baslik-logo" src={logoAdresi('yazi')} alt="" aria-hidden />

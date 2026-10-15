@@ -353,7 +353,7 @@ export function YardimciEkrani({ kapat }: { kapat: () => void }) {
   const durum = useDurum();
   const [adlar, setAdlar] = useState<Record<number, string>>({});
   return (
-    <div className="gun-sonu-zemin">
+    <div className="gun-sonu-zemin sag-zemin">
       <div className="gun-sonu yardimci-ekrani" role="dialog" aria-labelledby="yardimci-baslik">
         <div className="gel-ust">
           <h2 id="yardimci-baslik">{m('yardimci.baslik')}</h2>
