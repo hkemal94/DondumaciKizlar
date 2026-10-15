@@ -414,5 +414,10 @@
   "menu.grup.magaza": "Mağaza",
   "menu.gorunus": "Görünüş",
   "menu.cesitler": "Çeşitler",
-  "menu.fiyat": "Fiyat"
+  "menu.fiyat": "Fiyat",
+  "ekran.grafik": "Grafik",
+  "ekran.grafik.dusuk": "Düşük",
+  "ekran.grafik.orta": "Orta",
+  "ekran.grafik.yuksek": "Yüksek",
+  "ekran.grafikNot": "Telefon ısınır ya da takılırsa Düşük'ü seç: gölgeler, uzak mahalle ve kalabalığın bir kısmı kapanır."
 }

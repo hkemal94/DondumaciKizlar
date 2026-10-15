@@ -190,6 +190,11 @@ export const sesler = {
     ton(1318, 0.9, { ses: 0.12 });
     ton(2637, 0.5, { ses: 0.04 });
   },
+  // Uzaktan martı (belge 0.12): iki üç kısa, aşağı kayan çığlık
+  marti() {
+    const n = 2 + Math.floor(Math.random() * 2);
+    for (let i = 0; i < n; i++) ton(1900 - i * 80, 0.18, { tur: 'triangle', ses: 0.025, bitisFrekansi: 1250, baslangic: i * 0.22 });
+  },
   // Kapı açılınca küçük dükkân zili (Kemal, 15 Ekim)
   kapiZili() {
     ton(1975, 0.35, { ses: 0.05 });

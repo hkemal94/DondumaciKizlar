@@ -17,4 +17,4 @@ paket eklenince buraya yazılır.
 | Quaternius — Simple Buildings | https://quaternius.com/packs/simplebuildings.html | CC0 1.0 | `public/modeller/evler/q-*.glb` — mahalle evleri ve düz damlı apartmanlar; OBJ'den glTF'e çevrildi (15 Ekim) |
 | Kenney Modular Buildings | https://kenney.nl/assets/modular-buildings | CC0 1.0 | `public/modeller/evler/k-*.glb` — mahallede dar, düz damlı kasaba evleri (hazır örnek binalar; 15 Ekim) |
 | Kenney Pirate Kit | https://kenney.nl/assets/pirate-kit | CC0 1.0 | `public/modeller/kiyi/` — kumsalda kayalar, iskele başında fıçı ve sandıklar (15 Ekim) |
-
+| KayKit — City Builder Bits 1.0 (ücretsiz sürüm) | https://kaylousberg.itch.io/city-builder-bits | CC0 1.0 | `public/modeller/sokak/` — arka yoldan geçen arabalar (sedan, hatchback, station wagon, taksi; 15 Ekim) |
