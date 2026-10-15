@@ -48,9 +48,13 @@ Burada ve belgede yazmayan bir coğrafi, tarihî ya da kurumsal bilgiyi
 
 ## Henüz kararı verilmemiş — sor, seçme
 
-- Kaç müşteri tipi (çeşit: 14 Ekim'de 29 çeşit kararlaştırıldı, belge bölüm 0).
+Tam liste belgenin 7. bölümünde. Başlıcaları:
+
+- Oyunun adı (15 Ekim: henüz karar yok) ve mevsim / kış dönemi ne zaman.
 - Para modelinin ayrıntıları (14 Ekim: makyaj paketleri satılabilir; gerisi açık).
-- Karakter ve mekân adları — hepsi Kemal'in. Aday önerebilirsin.
+- Karakter ve mekân adları, müşteri yorumları, festival adları — hepsi Kemal'in.
+  Aday önerebilirsin.
+- Müşteri tipi yok (15 Ekim): müşteriler aynı davranır, görünüşleri farklı.
 
 ## Yazı kuralı
 
@@ -58,7 +62,8 @@ Burada ve belgede yazmayan bir coğrafi, tarihî ya da kurumsal bilgiyi
   geçmişleri Kemal'in işi. Mekanik için yer tutucu gerekiyorsa açıkça
   "[YER TUTUCU]" diye işaretle; gerçek metin gibi görünmesin.
 - Ekrandaki her yazı tek bir çeviri dosyasından gelir
-  (`src/metinler/tr.json`); koda gömülmez. İngilizce sonra eklenecek.
+  (`src/metinler/tr.json`); koda gömülmez. İngilizce sıradaki işlerden
+  (belge 0.12); yeni yazı eklenince İngilizcesi de eklenir.
 
 ## 3B modeller
 
@@ -91,6 +96,13 @@ Burada ve belgede yazmayan bir coğrafi, tarihî ya da kurumsal bilgiyi
 9. `npm run build` her iş sonunda hatasız geçmeli.
 10. Her PR `docs/yol-haritasi.md`'yi günceller (neredeyiz, paketler, bitenler,
     sona kalanlar). KKM'deki oyun sayfası onu canlı okur (Kemal, 14 Ekim gece).
+11. **Gece / toplu çalışma** (Kemal, 15 Ekim): Kemal "uyuyorum" ya da benzeri
+    bir şey deyince onay beklemeden sıradaki işlere geç, hepsini **tek PR**'da
+    topla, sabah için kısa bir özet bırak. Kullanım sınırı dolarsa
+    yenilenince kaldığın yerden devam et. Uyanıkken yine tek adım kuralı
+    (madde 2) geçerli.
+12. Kemal'in gönderdiği **konsept görseller fikirdir**: içlerindeki adlar,
+    yerler, yazılar kanon değildir; bir şeyi oradan almadan önce sor.
 
 ## Kapsam
 
@@ -98,20 +110,16 @@ Burada ve belgede yazmayan bir coğrafi, tarihî ya da kurumsal bilgiyi
 
 **Bu deponun işi DEĞİL — dokunma, yazma:**
 - `hkemal94/TheImperialKemskoy` (resepsiyon oyunu, şu an bekliyor)
-- Kems Komuta Merkezi (KKM) deposu
+- Kems Komuta Merkezi (KKM) deposu — **istisna:** KKM'deki oyun sayfasına
+  Kemal'in açıkça istediği işler (yol haritası sekmesi, ayar paneli) KKM'nin
+  kendi kurallarıyla, ayrı PR'la yazılır (Kemal, 14–15 Ekim)
 
 ## İş sırası
 
-1. **İskelet:** proje kurulumu, boş 3B sahne, telefonda açılan önizleme
-   bağlantısı.
-2. **Tezgah yakın planı + kepçe mini oyunu:** altlık seç (külah / kap) →
-   basılı tut, küvete daldır → "MÜKEMMEL" anında bırak → topu yerleştir →
-   servis et. *Çekirdek bu; eğlenceli değilse dur ve Kemal'le konuş.*
-3. **Müşteri sırası:** tezgah önünde sıraya giren 3B müşteriler, üstlerinde
-   sipariş balonu; doğru sipariş → para ve memnuniyet.
-4. **Gün ve saat:** saat akar, kapanışta gün sonu ekranı.
-5. **İzometrik dükkân görünümü** ve iki kamera arası geçiş.
-6. Sonra: yeni çeşitler ve tarif ağacı, fiyatlar, dekorasyon, süsleme ve
-   sos, mevsim (kış: tatlıcı / kafe), hikâye kırıntıları.
+İlk oynanabilir sürüm (iskelet, kepçe, müşteri sırası, gün ve saat,
+izometrik görünüm) ve büyüme, karakterler, liman, kişiselleştirme
+paketleri bitti. **Güncel sıra ve açık işler `docs/yol-haritasi.md`'de**;
+kararların ayrıntısı belgenin 0.12 bölümünde. Sıralamayı Claude yapar;
+Kemal "şimdi" derse o iş öne geçer.
 
-**İlk oynanabilir sürüm = 1–3.** Kemal ve yakın çevresi telefonda dener.
+Kemal ve yakın çevresi web bağlantısından telefonda dener.

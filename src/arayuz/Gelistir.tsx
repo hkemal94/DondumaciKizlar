@@ -16,8 +16,6 @@ import {
   makineSatisFiyati,
   vitrinBuyut,
   cesitAc,
-  DENEME,
-  denemeParasi,
   depodaki,
   esyaAl,
   isikAl,
@@ -324,11 +322,6 @@ export function Gelistir({ kapat }: { kapat: () => void }) {
           <img className="baslik-logo" src={logoAdresi('yazi')} alt="" aria-hidden />
           <h2 id="gelistir-baslik">{m('gelistir.baslik')}</h2>
           <span className="gel-bosluk" />
-          {DENEME && (
-            <button className="dugme gel-kucuk" onClick={denemeParasi}>
-              {m('deneme.para')}
-            </button>
-          )}
           <Para miktar={durum.para} />
           <button className="dugme gel-tamam" onClick={kapat}>
             {m('gelistir.kapat')}
