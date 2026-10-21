@@ -545,6 +545,15 @@ Masa örtüsü, şemsiyeli masanın şemsiyesi ve örtüsü, bank minderi beş r
 
 Dışarıdaki eşyalar konduktan ya da boyandıktan 5 gün sonra güneşte yavaşça solar (günde %3, en çok %30; yalnız görünüş, etkisi yok). Dekorasyon → Genel'de "Dışarıdaki eşyalar · N eşya güneşte soldu" ve **Boya** düğmesi (eşya başına 15 jeton; geçici). Kaldırılıp yeniden konan eşya solukluğunu korur. İçerideki eşyalar solmaz. Eski kayıtlarda eşyalar yüklendiği gün boyanmış sayılır.
 
+### 0.16 Açık işler soru turu (21 Ekim; `docs/soru-cevap/acik-isler-1.md`)
+
+- **Açılış ekranı etiketi:** sol altta "Dondurmacı Kızlar / Düzada, TR / yıl"; yalnız açılış ekranında, yıl cihazın saatinden.
+- **Ekran:** Geliştir kartları ve inşaat kutusu telefona sığmıyor; düzeltilecek (ilk iş).
+- **Görsel dil ve marka:** ikon, arayüz, logo kiti ve tanıtım görselleri; üretim KKM'de. İkonlar dolu, yuvarlak hatlı. Şu anki logo kalır, çeşitleri (kare simge, tek renk, küçük) çıkar. Nerede duracağı (Figma / Canva / KKM) başlarken kararlaşır. 3B model kaynağı (süslemeler dahil): sonra.
+- **DK Lite:** ayrı küçük oyun; dik ekran, 2B çizim, numaralı bölümler. Oynanış: raftan müşteriye gönder (örnek: Tasty Travels; ad ve görseller kanon değil). Dondurma erir; kuralı Claude'un öneri oyunu üzerinden konuşulacak. Can sistemi: 5 can, yarım saatte bir; denemede yok. Para modeli (bekleme / reklam) yayın döneminde. Deposu açık (Kemal KKM'ye soracak). Ekran düzeltmelerinden sonra başlar.
+- **Seyyar dondurma araba:** bekleyen oyun işlerinin ilki. Dekorasyon gibi yerleştirilir; seviyeyle açılır, satın alınır. Sabah "bugün arabada çalış" seçilir; o gün dükkânı yardımcılar işletir, arabada saat hızlı akar (rölanti). Az çeşitle.
+- Oyunun adı ve para modeli: yayına yakın. Mevsim: ilk sürümden sonra (değişmedi).
+
 ## 1. Oyunun özeti ve vizyonu
 
 ### 1.1 Tek cümlelik özet
@@ -655,8 +664,8 @@ toparlamada kalktı (cevaplananlar bölüm 0'da; geçmişi GitHub'da).
 
 | Konu | Durum |
 |---|---|
-| Oyunun adı | Açık (0.12) |
-| Mevsim / kış dönemi ne zaman | Açık (0.12) |
+| Oyunun adı | Yayına yaklaşınca (21 Ekim, 0.16) |
+| Mevsim / kış dönemi ne zaman | İlk sürümden sonra (21 Ekim, 0.16) |
 | Para modelinin ayrıntıları | Makyaj paketleri satılabilir (14 Ekim); gerisi açık |
 | Çalışanın, sahibin, yardımcıların, mekânların adları | Kemal'in |
 | Müşteri yorum cümleleri, hikâye kırıntıları | Kemal'in; o zamana kadar [YER TUTUCU] |
@@ -664,6 +673,7 @@ toparlamada kalktı (cevaplananlar bölüm 0'da; geçmişi GitHub'da).
 | Festival / bayram günleri, adları ve özel çeşitleri | Sonra; Kemal'in |
 | Ayar panelinin oyuna yazma yolu | ~~Açık~~ → **GitHub anahtarı** (Kemal, 15 Ekim): KKM → Oyun → Ayarlar'da "Oyuna gönder" oyunun deposunda PR açar; anahtar yalnız o tarayıcıda durur |
 | Exp sisteminin sayıları | ~~Açık~~ → tablo sunuldu, Kemal "Başla" dedi (15 Ekim); bölüm 0.12 exp tablosu. KKM → Ayarlar'dan değişir |
+| DK Lite deposu, erime kuralı, 3B model kaynağı | Açık (0.16) |
 | Mahalle evleri | Paket adayları gösterilip Kemal seçecek |
 
 ### 7.1 Geçici sayılar
