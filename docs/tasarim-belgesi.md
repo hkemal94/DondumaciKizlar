@@ -547,8 +547,8 @@ Dışarıdaki eşyalar konduktan ya da boyandıktan 5 gün sonra güneşte yava�
 
 ### 0.16 Açık işler soru turu (21 Ekim; `docs/soru-cevap/acik-isler-1.md`)
 
-- **Açılış ekranı etiketi:** sol altta "Dondurmacı Kızlar / Düzada, TR / yıl"; yalnız açılış ekranında, yıl cihazın saatinden.
-- **Ekran:** Geliştir kartları ve inşaat kutusu telefona sığmıyor; düzeltilecek (ilk iş).
+- **Açılış ekranı etiketi:** sol altta "Dondurmacı Kızlar / Düzada, TR / yıl"; yalnız açılış ekranında, yıl cihazın saatinden. Eski künye yazısının yerine geçti (bitti).
+- **Ekran:** Geliştir kartları ve inşaat kutusu telefona sığmıyordu. Bitti: eşya kartları küçük (sırada 5 kart; konfor 🛋, çekicilik ✨ simgeyle), alçak ekranda panel başlığı tek ince satır; inşaat'ta seçim yokken kutu dar, düğmeler alt alta.
 - **Görsel dil ve marka:** ikon, arayüz, logo kiti ve tanıtım görselleri; üretim KKM'de. İkonlar dolu, yuvarlak hatlı. Şu anki logo kalır, çeşitleri (kare simge, tek renk, küçük) çıkar. Nerede duracağı (Figma / Canva / KKM) başlarken kararlaşır. 3B model kaynağı (süslemeler dahil): sonra.
 - **DK Lite:** ayrı küçük oyun; dik ekran, 2B çizim, numaralı bölümler. Oynanış: raftan müşteriye gönder (örnek: Tasty Travels; ad ve görseller kanon değil). Dondurma erir; kuralı Claude'un öneri oyunu üzerinden konuşulacak. Can sistemi: 5 can, yarım saatte bir; denemede yok. Para modeli (bekleme / reklam) yayın döneminde. Deposu açık (Kemal KKM'ye soracak). Ekran düzeltmelerinden sonra başlar.
 - **Seyyar dondurma araba:** bekleyen oyun işlerinin ilki. Dekorasyon gibi yerleştirilir; seviyeyle açılır, satın alınır. Sabah "bugün arabada çalış" seçilir; o gün dükkânı yardımcılar işletir, arabada saat hızlı akar (rölanti). Az çeşitle.
