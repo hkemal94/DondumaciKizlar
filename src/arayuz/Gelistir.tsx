@@ -489,11 +489,11 @@ export function Gelistir({ kapat, ilkSekme = 'dekorasyon' }: { kapat: () => void
               {/* Yerleşen eşyaların toplam konforu ve çekiciliği (belge 0.15b) */}
               <div className="gel-kart acik dukkan-puanlari">
                 <span className="gel-ad">
-                  {m('esya.konfor')} <b>{dukkanPuanlari(durum).konfor}</b>
+                  🛋 {m('esya.konfor')} <b>{dukkanPuanlari(durum).konfor}</b>
                   <span className="gel-aciklama"> · {m('dekor.konforEtki', { ek: ondalik(konforEki(durum), 2) })}</span>
                 </span>
                 <span className="gel-ad">
-                  {m('esya.cekicilik')} <b>{dukkanPuanlari(durum).cekicilik}</b>
+                  ✨ {m('esya.cekicilik')} <b>{dukkanPuanlari(durum).cekicilik}</b>
                   <span className="gel-aciklama"> · {m('dekor.cekicilikEtki')}</span>
                 </span>
               </div>

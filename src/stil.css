@@ -1562,17 +1562,18 @@ a.dugme {
 /* Resimli eşya kartları (14 Ekim) */
 .esya-izgara {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-  gap: 6px;
+  /* Telefonda bir sıraya 5 kart sığsın (Kemal, 21 Ekim: "kartlar ekrana sığmıyor") */
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 5px;
 }
 .esya-kart {
   font: inherit;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1px;
-  padding: 4px 4px 5px;
-  border-radius: 12px;
+  gap: 0;
+  padding: 3px 3px 4px;
+  border-radius: 10px;
   border: 1.5px solid rgba(78, 36, 112, 0.25);
   background: #fff;
   color: var(--mor-koyu);
@@ -1588,11 +1589,11 @@ a.dugme {
   border-color: var(--mor);
 }
 .esya-kart img {
-  width: 64px;
-  height: 64px;
+  width: 44px;
+  height: 44px;
 }
 .esya-kart-ad {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   line-height: 1.15;
   text-align: center;
@@ -1600,8 +1601,8 @@ a.dugme {
 .esya-kart-alt {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
+  gap: 3px;
+  font-size: 11px;
 }
 .esya-kart-alt .para-simge {
   width: 12px;
@@ -3220,4 +3221,65 @@ li.tamam .hedef-ad {
 .esya-renk.secili {
   outline: 2px solid var(--mor-koyu);
   outline-offset: 2px;
+}
+
+/* Alçak telefon ekranı (Kemal, 21 Ekim: "kartlar telefon ekranına sığmıyor"):
+   sağ panelin başlığı tek ince satır, sekmeler ve satırlar sık */
+@media (max-height: 500px) {
+  .sag-zemin .gel-ust .baslik-logo {
+    display: none;
+  }
+  .sag-zemin .gelistir {
+    padding: 6px 10px 8px;
+    gap: 4px;
+  }
+  .sag-zemin .gel-ust h2 {
+    font-size: 14px;
+  }
+  .sag-zemin .gel-ust .gel-para {
+    font-size: 13px;
+  }
+  .sag-zemin .dugme.gel-tamam {
+    font-size: 12px;
+    padding: 3px 12px;
+  }
+  .sag-zemin .gel-sekmeler button {
+    font-size: 11.5px;
+    padding: 3px 9px;
+  }
+  .sag-zemin .gel-icerik {
+    padding-top: 5px;
+  }
+  .sag-zemin .gel-baslik {
+    font-size: 12px;
+    margin: 2px 0;
+  }
+  .sag-zemin .gel-kart {
+    padding: 3px 8px;
+  }
+  .sag-zemin .gel-ad {
+    font-size: 11.5px;
+  }
+  .sag-zemin .gel-liste {
+    gap: 4px;
+  }
+}
+
+/* İnşaat'ta hiçbir şey seçili değilken kutu küçük (Kemal, 21 Ekim): düğmeler
+   alt alta, sahneyi kapatmasın */
+.insaat-panel.bos {
+  width: auto;
+  max-width: min(200px, 30vw);
+  padding: 6px 10px;
+}
+.insaat-panel.bos .insaat-oklar {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+}
+.insaat-panel.bos .insaat-durum {
+  font-size: 10.5px;
+  font-weight: 600;
+  opacity: 0.85;
+  line-height: 1.25;
 }

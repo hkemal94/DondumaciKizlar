@@ -86,14 +86,13 @@ export function AcilisEkrani({ ayarlar }: { ayarlar: () => void }) {
   );
 }
 
-// Künye (belge 0.14; Kemal: "Düzada evreninde olduğumuz belli değil"): sol altta.
-// İlk satır kanondan; ikinci satırın metni Kemal'in
+// Künye (belge 0.14, 0.16): sol altta Kemal'in etiketi (21 Ekim). Yıl cihazın
+// saatinden, her yıl kendiliğinden değişir
 function Kunye() {
   return (
     <div className="acilis-kunye">
-      <b>{m('kunye.yer')}</b>
-      <span>{m('kunye.donem')}</span>
-      <span className="kunye-alt">{m('kunye.metin')}</span>
+      <b>{m('kunye.ad')}</b>
+      <span>{m('kunye.yer', { yil: new Date().getFullYear() })}</span>
     </div>
   );
 }

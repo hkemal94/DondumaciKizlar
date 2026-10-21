@@ -271,7 +271,7 @@ export function InsaatPaneli() {
   return (
     <>
       {icerik && (
-        <div className="insaat-panel">
+        <div className={`insaat-panel ${secili ? '' : 'bos'}`}>
           {secili && (
             <button className="dugme gel-kucuk" onClick={() => parselSec(null)}>
               ← {m('insaat.menu')}
