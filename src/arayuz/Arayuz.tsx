@@ -24,6 +24,7 @@ import {
   haftaGunu,
   saatYazisi,
   havaNe,
+  esyaRengiSec,
   servisEt,
   gunSonunuKapat,
   guneBasla,
@@ -62,7 +63,7 @@ import { EgitimEli, egitimHedefi } from './EgitimEli';
 import { CalisanAdi, CalisanEkrani } from './CalisanEkrani';
 import { dondur, ekrandaKaydir, insaatKamerasi, ortala, yakinlikDegistir } from '../sahne/kameraKarisimi';
 import { DuraklatDugmesi, DuraklatMenusu, GezmeEkrani } from './Duraklat';
-import { ESYALAR, ESYA_BOYU } from '../oyun/dekorasyon';
+import { ESYALAR, ESYA_BOYU, ESYA_RENKLERI, RENKLI_ESYALAR } from '../oyun/dekorasyon';
 
 // Tezgah ekranının düğmeleri, ipucu yazısı, kepçe göstergesi ve sonuç yazısı.
 // Tarz: taslak 1 ve 3 gibi sıcak ahşap paneller.
@@ -367,6 +368,8 @@ function SiparisBalonu() {
           </div>
           {/* Yatay balon (Kemal, 14 Ekim): sağda adlar, sabır ve süsleme rozetleri */}
           <div className="balon-sag">
+            {/* Gedikli müşteri (belge 0.15c) */}
+            {musteri.gedikli && <span className="balon-gedikli">{m('musteri.gedikli')}</span>}
             {/* Çeşitlerin adları: çok çeşit olunca renkler karışmasın */}
             {ekran.balonAdlari && (
               <div className="balon-adlar">
@@ -794,6 +797,20 @@ export function Arayuz() {
                 <button className="dugme esya-cip" onClick={esyaCevir}>
                   ⟳ {m('yerlestir.cevir')}
                 </button>
+              )}
+              {/* Renk (belge 0.15e): masa örtüsü, şemsiye, minder */}
+              {durum.seciliEsya && RENKLI_ESYALAR.includes(durum.seciliEsya) && (
+                <div className="esya-renkleri" aria-label={m('yerlestir.renk')}>
+                  {ESYA_RENKLERI.map((r) => (
+                    <button
+                      key={r.id}
+                      className={`esya-renk ${durum.seciliRenk === r.id ? 'secili' : ''}`}
+                      style={{ background: r.renk }}
+                      aria-label={m(`yerlestir.renk.${r.id}` as MetinAnahtari)}
+                      onClick={() => esyaRengiSec(r.id)}
+                    />
+                  ))}
+                </div>
               )}
               <button className="dugme dugme-servis" onClick={yerlestirmeyiKapat}>
                 {m('yerlestir.bitti')}

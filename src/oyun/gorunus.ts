@@ -9,6 +9,9 @@ export const GORUNUS_GRUPLARI: GorunusGrubu[] = ['disBoya', 'icBoya', 'cerceve',
 // Dışarıdan bakınca görünenler: seçilince duvarlar kapanır, içtekilerde kesit olur
 export const DIS_GRUPLAR: GorunusGrubu[] = ['disBoya', 'cerceve', 'tente', 'cati'];
 
+// İç duvar deseni (belge 0.15d; "Sonraki fikirler": iç duvarda külah / meyve deseni)
+export type DuvarDeseni = 'kulah' | 'meyve' | 'serit';
+
 export type ZeminDeseni = 'tahta' | 'dama' | 'mozaik' | 'karo' | 'terrazzo' | 'cila';
 
 export interface GorunusSecenegi {
@@ -16,6 +19,7 @@ export interface GorunusSecenegi {
   renk: string;
   ikinciRenk?: string; // tente şeridi, zemin deseni
   desen?: ZeminDeseni;
+  duvarDeseni?: DuvarDeseni; // iç duvar kâğıdı (belge 0.15d)
   fiyat: number; // 0 = baştan açık
 }
 
@@ -40,6 +44,9 @@ const KOD_SECENEKLERI: Record<GorunusGrubu, GorunusSecenegi[]> = {
     { id: 'mavi', renk: '#c3dde8', fiyat: 250 },
     { id: 'adacayi', renk: '#cddcc0', fiyat: 250 },
     { id: 'mor', renk: '#9b5fc9', fiyat: 300 },
+    { id: 'kulahDesenli', renk: '#f6ead6', ikinciRenk: '#9b5fc9', duvarDeseni: 'kulah', fiyat: 450 },
+    { id: 'meyveDesenli', renk: '#f7f3ea', ikinciRenk: '#ffc928', duvarDeseni: 'meyve', fiyat: 450 },
+    { id: 'seritli', renk: '#f6ead6', ikinciRenk: '#e8cfe9', duvarDeseni: 'serit', fiyat: 350 },
   ],
   cerceve: [
     { id: 'mor', renk: '#6b3596', fiyat: 0 },

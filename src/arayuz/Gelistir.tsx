@@ -40,6 +40,9 @@ import {
   istasyonKurulu,
   dukkanPuanlari,
   konforEki,
+  solanEsyalar,
+  boyamaFiyati,
+  esyalariBoya,
 } from '../oyun/durum';
 import { ICECEKLER, ICECEK_TANIMI, icecekAcmaFiyati } from '../oyun/makine';
 import { IcecekResmi } from './MakineArayuzu';
@@ -50,6 +53,7 @@ import { EN_YUKSEK_ISIK, ESYALAR, ISIK_SEVIYELERI, type Esya } from '../oyun/dek
 import { m, ondalik, type MetinAnahtari } from '../metinler';
 import { Kilit } from './Seviye';
 import { logoAdresi } from '../sahne/logo';
+import { duvarDokusu } from '../sahne/zeminDokusu';
 
 // Dükkânı geliştir (belge 2.4 ve 4; taslak 3): yeni çeşitler, fiyat,
 // dekorasyon. Gün sonu ekranından açılır. Sayılar geçici (belge 7.4).
@@ -155,9 +159,13 @@ function FiyatEkrani() {
 }
 
 // Seçeneğin küçük örneği: düz renk, iki renkli şerit ya da zemin deseni
-function GorunusOrnegi({ s }: { s: Pick<GorunusSecenegi, 'renk' | 'ikinciRenk' | 'desen'> }) {
+function GorunusOrnegi({ s }: { s: Pick<GorunusSecenegi, 'renk' | 'ikinciRenk' | 'desen' | 'duvarDeseni'> }) {
   const b = s.ikinciRenk;
-  const arka = !b
+  // İç duvar deseni (belge 0.15d): dokunun kendisi küçültülmüş
+  const duvar = s.duvarDeseni ? duvarDokusu(s as GorunusSecenegi) : null;
+  const arka = duvar
+    ? `url(${(duvar.image as HTMLCanvasElement).toDataURL()}) 0 0 / 22px 22px`
+    : !b
     ? s.renk
     : s.desen === 'dama'
       ? `repeating-conic-gradient(${s.renk} 0 25%, ${b} 0 50%) 0 0 / 14px 14px`
@@ -488,6 +496,21 @@ export function Gelistir({ kapat, ilkSekme = 'dekorasyon' }: { kapat: () => void
                   {m('esya.cekicilik')} <b>{dukkanPuanlari(durum).cekicilik}</b>
                   <span className="gel-aciklama"> · {m('dekor.cekicilikEtki')}</span>
                 </span>
+              </div>
+              {/* Yumuşak yıpranma (belge 0.15f): dışarıda solan eşyalar boyanır */}
+              <div className={`gel-kart ${solanEsyalar(durum).length ? '' : 'acik'}`}>
+                <span className="gel-ad">
+                  {m('dekor.boya')}
+                  <span className="gel-aciklama">
+                    {' '}
+                    · {solanEsyalar(durum).length ? m('dekor.solan', { sayi: solanEsyalar(durum).length }) : m('dekor.solanYok')}
+                  </span>
+                </span>
+                {solanEsyalar(durum).length > 0 && (
+                  <button className="dugme gel-al" disabled={durum.para < boyamaFiyati(durum)} onClick={esyalariBoya}>
+                    {m('dekor.boyaDugme')} <Para miktar={boyamaFiyati(durum)} />
+                  </button>
+                )}
               </div>
               <div className="gel-kart acik">
                 <span className="gel-ad">

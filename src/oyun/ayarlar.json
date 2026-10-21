@@ -183,6 +183,54 @@
         }
       }
     },
+    "gedikli": {
+      "ad": "Gedikli müşteriler",
+      "aciklama": "Belge 0.15c: çok memnun kalan dondurma müşterisi bazen gedikli olur, sonra ara sıra yine gelir; ilk topu hep sevdiği çeşit",
+      "ayarlar": {
+        "olmaOlasiligi": {
+          "ad": "Çok memnun müşterinin gedikli olma olasılığı",
+          "deger": 15,
+          "birim": "%"
+        },
+        "gelmeOlasiligi": {
+          "ad": "Gelen dondurma müşterisinin gedikli olma olasılığı",
+          "deger": 20,
+          "birim": "%",
+          "not": "Gedikli varsa ve sevdiği çeşit vitrinde ve stokta ise"
+        },
+        "enCok": {
+          "ad": "En çok gedikli sayısı",
+          "deger": 8,
+          "birim": "kişi"
+        }
+      }
+    },
+    "yipranma": {
+      "ad": "Yumuşak yıpranma",
+      "aciklama": "Belge 0.15f: dışarıdaki eşyalar güneşte yavaşça solar (yalnız görünüş, ceza yok); Dekorasyon'dan boyanır",
+      "ayarlar": {
+        "baslangic": {
+          "ad": "Solmaya başlamadan önce",
+          "deger": 5,
+          "birim": "gün"
+        },
+        "gunluk": {
+          "ad": "Günde solma",
+          "deger": 3,
+          "birim": "%"
+        },
+        "enCok": {
+          "ad": "En çok solma",
+          "deger": 30,
+          "birim": "%"
+        },
+        "boyaFiyati": {
+          "ad": "Bir eşyayı boyama",
+          "deger": 15,
+          "birim": "jeton"
+        }
+      }
+    },
     "kepce": {
       "ad": "Kepçe",
       "aciklama": "Top doldurma mini oyunu",
@@ -1100,6 +1148,21 @@
         "icBoya.mor": {
           "ad": "İç duvar: Mor",
           "deger": 300,
+          "birim": "jeton"
+        },
+        "icBoya.kulahDesenli": {
+          "ad": "İç duvar: külah desenli",
+          "deger": 450,
+          "birim": "jeton"
+        },
+        "icBoya.meyveDesenli": {
+          "ad": "İç duvar: meyve desenli",
+          "deger": 450,
+          "birim": "jeton"
+        },
+        "icBoya.seritli": {
+          "ad": "İç duvar: şeritli",
+          "deger": 350,
           "birim": "jeton"
         },
         "cerceve.mor": {

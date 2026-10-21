@@ -529,6 +529,22 @@ konusunda komple assetlere ihtiyacımız olabilir."
 
 Her eşyanın 0–3 **konfor** ve 0–3 **çekicilik** puanı var; mağaza kartında yazar. Yerleşen eşyaların toplamı Geliştir → Dekorasyon → Genel'de görünür. **Konfor** her servis edilen müşterinin memnuniyetine küçük ek yapar (puan başına 0,03 yıldız, en çok 0,4; geçici); **çekicilik** müşterileri daha sık getirir (eskiden her eşya eşit sayılıyordu). Puanlar `src/oyun/dekorasyon.ts`'te, etkiler ayar dosyasında (`cekicilik` bölümü). Renk seçeneği ve yıpranma bu maddenin kalanı, sonra.
 
+### 0.15c Gedikli müşteriler (Kemal, 16 Ekim gece: "her işi bir öncekinin üzerine yaz")
+
+Çok memnun kalan (4,5 yıldız ve üstü) dondurma müşterisi bazen (%15) **gedikli** olur; kayan yazıda haber çıkar. Sonra gelen dondurma müşterilerinin bir kısmı (%20) gediklilerden biridir: aynı görünüşte gelir, balonunda "♥ Gedikli" yazar, ilk topu hep sevdiği çeşittir (vitrinde ve stokta ise). En çok 8 gedikli. Adları yok (adlar Kemal'in). Oranlar ayar dosyasında (`gedikli` bölümü).
+
+### 0.15d İç duvar deseni ("Sonraki fikirler": iç duvarda külah / meyve deseni)
+
+Görünüş → İç duvar'da üç desenli seçenek: **külahlı** (mor ve sarı toplu külahlar), **meyveli** (limon ve kiraz), **şeritli** (lila-krem dikey şerit). Desen 50 cm'de bir tekrar eder; koddan çizilir. Fiyatlar geçici (450, 450, 350).
+
+### 0.15e Eşya renkleri (exp soru turundaki "Eşyalar: renk seçeneği")
+
+Masa örtüsü, şemsiyeli masanın şemsiyesi ve örtüsü, bank minderi beş renkten seçilir (mor, sarı, Ege mavisi, kiremit, yeşil); bedava. Yerleştirirken "Bitti"nin yanındaki renk düğmeleriyle; konmuş eşyaya dokununca kalkar, renk değiştirilip yine konur. Yıpranma sonra.
+
+### 0.15f Yumuşak yıpranma (exp soru turu: "solar, istenirse boyanır; ceza yok")
+
+Dışarıdaki eşyalar konduktan ya da boyandıktan 5 gün sonra güneşte yavaşça solar (günde %3, en çok %30; yalnız görünüş, etkisi yok). Dekorasyon → Genel'de "Dışarıdaki eşyalar · N eşya güneşte soldu" ve **Boya** düğmesi (eşya başına 15 jeton; geçici). Kaldırılıp yeniden konan eşya solukluğunu korur. İçerideki eşyalar solmaz. Eski kayıtlarda eşyalar yüklendiği gün boyanmış sayılır.
+
 ## 1. Oyunun özeti ve vizyonu
 
 ### 1.1 Tek cümlelik özet
