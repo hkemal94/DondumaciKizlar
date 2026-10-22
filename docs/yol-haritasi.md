@@ -1,6 +1,6 @@
 # Dondurmacı Kızlar · Yol haritası
 
-Son güncelleme: **21 Ekim 2026**. Bu dosya her PR'da güncellenir. KKM →
+Son güncelleme: **22 Ekim 2026**. Bu dosya her PR'da güncellenir. KKM →
 Oyun → Dondurmacı Kızlar → **Yol haritası** sekmesi onu buradan canlı okur.
 Kararların ayrıntısı `docs/tasarim-belgesi.md`'de (son turlar: bölüm 0.12);
 bu sayfa yalnız nerede olduğumuzu ve sırayı gösterir. Sıralamayı Claude
@@ -90,6 +90,7 @@ yapar; Kemal "şimdi" demedikçe işler bu sırayla gider.
 - Küpeler kulak memesinde; hesap ve bulut kayıt kodu hazır (Google ile bağlan, iki kayıt farklıysa seçim), Firebase kurulumu bekliyor · [#58](https://github.com/hkemal94/DondumaciKizlar/pull/58)
 - Hava durumu: güneşli, çok sıcak, bulutlu, yağmurlu; hafif etki, gün sonunda yarının tahmini, bazen gün içinde değişir; eşyalara konfor ve çekicilik puanı · [#59](https://github.com/hkemal94/DondumaciKizlar/pull/59)
 - Gedikli müşteriler; iç duvar deseni; masa / şemsiye / minder rengi; dışarıdaki eşyalar güneşte solar, boyanır · bu PR
+- Yazı tipi Poppins: bütün arayüz yazıları (Kemal, 22 Ekim; belge 0.7), dosyalar oyunun içinde · öneri PR'ı (`ajans/poppins`)
 
 ## Bilinen eksikler
 

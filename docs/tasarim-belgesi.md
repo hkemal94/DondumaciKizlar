@@ -253,6 +253,7 @@ Hepsini tek oyun gibi göstermek için tasarım dili (onay: 14 Ekim):
 | Işık ve yüzey | Tek sıcak güneş + gökyüzü dolgusu; her şey mat (cam ve metal hafif parlar); köşeli görünüm; doku yalnız zemin tahtası ve fayansta; gölgeyi yalnız büyük eşyalar ve insanlar verir; siyah kontur yok |
 | Ölçü | 1 m ızgara. Yetişkin 1,70 m (1,55–1,85 karışık), çocuk 1,10–1,30, tezgah 0,95, masa 0,75, oturak 0,45, kapı 2,15, tavan 3,25 |
 | Nasıl | Oyun her modeli yüklerken boyunu ölçüye getirir, renklerini palete çevirir (renk tonu paletten, açıklık modelin kendisiyle paletinkinin karışımı), yüzeyini mat yapar. Yanlış tona giden renkler için parça başına küçük bir **boya tablosu** ("şu renge yakın her şey şu renge"); Kenney paketlerinin hepsi aynı renk tablosunu paylaştığı için tek tablo yeter (`src/sahne/tasarimDili.ts`) |
+| Yazı tipi | **Poppins** (Kemal, 22 Ekim: iki oyunun ortak tasarım dili; marka kiti her yerde Poppins). Bütün arayüz yazıları; dosyalar oyunun içinde (`public/yazitipi/`, internet gerekmez), kalınlıklar 400, 500, 600, 700. Satır aralığı eski görünüme yakın tutuldu (1,2) |
 | Sıra | 1) tasarım dili sayfası (onaylandı), 2) her paketten 2–3 parça önce / sonra denemesi, 3) oyuna yayma (karakterler K2 ile değişir, boy sorunu böyle çözülür) |
 
 ### 0.8 Yol haritası, test kolaylıkları, ekran (Kemal, 14 Ekim gece soru turu)
