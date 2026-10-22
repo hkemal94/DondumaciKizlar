@@ -19,5 +19,6 @@ paket eklenince buraya yazılır.
 | Kenney Pirate Kit | https://kenney.nl/assets/pirate-kit | CC0 1.0 | `public/modeller/kiyi/` — kumsalda kayalar, iskele başında fıçı ve sandıklar (15 Ekim) |
 | KayKit — City Builder Bits 1.0 (ücretsiz sürüm) | https://kaylousberg.itch.io/city-builder-bits | CC0 1.0 | `public/modeller/sokak/` — arka yoldan geçen arabalar (sedan, hatchback, station wagon, taksi; 15 Ekim) |
 | Tiny Treats — Charming Kitchen 1.1 (ücretsiz sürüm) | https://tinytreats.itch.io/charming-kitchen | CC0 1.0 | `public/modeller/tezgah/kettle.glb` — arka tezgahta su ısıtıcı (M5; 15 Ekim gece). Önce vitrin ve bar aday sayfası için indirildi |
+| Poppins (yazı tipi; Fontsource 5.3.0 paketinden woff2) | https://github.com/itfoundry/Poppins · https://fonts.google.com/specimen/Poppins | SIL Open Font License 1.1 (lisans metni `public/yazitipi/OFL.txt`) | `public/yazitipi/` — bütün arayüz yazıları; 400, 500, 600, 700 kalınlıkları, Latin ve Latin genişletilmiş (Türkçe harfler) parçaları (22 Ekim) |
 
 Arka tezgah ürünleri (`public/modeller/tezgah/`, belge 0.14): Kenney Food Kit (fincan, tabak, bardak, şişe, kutu, külah, sundae, krem şanti, meyveler), Kenney Furniture Kit (kahve makinesi, blender), Tiny Treats Bakery (espresso makinesi, yazar kasa, sarı kupa), KayKit Restaurant (kavanozlar). Hepsi yukarıdaki paketlerden, CC0.
